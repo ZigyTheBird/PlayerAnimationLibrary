@@ -1,0 +1,39 @@
+architectury {
+    common rootProject.enabled_platforms.split(',')
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/player_animation_library.accesswidener")
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.jetbrains:annotations:23.0.0'
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "zigythebirdmods"
+            url = "https://maven.zigythebird.com/mods"
+            credentials(PasswordCredentials)
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            groupId = "com.zigythebird.playeranim"
+            artifactId = "playeranim-common-$minecraft_version"
+            version = rootProject.mod_version
+            from components.java
+        }
+    }
+}

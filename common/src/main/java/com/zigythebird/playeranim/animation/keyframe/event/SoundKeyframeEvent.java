@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2020.
+ * Author: Bernie G. (Gecko)
+ */
+
+package com.zigythebird.playeranim.animation.keyframe.event;
+
+import com.zigythebird.playeranim.animation.AnimationController;
+import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
+import net.minecraft.client.player.AbstractClientPlayer;
+
+/**
+ * The {@link KeyFrameEvent} specific to the {@link AnimationController#soundKeyframeHandler}
+ * <p>
+ * Called when a sound instruction keyframe is encountered
+ */
+public class SoundKeyframeEvent extends KeyFrameEvent<SoundKeyframeData> {
+	public SoundKeyframeEvent(AbstractClientPlayer player, double animationTick, AnimationController controller,
+							  SoundKeyframeData keyFrameData, AnimationState animationState) {
+		super(player, animationTick, controller, keyFrameData, animationState);
+	}
+
+	@Override
+	public SoundKeyframeData getKeyframeData() {
+		return super.getKeyframeData();
+	}
+}

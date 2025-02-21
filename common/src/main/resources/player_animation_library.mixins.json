@@ -1,0 +1,30 @@
+{
+  "required": true,
+  "package": "com.zigythebird.playeranim.mixin",
+  "plugin": "com.zigythebird.playeranim.ModMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+    "ArmorFeatureRendererMixin",
+    "HumanoidModelMixin",
+    "CapeLayerAccessor",
+    "CapeLayerMixin_noBend",
+    "ElytraLayerMixin_noBend",
+    "FeatureRendererMixin",
+    "ItemInHandLayerMixin",
+    "LivingEntityRendererMixin",
+    "ModelPartMixin",
+    "PlayerModelMixin",
+    "PlayerRendererMixin",
+    "PlayerRenderStateMixin",
+    "AbstractClientPlayerMixin",
+    "firstPerson.EntityRenderDispatcherMixin",
+    "firstPerson.ItemInHandRendererMixin",
+    "firstPerson.LevelRendererMixin",
+    "firstPerson.LivingEntityRendererMixin"
+  ],
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
