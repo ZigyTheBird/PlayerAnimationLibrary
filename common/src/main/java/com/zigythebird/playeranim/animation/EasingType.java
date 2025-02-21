@@ -3,9 +3,8 @@ package com.zigythebird.playeranim.animation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.zigythebird.playeranim.ModInit;
-import com.zigythebird.playeranim.math.MathParser;
+import gg.moonflower.molangcompiler.api.MolangEnvironment;
 import gg.moonflower.molangcompiler.api.exception.MolangRuntimeException;
-import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import net.minecraft.util.Mth;
 import com.zigythebird.playeranim.animation.keyframe.AnimationPoint;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
@@ -13,6 +12,7 @@ import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Functional interface defining an easing function
@@ -60,23 +60,23 @@ public interface EasingType {
 	EasingType EASE_IN_OUT_BOUNCE = register("easeinoutbounce", value -> easeInOut(bounce(value)));
 	EasingType CATMULLROM = register("catmullrom", value -> easeInOut(EasingType::catmullRom));
 
-	Double2DoubleFunction buildTransformer(Double value);
+	Function<Float, Float> buildTransformer(Float value);
 
-	static double lerpWithOverride(AnimationPoint animationPoint, EasingType override) {
+	static double lerpWithOverride(MolangEnvironment env, AnimationPoint animationPoint, EasingType override) {
 		EasingType easingType = override;
 
 		if (override == null)
 			easingType = animationPoint.keyFrame() == null ? LINEAR : animationPoint.keyFrame().easingType();
 
-		return easingType.apply(animationPoint);
+		return easingType.apply(env, animationPoint);
 	}
 
-	default double apply(AnimationPoint animationPoint) {
-		Double easingVariable = null;
+	default double apply(MolangEnvironment env, AnimationPoint animationPoint) {
+		Float easingVariable = null;
 
 		try {
-			if (animationPoint.keyFrame() != null && animationPoint.keyFrame().easingArgs().size() > 0)
-				easingVariable = (double) animationPoint.keyFrame().easingArgs().getFirst().get(MathParser.ENVIRONMENT);
+			if (animationPoint.keyFrame() != null && !animationPoint.keyFrame().easingArgs().isEmpty())
+				easingVariable = env.resolve(animationPoint.keyFrame().easingArgs().getFirst());
 		} catch (MolangRuntimeException e) {
 			ModInit.LOGGER.error(e.getMessage());
 		}
@@ -84,7 +84,7 @@ public interface EasingType {
 		return apply(animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
 	}
 
-	default double apply(AnimationPoint animationPoint, Double easingValue, double lerpValue) {
+	default double apply(AnimationPoint animationPoint, Float easingValue, float lerpValue) {
 		if (animationPoint.currentTick() >= animationPoint.transitionLength())
 			return (float)animationPoint.animationEndValue();
 
@@ -136,7 +136,7 @@ public interface EasingType {
 	/**
 	 * Returns an easing function running linearly. Functionally equivalent to no easing
 	 */
-	static Double2DoubleFunction linear(Double2DoubleFunction function) {
+	static Function<Float, Float> linear(Function<Float, Float> function) {
 		return function;
 	}
 	
@@ -145,7 +145,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="https://pub.dev/documentation/latlong2/latest/spline/CatmullRom-class.html">CatmullRom#position</a>
 	 */
-	static double catmullRom(double n) {
+	static float catmullRom(float n) {
 		return (0.5f * (2.0f * (n + 1) + ((n + 2) - n) * 1
 				+ (2.0f * n - 5.0f * (n + 1) + 4.0f * (n + 2) - (n + 3)) * 1
 				+ (3.0f * (n + 1) - n - 3.0f * (n + 2) + (n + 3)) * 1));
@@ -154,43 +154,28 @@ public interface EasingType {
 	/**
 	 * Returns an easing function running forward in time
 	 */
-	static Double2DoubleFunction easeIn(Double2DoubleFunction function) {
+	static Function<Float, Float> easeIn(Function<Float, Float> function) {
 		return function;
 	}
 
 	/**
 	 * Returns an easing function running backwards in time
 	 */
-	static Double2DoubleFunction easeOut(Double2DoubleFunction function) {
+	static Function<Float, Float> easeOut(Function<Float, Float> function) {
 		return time -> 1 - function.apply(1 - time);
 	}
 
 	/**
 	 * Returns an easing function that runs equally both forwards and backwards in time based on the halfway point, generating a symmetrical curve
 	 */
-	static Double2DoubleFunction easeInOut(Double2DoubleFunction function) {
+	static Function<Float, Float> easeInOut(Function<Float, Float> function) {
 		return time -> {
-			if (time < 0.5d)
-				return function.apply(time * 2d) / 2d;
+			if (time < 0.5F) {
+				return function.apply(time * 2F) / 2F;
+			}
 
-			return 1 - function.apply((1 - time) * 2d) / 2d;
+			return 1 - function.apply((1 - time) * 2F) / 2F;
 		};
-	}
-
-	// ---> Stepping Functions <--- //
-
-	/**
-	 * Returns a stepping function that returns 1 for any input value greater than 0, or otherwise returning 0
-	 */
-	static Double2DoubleFunction stepPositive(Double2DoubleFunction function) {
-		return n -> n > 0 ? 1 : 0;
-	}
-
-	/**
-	 * Returns a stepping function that returns 1 for any input value greater than or equal to 0, or otherwise returning 0
-	 */
-	static Double2DoubleFunction stepNonNegative(Double2DoubleFunction function) {
-		return n -> n >= 0 ? 1 : 0;
 	}
 
 	// ---> Mathematical Functions <--- //
@@ -200,7 +185,7 @@ public interface EasingType {
 	 * <p>
 	 * {@code f(n) = n}
 	 */
-	static double linear(double n) {
+	static float linear(float n) {
 		return n;
 	}
 
@@ -211,7 +196,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInQuad">Easings.net#easeInQuad</a>
 	 */
-	static double quadratic(double n) {
+	static float quadratic(float n) {
 		return n * n;
 	}
 
@@ -222,7 +207,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInCubic">Easings.net#easeInCubic</a>
 	 */
-	static double cubic(double n) {
+	static float cubic(float n) {
 		return n * n * n;
 	}
 
@@ -233,8 +218,8 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInSine">Easings.net#easeInSine</a>
 	 */
-	static double sine(double n) {
-		return 1 - Math.cos(n * Math.PI / 2f);
+	static float sine(float n) {
+		return 1 - (float) Math.cos(n * Math.PI / 2F);
 	}
 
 	/**
@@ -244,8 +229,8 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInCirc">Easings.net#easeInCirc</a>
 	 */
-	static double circle(double n) {
-		return 1 - Math.sqrt(1 - n * n);
+	static float circle(float n) {
+		return 1 - (float) Math.sqrt(1 - n * n);
 	}
 
 	/**
@@ -255,8 +240,8 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInExpo">Easings.net#easeInExpo</a>
 	 */
-	static double exp(double n) {
-		return Math.pow(2, 10 * (n - 1));
+	static float exp(float n) {
+		return (float) Math.pow(2, 10 * (n - 1));
 	}
 
 	// ---> Easing Curve Functions <--- //
@@ -270,10 +255,10 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInElastic">Easings.net#easeInElastic</a>
 	 */
-	static Double2DoubleFunction elastic(Double n) {
-		double n2 = n == null ? 1 : n;
+	static Function<Float, Float> elastic(Float n) {
+		float n2 = n == null ? 1 : n;
 
-		return t -> 1 - Math.pow(Math.cos(t * Math.PI / 2f), 3) * Math.cos(t * n2 * Math.PI);
+		return t -> (float) (1 - Math.pow(Math.cos(t * Math.PI / 2f), 3) * Math.cos(t * n2 * Math.PI));
 	}
 
 	/**
@@ -285,13 +270,13 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInBounce">Easings.net#easeInBounce</a>
 	 */
-	static Double2DoubleFunction bounce(Double n) {
-		final double n2 = n == null ? 0.5d : n;
+	static Function<Float, Float> bounce(Float n) {
+		final float n2 = n == null ? 0.5F : n;
 
-		Double2DoubleFunction one = x -> 121f / 16f * x * x;
-		Double2DoubleFunction two = x -> 121f / 4f * n2 * Math.pow(x - 6f / 11f, 2) + 1 - n2;
-		Double2DoubleFunction three = x -> 121 * n2 * n2 * Math.pow(x - 9f / 11f, 2) + 1 - n2 * n2;
-		Double2DoubleFunction four = x -> 484 * n2 * n2 * n2 * Math.pow(x - 10.5f / 11f, 2) + 1 - n2 * n2 * n2;
+		Function<Float, Float> one = x -> 121f / 16f * x * x;
+		Function<Float, Float> two = x -> (float) (121f / 4f * n2 * Math.pow(x - 6f / 11f, 2) + 1 - n2);
+		Function<Float, Float> three = x -> (float) (121 * n2 * n2 * Math.pow(x - 9f / 11f, 2) + 1 - n2 * n2);
+		Function<Float, Float> four = x -> (float) (484 * n2 * n2 * n2 * Math.pow(x - 10.5f / 11f, 2) + 1 - n2 * n2 * n2);
 
 		return t -> Math.min(Math.min(one.apply(t), two.apply(t)), Math.min(three.apply(t), four.apply(t)));
 	}
@@ -303,8 +288,8 @@ public interface EasingType {
 	 * <p>
 	 * <a href="https://easings.net/#easeInBack">Easings.net#easeInBack</a>
 	 */
-	static Double2DoubleFunction back(Double n) {
-		final double n2 = n == null ? 1.70158d : n * 1.70158d;
+	static Function<Float, Float> back(Float n) {
+		final float n2 = n == null ? 1.70158F : n * 1.70158F;
 
 		return t -> t * t * ((n2 + 1) * t - n2);
 	}
@@ -316,8 +301,8 @@ public interface EasingType {
 	 *
 	 * @param n The exponent
 	 */
-	static Double2DoubleFunction pow(double n) {
-		return t -> Math.pow(t, n);
+	static Function<Float, Float> pow(float n) {
+		return t -> (float) Math.pow(t, n);
 	}
 
 	// The MIT license notice below applies to the function step
@@ -347,8 +332,8 @@ public interface EasingType {
 	 * Returns a stepped value based on the nearest step to the input value.<br>
 	 * The size (grade) of the steps depends on the provided value of {@code n}
 	 **/
-	static Double2DoubleFunction step(Double n) {
-		double n2 = n == null ? 2 : n;
+	static Function<Float, Float> step(Float n) {
+		float n2 = n == null ? 2 : n;
 
 		if (n2 < 2)
 			throw new IllegalArgumentException("Steps must be >= 2, got: " + n2);
@@ -356,12 +341,12 @@ public interface EasingType {
 		final int steps = (int)n2;
 
 		return t -> {
-			double result = 0;
+			float result = 0;
 
 			if (t < 0)
 				return result;
 
-			double stepLength = (1 / (double)steps);
+			float stepLength = (1 / (float)steps);
 
 			if (t > (result = (steps - 1) * stepLength))
 				return result;

@@ -22,20 +22,36 @@ import java.util.*;
 
 @ApiStatus.Internal
 public class AnimationProcessor {
-	/**
-	 * Don't touch this! I don't see why you would even want to.
-	 */
-	public static final AnimationProcessor INSTANCE;
 	private final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 
-	private double animTime;
-	private double lastGameTickTime;
+	private float animTime;
+	private float lastGameTickTime;
 	private long lastRenderedInstance = -1;
-	private AbstractClientPlayer player;
+	private final AbstractClientPlayer player;
 
 	public boolean reloadAnimations = false;
 
-	public AnimationProcessor() {}
+	/**
+	 * Each AnimationProcessor must be bound to a player
+	 * @param player The player to whom this processor is bound
+	 */
+	public AnimationProcessor(AbstractClientPlayer player) {
+		this.player = player;
+
+		//Todo: Make an event where you can add custom body parts here
+		PlayerAnimBone body = new PlayerAnimBone(null, "body");
+		new PlayerAnimBone(body, "right_arm");
+		new PlayerAnimBone(body, "left_arm");
+		new PlayerAnimBone(body, "right_leg");
+		new PlayerAnimBone(body, "left_leg");
+		new PlayerAnimBone(body, "head");
+		new PlayerAnimBone(body, "torso");
+		new PlayerAnimBone(body, "right_item");
+		new PlayerAnimBone(body, "left_item");
+		new PlayerAnimBone(body, "cape");
+		new PlayerAnimBone(body, "elytra");
+		this.registerPlayerAnimBone(body);
+	}
 
 	public void saveInitialModelState(ModelPart head, ModelPart torso, ModelPart rightArm, ModelPart leftArm, ModelPart rightLeg, ModelPart leftLeg) {
 		this.getBone("head").setInitialSnapshot(head);
@@ -51,22 +67,21 @@ public class AnimationProcessor {
 	 * <p>
 	 * It is an internal method for automated animation parsing.
 	 */
-	public void handleAnimations(AbstractClientPlayer player, float partialTick) {
-		this.player = player;
+	public void handleAnimations(float partialTick) {
 		Vec3 velocity = player.getDeltaMovement();
 		float avgVelocity = (float)((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
 		AnimationState animationState = new AnimationState(player, partialTick, avgVelocity >= 0.015F);
-		animationState.setData(DataTickets.TICK, (double)player.tickCount);
+		animationState.setData(DataTickets.TICK, (float)player.tickCount);
 		animationState.setData(DataTickets.ENTITY, player);
 
 		Minecraft mc = Minecraft.getInstance();
 		PlayerAnimManager animatableManager = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
-		double currentTick = player.tickCount;
+		float currentTick = player.tickCount;
 
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + partialTick);
 
-		double currentFrameTime = currentTick + partialTick;
+		float currentFrameTime = currentTick + partialTick;
 		boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
 
 		if (isReRender && player.getId() == this.lastRenderedInstance)
@@ -75,7 +90,7 @@ public class AnimationProcessor {
 		if (!mc.isPaused()) {
 			animatableManager.updatedAt(currentFrameTime);
 
-			double lastUpdateTime = animatableManager.getLastUpdateTime();
+			float lastUpdateTime = animatableManager.getLastUpdateTime();
 			this.animTime += lastUpdateTime - this.lastGameTickTime;
 			this.lastGameTickTime = lastUpdateTime;
 		}
@@ -90,11 +105,10 @@ public class AnimationProcessor {
 	/**
 	 * Build an animation queue for the given {@link RawAnimation}
 	 *
-	 * @param player The player object being rendered
 	 * @param rawAnimation The raw animation to be compiled
 	 * @return A queue of animations and loop types to play
 	 */
-	public Queue<QueuedAnimation> buildAnimationQueue(AbstractClientPlayer player, RawAnimation rawAnimation) {
+	public Queue<QueuedAnimation> buildAnimationQueue(RawAnimation rawAnimation) {
 		LinkedList<QueuedAnimation> animations = new LinkedList<>();
 		boolean error = false;
 
@@ -109,10 +123,9 @@ public class AnimationProcessor {
 					animation = PlayerAnimCache.getAnimation(stage.animationID());
 				}
 				catch (RuntimeException ex) {
-					ModInit.LOGGER.error("Unable to find animation: " + stage.animationID() + " for " + player.getClass().getSimpleName());
+					ModInit.LOGGER.error("Unable to find animation: " + stage.animationID() + " for " + player.getClass().getSimpleName(), ex);
 
 					error = true;
-					ex.printStackTrace();
 				}
 			}
 
@@ -132,7 +145,7 @@ public class AnimationProcessor {
 	 * @param state                 An {@link AnimationState} instance applied to this render frame
 	 * @param crashWhenCantFindBone Whether to crash if unable to find a required bone, or to continue with the remaining bones
 	 */
-	public void tickAnimation(AbstractClientPlayer player, PlayerAnimManager playerAnimManager, double animTime, AnimationState state, boolean crashWhenCantFindBone) {
+	public void tickAnimation(AbstractClientPlayer player, PlayerAnimManager playerAnimManager, float animTime, AnimationState state, boolean crashWhenCantFindBone) {
 		Map<String, BoneSnapshot> boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
 
 		for (Pair<Integer, IAnimation> pair : playerAnimManager.getLayers()) {
@@ -169,35 +182,35 @@ public class AnimationProcessor {
 					EasingType easingType = controller.overrideEasingTypeFunction.apply(player);
 
 					if (rotXPoint != null && rotYPoint != null && rotZPoint != null) {
-						bone.setRotX((float) EasingType.lerpWithOverride(rotXPoint, easingType) + initialSnapshot.getRotX());
-						bone.setRotY((float) EasingType.lerpWithOverride(rotYPoint, easingType) + initialSnapshot.getRotY());
-						bone.setRotZ((float) EasingType.lerpWithOverride(rotZPoint, easingType) + initialSnapshot.getRotZ());
+						bone.setRotX((float) EasingType.lerpWithOverride(controller.molangRuntime, rotXPoint, easingType) + initialSnapshot.getRotX());
+						bone.setRotY((float) EasingType.lerpWithOverride(controller.molangRuntime, rotYPoint, easingType) + initialSnapshot.getRotY());
+						bone.setRotZ((float) EasingType.lerpWithOverride(controller.molangRuntime, rotZPoint, easingType) + initialSnapshot.getRotZ());
 						snapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
 						snapshot.startRotAnim();
 						bone.markRotationAsChanged();
 					}
 
 					if (posXPoint != null && posYPoint != null && posZPoint != null) {
-						bone.setPosX((float) EasingType.lerpWithOverride(posXPoint, easingType));
-						bone.setPosY((float) EasingType.lerpWithOverride(posYPoint, easingType));
-						bone.setPosZ((float) EasingType.lerpWithOverride(posZPoint, easingType));
+						bone.setPosX((float) EasingType.lerpWithOverride(controller.molangRuntime, posXPoint, easingType));
+						bone.setPosY((float) EasingType.lerpWithOverride(controller.molangRuntime, posYPoint, easingType));
+						bone.setPosZ((float) EasingType.lerpWithOverride(controller.molangRuntime, posZPoint, easingType));
 						snapshot.updateOffset(bone.getPosX(), bone.getPosY(), bone.getPosZ());
 						snapshot.startPosAnim();
 						bone.markPositionAsChanged();
 					}
 
 					if (scaleXPoint != null && scaleYPoint != null && scaleZPoint != null) {
-						bone.setScaleX((float) EasingType.lerpWithOverride(scaleXPoint, easingType));
-						bone.setScaleY((float) EasingType.lerpWithOverride(scaleYPoint, easingType));
-						bone.setScaleZ((float) EasingType.lerpWithOverride(scaleZPoint, easingType));
+						bone.setScaleX((float) EasingType.lerpWithOverride(controller.molangRuntime, scaleXPoint, easingType));
+						bone.setScaleY((float) EasingType.lerpWithOverride(controller.molangRuntime, scaleYPoint, easingType));
+						bone.setScaleZ((float) EasingType.lerpWithOverride(controller.molangRuntime, scaleZPoint, easingType));
 						snapshot.updateScale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 						snapshot.startScaleAnim();
 						bone.markScaleAsChanged();
 					}
 
 					if (bendAxisPoint != null && bendPoint != null) {
-						bone.setBendAxis((float) EasingType.lerpWithOverride(bendAxisPoint, easingType));
-						bone.setBend((float) EasingType.lerpWithOverride(bendPoint, easingType));
+						bone.setBendAxis((float) EasingType.lerpWithOverride(controller.molangRuntime, bendAxisPoint, easingType));
+						bone.setBend((float) EasingType.lerpWithOverride(controller.molangRuntime, bendPoint, easingType));
 						snapshot.updateBend(bone.getBendAxis(), bone.getBend());
 						snapshot.startBendAnim();
 						bone.markBendAsChanged();
@@ -377,22 +390,4 @@ public class AnimationProcessor {
 	 * used to define a playable animation stage for a player
 	 */
 	public record QueuedAnimation(Animation animation, Animation.LoopType loopType) {}
-
-	static {
-		AnimationProcessor animationProcessor = new AnimationProcessor();
-		//Todo: Make an event where you can add custom body parts here
-		PlayerAnimBone body = new PlayerAnimBone(null, "body");
-		new PlayerAnimBone(body, "right_arm");
-		new PlayerAnimBone(body, "left_arm");
-		new PlayerAnimBone(body, "right_leg");
-		new PlayerAnimBone(body, "left_leg");
-		new PlayerAnimBone(body, "head");
-		new PlayerAnimBone(body, "torso");
-		new PlayerAnimBone(body, "right_item");
-		new PlayerAnimBone(body, "left_item");
-		new PlayerAnimBone(body, "cape");
-		new PlayerAnimBone(body, "elytra");
-		animationProcessor.registerPlayerAnimBone(body);
-		INSTANCE = animationProcessor;
-	}
 }

@@ -1,6 +1,7 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
+import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,9 @@ public class PlayerRenderStateMixin implements IPlayerAnimationState {
 
     @Unique
     PlayerAnimManager playerAnimLib$playerAnimManager = null;
+
+    @Unique
+    AnimationProcessor playerAnimLib$playerAnimProcessor = null;
 
     @Override
     public boolean playerAnimLib$isLocalPlayer() {
@@ -46,6 +50,16 @@ public class PlayerRenderStateMixin implements IPlayerAnimationState {
     @Override
     public @NotNull PlayerAnimManager playerAnimLib$getAnimManager() {
         return this.playerAnimLib$playerAnimManager;
+    }
+
+    @Override
+    public void playerAnimLib$setAnimProcessor(AnimationProcessor processor) {
+        this.playerAnimLib$playerAnimProcessor = processor;
+    }
+
+    @Override
+    public AnimationProcessor playerAnimLib$getAnimProcessor() {
+        return this.playerAnimLib$playerAnimProcessor;
     }
 }
 

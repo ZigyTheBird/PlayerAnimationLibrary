@@ -9,7 +9,7 @@ import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranim.math.MathParser;
+import com.zigythebird.playeranim.math.MolangParser;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.util.JsonUtil;
 import gg.moonflower.molangcompiler.api.MolangExpression;
@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 public class BakedAnimationsAdapter {
-	public static final ObjectArrayList NO_EASING_ARGS = new ObjectArrayList<>();
-
 	public static Map<String, Animation> deserialize(JsonElement json) throws RuntimeException {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
@@ -32,16 +30,8 @@ public class BakedAnimationsAdapter {
 		for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
 			try {
 				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject()));
-			}
-			catch (Exception ex) {
-				if (ex instanceof CompoundException compoundEx) {
-					ModInit.LOGGER.error(compoundEx.withMessage("Unable to parse animation: " + entry.getKey()).getLocalizedMessage());
-				}
-				else {
-					ModInit.LOGGER.error("Unable to parse animation: " + entry.getKey());
-				}
-
-				ex.printStackTrace();
+			} catch (Exception ex) {
+				ModInit.LOGGER.error("Unable to parse animation: {}", entry.getKey(), ex);
 			}
 		}
 
@@ -65,17 +55,17 @@ public class BakedAnimationsAdapter {
 			Integer key = entry.getFirst();
 			Vec3 keyFrameVector = entry.getSecond();
 
-			double prevTime = prevEntry != null ? prevEntry.getFirst() : 0;
-			double curTime = key;
-			double timeDelta = curTime - prevTime;
+			float prevTime = prevEntry != null ? prevEntry.getFirst() : 0;
+			float curTime = key;
+			float timeDelta = curTime - prevTime;
 
 			MolangExpression xValue = MolangExpression.of((float) keyFrameVector.x);
 			MolangExpression yValue = MolangExpression.of((float) keyFrameVector.y);
 			MolangExpression zValue = MolangExpression.of((float) keyFrameVector.z);
 
-			xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, EasingType.LINEAR, NO_EASING_ARGS));
-			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, EasingType.LINEAR, NO_EASING_ARGS));
-			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, EasingType.LINEAR, NO_EASING_ARGS));
+			xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, EasingType.LINEAR));
+			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, EasingType.LINEAR));
+			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, EasingType.LINEAR));
 
 			xPrev = xValue;
 			yPrev = yValue;
@@ -196,20 +186,17 @@ public class BakedAnimationsAdapter {
 			if (key.equals("easing") || key.equals("easingArgs") || key.equals("lerp_mode"))
 				continue;
 
-			double prevTime = prevEntry != null ? Double.parseDouble(prevEntry.getFirst()) : 0;
-			double curTime = NumberUtils.isCreatable(key) ? Double.parseDouble(entry.getFirst()) : 0;
-			double timeDelta = curTime - prevTime;
+			float prevTime = prevEntry != null ? Float.parseFloat(prevEntry.getFirst()) : 0;
+			float curTime = NumberUtils.isCreatable(key) ? Float.parseFloat(entry.getFirst()) : 0;
+			float timeDelta = curTime - prevTime;
 
 			boolean isForRotation = type == TransformType.ROTATION;
-			float defaultValue = type == TransformType.SCALE ? 1 : 0;
+			MolangExpression defaultValue = MolangExpression.of(type == TransformType.SCALE ? 1 : 0);
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
-			MolangExpression rawXValue = MathParser.parseJson(keyFrameVector.get(0), defaultValue);
-			MolangExpression rawYValue = MathParser.parseJson(keyFrameVector.get(1), defaultValue);
-			MolangExpression rawZValue = MathParser.parseJson(keyFrameVector.get(2), defaultValue);
-			MolangExpression xValue = isForRotation && rawXValue.isConstant() ? MolangExpression.of((float) Math.toRadians(-rawXValue.getConstant())) : rawXValue;
-			MolangExpression yValue = isForRotation && rawYValue.isConstant() ? MolangExpression.of((float) Math.toRadians(-rawYValue.getConstant())) : rawYValue;
-			MolangExpression zValue = isForRotation && rawZValue.isConstant() ? MolangExpression.of((float) Math.toRadians(rawZValue.getConstant())) : rawZValue;
+			MolangExpression xValue = MolangParser.parseJson(isForRotation, keyFrameVector.get(0), defaultValue);
+			MolangExpression yValue = MolangParser.parseJson(isForRotation, keyFrameVector.get(1), defaultValue);
+			MolangExpression zValue = MolangParser.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
@@ -221,8 +208,8 @@ public class BakedAnimationsAdapter {
 			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
 			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
 
-			xPrev = xValue;
 			yPrev = yValue;
+			xPrev = xValue;
 			zPrev = zValue;
 			prevEntry = entry;
 		}
