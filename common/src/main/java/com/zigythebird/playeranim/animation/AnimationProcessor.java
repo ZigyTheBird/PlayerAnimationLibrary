@@ -374,7 +374,7 @@ public class AnimationProcessor {
 		}
 	}
 
-	public AbstractClientPlayer getLastPlayer() {
+	public AbstractClientPlayer getPlayer() {
 		return this.player;
 	}
 

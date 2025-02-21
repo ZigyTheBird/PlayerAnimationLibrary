@@ -13,6 +13,10 @@ public class MolangParser {
     public static final MolangCompiler COMPILER = MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, MolangParser.class.getClassLoader());
 
     public static MolangExpression parseJson(boolean isForRotation, JsonElement element, MolangExpression defaultValue) {
+        return MolangParser.parseJson(isForRotation, 1, element, defaultValue);
+    }
+
+    public static MolangExpression parseJson(boolean isForRotation, int multi, JsonElement element, MolangExpression defaultValue) {
         MolangExpression raw;
         try {
             raw = MolangParser.COMPILER.compile(element.getAsString());
@@ -21,7 +25,7 @@ public class MolangParser {
             raw = defaultValue;
         }
         if (isForRotation) {
-            return raw.isConstant() ? MolangExpression.of((float) Math.toRadians(-raw.getConstant())) : raw;
+            return raw.isConstant() ? MolangExpression.of((float) Math.toRadians(raw.getConstant() * multi)) : raw;
         }
         return raw;
     }

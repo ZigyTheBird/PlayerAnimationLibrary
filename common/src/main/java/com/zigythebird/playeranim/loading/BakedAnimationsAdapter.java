@@ -194,8 +194,8 @@ public class BakedAnimationsAdapter {
 			MolangExpression defaultValue = MolangExpression.of(type == TransformType.SCALE ? 1 : 0);
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
-			MolangExpression xValue = MolangParser.parseJson(isForRotation, keyFrameVector.get(0), defaultValue);
-			MolangExpression yValue = MolangParser.parseJson(isForRotation, keyFrameVector.get(1), defaultValue);
+			MolangExpression xValue = MolangParser.parseJson(isForRotation, -1, keyFrameVector.get(0), defaultValue);
+			MolangExpression yValue = MolangParser.parseJson(isForRotation, -1, keyFrameVector.get(1), defaultValue);
 			MolangExpression zValue = MolangParser.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
@@ -208,8 +208,8 @@ public class BakedAnimationsAdapter {
 			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
 			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
 
-			yPrev = yValue;
 			xPrev = xValue;
+			yPrev = yValue;
 			zPrev = zValue;
 			prevEntry = entry;
 		}
