@@ -28,9 +28,9 @@ public class PlayerAnimManager implements IAnimation {
 	private Map<DataTicket<?>, Object> extraData;
 	private AbstractClientPlayer player;
 
-	private double lastUpdateTime;
+	private float lastUpdateTime;
 	private boolean isFirstTick = true;
-	private double firstTickTime = -1;
+	private float firstTickTime = -1;
 	private float tickDelta;
 
 	public PlayerAnimManager(AbstractClientPlayer player) {
@@ -53,19 +53,19 @@ public class PlayerAnimManager implements IAnimation {
 		getBoneSnapshotCollection().clear();
 	}
 
-	public double getLastUpdateTime() {
+	public float getLastUpdateTime() {
 		return this.lastUpdateTime;
 	}
 
-	public void updatedAt(double updateTime) {
+	public void updatedAt(float updateTime) {
 		this.lastUpdateTime = updateTime;
 	}
 
-	public double getFirstTickTime() {
+	public float getFirstTickTime() {
 		return this.firstTickTime;
 	}
 
-	public void startedAt(double time) {
+	public void startedAt(float time) {
 		this.firstTickTime = time;
 	}
 
