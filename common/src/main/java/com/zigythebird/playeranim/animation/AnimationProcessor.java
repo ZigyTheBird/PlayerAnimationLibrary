@@ -5,11 +5,9 @@ import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.keyframe.AnimationPoint;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimationQueue;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.api.PlayerAnimationEvents;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.cache.PlayerAnimCache;
 import com.zigythebird.playeranim.dataticket.DataTickets;
-import com.zigythebird.playeranim.math.MolangQueries;
 import com.zigythebird.playeranim.math.Pair;
 import com.zigythebird.playeranim.math.Vec3f;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -33,6 +31,7 @@ public class AnimationProcessor {
 	private double animTime;
 	private double lastGameTickTime;
 	private long lastRenderedInstance = -1;
+	private AbstractClientPlayer player;
 
 	public boolean reloadAnimations = false;
 
@@ -53,6 +52,7 @@ public class AnimationProcessor {
 	 * It is an internal method for automated animation parsing.
 	 */
 	public void handleAnimations(AbstractClientPlayer player, float partialTick) {
+		this.player = player;
 		Vec3 velocity = player.getDeltaMovement();
 		float avgVelocity = (float)((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
 		AnimationState animationState = new AnimationState(player, partialTick, avgVelocity >= 0.015F);
@@ -82,8 +82,6 @@ public class AnimationProcessor {
 
 		animationState.animationTick = this.animTime;
 		this.lastRenderedInstance = player.getId();
-
-		this.preAnimationSetup(animationState, this.animTime);
 
 		if (!this.getRegisteredBones().isEmpty())
 			this.tickAnimation(player, animatableManager, this.animTime, animationState, false);
@@ -363,19 +361,15 @@ public class AnimationProcessor {
 		}
 	}
 
+	public AbstractClientPlayer getLastPlayer() {
+		return this.player;
+	}
+
 	/**
 	 * Get an iterable collection of the {@link PlayerAnimBone PlayerAnimBones} currently registered to the processor
 	 */
 	public Collection<PlayerAnimBone> getRegisteredBones() {
 		return this.bones.values();
-	}
-
-	/**
-	 * Apply transformations and settings prior to acting on any animation-related functionality
-	 */
-	public void preAnimationSetup(AnimationState animationState, double animTime) {
-		MolangQueries.updateActor(animationState, animTime);
-		PlayerAnimationEvents.APPLY_MOLANG_QUERIES.invoker().applyMolangQueries(animationState, animTime);
 	}
 
 	/**

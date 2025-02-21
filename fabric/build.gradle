@@ -32,6 +32,9 @@ dependencies {
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
+
+    implementation "gg.moonflower:molang-compiler:$rootProject.molang_compiler_version"
+    shadowBundle "gg.moonflower:molang-compiler:$rootProject.molang_compiler_version"
 }
 
 processResources {
@@ -45,6 +48,7 @@ processResources {
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
+    relocate 'gg.moonflower.molangcompiler', 'com.zigythebird.playeranim.molangcompiler'
 }
 
 remapJar {

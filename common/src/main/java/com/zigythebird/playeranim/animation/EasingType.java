@@ -2,6 +2,9 @@ package com.zigythebird.playeranim.animation;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.math.MathParser;
+import gg.moonflower.molangcompiler.api.exception.MolangRuntimeException;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import net.minecraft.util.Mth;
 import com.zigythebird.playeranim.animation.keyframe.AnimationPoint;
@@ -71,8 +74,12 @@ public interface EasingType {
 	default double apply(AnimationPoint animationPoint) {
 		Double easingVariable = null;
 
-		if (animationPoint.keyFrame() != null && animationPoint.keyFrame().easingArgs().size() > 0)
-			easingVariable = animationPoint.keyFrame().easingArgs().get(0).get();
+		try {
+			if (animationPoint.keyFrame() != null && animationPoint.keyFrame().easingArgs().size() > 0)
+				easingVariable = (double) animationPoint.keyFrame().easingArgs().getFirst().get(MathParser.ENVIRONMENT);
+		} catch (MolangRuntimeException e) {
+			ModInit.LOGGER.error(e.getMessage());
+		}
 
 		return apply(animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
 	}
