@@ -1,18 +1,19 @@
 package com.zigythebird.playeranim.mixin;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.accessors.IPlayerModel;
-import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -136,6 +137,20 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
         //this.leftPants.visible = visible;
         //this.rightPants.visible = visible;
         //this.jacket.visible = visible;
+    }
+
+    @WrapWithCondition(method = "translateToHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
+    private boolean translateToHand(ModelPart modelPart, PoseStack poseStack) {
+        if (((IMutableModel)this).playerAnimLib$getAnimation() != null && ((IMutableModel)this).playerAnimLib$getAnimation().isActive()) {
+            poseStack.translate(modelPart.x / 16.0F, modelPart.y / 16.0F, modelPart.z / 16.0F);
+            if (modelPart.xRot != 0.0F || modelPart.yRot != 0.0F || modelPart.zRot != 0.0F) {
+                poseStack.mulPose(new Quaternionf().rotationZYX(modelPart.zRot, modelPart.yRot, modelPart.xRot));
+            }
+            poseStack.translate(0, (modelPart.yScale - 1) * 0.609375, (modelPart.zScale - 1) * 0.0625);
+
+            return false;
+        }
+        return true;
     }
 
     @Override
