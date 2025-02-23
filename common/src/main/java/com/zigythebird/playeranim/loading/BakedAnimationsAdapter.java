@@ -5,14 +5,14 @@ import com.mojang.datafixers.util.Pair;
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;
+import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranim.math.MathParser;
-import com.zigythebird.playeranim.math.MathValue;
-import com.zigythebird.playeranim.math.value.Constant;
+import com.zigythebird.playeranim.math.MolangParser;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.util.JsonUtil;
+import gg.moonflower.molangcompiler.api.MolangExpression;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.GsonHelper;
@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 public class BakedAnimationsAdapter {
-	public static final ObjectArrayList NO_EASING_ARGS = new ObjectArrayList<>();
-
 	public static Map<String, Animation> deserialize(JsonElement json) throws RuntimeException {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
@@ -32,50 +30,42 @@ public class BakedAnimationsAdapter {
 		for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
 			try {
 				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject()));
-			}
-			catch (Exception ex) {
-				if (ex instanceof CompoundException compoundEx) {
-					ModInit.LOGGER.error(compoundEx.withMessage("Unable to parse animation: " + entry.getKey()).getLocalizedMessage());
-				}
-				else {
-					ModInit.LOGGER.error("Unable to parse animation: " + entry.getKey());
-				}
-
-				ex.printStackTrace();
+			} catch (Exception ex) {
+				ModInit.LOGGER.error("Unable to parse animation: {}", entry.getKey(), ex);
 			}
 		}
 
 		return animations;
 	}
 
-	public static KeyframeStack<Keyframe<MathValue>> buildKeyframeStackFromPlayerAnim(List<Pair<Integer, Vec3>> entries) throws CompoundException {
+	public static KeyframeStack<Keyframe<MolangExpression>> buildKeyframeStackFromPlayerAnim(List<Pair<Integer, Vec3>> entries) throws CompoundException {
 		if (entries.isEmpty())
 			return new KeyframeStack<>();
 
-		List<Keyframe<MathValue>> xFrames = new ObjectArrayList<>();
-		List<Keyframe<MathValue>> yFrames = new ObjectArrayList<>();
-		List<Keyframe<MathValue>> zFrames = new ObjectArrayList<>();
+		List<Keyframe<MolangExpression>> xFrames = new ObjectArrayList<>();
+		List<Keyframe<MolangExpression>> yFrames = new ObjectArrayList<>();
+		List<Keyframe<MolangExpression>> zFrames = new ObjectArrayList<>();
 
-		MathValue xPrev = null;
-		MathValue yPrev = null;
-		MathValue zPrev = null;
+		MolangExpression xPrev = null;
+		MolangExpression yPrev = null;
+		MolangExpression zPrev = null;
 		Pair<Integer, Vec3> prevEntry = null;
 
 		for (Pair<Integer, Vec3> entry : entries) {
 			Integer key = entry.getFirst();
 			Vec3 keyFrameVector = entry.getSecond();
 
-			double prevTime = prevEntry != null ? prevEntry.getFirst() : 0;
-			double curTime = key;
-			double timeDelta = curTime - prevTime;
+			float prevTime = prevEntry != null ? prevEntry.getFirst() : 0;
+			float curTime = key;
+			float timeDelta = curTime - prevTime;
 
-			MathValue xValue = new Constant(keyFrameVector.x);
-			MathValue yValue = new Constant(keyFrameVector.y);
-			MathValue zValue = new Constant(keyFrameVector.z);
+			MolangExpression xValue = MolangExpression.of((float) keyFrameVector.x);
+			MolangExpression yValue = MolangExpression.of((float) keyFrameVector.y);
+			MolangExpression zValue = MolangExpression.of((float) keyFrameVector.z);
 
-			xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, EasingType.LINEAR, NO_EASING_ARGS));
-			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, EasingType.LINEAR, NO_EASING_ARGS));
-			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, EasingType.LINEAR, NO_EASING_ARGS));
+			xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, EasingType.LINEAR));
+			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, EasingType.LINEAR));
+			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, EasingType.LINEAR));
 
 			xPrev = xValue;
 			yPrev = yValue;
@@ -105,13 +95,13 @@ public class BakedAnimationsAdapter {
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
 			if (entry.getKey().endsWith("_bend")) continue;
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
-			KeyframeStack<Keyframe<MathValue>> scaleFrames = buildKeyframeStack(getTripletObj(entryObj.get("scale")), false);
-			KeyframeStack<Keyframe<MathValue>> positionFrames = buildKeyframeStack(getTripletObj(entryObj.get("position")), false);
-			KeyframeStack<Keyframe<MathValue>> rotationFrames = buildKeyframeStack(getTripletObj(entryObj.get("rotation")), true);
-			KeyframeStack<Keyframe<MathValue>> bendFrames;
+			KeyframeStack<Keyframe<MolangExpression>> scaleFrames = buildKeyframeStack(getTripletObj(entryObj.get("scale")), TransformType.SCALE);
+			KeyframeStack<Keyframe<MolangExpression>> positionFrames = buildKeyframeStack(getTripletObj(entryObj.get("position")), TransformType.POSITION);
+			KeyframeStack<Keyframe<MolangExpression>> rotationFrames = buildKeyframeStack(getTripletObj(entryObj.get("rotation")), TransformType.ROTATION);
+			KeyframeStack<Keyframe<MolangExpression>> bendFrames;
 
 			if (bonesObj.has(entry.getKey() + "_bend")) {
-				bendFrames = buildKeyframeStack(getTripletObj(bonesObj.get(entry.getKey() + "_bend").getAsJsonObject().get("rotation")), true);
+				bendFrames = buildKeyframeStack(getTripletObj(bonesObj.get(entry.getKey() + "_bend").getAsJsonObject().get("rotation")), TransformType.BEND);
 			}
 			else bendFrames = new KeyframeStack<>();
 
@@ -176,17 +166,17 @@ public class BakedAnimationsAdapter {
 		throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
 	}
 
-	private static KeyframeStack<Keyframe<MathValue>> buildKeyframeStack(List<Pair<String, JsonElement>> entries, boolean isForRotation) throws CompoundException {
+	private static KeyframeStack<Keyframe<MolangExpression>> buildKeyframeStack(List<Pair<String, JsonElement>> entries, TransformType type) throws CompoundException {
 		if (entries.isEmpty())
 			return new KeyframeStack<>();
 
-		List<Keyframe<MathValue>> xFrames = new ObjectArrayList<>();
-		List<Keyframe<MathValue>> yFrames = new ObjectArrayList<>();
-		List<Keyframe<MathValue>> zFrames = new ObjectArrayList<>();
+		List<Keyframe<MolangExpression>> xFrames = new ObjectArrayList<>();
+		List<Keyframe<MolangExpression>> yFrames = new ObjectArrayList<>();
+		List<Keyframe<MolangExpression>> zFrames = new ObjectArrayList<>();
 
-		MathValue xPrev = null;
-		MathValue yPrev = null;
-		MathValue zPrev = null;
+		MolangExpression xPrev = null;
+		MolangExpression yPrev = null;
+		MolangExpression zPrev = null;
 		Pair<String, JsonElement> prevEntry = null;
 
 		for (Pair<String, JsonElement> entry : entries) {
@@ -196,22 +186,22 @@ public class BakedAnimationsAdapter {
 			if (key.equals("easing") || key.equals("easingArgs") || key.equals("lerp_mode"))
 				continue;
 
-			double prevTime = prevEntry != null ? Double.parseDouble(prevEntry.getFirst()) : 0;
-			double curTime = NumberUtils.isCreatable(key) ? Double.parseDouble(entry.getFirst()) : 0;
-			double timeDelta = curTime - prevTime;
+			float prevTime = prevEntry != null ? Float.parseFloat(prevEntry.getFirst()) : 0;
+			float curTime = NumberUtils.isCreatable(key) ? Float.parseFloat(entry.getFirst()) : 0;
+			float timeDelta = curTime - prevTime;
+
+			boolean isForRotation = type == TransformType.ROTATION;
+			MolangExpression defaultValue = MolangExpression.of(type == TransformType.SCALE ? 1 : 0);
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
-			MathValue rawXValue = MathParser.parseJson(keyFrameVector.get(0));
-			MathValue rawYValue = MathParser.parseJson(keyFrameVector.get(1));
-			MathValue rawZValue = MathParser.parseJson(keyFrameVector.get(2));
-			MathValue xValue = isForRotation && rawXValue instanceof Constant ? new Constant(Math.toRadians(-rawXValue.get())) : rawXValue;
-			MathValue yValue = isForRotation && rawYValue instanceof Constant ? new Constant(Math.toRadians(-rawYValue.get())) : rawYValue;
-			MathValue zValue = isForRotation && rawZValue instanceof Constant ? new Constant(Math.toRadians(rawZValue.get())) : rawZValue;
+			MolangExpression xValue = MolangParser.parseJson(isForRotation, -1, keyFrameVector.get(0), defaultValue);
+			MolangExpression yValue = MolangParser.parseJson(isForRotation, -1, keyFrameVector.get(1), defaultValue);
+			MolangExpression zValue = MolangParser.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
-			List<MathValue> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
-					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> new Constant(ele.getAsDouble())) :
+			List<MolangExpression> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
+					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> MolangExpression.of((float) ele.getAsDouble())) :
 					new ObjectArrayList<>();
 
 			xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));

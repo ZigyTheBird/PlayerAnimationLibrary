@@ -25,7 +25,7 @@ public final class DataTickets {
 	public static final DataTicket<ItemStack> ITEMSTACK = new DataTicket<>("itemstack", ItemStack.class);
 	public static final DataTicket<Entity> ENTITY = new DataTicket<>("entity", Entity.class);
 	public static final DataTicket<EquipmentSlot> EQUIPMENT_SLOT = new DataTicket<>("equipment_slot", EquipmentSlot.class);
-	public static final DataTicket<Double> TICK = new DataTicket<>("tick", Double.class);
+	public static final DataTicket<Float> TICK = new DataTicket<>("tick", Float.class);
 	public static final DataTicket<ItemDisplayContext> ITEM_RENDER_PERSPECTIVE = new DataTicket<>("item_render_perspective", ItemDisplayContext.class);
 
 	//Todo: Implement data tickets and serializable data tickets in a way useful to mod developers.

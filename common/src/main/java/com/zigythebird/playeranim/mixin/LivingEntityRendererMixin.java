@@ -3,7 +3,6 @@ package com.zigythebird.playeranim.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranim.math.MolangQueries;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,7 +26,6 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
                 && state.playerAnimLib$isCameraEntity()) {
             playerAnimLib$setAllPartsVisible(true);
         }
-        MolangQueries.clearActor();
     }
 
     @Unique

@@ -32,6 +32,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         PlayerAnimManager animation = ((IAnimatedPlayer) abstractClientPlayer).playerAnimLib$getAnimManager();
         animation.setTickDelta(f);
 
+        ((IPlayerAnimationState)playerRenderState).playerAnimLib$setAnimProcessor(((IAnimatedPlayer) abstractClientPlayer).playerAnimLib$getAnimProcessor());
         ((IPlayerAnimationState)playerRenderState).playerAnimLib$setAnimManager(animation);
         ((IPlayerAnimationState)playerRenderState).playerAnimLib$setLocalPlayer(abstractClientPlayer.isLocalPlayer());
         ((IPlayerAnimationState)playerRenderState).playerAnimLib$setLocalPlayer(abstractClientPlayer == Minecraft.getInstance().cameraEntity);

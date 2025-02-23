@@ -17,7 +17,7 @@ public class AnimationState {
 	private final float partialTick;
 	private final boolean isMoving;
 	private final Map<DataTicket<?>, Object> extraData = new Object2ObjectOpenHashMap<>();
-	public double animationTick;
+	public float animationTick;
 
 	public AnimationState(AbstractClientPlayer player, float partialTick, boolean isMoving) {
 		this.player = player;
@@ -29,7 +29,7 @@ public class AnimationState {
 	 * Gets the amount of ticks that have passed in either the current transition or
 	 * animation, depending on the controller's AnimationState.
 	 */
-	public double getAnimationTick() {
+	public float getAnimationTick() {
 		return this.animationTick;
 	}
 

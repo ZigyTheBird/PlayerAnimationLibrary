@@ -24,6 +24,8 @@ public abstract class AbstractClientPlayerMixin implements IAnimatedPlayer {
     private final Map<ResourceLocation, IAnimation> playerAnimLib$modAnimationData = new HashMap<>();
     @Unique
     private final PlayerAnimManager playerAnimLib$animationManager = playerAnimLib$createAnimationStack();
+    @Unique
+    private final AnimationProcessor playerAnimLib$animationProcessor = new AnimationProcessor((AbstractClientPlayer) (Object) this);
 
     @Unique
     private PlayerAnimManager playerAnimLib$createAnimationStack() {
@@ -47,6 +49,11 @@ public abstract class AbstractClientPlayerMixin implements IAnimatedPlayer {
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
         playerAnimLib$animationManager.tick();
-        AnimationProcessor.INSTANCE.handleAnimations((AbstractClientPlayer)(Object)this, Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true));
+        this.playerAnimLib$animationProcessor.handleAnimations(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true));
+    }
+
+    @Override
+    public AnimationProcessor playerAnimLib$getAnimProcessor() {
+        return this.playerAnimLib$animationProcessor;
     }
 }

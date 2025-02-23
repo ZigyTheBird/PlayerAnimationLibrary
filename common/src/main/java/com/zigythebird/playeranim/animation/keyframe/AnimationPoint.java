@@ -14,7 +14,7 @@ package com.zigythebird.playeranim.animation.keyframe;
  * @param animationEndValue The end value to provide to the animation handling system
  * @param keyFrame The {@code Nullable} Keyframe
  */
-public record AnimationPoint(Keyframe<?> keyFrame, double currentTick, double transitionLength, double animationStartValue, double animationEndValue) {
+public record AnimationPoint(Keyframe<?> keyFrame, float currentTick, float transitionLength, float animationStartValue, float animationEndValue) {
 	@Override
 	public String toString() {
 		return "Tick: " + this.currentTick +
