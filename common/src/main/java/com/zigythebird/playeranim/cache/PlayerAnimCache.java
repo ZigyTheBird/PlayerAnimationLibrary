@@ -48,7 +48,9 @@ public final class PlayerAnimCache {
 
 		for (var resource: manager.listResources("player_animations", resourceLocation -> resourceLocation.getPath().endsWith(".json")).entrySet()) {
 			try {
-				loadPlayerAnim(resource.getKey(), resource.getValue().open());
+				ResourceLocation key = resource.getKey();
+				String[] splitPath = key.getPath().split("/");
+				loadPlayerAnim(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), splitPath[splitPath.length-1]), resource.getValue().open());
 			}
 			catch (Exception e) {
 				ModInit.LOGGER.error("Player Animation Library failed to load animation " + resource.getKey() + " because: " + e.getMessage());
@@ -73,7 +75,7 @@ public final class PlayerAnimCache {
 				}
 				Map<String, Animation> anim = BakedAnimationsAdapter.deserialize(modifiedJson);
 				for (Map.Entry<String, Animation> entry : anim.entrySet()) {
-					ANIMATIONS.put(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), entry.getKey()), entry.getValue());
+					ANIMATIONS.put(ResourceLocation.parse(entry.getKey()), entry.getValue());
 				}
 			}
 			else {
@@ -81,7 +83,9 @@ public final class PlayerAnimCache {
 				ANIMATIONS.put(id, animation);
 			}
 		}
-		catch (Exception ignore) {}
+		catch (Exception e) {
+			ModInit.LOGGER.error("Player Animation Library failed to load animation " + id + " : " + e);
+		}
 	}
 
 	public static Animation loadLegacyPlayerAnim(JsonElement json) {

@@ -31,7 +31,7 @@ public final class PlayerAnimationAccess {
      * @throws IllegalArgumentException if the given argument is not a player, or api mixins have failed (normally never)
      * @implNote data is stored in the player object (using mixins), using it is more efficient than any objectMap as objectMap solution does not know when to delete the data.
      */
-    public static @Nullable IAnimation getPlayerAnimator(@NotNull AbstractClientPlayer player, @NotNull ResourceLocation id) {
+    public static @Nullable IAnimation getPlayerAnimationLayer(@NotNull AbstractClientPlayer player, @NotNull ResourceLocation id) {
         if (player instanceof IAnimatedPlayer animatedPlayer) {
             return animatedPlayer.playerAnimLib$getAnimation(id);
         } else throw new IllegalArgumentException(player + " is not a player or library mixins failed");

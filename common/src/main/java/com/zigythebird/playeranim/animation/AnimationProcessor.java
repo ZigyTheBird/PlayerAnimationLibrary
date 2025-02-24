@@ -39,27 +39,17 @@ public class AnimationProcessor {
 		this.player = player;
 
 		//Todo: Make an event where you can add custom body parts here
-		PlayerAnimBone body = new PlayerAnimBone(null, "body");
-		new PlayerAnimBone(body, "right_arm");
-		new PlayerAnimBone(body, "left_arm");
-		new PlayerAnimBone(body, "right_leg");
-		new PlayerAnimBone(body, "left_leg");
-		new PlayerAnimBone(body, "head");
-		new PlayerAnimBone(body, "torso");
-		new PlayerAnimBone(body, "right_item");
-		new PlayerAnimBone(body, "left_item");
-		new PlayerAnimBone(body, "cape");
-		new PlayerAnimBone(body, "elytra");
-		this.registerPlayerAnimBone(body);
-	}
-
-	public void saveInitialModelState(ModelPart head, ModelPart torso, ModelPart rightArm, ModelPart leftArm, ModelPart rightLeg, ModelPart leftLeg) {
-		this.getBone("head").setInitialSnapshot(head);
-		this.getBone("torso").setInitialSnapshot(torso);
-		this.getBone("right_arm").setInitialSnapshot(rightArm);
-		this.getBone("left_arm").setInitialSnapshot(leftArm);
-		this.getBone("right_leg").setInitialSnapshot(rightLeg);
-		this.getBone("left_leg").setInitialSnapshot(leftLeg);
+		this.registerPlayerAnimBone("body");
+		this.registerPlayerAnimBone("right_arm");
+		this.registerPlayerAnimBone("left_arm");
+		this.registerPlayerAnimBone("right_leg");
+		this.registerPlayerAnimBone("left_leg");
+		this.registerPlayerAnimBone("head");
+		this.registerPlayerAnimBone("torso");
+		this.registerPlayerAnimBone("right_item");
+		this.registerPlayerAnimBone("left_item");
+		this.registerPlayerAnimBone("cape");
+		this.registerPlayerAnimBone("elytra");
 	}
 
 	/**
@@ -75,7 +65,7 @@ public class AnimationProcessor {
 		animationState.setData(DataTickets.ENTITY, player);
 
 		Minecraft mc = Minecraft.getInstance();
-		PlayerAnimManager animatableManager = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
+		PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
 		float currentTick = player.tickCount;
 
 		if (animatableManager.getFirstTickTime() == -1)
@@ -358,6 +348,10 @@ public class AnimationProcessor {
 		return this.bones.get(boneName);
 	}
 
+	private void registerPlayerAnimBone(String name) {
+		registerPlayerAnimBone(new PlayerAnimBone(null, name));
+	}
+
 	/**
 	 * Adds the given bone to the bones list for this processor
 	 * <p>
@@ -368,10 +362,6 @@ public class AnimationProcessor {
 	private void registerPlayerAnimBone(PlayerAnimBone bone) {
 		bone.saveInitialSnapshot();
 		this.bones.put(bone.getName(), bone);
-
-		for (PlayerAnimBone child : bone.getChildBones()) {
-			registerPlayerAnimBone(child);
-		}
 	}
 
 	public AbstractClientPlayer getPlayer() {

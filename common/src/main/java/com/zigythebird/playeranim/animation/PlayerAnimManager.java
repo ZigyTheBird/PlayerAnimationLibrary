@@ -3,13 +3,13 @@ package com.zigythebird.playeranim.animation;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.dataticket.DataTicket;
 import com.zigythebird.playeranim.math.Pair;
 import com.zigythebird.playeranim.math.Vec3f;
-import com.zigythebird.playeranim.util.MathHelper;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -216,21 +216,20 @@ public class PlayerAnimManager implements IAnimation {
 		return priority;
 	}
 
-	public void updatePart(String partName, ModelPart part) {
-		Vec3f pos = this.get3DTransform(partName, TransformType.POSITION, tickDelta, new Vec3f(part.x, part.y, part.z));
-		part.x = pos.getX();
-		part.y = pos.getY();
-		part.z = pos.getZ();
-		Vec3f rot = this.get3DTransform(partName, TransformType.ROTATION, tickDelta, new Vec3f( // clamp guards
-				MathHelper.clampToRadian(part.xRot),
-				MathHelper.clampToRadian(part.yRot),
-				MathHelper.clampToRadian(part.zRot)));
-		part.setRotation(rot.getX(), rot.getY(), rot.getZ());
-		Vec3f scale = this.get3DTransform(partName, TransformType.SCALE, tickDelta,
-				new Vec3f(part.xScale, part.yScale, part.zScale)
-		);
-		part.xScale = scale.getX();
-		part.yScale = scale.getY();
-		part.zScale = scale.getZ();
+	public void updatePart(String partName, ModelPart part, AnimationProcessor processor) {
+		PlayerAnimBone bone = processor.getBone(partName);
+		PartPose initialPose = part.getInitialPose();
+
+		part.x = bone.getPosX() + initialPose.x();
+		part.y = bone.getPosY() + initialPose.y();
+		part.z = bone.getPosZ() + initialPose.z();
+
+		part.xRot = bone.getRotX();
+		part.yRot = bone.getRotY();
+		part.zRot = bone.getRotZ();
+
+		part.xScale = bone.getScaleX();
+		part.yScale = bone.getScaleY();
+		part.zScale = bone.getScaleZ();
 	}
 }

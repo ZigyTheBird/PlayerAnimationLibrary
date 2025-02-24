@@ -643,13 +643,13 @@ public class AnimationController implements IAnimation {
 	/**
 	 * Prepare the {@link BoneAnimationQueue} map for the current render frame
 	 *
-	 * @param modelRendererList The bone list from the {@link AnimationProcessor}
+	 * @param boneList The bone list from the {@link AnimationProcessor}
 	 */
-	private void createInitialQueues(Collection<PlayerAnimBone> modelRendererList) {
+	private void createInitialQueues(Collection<PlayerAnimBone> boneList) {
 		this.boneAnimationQueues.clear();
 
-		for (PlayerAnimBone modelRenderer : modelRendererList) {
-			this.boneAnimationQueues.put(modelRenderer.getName(), new BoneAnimationQueue(modelRenderer));
+		for (PlayerAnimBone bone : boneList) {
+			this.boneAnimationQueues.put(bone.getName(), new BoneAnimationQueue(bone));
 		}
 	}
 
@@ -772,7 +772,7 @@ public class AnimationController implements IAnimation {
 		if (!modifiers.isEmpty()) {
 			return modifiers.get(0).get3DTransform(modelName, type, tickDelta, value0);
 		}
-		return value0;
+		return get3DTransformRaw(modelName, type, tickDelta, value0);
 	}
 
 	public boolean shouldGet3DTransform() {

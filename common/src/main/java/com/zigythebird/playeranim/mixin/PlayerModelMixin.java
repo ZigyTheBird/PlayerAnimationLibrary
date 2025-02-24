@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.accessors.IPlayerModel;
+import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.model.HumanoidModel;
@@ -90,16 +91,16 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
     private void setupPlayerAnimation(PlayerRenderState playerRenderState, CallbackInfo ci) {
         if(!playerAnimLib$firstPersonNext && playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
-            state.playerAnimLib$getAnimProcessor().saveInitialModelState(this.head, this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg);
-            state.playerAnimLib$getAnimProcessor().handleAnimations(emote.getTickDelta());
+            AnimationProcessor processor = state.playerAnimLib$getAnimProcessor();
+            processor.handleAnimations(emote.getTickDelta());
             ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
-            emote.updatePart("model", this.head);
-            emote.updatePart("right_arm", this.rightArm);
-            emote.updatePart("left_arm", this.leftArm);
-            emote.updatePart("right_leg", this.rightLeg);
-            emote.updatePart("left_leg", this.leftLeg);
-            emote.updatePart("torso", this.body);
+            emote.updatePart("head", this.head, processor);
+            emote.updatePart("right_arm", this.rightArm, processor);
+            emote.updatePart("left_arm", this.leftArm, processor);
+            emote.updatePart("right_leg", this.rightLeg, processor);
+            emote.updatePart("left_leg", this.leftLeg, processor);
+            emote.updatePart("torso", this.body, processor);
         }
         else {
             playerAnimLib$firstPersonNext = false;
@@ -154,7 +155,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
     }
 
     @Override
-    public void  playerAnimLib$prepForFirstPersonRender() {
+    public void playerAnimLib$prepForFirstPersonRender() {
         playerAnimLib$firstPersonNext = true;
     }
 

@@ -20,8 +20,6 @@ public class PlayerAnimBone {
 	private final PlayerAnimBone parent;
 	private final String name;
 
-	private final List<PlayerAnimBone> children = new ObjectArrayList<>();
-
 	private BoneSnapshot initialSnapshot;
 
 	private float scaleX = 1;
@@ -238,10 +236,6 @@ public class PlayerAnimBone {
 		return this.initialSnapshot;
 	}
 
-	public List<PlayerAnimBone> getChildBones() {
-		return this.children;
-	}
-
 	public void saveInitialSnapshot() {
 		if (this.initialSnapshot == null)
 			this.initialSnapshot = saveSnapshot();
@@ -265,22 +259,6 @@ public class PlayerAnimBone {
 		setRotZ(getRotZ() + source.getRotZ() - source.getInitialSnapshot().getRotZ());
 	}
 
-	public void setInitialSnapshot(ModelPart modelPart) {
-		this.positionX = modelPart.x;
-		this.positionY = modelPart.y;
-		this.positionZ = modelPart.z;
-
-		this.rotX = modelPart.xRot;
-		this.rotY = modelPart.yRot;
-		this.rotZ = modelPart.zRot;
-
-		this.scaleX = modelPart.xScale;
-		this.scaleY = modelPart.yScale;
-		this.scaleZ = modelPart.zScale;
-
-		this.initialSnapshot = saveSnapshot();
-	}
-
 	public BoneSnapshot saveSnapshot() {
 		return new BoneSnapshot(this);
 	}
@@ -296,6 +274,6 @@ public class PlayerAnimBone {
 	}
 
 	public int hashCode() {
-		return Objects.hash(getName(), (getParent() != null ? getParent().getName() : 0), getChildBones().size());
+		return Objects.hash(getName(), (getParent() != null ? getParent().getName() : 0));
 	}
 }

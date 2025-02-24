@@ -1,17 +1,18 @@
 package com.zigythebird.playeranim.fabric;
 
+import com.zigythebird.playeranim.commands.PlayPlayerAnimationCommand;
 import net.fabricmc.api.ModInitializer;
 
 import com.zigythebird.playeranim.ModInit;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public final class ModInitFabric implements ModInitializer {
     @Override
     public void onInitialize() {
-        // This code runs as soon as Minecraft is in a mod-load-ready state.
-        // However, some things (like resources) may still be uninitialized.
-        // Proceed with mild caution.
-
-        // Run our common setup.
         ModInit.init();
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            PlayPlayerAnimationCommand.register(dispatcher);
+        });
     }
 }

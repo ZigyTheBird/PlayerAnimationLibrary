@@ -14,7 +14,5 @@ public final class ModInit {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
     }
 
-    public static void init() {
-        // Write common init code here.
-    }
+    public static void init() {}
 }
