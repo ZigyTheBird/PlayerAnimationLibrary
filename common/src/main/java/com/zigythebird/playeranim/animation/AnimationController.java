@@ -931,4 +931,8 @@ public class AnimationController implements IAnimation {
 	public float getAnimTime() {
 		return this.animTime;
 	}
+
+	public AbstractClientPlayer getPlayer() {
+		return this.player;
+	}
 }

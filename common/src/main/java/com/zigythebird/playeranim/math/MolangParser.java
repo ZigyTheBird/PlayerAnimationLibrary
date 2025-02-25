@@ -9,6 +9,8 @@ import gg.moonflower.molangcompiler.api.MolangExpression;
 import gg.moonflower.molangcompiler.api.MolangRuntime;
 import gg.moonflower.molangcompiler.api.exception.MolangSyntaxException;
 
+import java.util.function.BooleanSupplier;
+
 public class MolangParser {
     public static final MolangCompiler COMPILER = MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, MolangParser.class.getClassLoader());
 
@@ -33,11 +35,16 @@ public class MolangParser {
     public static MolangRuntime createNewRuntime(AnimationController controller) {
         MolangRuntime.Builder builder = MolangRuntime.runtime();
         builder.setQuery("anim_time", controller::getAnimTime);
+        setBoolQuery(builder, "blocking", controller.getPlayer()::isBlocking);
 
         // TODO: Add all bedrock molang queries. BEFORE EVENT!
 
         MolangEvent.MOLANG_EVENT.invoker().registerMolangQueries(controller, builder);
 
         return builder.create();
+    }
+
+    public static void setBoolQuery(MolangRuntime.Builder builder, String name, BooleanSupplier value) {
+        builder.setQuery(name, MolangExpression.lazy(value));
     }
 }
