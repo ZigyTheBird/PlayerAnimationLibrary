@@ -3,7 +3,6 @@ package com.zigythebird.playeranim.api;
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.event.Event;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -35,26 +34,5 @@ public final class PlayerAnimationAccess {
         if (player instanceof IAnimatedPlayer animatedPlayer) {
             return animatedPlayer.playerAnimLib$getAnimation(id);
         } else throw new IllegalArgumentException(player + " is not a player or library mixins failed");
-    }
-
-    /**
-     * If you don't want to create your own mixin, you can use this event to add animation to players<br>
-     * <b>The event will fire for every player</b> and if the player reloads, it will fire again.<br>
-     * <hr>
-     * NOTE: When the event fires, {@link IAnimatedPlayer#playerAnimLib$getAnimManager()} will be null you'll have to use the given stack.
-     */
-    public static final Event<AnimationRegister> REGISTER_ANIMATION_EVENT = new Event<>(AnimationRegister.class, listeners -> (player, animationStack) -> {
-        for (AnimationRegister listener : listeners) {
-            listener.registerAnimation(player, animationStack);
-        }
-    });
-
-    @FunctionalInterface
-    public interface AnimationRegister {
-        /**
-         * Player object is in construction, it will be invoked when you can register animation
-         * It will be invoked for every player only ONCE
-         */
-        void registerAnimation(@NotNull AbstractClientPlayer player, @NotNull PlayerAnimManager manager);
     }
 }

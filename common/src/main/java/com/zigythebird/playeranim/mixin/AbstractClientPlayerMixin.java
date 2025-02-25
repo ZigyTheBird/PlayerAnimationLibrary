@@ -1,10 +1,11 @@
 package com.zigythebird.playeranim.mixin;
 
+import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.api.PlayerAnimationAccess;
+import com.zigythebird.playeranim.api.AnimationRegisterEvent;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -31,7 +32,7 @@ public abstract class AbstractClientPlayerMixin implements IAnimatedPlayer {
     private PlayerAnimManager playerAnimLib$createAnimationStack() {
         PlayerAnimManager manager = new PlayerAnimManager((AbstractClientPlayer)(Object)this);
         PlayerAnimationFactory.ANIMATION_DATA_FACTORY.prepareAnimations((AbstractClientPlayer)(Object) this, manager, playerAnimLib$modAnimationData);
-        PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.invoker().registerAnimation((AbstractClientPlayer)(Object) this, manager);
+        ModInit.EVENT_BUS.post(new AnimationRegisterEvent((AbstractClientPlayer)(Object) this, manager));
         return manager;
     }
 

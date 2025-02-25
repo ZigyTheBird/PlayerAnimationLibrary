@@ -39,12 +39,11 @@ public class MolangParser {
 
         // TODO: Add all bedrock molang queries. BEFORE EVENT!
 
-        MolangEvent.MOLANG_EVENT.invoker().registerMolangQueries(controller, builder);
-
+        ModInit.EVENT_BUS.post(new MolangEvent(controller, builder));
         return builder.create();
     }
 
-    public static void setBoolQuery(MolangRuntime.Builder builder, String name, BooleanSupplier value) {
-        builder.setQuery(name, MolangExpression.lazy(value));
+    public static MolangRuntime.Builder setBoolQuery(MolangRuntime.Builder builder, String name, BooleanSupplier value) {
+        return builder.setQuery(name, MolangExpression.lazy(value));
     }
 }

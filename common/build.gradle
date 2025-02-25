@@ -17,6 +17,7 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:23.0.0'
 
     implementation "gg.moonflower:molang-compiler:$rootProject.molang_compiler_version"
+    implementation "net.neoforged:bus:$rootProject.neobus_version"
 }
 
 publishing {
