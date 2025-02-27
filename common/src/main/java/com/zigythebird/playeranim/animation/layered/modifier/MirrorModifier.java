@@ -1,8 +1,7 @@
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
-import com.zigythebird.playeranim.math.Vec3f;
+import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -13,12 +12,16 @@ public class MirrorModifier extends AbstractModifier {
     public static final Map<String, String> mirrorMap;
 
     @Override
-    public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
+    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+        String modelName = bone.getName();
         if (mirrorMap.containsKey(modelName)) modelName = mirrorMap.get(modelName);
-        value0 = transformVector(value0, type);
+        transformBone(bone);
 
-        Vec3f vec3f = super.get3DTransform(modelName, type, tickDelta, value0);
-        return transformVector(vec3f, type);
+        PlayerAnimBone newBone = new PlayerAnimBone(null, modelName);
+        newBone.copyOtherBone(bone);
+        super.get3DTransform(newBone);
+        transformBone(newBone);
+        bone.copyOtherBone(newBone);
     }
 
     // Override candidate
@@ -32,17 +35,11 @@ public class MirrorModifier extends AbstractModifier {
                 .setShowRightItem(configuration.isShowLeftItem());
     }
 
-    protected Vec3f transformVector(Vec3f value0, TransformType type) {
-        switch (type) {
-            case POSITION:
-                return new Vec3f(-value0.getX(), value0.getY(), value0.getZ());
-            case ROTATION:
-                return new Vec3f(value0.getX(), -value0.getY(), -value0.getZ());
-            case BEND:
-                return new Vec3f(value0.getX(), -value0.getY(), value0.getZ());
-            default:
-                return value0; //why?!
-        }
+    protected void transformBone(PlayerAnimBone bone) {
+        bone.setPosX(-bone.getPosX());
+        bone.setRotY(-bone.getRotY());
+        bone.setScaleX(-bone.getScaleX());
+        bone.setBend(-bone.getBend());
     }
 
     static {

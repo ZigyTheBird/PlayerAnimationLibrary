@@ -6,7 +6,6 @@ import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,8 +47,7 @@ public abstract class AbstractClientPlayerMixin implements IAnimatedPlayer {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
-        playerAnimLib$animationManager.tick();
-        this.playerAnimLib$animationProcessor.handleAnimations(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true));
+        this.playerAnimLib$animationProcessor.handleAnimations(1, true);
     }
 
     @Override

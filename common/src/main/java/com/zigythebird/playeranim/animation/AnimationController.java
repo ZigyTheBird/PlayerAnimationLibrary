@@ -9,6 +9,7 @@ import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructio
 import com.zigythebird.playeranim.animation.keyframe.event.data.KeyFrameData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
+import com.zigythebird.playeranim.animation.layered.AnimationContainer;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.animation.layered.modifier.AbstractModifier;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
@@ -41,7 +42,7 @@ public class AnimationController implements IAnimation {
 	protected final AnimationStateHandler stateHandler;
 	protected final Map<String, BoneAnimationQueue> boneAnimationQueues = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, BoneSnapshot> boneSnapshots = new Object2ObjectOpenHashMap<>();
-	protected Map<String, BoneSnapshot> latestSnapshots;
+	protected final Map<String, BoneSnapshot> latestSnapshots = new Object2ObjectOpenHashMap<>();
 	protected Queue<AnimationProcessor.QueuedAnimation> animationQueue = new LinkedList<>();
 	protected final MolangRuntime molangRuntime;
 
@@ -75,6 +76,8 @@ public class AnimationController implements IAnimation {
 	protected Function<AbstractClientPlayer, FirstPersonMode> firstPersonMode = null;
 	protected Function<AbstractClientPlayer, FirstPersonConfiguration> firstPersonConfiguration = null;
 	private final List<AbstractModifier> modifiers = new ArrayList<>();
+
+	private final InternalAnimationAccessor internalAnimationAccessor = new InternalAnimationAccessor(this);
 
 	/**
 	 * Instantiates a new {@code AnimationController}
@@ -694,6 +697,10 @@ public class AnimationController implements IAnimation {
 		return 0;
 	}
 
+	public float getAnimTime() {
+		return this.animTime;
+	}
+
 	/**
 	 * Convert a {@link KeyframeLocation} to an {@link AnimationPoint}
 	 */
@@ -758,25 +765,19 @@ public class AnimationController implements IAnimation {
 	private void resetEventKeyFrames() {
 		this.executedKeyFrames.clear();
 	}
-
-	@Override
-	public @NotNull Vec3f get3DTransformRaw(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
-		if (latestSnapshots.containsKey(modelName)) {
-			latestSnapshots.get(modelName).getTransformFromType(type);
+	
+	public void get3DTransformRaw(@NotNull PlayerAnimBone bone) {
+		if (latestSnapshots.containsKey(bone.getName())) {
+			bone.copySnapshot(latestSnapshots.get(bone.getName()));
 		}
-		return value0;
 	}
 
 	@Override
-	public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
+	public void get3DTransform(@NotNull PlayerAnimBone bone) {
 		if (!modifiers.isEmpty()) {
-			return modifiers.get(0).get3DTransform(modelName, type, tickDelta, value0);
+			modifiers.get(0).get3DTransform(bone);
 		}
-		return get3DTransformRaw(modelName, type, tickDelta, value0);
-	}
-
-	public boolean shouldGet3DTransform() {
-		return !modifiers.isEmpty();
+		else get3DTransformRaw(bone);
 	}
 
 	@Override
@@ -807,23 +808,15 @@ public class AnimationController implements IAnimation {
 		firstPersonConfiguration = configHandler;
 	}
 
-	public void clearBoneSnapshots() {
-		this.latestSnapshots = new Object2ObjectOpenHashMap<>();
-	}
-
-	public void addBoneSnapshot(BoneSnapshot snapshot) {
-		this.latestSnapshots.put(snapshot.getBone().getName(), new BoneSnapshot(snapshot));
-	}
-
 	@Override
-	public void tick() {
+	public void tick(AnimationState state) {
 		for (int i = 0; i < modifiers.size(); i++) {
 			if (modifiers.get(i).canRemove()) {
 				removeModifier(i--);
 			}
 		}
 		if (modifiers.size() > 0) {
-			modifiers.get(0).tick();
+			modifiers.get(0).tick(state);
 		}
 	}
 
@@ -834,10 +827,81 @@ public class AnimationController implements IAnimation {
 	}
 
 	@Override
-	public void setupAnim(float tickDelta) {
+	public void setupAnim(AnimationState state) {
 		if (!modifiers.isEmpty()) {
-			modifiers.get(0).setupAnim(tickDelta);
+			modifiers.get(0).setupAnim(state);
 		}
+	}
+
+	protected void internalSetupAnim(AnimationState state) {
+		this.isJustStarting = state.getPlayerAnimManager().isFirstTick();
+
+		this.clearBoneSnapshots();
+		this.process(state, this.bones, boneSnapshots, animTime, false);
+
+		for (BoneAnimationQueue boneAnimation : this.getBoneAnimationQueues().values()) {
+			PlayerAnimBone bone = boneAnimation.bone();
+			BoneSnapshot snapshot = boneSnapshots.get(bone.getName());
+			BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
+
+			AnimationPoint rotXPoint = boneAnimation.rotationXQueue().poll();
+			AnimationPoint rotYPoint = boneAnimation.rotationYQueue().poll();
+			AnimationPoint rotZPoint = boneAnimation.rotationZQueue().poll();
+			AnimationPoint posXPoint = boneAnimation.positionXQueue().poll();
+			AnimationPoint posYPoint = boneAnimation.positionYQueue().poll();
+			AnimationPoint posZPoint = boneAnimation.positionZQueue().poll();
+			AnimationPoint scaleXPoint = boneAnimation.scaleXQueue().poll();
+			AnimationPoint scaleYPoint = boneAnimation.scaleYQueue().poll();
+			AnimationPoint scaleZPoint = boneAnimation.scaleZQueue().poll();
+			AnimationPoint bendAxisPoint = boneAnimation.bendAxisQueue().poll();
+			AnimationPoint bendPoint = boneAnimation.bendQueue().poll();
+			EasingType easingType = this.overrideEasingTypeFunction.apply(player);
+
+			if (rotXPoint != null && rotYPoint != null && rotZPoint != null) {
+				bone.setRotX((float) EasingType.lerpWithOverride(this.molangRuntime, rotXPoint, easingType) + initialSnapshot.getRotX());
+				bone.setRotY((float) EasingType.lerpWithOverride(this.molangRuntime, rotYPoint, easingType) + initialSnapshot.getRotY());
+				bone.setRotZ((float) EasingType.lerpWithOverride(this.molangRuntime, rotZPoint, easingType) + initialSnapshot.getRotZ());
+				snapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
+				snapshot.startRotAnim();
+				bone.markRotationAsChanged();
+			}
+
+			if (posXPoint != null && posYPoint != null && posZPoint != null) {
+				bone.setPosX((float) EasingType.lerpWithOverride(this.molangRuntime, posXPoint, easingType));
+				bone.setPosY((float) EasingType.lerpWithOverride(this.molangRuntime, posYPoint, easingType));
+				bone.setPosZ((float) EasingType.lerpWithOverride(this.molangRuntime, posZPoint, easingType));
+				snapshot.updateOffset(bone.getPosX(), bone.getPosY(), bone.getPosZ());
+				snapshot.startPosAnim();
+				bone.markPositionAsChanged();
+			}
+
+			if (scaleXPoint != null && scaleYPoint != null && scaleZPoint != null) {
+				bone.setScaleX((float) EasingType.lerpWithOverride(this.molangRuntime, scaleXPoint, easingType));
+				bone.setScaleY((float) EasingType.lerpWithOverride(this.molangRuntime, scaleYPoint, easingType));
+				bone.setScaleZ((float) EasingType.lerpWithOverride(this.molangRuntime, scaleZPoint, easingType));
+				snapshot.updateScale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
+				snapshot.startScaleAnim();
+				bone.markScaleAsChanged();
+			}
+
+			if (bendAxisPoint != null && bendPoint != null) {
+				bone.setBendAxis((float) EasingType.lerpWithOverride(this.molangRuntime, bendAxisPoint, easingType));
+				bone.setBend((float) EasingType.lerpWithOverride(this.molangRuntime, bendPoint, easingType));
+				snapshot.updateBend(bone.getBendAxis(), bone.getBend());
+				snapshot.startBendAnim();
+				bone.markBendAsChanged();
+			}
+
+			this.addBoneSnapshot(snapshot);
+		}
+	}
+
+	public void clearBoneSnapshots() {
+		this.latestSnapshots.clear();
+	}
+
+	public void addBoneSnapshot(BoneSnapshot snapshot) {
+		this.latestSnapshots.put(snapshot.getBone().getName(), new BoneSnapshot(snapshot));
 	}
 
 	public void addModifierBefore(@NotNull AbstractModifier modifier) {
@@ -862,7 +926,7 @@ public class AnimationController implements IAnimation {
 				tmp.setAnim(tmp2);
 				tmp = tmp2;
 			}
-			tmp.setAnim(this);
+			tmp.setAnim(internalAnimationAccessor);
 		}
 	}
 
@@ -928,8 +992,20 @@ public class AnimationController implements IAnimation {
 		void handle(CustomInstructionKeyframeEvent event);
 	}
 
-	public float getAnimTime() {
-		return this.animTime;
+	private class InternalAnimationAccessor extends AnimationContainer<AnimationController> {
+		private InternalAnimationAccessor(AnimationController controller) {
+			super(controller);
+		}
+
+		@Override
+		public void setupAnim(AnimationState state) {
+			this.anim.internalSetupAnim(state);
+		}
+
+		@Override
+		public void get3DTransform(@NotNull PlayerAnimBone bone) {
+			this.anim.get3DTransformRaw(bone);
+		}
 	}
 
 	public AbstractClientPlayer getPlayer() {

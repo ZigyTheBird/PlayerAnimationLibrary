@@ -31,10 +31,15 @@ public class BoneSnapshot {
 	private double lastResetScaleTick = 0;
 	private double lastResetBendTick = 0;
 
-	private boolean rotAnimInProgress = true;
-	private boolean posAnimInProgress = true;
-	private boolean scaleAnimInProgress = true;
-	private boolean bendAnimInProgress = true;
+	protected boolean rotAnimInProgress = true;
+	protected boolean posAnimInProgress = true;
+	protected boolean scaleAnimInProgress = true;
+	protected boolean bendAnimInProgress = true;
+
+	public BoneSnapshot() {
+		this.bone = null;
+		setToInitialPose();
+	}
 
 	public BoneSnapshot(PlayerAnimBone bone) {
 		this.rotX = bone.getRotX();
@@ -132,6 +137,10 @@ public class BoneSnapshot {
 		return this.lastResetScaleTick;
 	}
 
+	public double getLastResetBendTick() {
+		return this.lastResetBendTick;
+	}
+
 	public boolean isRotAnimInProgress() {
 		return this.rotAnimInProgress;
 	}
@@ -181,8 +190,7 @@ public class BoneSnapshot {
 	}
 
 	public void updateBend(Pair<Float, Float> bend) {
-		this.bendAxis = bend.getLeft();
-		this.bend = bend.getRight();
+		updateBend(bend.getLeft(), bend.getRight());
 	}
 
 	public void startPosAnim() {
@@ -237,6 +245,23 @@ public class BoneSnapshot {
 			}
 		}
 		return null;
+	}
+
+	public void setToInitialPose() {
+		this.rotX = 0;
+		this.rotY = 0;
+		this.rotZ = 0;
+
+		this.offsetPosX = 0;
+		this.offsetPosY = 0;
+		this.offsetPosZ = 0;
+
+		this.scaleX = 1;
+		this.scaleY = 1;
+		this.scaleZ = 1;
+
+		this.bendAxis = 0;
+		this.bend = 0;
 	}
 
 	@Override

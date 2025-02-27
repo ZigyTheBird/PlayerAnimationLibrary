@@ -259,6 +259,40 @@ public class PlayerAnimBone {
 		setRotZ(getRotZ() + source.getRotZ() - source.getInitialSnapshot().getRotZ());
 	}
 
+	public void copyOtherBone(PlayerAnimBone bone) {
+		this.positionX = bone.positionX;
+		this.positionY = bone.positionY;
+		this.positionZ = bone.positionZ;
+
+		this.rotX = bone.rotX;
+		this.rotY = bone.rotY;
+		this.rotZ = bone.rotZ;
+
+		this.scaleX = bone.scaleX;
+		this.scaleY = bone.scaleY;
+		this.scaleZ = bone.scaleZ;
+
+		this.bendAxis = bone.bendAxis;
+		this.bend = bone.bend;
+	}
+
+	public void copySnapshot(BoneSnapshot snapshot) {
+		this.positionX = snapshot.getOffsetX();
+		this.positionY = snapshot.getOffsetY();
+		this.positionZ = snapshot.getOffsetZ();
+
+		this.rotX = snapshot.getRotX();
+		this.rotY = snapshot.getRotY();
+		this.rotZ = snapshot.getRotZ();
+
+		this.scaleX = snapshot.getScaleX();
+		this.scaleY = snapshot.getScaleY();
+		this.scaleZ = snapshot.getScaleZ();
+
+		this.bend = snapshot.getBend();
+		this.bendAxis = snapshot.getBendAxis();
+	}
+
 	public BoneSnapshot saveSnapshot() {
 		return new BoneSnapshot(this);
 	}

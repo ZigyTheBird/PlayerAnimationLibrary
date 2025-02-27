@@ -118,32 +118,27 @@ public class PlayerAnimManager implements IAnimation {
 	}
 
 	@Override
-	public void tick() {
+	public void tick(AnimationState state) {
 		for (Pair<Integer, IAnimation> layer : layers) {
 			if (layer.getRight().isActive()) {
-				layer.getRight().tick();
+				layer.getRight().tick(state);
 			}
 		}
 	}
 
 	@Override
-	public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
+	public void get3DTransform(@NotNull PlayerAnimBone bone) {
 		for (Pair<Integer, IAnimation> layer : layers) {
 			if (layer.getRight().isActive() && (!FirstPersonMode.isFirstPersonPass() || layer.getRight().getFirstPersonMode().isEnabled())) {
-				value0 = layer.getRight().get3DTransform(modelName, type, tickDelta, value0);
+				layer.getRight().get3DTransform(bone);
 			}
 		}
-		return value0;
-	}
-
-	public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, @NotNull Vec3f value0) {
-		return get3DTransform(modelName, type, tickDelta, value0);
 	}
 
 	@Override
-	public void setupAnim(float tickDelta) {
+	public void setupAnim(AnimationState state) {
 		for (Pair<Integer, IAnimation> layer : layers) {
-			layer.getRight().setupAnim(tickDelta);
+			layer.getRight().setupAnim(state);
 		}
 	}
 	
