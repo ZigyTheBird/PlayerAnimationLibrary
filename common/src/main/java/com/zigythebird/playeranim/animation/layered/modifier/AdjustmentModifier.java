@@ -1,8 +1,6 @@
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranim.animation.AnimationController;
 import com.zigythebird.playeranim.animation.AnimationState;
-import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
@@ -112,22 +110,12 @@ public class AdjustmentModifier extends AbstractModifier {
     }
 
     public boolean enabled = true;
+    private float tickDelta;
 
     protected Function<String, Optional<PartModifier>> source;
 
     public AdjustmentModifier(Function<String, Optional<PartModifier>> source) {
         this.source = source;
-    }
-
-    protected float getFadeIn(float delta) {
-        float fadeIn = 1;
-        if (getController() != null) {
-            AnimationController player = getController();
-            float currentTick = player.getTick() + delta;
-            fadeIn = currentTick / (float) player.getData().beginTick;
-            fadeIn = Math.min(fadeIn, 1F);
-        }
-        return fadeIn;
     }
 
     @Override
@@ -140,6 +128,11 @@ public class AdjustmentModifier extends AbstractModifier {
                 instructedFadeout = 0;
             }
         }
+    }
+
+    @Override
+    public void setupAnim(AnimationState state) {
+        this.tickDelta = state.getPartialTick();
     }
 
     protected int instructedFadeout = 0;
@@ -158,17 +151,6 @@ public class AdjustmentModifier extends AbstractModifier {
             fadeOut = Math.min(fadeOut, 1F);
             return fadeOut;
         }
-        if (getController() != null) {
-            AnimationController player = getController();
-
-            float currentTick = player.getTick() + delta;
-            float position = (-1F) * (currentTick - player.getData().stopTick);
-            float length = player.getData().stopTick - player.getData().endTick;
-            if (length > 0) {
-                fadeOut = position / length;
-                fadeOut = Math.min(fadeOut, 1F);
-            }
-        }
         return fadeOut;
     }
 
@@ -181,7 +163,7 @@ public class AdjustmentModifier extends AbstractModifier {
 
         Optional<PartModifier> partModifier = source.apply(bone.getName());
 
-        float fade = getFadeIn(tickDelta) * getFadeOut(tickDelta);
+        float fade = getFadeOut(tickDelta);
         if (partModifier.isPresent()) {
             super.get3DTransform(bone);
             transformBone(bone, partModifier.get(), fade);
