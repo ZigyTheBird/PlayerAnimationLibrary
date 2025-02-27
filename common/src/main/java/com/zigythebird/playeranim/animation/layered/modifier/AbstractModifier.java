@@ -12,7 +12,7 @@ public abstract class AbstractModifier extends AnimationContainer<IAnimation> {
     protected IAnimation host;
 
     /**
-     * Could be null if someone made their own custom way of playing animations other than animation controllers.
+     * Could return null if someone makes their own custom way of playing animations.
      */
     @Nullable
     protected AnimationController getController() {

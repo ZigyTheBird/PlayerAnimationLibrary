@@ -117,7 +117,7 @@ public final class PlayerAnimCache {
 					scales.add(new Pair<>(currentTick, new Vec3(scaleX, scaleY, scaleZ)));
 					bends.add(new Pair<>(currentTick, new Vec3(bendAxis, bend, 0)));
 
-					boneAnims.add(new BoneAnimation(getCorrectPlayerBoneName(entry.getKey()), BakedAnimationsAdapter.buildKeyframeStackFromPlayerAnim(rotations), BakedAnimationsAdapter.buildKeyframeStackFromPlayerAnim(rotations), BakedAnimationsAdapter.buildKeyframeStackFromPlayerAnim(scales), BakedAnimationsAdapter.buildKeyframeStackFromPlayerAnim(bends)));
+					boneAnims.add(new BoneAnimation(getCorrectPlayerBoneName(entry.getKey()), BakedAnimationsAdapter.buildKeyframeStackFromLegacyAnim(rotations), BakedAnimationsAdapter.buildKeyframeStackFromLegacyAnim(rotations), BakedAnimationsAdapter.buildKeyframeStackFromLegacyAnim(scales), BakedAnimationsAdapter.buildKeyframeStackFromLegacyAnim(bends)));
 				}
 			}
 		}

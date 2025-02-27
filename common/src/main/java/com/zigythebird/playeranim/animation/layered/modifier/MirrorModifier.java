@@ -38,7 +38,6 @@ public class MirrorModifier extends AbstractModifier {
     protected void transformBone(PlayerAnimBone bone) {
         bone.setPosX(-bone.getPosX());
         bone.setRotY(-bone.getRotY());
-        bone.setScaleX(-bone.getScaleX());
         bone.setBend(-bone.getBend());
     }
 
