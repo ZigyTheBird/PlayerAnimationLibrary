@@ -2,12 +2,9 @@ package com.zigythebird.playeranim.cache;
 
 import com.zigythebird.playeranim.animation.BoneSnapshot;
 import com.zigythebird.playeranim.math.Pair;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -240,6 +237,23 @@ public class PlayerAnimBone {
 		if (this.initialSnapshot == null)
 			this.initialSnapshot = saveSnapshot();
 	}
+	
+	public void setToInitialPose() {
+		this.positionX = 0;
+		this.positionY = 0;
+		this.positionZ = 0;
+
+		this.rotX = 0;
+		this.rotY = 0;
+		this.rotZ = 0;
+
+		this.scaleX = 1;
+		this.scaleY = 1;
+		this.scaleZ = 1;
+
+		this.bendAxis = 0;
+		this.bend = 0;
+	}
 
 	public Vector3d getPositionVector() {
 		return new Vector3d(getPosX(), getPosY(), getPosZ());
@@ -257,6 +271,44 @@ public class PlayerAnimBone {
 		setRotX(getRotX() + source.getRotX() - source.getInitialSnapshot().getRotX());
 		setRotY(getRotY() + source.getRotY() - source.getInitialSnapshot().getRotY());
 		setRotZ(getRotZ() + source.getRotZ() - source.getInitialSnapshot().getRotZ());
+	}
+	
+	public PlayerAnimBone scale(float value) {
+		this.positionX *= value;
+		this.positionY *= value;
+		this.positionZ *= value;
+
+		this.rotX *= value;
+		this.rotY *= value;
+		this.rotZ *= value;
+
+		this.scaleX *= value;
+		this.scaleY *= value;
+		this.scaleZ *= value;
+
+		this.bendAxis *= value;
+		this.bend *= value;
+
+		return this;
+	}
+
+	public PlayerAnimBone add(PlayerAnimBone bone) {
+		this.positionX += bone.positionX;
+		this.positionY += bone.positionY;
+		this.positionZ += bone.positionZ;
+
+		this.rotX += bone.rotX;
+		this.rotY += bone.rotY;
+		this.rotZ += bone.rotZ;
+
+		this.scaleX += bone.scaleX;
+		this.scaleY += bone.scaleY;
+		this.scaleZ += bone.scaleZ;
+
+		this.bendAxis += bone.bendAxis;
+		this.bend += bone.bend;
+
+		return this;
 	}
 
 	public void copyOtherBone(PlayerAnimBone bone) {

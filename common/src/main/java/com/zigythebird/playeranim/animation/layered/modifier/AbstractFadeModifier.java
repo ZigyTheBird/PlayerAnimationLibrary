@@ -1,7 +1,9 @@
 package com.zigythebird.playeranim.animation.layered.modifier;
 
 import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
+import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +17,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
 
     protected int time = 0;
     protected int length;
+    protected float tickDelta;
 
     /**
      * Animation to move from, null if transparent (easing in)
@@ -39,27 +42,29 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
     }
 
     @Override
-    public void setupAnim(float tickDelta) {
-        super.setupAnim(tickDelta);
-        if (beginAnimation != null) beginAnimation.setupAnim(tickDelta);
+    public void setupAnim(AnimationState state) {
+        super.setupAnim(state);
+        if (beginAnimation != null) beginAnimation.setupAnim(state);
+        tickDelta = state.getPartialTick();
     }
 
     @Override
     public void tick(AnimationState state) {
         super.tick(state);
-        if (beginAnimation != null) beginAnimation.tick();
+        if (beginAnimation != null) beginAnimation.tick(state);
         this.time++;
     }
 
     @Override
-    public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
-        if (calculateProgress(tickDelta) > 1) {
-            return super.get3DTransform(modelName, type, tickDelta, value0);
-        }
-        Vec3f animatedVec = super.get3DTransform(modelName, type, tickDelta, value0);
-        float a = getAlpha(modelName, type, calculateProgress(tickDelta));
-        Vec3f source = beginAnimation != null && beginAnimation.isActive() ? beginAnimation.get3DTransform(modelName, type, tickDelta, value0) : value0;
-        return animatedVec.scale(a).add(source.scale(1 - a)); //This would look much better in Kotlin... (operator overloading)
+    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+        super.get3DTransform(bone);
+        if (calculateProgress(tickDelta) > 1) return;
+        //Todo: Maybe look into optimizing this to work better with the new system
+        PlayerAnimBone animatedBone = new PlayerAnimBone(null, bone.getName());
+        animatedBone.copyOtherBone(bone);
+        float a = getAlpha(bone, calculateProgress(tickDelta));
+        if (beginAnimation != null && beginAnimation.isActive()) beginAnimation.get3DTransform(bone);
+        bone.scale(a).add(bone.scale(1 - a));
     }
 
     protected float calculateProgress(float f) {
@@ -69,24 +74,23 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
 
     /**
      * Get the alpha at the given progress
-     * @param modelName modelName if you want to handle parts differently
-     * @param type      Transform type
+     * @param bone current bone
      * @param progress  animation progress, float between 0 and 1
      * @return alpha, float between 0 and 1, lower value means less visible from animation
      */
-    protected abstract float getAlpha(String modelName, TransformType type, float progress);
+    protected abstract float getAlpha(PlayerAnimBone bone, float progress);
 
     /**
      * Creates a standard fade with some easing in it.
      * @param length ease length in ticks
-     * @param ease   ease function from {@link Ease}
+     * @param ease   ease function from {@link EasingType}
      * @return fade modifier
      */
-    public static AbstractFadeModifier standardFadeIn(int length, Ease ease) {
+    public static AbstractFadeModifier standardFadeIn(int length, EasingType ease) {
         return new AbstractFadeModifier(length) {
             @Override
-            protected float getAlpha(String modelName, TransformType type, float progress) {
-                return ease.invoke(progress);
+            protected float getAlpha(PlayerAnimBone bone, float progress) {
+                return ease.buildTransformer(null).apply(progress);
             }
         };
     }
@@ -100,15 +104,14 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
     public static AbstractFadeModifier functionalFadeIn(int length, EasingFunction function) {
         return new AbstractFadeModifier(length) {
             @Override
-            protected float getAlpha(String modelName, TransformType type, float progress) {
-                return function.ease(modelName, type, progress);
+            protected float getAlpha(PlayerAnimBone bone, float progress) {
+                return function.ease(bone, progress);
             }
         };
     }
 
     @FunctionalInterface
     public interface EasingFunction {
-        float ease(String modelName, TransformType type, float value);
+        float ease(PlayerAnimBone bone, float value);
     }
-
 }

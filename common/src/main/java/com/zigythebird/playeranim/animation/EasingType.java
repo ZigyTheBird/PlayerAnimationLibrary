@@ -86,7 +86,7 @@ public interface EasingType {
 
 	default double apply(AnimationPoint animationPoint, Float easingValue, float lerpValue) {
 		if (animationPoint.currentTick() >= animationPoint.transitionLength())
-			return (float)animationPoint.animationEndValue();
+			return animationPoint.animationEndValue();
 
 		return Mth.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
 	}

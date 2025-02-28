@@ -92,7 +92,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
         if(!playerAnimLib$firstPersonNext && playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
             AnimationProcessor processor = state.playerAnimLib$getAnimProcessor();
-            processor.handleAnimations(emote.getTickDelta());
+            processor.handleAnimations(emote.getTickDelta(), false);
             ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
             emote.updatePart("head", this.head, processor);

@@ -23,8 +23,9 @@ import java.util.*;
 @ApiStatus.Internal
 public class AnimationProcessor {
 	private final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
+	protected Map<String, BoneSnapshot> boneSnapshots;
 
-	private float animTime;
+	protected float animTime;
 	private float lastGameTickTime;
 	private long lastRenderedInstance = -1;
 	private final AbstractClientPlayer player;
@@ -56,7 +57,7 @@ public class AnimationProcessor {
 	 * It is an internal method for automated animation parsing.
 	 */
 	@ApiStatus.Internal
-	public void handleAnimations(float partialTick, boolean tick) {
+	public void handleAnimations(float partialTick, boolean fullTick) {
 		Vec3 velocity = player.getDeltaMovement();
 		float avgVelocity = (float)((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
 		AnimationState animationState = new AnimationState(player, partialTick, avgVelocity >= 0.015F);
@@ -85,7 +86,7 @@ public class AnimationProcessor {
 		animationState.animationTick = this.animTime;
 		this.lastRenderedInstance = player.getId();
 
-		if (tick) player.playerAnimLib$getAnimManager().tick(animationState.copy());
+		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationState.copy());
 
 		if (!this.getRegisteredBones().isEmpty())
 			this.tickAnimation(player, animatableManager, this.animTime, animationState, false);
@@ -135,7 +136,7 @@ public class AnimationProcessor {
 	 * @param crashWhenCantFindBone Whether to crash if unable to find a required bone, or to continue with the remaining bones
 	 */
 	public void tickAnimation(AbstractClientPlayer player, PlayerAnimManager playerAnimManager, float animTime, AnimationState state, boolean crashWhenCantFindBone) {
-		Map<String, BoneSnapshot> boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
+		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
 
 		for (Pair<Integer, IAnimation> pair : playerAnimManager.getLayers()) {
 			IAnimation animation = pair.getRight();

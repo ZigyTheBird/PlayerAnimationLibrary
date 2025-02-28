@@ -16,7 +16,6 @@ import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.math.MolangParser;
-import com.zigythebird.playeranim.math.Vec3f;
 import gg.moonflower.molangcompiler.api.MolangExpression;
 import gg.moonflower.molangcompiler.api.MolangRuntime;
 import gg.moonflower.molangcompiler.api.exception.MolangRuntimeException;
@@ -42,7 +41,7 @@ public class AnimationController implements IAnimation {
 	protected final AnimationStateHandler stateHandler;
 	protected final Map<String, BoneAnimationQueue> boneAnimationQueues = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, BoneSnapshot> boneSnapshots = new Object2ObjectOpenHashMap<>();
-	protected final Map<String, BoneSnapshot> latestSnapshots = new Object2ObjectOpenHashMap<>();
+	protected final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected Queue<AnimationProcessor.QueuedAnimation> animationQueue = new LinkedList<>();
 	protected final MolangRuntime molangRuntime;
 
@@ -107,6 +106,19 @@ public class AnimationController implements IAnimation {
 		this.transitionLength = transitionTickTime;
 		this.stateHandler = animationHandler;
 		this.molangRuntime = MolangParser.createNewRuntime(this);
+
+		//Todo: Make an event where you can add custom body parts here
+		this.registerPlayerAnimBone("body");
+		this.registerPlayerAnimBone("right_arm");
+		this.registerPlayerAnimBone("left_arm");
+		this.registerPlayerAnimBone("right_leg");
+		this.registerPlayerAnimBone("left_leg");
+		this.registerPlayerAnimBone("head");
+		this.registerPlayerAnimBone("torso");
+		this.registerPlayerAnimBone("right_item");
+		this.registerPlayerAnimBone("left_item");
+		this.registerPlayerAnimBone("cape");
+		this.registerPlayerAnimBone("elytra");
 	}
 
 	/**
@@ -767,8 +779,8 @@ public class AnimationController implements IAnimation {
 	}
 	
 	public void get3DTransformRaw(@NotNull PlayerAnimBone bone) {
-		if (latestSnapshots.containsKey(bone.getName())) {
-			bone.copySnapshot(latestSnapshots.get(bone.getName()));
+		if (bones.containsKey(bone.getName())) {
+			bone.copyOtherBone(bones.get(bone.getName()));
 		}
 	}
 
@@ -831,13 +843,14 @@ public class AnimationController implements IAnimation {
 		if (!modifiers.isEmpty()) {
 			modifiers.get(0).setupAnim(state);
 		}
+		else internalSetupAnim(state);
 	}
 
 	protected void internalSetupAnim(AnimationState state) {
 		this.isJustStarting = state.getPlayerAnimManager().isFirstTick();
+		Map<String, BoneSnapshot> boneSnapshots = state.getPlayer().playerAnimLib$getAnimProcessor().boneSnapshots;
 
-		this.clearBoneSnapshots();
-		this.process(state, this.bones, boneSnapshots, animTime, false);
+		this.process(state, this.bones, boneSnapshots, state.getPlayer().playerAnimLib$getAnimProcessor().animTime, false);
 
 		for (BoneAnimationQueue boneAnimation : this.getBoneAnimationQueues().values()) {
 			PlayerAnimBone bone = boneAnimation.bone();
@@ -891,17 +904,7 @@ public class AnimationController implements IAnimation {
 				snapshot.startBendAnim();
 				bone.markBendAsChanged();
 			}
-
-			this.addBoneSnapshot(snapshot);
 		}
-	}
-
-	public void clearBoneSnapshots() {
-		this.latestSnapshots.clear();
-	}
-
-	public void addBoneSnapshot(BoneSnapshot snapshot) {
-		this.latestSnapshots.put(snapshot.getBone().getName(), new BoneSnapshot(snapshot));
 	}
 
 	public void addModifierBefore(@NotNull AbstractModifier modifier) {
@@ -928,6 +931,20 @@ public class AnimationController implements IAnimation {
 			}
 			tmp.setAnim(internalAnimationAccessor);
 		}
+	}
+
+	private void registerPlayerAnimBone(String name) {
+		registerPlayerAnimBone(new PlayerAnimBone(null, name));
+	}
+
+	/**
+	 * Adds the given bone to the bones list for this controller
+	 * <p>
+	 * This is normally handled automatically by the mod
+	 */
+	private void registerPlayerAnimBone(PlayerAnimBone bone) {
+		bone.saveInitialSnapshot();
+		this.bones.put(bone.getName(), bone);
 	}
 
 	/**
