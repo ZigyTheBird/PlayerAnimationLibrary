@@ -1,11 +1,10 @@
 package com.zigythebird.playeranim.animation.layered;
 
-import com.zigythebird.playeranim.animation.AnimationController;
+import com.zigythebird.playeranim.animation.AnimationState;
 import com.zigythebird.playeranim.animation.State;
-import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranim.math.Vec3f;
+import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,23 +41,18 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void tick() {
-        if (anim != null) anim.tick();
+    public void tick(AnimationState state) {
+        if (anim != null) anim.tick(state);
     }
 
     @Override
-    public @NotNull Vec3f get3DTransformRaw(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
-        return anim == null ? value0 : anim.get3DTransformRaw(modelName, type, tickDelta, value0);
+    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+        if (anim != null) anim.get3DTransform(bone);
     }
 
     @Override
-    public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
-        return anim == null ? value0 : anim.get3DTransform(modelName, type, tickDelta, value0);
-    }
-
-    @Override
-    public void setupAnim(float tickDelta) {
-        if (this.anim != null) this.anim.setupAnim(tickDelta);
+    public void setupAnim(AnimationState state) {
+        if (this.anim != null) this.anim.setupAnim(state);
     }
 
     @Override

@@ -38,7 +38,7 @@ public class BakedAnimationsAdapter {
 		return animations;
 	}
 
-	public static KeyframeStack<Keyframe<MolangExpression>> buildKeyframeStackFromPlayerAnim(List<Pair<Integer, Vec3>> entries) throws CompoundException {
+	public static KeyframeStack<Keyframe<MolangExpression>> buildKeyframeStackFromLegacyAnim(List<Pair<Integer, Vec3>> entries) throws CompoundException {
 		if (entries.isEmpty())
 			return new KeyframeStack<>();
 

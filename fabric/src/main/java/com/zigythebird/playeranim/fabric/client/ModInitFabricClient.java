@@ -1,8 +1,12 @@
 package com.zigythebird.playeranim.fabric.client;
 
 import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.ModInitClient;
 import com.zigythebird.playeranim.cache.PlayerAnimCache;
+import com.zigythebird.playeranim.network.BasicPlayerAnimPacket;
+import com.zigythebird.playeranim.network.PayloadHandlerS2C;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
@@ -24,5 +28,10 @@ public final class ModInitFabricClient implements ClientModInitializer {
                 PlayerAnimCache.resourceLoaderCallback(manager);
             }
         });
+
+        ClientPlayNetworking.registerGlobalReceiver(BasicPlayerAnimPacket.TYPE, (payload, context) ->
+                context.client().execute(() -> PayloadHandlerS2C.playAnimation(payload)));
+
+        ModInitClient.init();
     }
 }

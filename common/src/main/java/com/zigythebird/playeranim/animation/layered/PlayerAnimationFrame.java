@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.animation.layered;
 
-import com.zigythebird.playeranim.animation.TransformType;
-import com.zigythebird.playeranim.math.Pair;
-import com.zigythebird.playeranim.math.Vec3f;
+import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.BoneSnapshot;
+import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -13,20 +13,20 @@ import java.util.Map;
  * and override its tick,
  * <p>
  * It is a representation of your pose on the frame.
- * Override {@link IAnimation#setupAnim(float)} and set the pose there.
+ * Override {@link IAnimation#setupAnim} and set the pose there.
  */
 public abstract class PlayerAnimationFrame implements IAnimation {
 
-    protected PlayerPart head = new PlayerPart();
-    protected PlayerPart body = new PlayerPart();
-    protected PlayerPart rightArm = new PlayerPart();
-    protected PlayerPart leftArm = new PlayerPart();
-    protected PlayerPart rightLeg = new PlayerPart();
-    protected PlayerPart leftLeg = new PlayerPart();
-    protected PlayerPart rightItem = new PlayerPart();
-    protected PlayerPart leftItem = new PlayerPart();
+    protected PlayerBone head = new PlayerBone();
+    protected PlayerBone body = new PlayerBone();
+    protected PlayerBone rightArm = new PlayerBone();
+    protected PlayerBone leftArm = new PlayerBone();
+    protected PlayerBone rightLeg = new PlayerBone();
+    protected PlayerBone leftLeg = new PlayerBone();
+    protected PlayerBone rightItem = new PlayerBone();
+    protected PlayerBone leftItem = new PlayerBone();
 
-    HashMap<String, PlayerPart> parts = new HashMap<>();
+    HashMap<String, PlayerBone> parts = new HashMap<>();
 
     public PlayerAnimationFrame() {
         parts.put("head", head);
@@ -41,15 +41,15 @@ public abstract class PlayerAnimationFrame implements IAnimation {
 
 
     @Override
-    public void tick() {
-        IAnimation.super.tick();
+    public void tick(AnimationState state) {
+        IAnimation.super.tick(state);
     }
 
     @Override
     public boolean isActive() {
-        for (Map.Entry<String, PlayerPart> entry: parts.entrySet()) {
-            PlayerPart part = entry.getValue();
-            if (part.bend != null || part.pos != null || part.rot != null || part.scale != null) return true;
+        for (Map.Entry<String, PlayerBone> entry: parts.entrySet()) {
+            BoneSnapshot part = entry.getValue();
+            if (part.isScaleAnimInProgress() || part.isRotAnimInProgress() || part.isPosAnimInProgress() || part.isBendAnimInProgress()) return true;
         }
         return false;
     }
@@ -59,39 +59,52 @@ public abstract class PlayerAnimationFrame implements IAnimation {
      * Don't use it if you don't want to set every part in every frame
      */
     public void resetPose() {
-        for (Map.Entry<String, PlayerPart> entry: parts.entrySet()) {
-            entry.getValue().setNull();
+        for (Map.Entry<String, PlayerBone> entry: parts.entrySet()) {
+            entry.getValue().setToInitialPose();
         }
     }
-
-
+    
     @Override
-    public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
-        PlayerPart part = parts.get(modelName);
-        if (part == null) return value0;
-        switch (type) {
-            case POSITION:
-                return part.pos == null ? value0 : part.pos;
-            case ROTATION:
-                return part.rot == null ? value0 : part.rot;
-            case SCALE:
-                return part.scale == null ? value0 : part.scale;
-            case BEND:
-                return part.bend == null ? value0 : new Vec3f(part.bend.getLeft(), part.bend.getRight(), 0f);
-            default:
-                return value0;
-        }
+    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+        BoneSnapshot part = parts.get(bone.getName());
+        if (part != null) bone.copySnapshot(part);
     }
+    
+    public static class PlayerBone extends BoneSnapshot {
+        public PlayerBone() {
+            super();
+            this.posAnimInProgress = false;
+            this.rotAnimInProgress = false;
+            this.scaleAnimInProgress = false;
+            this.bendAnimInProgress = false;
+        }
+        
+        @Override
+        public void setToInitialPose() {
+            this.posAnimInProgress = false;
+            this.rotAnimInProgress = false;
+            this.scaleAnimInProgress = false;
+            this.bendAnimInProgress = false;
+        }
+        
+        public void updateScale(float scaleX, float scaleY, float scaleZ) {
+            super.updateScale(scaleX, scaleY, scaleZ);
+            this.scaleAnimInProgress = scaleX != 1 || scaleY != 1 || scaleZ != 1;
+        }
+        
+        public void updateOffset(float offsetX, float offsetY, float offsetZ) {
+            super.updateOffset(offsetX, offsetY, offsetZ);
+            this.posAnimInProgress = offsetX != 0 || offsetY != 0 || offsetZ != 0;
+        }
+        
+        public void updateRotation(float rotX, float rotY, float rotZ) {
+            super.updateRotation(rotX, rotY, rotZ);
+            this.rotAnimInProgress = rotX != 0 || rotY != 0 || rotZ != 0;
+        }
 
-    public static class PlayerPart {
-        public Vec3f pos;
-        public Vec3f scale;
-        public Vec3f rot;
-        public Pair<Float, Float> bend;
-
-        protected void setNull() {
-            pos = scale = rot = null;
-            bend = null;
+        public void updateBend(float bendAxis, float bend) {
+            super.updateBend(bendAxis, bend);
+            this.bendAnimInProgress = bend != 0;
         }
     }
 }

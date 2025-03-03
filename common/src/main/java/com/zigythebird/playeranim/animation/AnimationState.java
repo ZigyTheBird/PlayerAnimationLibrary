@@ -1,10 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranim.dataticket.DataTicket;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.player.AbstractClientPlayer;
-
-import java.util.Map;
 
 /**
  * Animation state handler for end-users
@@ -14,15 +10,21 @@ import java.util.Map;
  */
 public class AnimationState {
 	private final AbstractClientPlayer player;
-	private final float partialTick;
-	private final boolean isMoving;
-	private final Map<DataTicket<?>, Object> extraData = new Object2ObjectOpenHashMap<>();
+	private float partialTick;
+	private boolean isMoving;
 	public float animationTick;
 
 	public AnimationState(AbstractClientPlayer player, float partialTick, boolean isMoving) {
 		this.player = player;
 		this.partialTick = partialTick;
 		this.isMoving = isMoving;
+	}
+
+	public AnimationState(AbstractClientPlayer player, float partialTick, boolean isMoving, float animationTick) {
+		this.player = player;
+		this.partialTick = partialTick;
+		this.isMoving = isMoving;
+		this.animationTick = animationTick;
 	}
 
 	/**
@@ -41,6 +43,13 @@ public class AnimationState {
 	}
 
 	/**
+	 * Gets the current player animation manager
+	 */
+	public PlayerAnimManager getPlayerAnimManager() {
+		return getPlayer().playerAnimLib$getAnimManager();
+	}
+
+	/**
 	 * Gets the fractional value of the current game tick that has passed in rendering
 	 */
 	public float getPartialTick() {
@@ -56,33 +65,15 @@ public class AnimationState {
 		return this.isMoving;
 	}
 
-	/**
-	 * Gets the optional additional data map for the state
-	 *
-	 * @see DataTicket
-	 */
-	public Map<DataTicket<?>, ?> getExtraData() {
-		return this.extraData;
+	public void setIsMoving(boolean isMoving) {
+		this.isMoving = isMoving;
 	}
 
-	/**
-	 * Get a data value saved to this animation state by the ticket for that data
-	 *
-	 * @see DataTicket
-	 * @param dataTicket The {@link DataTicket} for the data to retrieve
-	 * @return The cached data for the given {@code DataTicket}, or null if not saved
-	 */
-	public <D> D getData(DataTicket<D> dataTicket) {
-		return dataTicket.getData(this.extraData);
+	public void setPartialTick(float partialTick) {
+		this.partialTick = partialTick;
 	}
 
-	/**
-	 * Save a data value for the given {@link DataTicket} in the additional data map
-	 *
-	 * @param dataTicket The {@code DataTicket} for the data value
-	 * @param data The data value
-	 */
-	public <D> void setData(DataTicket<D> dataTicket, D data) {
-		this.extraData.put(dataTicket, data);
+	public AnimationState copy() {
+		return new AnimationState(player, partialTick, isMoving, animationTick);
 	}
 }

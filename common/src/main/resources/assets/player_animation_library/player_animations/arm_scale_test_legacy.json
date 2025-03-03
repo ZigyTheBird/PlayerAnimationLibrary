@@ -1,0 +1,24 @@
+{
+    "version": 3,
+    "name": "arm_scale_test_legacy",
+    "emote": {
+        "endTick": 1,
+        "isLoop": true,
+        "returnTick": 0,
+        "moves": [
+            {
+                "tick": 0,
+                "rightArm": {
+                    "scaleX": 0,
+                    "scaleZ": 0,
+                    "scaleY": 0
+                },
+                "rightItem": {
+                    "scaleX": 5,
+                    "scaleZ": 5,
+                    "scaleY": 5
+                }
+            }
+        ]
+    }
+}
