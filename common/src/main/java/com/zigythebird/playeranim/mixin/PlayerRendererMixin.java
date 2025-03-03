@@ -50,11 +50,13 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
             animationPlayer.get3DTransform(playerAnimLib$bodyAnimBone);
             
             matrices.scale(playerAnimLib$bodyAnimBone.getScaleX(), playerAnimLib$bodyAnimBone.getScaleY(), playerAnimLib$bodyAnimBone.getScaleZ());
-            matrices.translate(playerAnimLib$bodyAnimBone.getPosX()/16, playerAnimLib$bodyAnimBone.getPosY()/16, playerAnimLib$bodyAnimBone.getPosZ()/16);
+            matrices.translate(playerAnimLib$bodyAnimBone.getPosX()/16, playerAnimLib$bodyAnimBone.getPosY()/16 + 0.75, playerAnimLib$bodyAnimBone.getPosZ()/16);
 
             matrices.mulPose(Axis.ZP.rotation(playerAnimLib$bodyAnimBone.getRotZ()));    //roll
             matrices.mulPose(Axis.YP.rotation(playerAnimLib$bodyAnimBone.getRotY()));    //pitch
             matrices.mulPose(Axis.XP.rotation(playerAnimLib$bodyAnimBone.getRotX()));    //yaw
+
+            matrices.translate(0, -0.75, 0);
         }
     }
 
