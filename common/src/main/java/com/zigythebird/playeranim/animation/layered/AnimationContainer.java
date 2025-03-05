@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.animation.layered;
 
 import com.zigythebird.playeranim.animation.AnimationState;
-import com.zigythebird.playeranim.animation.State;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
@@ -36,8 +35,8 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public @NotNull State getAnimationState() {
-        return anim != null ? anim.getAnimationState() : State.STOPPED;
+    public boolean isActive() {
+        return anim != null && anim.isActive();
     }
 
     @Override

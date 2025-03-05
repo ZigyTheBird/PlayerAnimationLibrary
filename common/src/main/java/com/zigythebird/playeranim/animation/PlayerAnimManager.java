@@ -110,11 +110,11 @@ public class PlayerAnimManager implements IAnimation {
 	}
 
 	@Override
-	public @NotNull State getAnimationState() {
+	public boolean isActive() {
 		for (Pair<Integer, IAnimation> layer : layers) {
-			if (layer.getRight().isActive()) return State.RUNNING;
+			if (layer.getRight().isActive()) return true;
 		}
-		return State.STOPPED;
+		return false;
 	}
 
 	@Override
