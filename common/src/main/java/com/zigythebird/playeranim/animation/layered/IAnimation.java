@@ -23,12 +23,10 @@ public interface IAnimation {
     default void setupAnim(AnimationState state) {}
 
     /**
-     * Pretty self-explanatory.
+     * Is the animation currently active?
+     * The tick method will only be invoked when the animation is active
      */
-    @NotNull State getAnimationState();
-    default boolean isActive() {
-        return getAnimationState().isActive();
-    }
+    boolean isActive();
 
     /**
      * Transform a bone to match the current animation.

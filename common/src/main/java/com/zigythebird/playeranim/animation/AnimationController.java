@@ -248,6 +248,11 @@ public class AnimationController implements IAnimation {
 		return this.animationState;
 	}
 
+	@Override
+	public boolean isActive() {
+		return this.animationState.isActive();
+	}
+
 	/**
 	 * Gets the currently loaded animation's {@link BoneAnimationQueue BoneAnimationQueues}.
 	 */

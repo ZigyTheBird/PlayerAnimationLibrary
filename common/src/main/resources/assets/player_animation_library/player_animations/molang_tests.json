@@ -1,0 +1,26 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"molang_test1": {
+			"animation_length": 5,
+			"bones": {
+				"body": {
+					"rotation": {
+						"vector": [0, "q.anim_time * 20", 0]
+					}
+				}
+			}
+		},
+		"molang_test2": {
+			"animation_length": 5,
+			"bones": {
+				"body": {
+					"rotation": {
+						"vector": [0, "math.sin(q.anim_time * 50) * 45", 0]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}
