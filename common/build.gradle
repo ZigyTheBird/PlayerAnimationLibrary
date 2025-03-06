@@ -16,7 +16,8 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     compileOnly 'org.jetbrains:annotations:23.0.0'
 
-    compileOnly "gg.moonflower:molang-compiler:$rootProject.molang_compiler_version"
+    //Original Repository: https://github.com/Ocelot5836/molang-compiler
+    compileOnly 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
 }
 
 publishing {
