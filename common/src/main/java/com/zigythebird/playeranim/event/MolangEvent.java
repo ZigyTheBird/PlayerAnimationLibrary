@@ -27,6 +27,10 @@ public class MolangEvent extends Event {
         return this.builder;
     }
 
+    public MolangRuntime.Builder setFloatQuery(String name, Supplier<Float> value) {
+        return MolangParser.setFloatQuery(this.builder, name, value);
+    }
+
     public MolangRuntime.Builder setBoolQuery(String name, BooleanSupplier value) {
         return MolangParser.setBoolQuery(this.builder, name, value);
     }
