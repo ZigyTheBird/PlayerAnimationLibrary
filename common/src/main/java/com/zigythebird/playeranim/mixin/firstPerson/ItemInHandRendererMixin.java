@@ -21,8 +21,7 @@ public class ItemInHandRendererMixin {
     private void disableDefaultItemIfNeeded(float f, PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LocalPlayer localPlayer, int i, CallbackInfo ci) {
         if (localPlayer instanceof IAnimatedPlayer player && (player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL)) {
                 ci.cancel();
-            }
-
+        }
     }
 
     /* AW needed, I may do it later

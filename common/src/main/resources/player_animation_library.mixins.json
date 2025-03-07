@@ -6,7 +6,7 @@
   "minVersion": "0.8",
   "client": [
     "AbstractClientPlayerMixin",
-    "ArmorFeatureRendererMixin",
+    "HumanoidArmorLayerMixin",
     "CapeLayerAccessor",
     "CapeLayerMixin_noBend",
     "ElytraLayerMixin_noBend",

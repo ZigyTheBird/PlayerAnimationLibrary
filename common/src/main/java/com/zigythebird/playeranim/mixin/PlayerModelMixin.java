@@ -15,9 +15,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Quaternionf;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,12 +25,6 @@ import java.util.function.Function;
 
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
 public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implements IPlayerModel {
-    @Shadow
-    @Final
-    public ModelPart rightSleeve;
-    @Shadow
-    @Final
-    public ModelPart leftSleeve;
     @Unique
     private boolean playerAnimLib$firstPersonNext = false;
 
@@ -116,9 +108,10 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
             var showRightArm = config.isShowRightArm();
             var showLeftArm = config.isShowLeftArm();
             this.rightArm.visible = showRightArm;
-            this.rightSleeve.visible = showRightArm;
             this.leftArm.visible = showLeftArm;
-            this.leftSleeve.visible = showLeftArm;
+            // These are children of those ^^^
+            //this.rightSleeve.visible = showRightArm;
+            //this.leftSleeve.visible = showLeftArm;
         }
     }
 
@@ -131,7 +124,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
         this.rightArm.visible = visible;
         this.leftArm.visible = visible;
 
-        // these are children of those ^^^
+        // These are children of those ^^^
         //this.hat.visible = visible;
         //this.leftSleeve.visible = visible;
         //this.rightSleeve.visible = visible;
