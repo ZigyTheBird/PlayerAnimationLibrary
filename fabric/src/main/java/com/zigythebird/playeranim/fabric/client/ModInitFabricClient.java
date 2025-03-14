@@ -2,7 +2,10 @@ package com.zigythebird.playeranim.fabric.client;
 
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.ModInitClient;
+import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.cache.PlayerAnimCache;
+import com.zigythebird.playeranim.event.MolangEvent;
+import com.zigythebird.playeranim.fabric.event.PlayerAnimationRegisterEvent;
 import com.zigythebird.playeranim.network.BasicPlayerAnimPacket;
 import com.zigythebird.playeranim.network.PayloadHandlerS2C;
 import net.fabricmc.api.ClientModInitializer;
@@ -31,6 +34,11 @@ public final class ModInitFabricClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(BasicPlayerAnimPacket.TYPE, (payload, context) ->
                 context.client().execute(() -> PayloadHandlerS2C.playAnimation(payload)));
+
+        PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register(((player, manager) ->
+                PlayerAnimationRegisterEvent.EVENT.invoker().interact(player, manager)));
+        MolangEvent.MOLANG_EVENT.register(((controller, builder) ->
+                com.zigythebird.playeranim.fabric.event.MolangEvent.EVENT.invoker().interact(controller, builder)));
 
         ModInitClient.init();
     }

@@ -39,6 +39,7 @@ dependencies {
 
     //Original Repository: https://github.com/Ocelot5836/molang-compiler
     runtimeOnly 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
+    compileOnly 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
     forgeRuntimeLibrary 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
     shadowBundle 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
 }

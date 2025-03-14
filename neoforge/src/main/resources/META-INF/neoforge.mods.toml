@@ -1,17 +1,17 @@
 modLoader = "javafml"
 loaderVersion = "[4,)"
 #issueTrackerURL = ""
-license = "Insert License Here"
+license = "MIT License"
 
 [[mods]]
 modId = "player_animation_library"
 version = "${version}"
 displayName = "Player Animation Library"
-authors = "Me!"
+authors = "Zigy"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+Library that allows mods and data packs to animate the player.
 '''
-#logoFile = ""
+logoFile = "assets/player_animation_library/icon.png"
 
 [[dependencies.player_animation_library]]
 modId = "neoforge"

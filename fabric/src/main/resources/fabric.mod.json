@@ -3,15 +3,14 @@
   "id": "player_animation_library",
   "version": "${version}",
   "name": "Player Animation Library",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "Library that allows mods and data packs to animate the player.",
   "authors": [
-    "Me!"
+    "Zigy"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "sources": "https://github.com/ZigyTheBird/PlayerAnimationLibrary"
   },
-  "license": "CC0-1.0",
+  "license": "MIT License",
   "icon": "assets/player_animation_library/icon.png",
   "environment": "*",
   "entrypoints": {
@@ -30,8 +29,5 @@
     "minecraft": "~1.21.4",
     "java": ">=21",
     "fabric-api": "*"
-  },
-  "suggests": {
-    "another-mod": "*"
   }
 }

@@ -45,11 +45,11 @@ public class MolangParser {
         return builder.create();
     }
 
-    public static void setFloatQuery(MolangRuntime.Builder builder, String name, Supplier<Float> value) {
-        builder.setQuery(name, MolangExpression.of(value));
+    public static MolangRuntime.Builder setFloatQuery(MolangRuntime.Builder builder, String name, Supplier<Float> value) {
+        return builder.setQuery(name, MolangExpression.of(value));
     }
 
-    public static void setBoolQuery(MolangRuntime.Builder builder, String name, BooleanSupplier value) {
-        builder.setQuery(name, MolangExpression.of(value));
+    public static MolangRuntime.Builder setBoolQuery(MolangRuntime.Builder builder, String name, BooleanSupplier value) {
+        return builder.setQuery(name, MolangExpression.of(value));
     }
 }

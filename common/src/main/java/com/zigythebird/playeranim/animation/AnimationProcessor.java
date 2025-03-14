@@ -1,18 +1,12 @@
 package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.ModInit;
-import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
-import com.zigythebird.playeranim.animation.keyframe.AnimationPoint;
-import com.zigythebird.playeranim.animation.keyframe.BoneAnimationQueue;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.cache.PlayerAnimCache;
-import com.zigythebird.playeranim.dataticket.DataTickets;
 import com.zigythebird.playeranim.math.Pair;
-import com.zigythebird.playeranim.math.Vec3f;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -89,7 +83,7 @@ public class AnimationProcessor {
 		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationState.copy());
 
 		if (!this.getRegisteredBones().isEmpty())
-			this.tickAnimation(player, animatableManager, this.animTime, animationState, false);
+			this.tickAnimation(player, animatableManager, this.animTime, animationState);
 	}
 
 	/**
@@ -129,13 +123,12 @@ public class AnimationProcessor {
 	/**
 	 * Tick and apply transformations to the model based on the current state of the {@link AnimationController}
 	 *
-	 * @param player            The player object relevant to the animation being played
-	 * @param playerAnimManager			The PlayerAnimManager instance being used for this animation processor
+	 * @param player            	The player object relevant to the animation being played
+	 * @param playerAnimManager		The PlayerAnimManager instance being used for this animation processor
 	 * @param animTime              The internal tick counter kept by the {@link PlayerAnimManager} for this player
 	 * @param state                 An {@link AnimationState} instance applied to this render frame
-	 * @param crashWhenCantFindBone Whether to crash if unable to find a required bone, or to continue with the remaining bones
 	 */
-	public void tickAnimation(AbstractClientPlayer player, PlayerAnimManager playerAnimManager, float animTime, AnimationState state, boolean crashWhenCantFindBone) {
+	public void tickAnimation(AbstractClientPlayer player, PlayerAnimManager playerAnimManager, float animTime, AnimationState state) {
 		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
 
 		for (Pair<Integer, IAnimation> pair : playerAnimManager.getLayers()) {
