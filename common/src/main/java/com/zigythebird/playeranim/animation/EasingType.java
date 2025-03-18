@@ -9,6 +9,7 @@ import com.zigythebird.playeranim.animation.keyframe.AnimationPoint;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import team.unnamed.mocha.MochaEngine;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,7 +76,7 @@ public interface EasingType {
 
 		try {
 			if (animationPoint.keyFrame() != null && !animationPoint.keyFrame().easingArgs().isEmpty())
-				easingVariable = env.eval(animationPoint.keyFrame().easingArgs()); // TODO check
+				easingVariable = env.eval(Collections.singletonList(animationPoint.keyFrame().easingArgs().getFirst()));
 		} catch (Throwable e) {
 			ModInit.LOGGER.error("Failed to parse easing args", e);
 		}

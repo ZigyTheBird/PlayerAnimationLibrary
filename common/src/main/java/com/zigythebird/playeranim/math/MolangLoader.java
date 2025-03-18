@@ -16,7 +16,6 @@ import team.unnamed.mocha.runtime.value.ObjectValue;
 import team.unnamed.mocha.runtime.value.Value;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -27,16 +26,12 @@ public class MolangLoader {
     public static Expression parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
         Expression raw;
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
-            List<Expression> expressions = parser.parseAll();
-            if (expressions.size() > 1) { // TODO entire list
-                throw new IOException("not a singleton!");
-            }
-            raw = expressions.getFirst();
+            raw = parser.next();
         } catch (IOException e) {
             ModInit.LOGGER.error("Failed to compile molang!", e);
             raw = defaultValue;
         }
-        if (isForRotation && IsConstantExpression.test(raw)) { // TODO move to animator
+        if (isForRotation && IsConstantExpression.test(raw)) {
             double constant = ((DoubleExpression) raw).value();
             return new DoubleExpression(Math.toRadians(constant));
         }

@@ -109,8 +109,9 @@ public final class PlayerAnimCache {
 
 	public static Animation loadLegacyPlayerAnim(JsonElement json) {
 		JsonObject obj = json.getAsJsonObject();
+		JsonObject emoteObj = obj.get("emote").getAsJsonObject();
 		List<BoneAnimation> boneAnims = new ArrayList<>();
-		for (JsonElement jsonElement : obj.get("moves").getAsJsonArray()) {
+		for (JsonElement jsonElement : emoteObj.get("moves").getAsJsonArray()) {
 			if (json.isJsonObject()) {
 				JsonObject move = (JsonObject) jsonElement;
 				int currentTick = move.get("tick").getAsInt();
@@ -143,7 +144,7 @@ public final class PlayerAnimCache {
 		BoneAnimation[] boneAnimations = boneAnims.toArray(new BoneAnimation[]{});
 		String name = obj.get("name").getAsString();
 		return new Animation(name, BakedAnimationsLoader.calculateAnimationLength(boneAnimations),
-				obj.get("emote").getAsJsonObject().get("isLoop").getAsBoolean() ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE, boneAnimations, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+				emoteObj.get("isLoop").getAsBoolean() ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE, boneAnimations, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
 	}
 
 	public static String getCorrectPlayerBoneName(String name) {
