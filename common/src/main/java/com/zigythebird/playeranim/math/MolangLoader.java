@@ -16,6 +16,9 @@ import team.unnamed.mocha.runtime.value.ObjectValue;
 import team.unnamed.mocha.runtime.value.Value;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -23,19 +26,23 @@ import java.util.function.ToDoubleFunction;
 public class MolangLoader {
     private static final Consumer<ParseException> HANDLER = e -> ModInit.LOGGER.warn("Failed to parse!", e);
 
-    public static Expression parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
-        Expression raw;
+    public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
+        List<Expression> expressions = new ArrayList<>(1);
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
-            raw = parser.next();
+            for (Expression raw : parser.parseAll()) {
+                if (isForRotation && IsConstantExpression.test(raw)) {
+                    expressions.add(new DoubleExpression(Math.toRadians(
+                            ((DoubleExpression) raw).value()
+                    )));
+                } else {
+                    expressions.add(raw);
+                }
+            }
         } catch (IOException e) {
             ModInit.LOGGER.error("Failed to compile molang!", e);
-            raw = defaultValue;
+            return Collections.singletonList(defaultValue);
         }
-        if (isForRotation && IsConstantExpression.test(raw)) {
-            double constant = ((DoubleExpression) raw).value();
-            return new DoubleExpression(Math.toRadians(constant));
-        }
-        return raw;
+        return expressions;
     }
 
     public static MochaEngine<AnimationController> createNewEngine(AnimationController controller) {
@@ -69,5 +76,9 @@ public class MolangLoader {
         return binding.set(name, (team.unnamed.mocha.runtime.value.Function<AnimationController>)
                 (ctx, args) -> value.apply(ctx.entity())
         );
+    }
+
+    public static boolean isConstant(List<Expression> expressions) {
+        return expressions.stream().anyMatch(IsConstantExpression::test);
     }
 }

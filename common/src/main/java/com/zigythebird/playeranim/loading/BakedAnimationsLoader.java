@@ -170,9 +170,9 @@ public class BakedAnimationsLoader {
 		List<Keyframe> yFrames = new ObjectArrayList<>();
 		List<Keyframe> zFrames = new ObjectArrayList<>();
 
-		Expression xPrev = null;
-		Expression yPrev = null;
-		Expression zPrev = null;
+		List<Expression> xPrev = null;
+		List<Expression> yPrev = null;
+		List<Expression> zPrev = null;
 		Pair<String, JsonElement> prevEntry = null;
 
 		for (Pair<String, JsonElement> entry : entries) {
@@ -190,9 +190,9 @@ public class BakedAnimationsLoader {
 			Expression defaultValue = new DoubleExpression(type == TransformType.SCALE ? 1 : 0);
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
-			Expression xValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(0), defaultValue);
-			Expression yValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(1), defaultValue);
-			Expression zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
+			List<Expression> xValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(0), defaultValue);
+			List<Expression> yValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(1), defaultValue);
+			List<Expression> zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;

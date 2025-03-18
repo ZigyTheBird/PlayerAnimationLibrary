@@ -24,7 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
-import team.unnamed.mocha.runtime.IsConstantExpression;
 
 import java.util.*;
 import java.util.function.Function;
@@ -734,22 +733,22 @@ public class AnimationController implements IAnimation {
 		double endValue;
 
 		try {
-			startValue = this.molangRuntime.eval(Collections.singletonList(currentFrame.startValue()));
-			endValue = this.molangRuntime.eval(Collections.singletonList(currentFrame.endValue()));
+			startValue = this.molangRuntime.eval(currentFrame.startValue());
+			endValue = this.molangRuntime.eval(currentFrame.endValue());
 		} catch (Throwable e) {
 			ModInit.LOGGER.error("Failed to parse molangs!", e);
 			startValue = endValue = type == TransformType.SCALE ? 1 : 0;
 		}
 
 		if (type == TransformType.ROTATION) {
-			if (!(IsConstantExpression.test(currentFrame.startValue(), this.molangRuntime.scope()))) {
+			if (!(MolangLoader.isConstant(currentFrame.startValue()))) {
 				startValue = Math.toRadians(startValue);
 
 				if (axis == Axis.X || axis == Axis.Y)
 					startValue *= -1;
 			}
 
-			if (!(IsConstantExpression.test(currentFrame.endValue(), this.molangRuntime.scope()))) {
+			if (!(MolangLoader.isConstant(currentFrame.endValue()))) {
 				endValue = Math.toRadians(endValue);
 
 				if (axis == Axis.X || axis == Axis.Y)
