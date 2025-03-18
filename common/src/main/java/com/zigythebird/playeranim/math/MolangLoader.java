@@ -31,7 +31,6 @@ public class MolangLoader {
                 throw new IOException("not a singleton!");
             }
             raw = expressions.getFirst();
-            System.out.println(raw);
         } catch (IOException e) {
             ModInit.LOGGER.error("Failed to compile molang!", e);
             raw = defaultValue;
