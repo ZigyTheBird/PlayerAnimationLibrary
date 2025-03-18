@@ -12,7 +12,7 @@ public class AnimationState {
 	private final AbstractClientPlayer player;
 	private float partialTick;
 	private boolean isMoving;
-	public float animationTick;
+	public double animationTick;
 
 	public AnimationState(AbstractClientPlayer player, float partialTick, boolean isMoving) {
 		this.player = player;
@@ -20,7 +20,7 @@ public class AnimationState {
 		this.isMoving = isMoving;
 	}
 
-	public AnimationState(AbstractClientPlayer player, float partialTick, boolean isMoving, float animationTick) {
+	public AnimationState(AbstractClientPlayer player, float partialTick, boolean isMoving, double animationTick) {
 		this.player = player;
 		this.partialTick = partialTick;
 		this.isMoving = isMoving;
@@ -31,7 +31,7 @@ public class AnimationState {
 	 * Gets the amount of ticks that have passed in either the current transition or
 	 * animation, depending on the controller's AnimationState.
 	 */
-	public float getAnimationTick() {
+	public double getAnimationTick() {
 		return this.animationTick;
 	}
 

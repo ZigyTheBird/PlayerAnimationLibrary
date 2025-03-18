@@ -19,8 +19,8 @@ public class AnimationProcessor {
 	private final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected Map<String, BoneSnapshot> boneSnapshots;
 
-	protected float animTime;
-	private float lastGameTickTime;
+	protected double animTime;
+	private double lastGameTickTime;
 	private long lastRenderedInstance = -1;
 	private final AbstractClientPlayer player;
 
@@ -58,12 +58,12 @@ public class AnimationProcessor {
 
 		Minecraft mc = Minecraft.getInstance();
 		PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
-		float currentTick = player.tickCount;
+		double currentTick = player.tickCount;
 
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + partialTick);
 
-		float currentFrameTime = currentTick + partialTick;
+		double currentFrameTime = currentTick + partialTick;
 		boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
 
 		if (isReRender && player.getId() == this.lastRenderedInstance)
@@ -72,7 +72,7 @@ public class AnimationProcessor {
 		if (!mc.isPaused()) {
 			animatableManager.updatedAt(currentFrameTime);
 
-			float lastUpdateTime = animatableManager.getLastUpdateTime();
+			double lastUpdateTime = animatableManager.getLastUpdateTime();
 			this.animTime += lastUpdateTime - this.lastGameTickTime;
 			this.lastGameTickTime = lastUpdateTime;
 		}
@@ -127,7 +127,7 @@ public class AnimationProcessor {
 	 * @param animTime              The internal tick counter kept by the {@link PlayerAnimManager} for this player
 	 * @param state                 An {@link AnimationState} instance applied to this render frame
 	 */
-	public void tickAnimation(PlayerAnimManager playerAnimManager, float animTime, AnimationState state) {
+	public void tickAnimation(PlayerAnimManager playerAnimManager, double animTime, AnimationState state) {
 		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
 
 		for (PlayerAnimBone entry : this.bones.values()) {

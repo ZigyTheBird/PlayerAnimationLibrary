@@ -55,7 +55,7 @@ public final class PlayerAnimCache {
 				loadPlayerAnim(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), splitPath[splitPath.length-1]), resource.getValue().open());
 			}
 			catch (Exception e) {
-				ModInit.LOGGER.error("Player Animation Library failed to load animation " + resource.getKey() + " because: " + e.getMessage());
+				ModInit.LOGGER.error("Player Animation Library failed to load animation {} because:", resource.getKey(), e);
 			}
 		}
 	}
@@ -103,7 +103,7 @@ public final class PlayerAnimCache {
 			}
 		}
 		catch (Exception e) {
-			ModInit.LOGGER.error("Player Animation Library failed to load animation " + id + " : " + e);
+			ModInit.LOGGER.error("Player Animation Library failed to load animation {}:", id, e);
 		}
 	}
 

@@ -24,7 +24,7 @@ public final class ModInitNeoForge {
 
         PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register(((player, manager) ->
                 NeoForge.EVENT_BUS.post(new PlayerAnimationRegisterEvent(player, manager))));
-        MolangEvent.MOLANG_EVENT.register(((controller, builder) ->
-                NeoForge.EVENT_BUS.post(new com.zigythebird.playeranim.neoforge.event.MolangEvent(controller, builder))));
+        MolangEvent.MOLANG_EVENT.register(((controller, builder, q) ->
+                NeoForge.EVENT_BUS.post(new com.zigythebird.playeranim.neoforge.event.MolangEvent(controller, builder, q))));
     }
 }

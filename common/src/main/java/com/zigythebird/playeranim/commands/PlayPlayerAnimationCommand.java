@@ -19,7 +19,7 @@ public class PlayPlayerAnimationCommand {
         dispatcher.register(Commands.literal("playPlayerAnimation").requires(commandSourceStack -> commandSourceStack.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.players())
                         .then(Commands.argument("animationID", ResourceLocationArgument.id())
-                                .executes(context -> execute(context)))));
+                                .executes(PlayPlayerAnimationCommand::execute))));
     }
 
     private static int execute(CommandContext<CommandSourceStack> command) {

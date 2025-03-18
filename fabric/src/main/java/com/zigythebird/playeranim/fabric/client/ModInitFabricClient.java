@@ -37,8 +37,8 @@ public final class ModInitFabricClient implements ClientModInitializer {
 
         PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register(((player, manager) ->
                 PlayerAnimationRegisterEvent.EVENT.invoker().interact(player, manager)));
-        MolangEvent.MOLANG_EVENT.register(((controller, builder) ->
-                com.zigythebird.playeranim.fabric.event.MolangEvent.EVENT.invoker().interact(controller, builder)));
+        MolangEvent.MOLANG_EVENT.register(((controller, builder, q) ->
+                com.zigythebird.playeranim.fabric.event.MolangEvent.EVENT.invoker().interact(controller, builder, q)));
 
         ModInitClient.init();
     }

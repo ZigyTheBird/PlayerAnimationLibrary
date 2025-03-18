@@ -5,10 +5,9 @@
 
 package com.zigythebird.playeranim.animation.keyframe;
 
-
-import gg.moonflower.molangcompiler.api.MolangExpression;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import com.zigythebird.playeranim.animation.EasingType;
+import team.unnamed.mocha.parser.ast.Expression;
 
 import java.util.List;
 import java.util.Objects;
@@ -22,12 +21,12 @@ import java.util.Objects;
  * @param easingType The {@code EasingType} to use for transformations
  * @param easingArgs The arguments to provide to the easing calculation
  */
-public record Keyframe<T extends MolangExpression>(float length, T startValue, T endValue, EasingType easingType, List<T> easingArgs) {
-	public Keyframe(float length, T startValue, T endValue) {
+public record Keyframe(double length, Expression startValue, Expression endValue, EasingType easingType, List<Expression> easingArgs) {
+	public Keyframe(double length, Expression startValue, Expression endValue) {
 		this(length, startValue, endValue, EasingType.LINEAR);
 	}
 
-	public Keyframe(float length, T startValue, T endValue, EasingType easingType) {
+	public Keyframe(double length, Expression startValue, Expression endValue, EasingType easingType) {
 		this(length, startValue, endValue, easingType, new ObjectArrayList<>(0));
 	}
 
