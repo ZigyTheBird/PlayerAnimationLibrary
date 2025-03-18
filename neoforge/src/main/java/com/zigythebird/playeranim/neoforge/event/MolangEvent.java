@@ -7,6 +7,7 @@ import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.runtime.value.MutableObjectBinding;
 
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 
 /**
  * Register you own Molang queries and variables.
@@ -30,7 +31,7 @@ public class MolangEvent extends Event {
         return this.engine;
     }
 
-    public boolean setFloatQuery(String name, Function<AnimationController, Double> value) {
+    public boolean setDoubleQuery(String name, ToDoubleFunction<AnimationController> value) {
         return MolangLoader.setDoubleQuery(this.queryBinding, name, value);
     }
 

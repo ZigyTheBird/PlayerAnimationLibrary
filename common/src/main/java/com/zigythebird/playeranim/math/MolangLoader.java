@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 
 public class MolangLoader {
     private static final Consumer<ParseException> HANDLER = e -> ModInit.LOGGER.warn("Failed to parse!", e);
@@ -48,8 +49,7 @@ public class MolangLoader {
 
         MutableObjectBinding queryBinding = new QueryBinding<>(controller);
         setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimTime);
-        setBoolQuery(queryBinding, "blocking", cont -> cont.getPlayer().isBlocking());
-        // TODO: Add all bedrock molang queries. BEFORE EVENT!
+        MolangQueries.setDefaultQueryValues(queryBinding);
 
         MolangEvent.MOLANG_EVENT.invoker().registerMolangQueries(controller, engine, queryBinding);
         queryBinding.block(); // make immutable
@@ -59,8 +59,8 @@ public class MolangLoader {
         return engine;
     }
 
-    public static boolean setDoubleQuery(ObjectValue binding, String name, Function<AnimationController, Double> value) {
-        return setControllerQuery(binding, name, controller -> NumberValue.of(value.apply(controller)));
+    public static boolean setDoubleQuery(ObjectValue binding, String name, ToDoubleFunction<AnimationController> value) {
+        return setControllerQuery(binding, name, controller -> NumberValue.of(value.applyAsDouble(controller)));
     }
 
     public static boolean setBoolQuery(ObjectValue binding, String name, Function<AnimationController, Boolean> value) {
