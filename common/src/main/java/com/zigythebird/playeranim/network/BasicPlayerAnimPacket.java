@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.network;
 
 import com.zigythebird.playeranim.ModInit;
-import com.zigythebird.playeranim.misc.ModCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

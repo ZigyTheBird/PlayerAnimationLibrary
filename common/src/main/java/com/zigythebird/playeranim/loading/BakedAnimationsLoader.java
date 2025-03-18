@@ -9,6 +9,7 @@ import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
+import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.math.MolangParser;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.util.JsonUtil;
@@ -19,17 +20,19 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BakedAnimationsAdapter {
-	public static Map<String, Animation> deserialize(JsonElement json) throws RuntimeException {
+public class BakedAnimationsLoader {
+	public static Map<String, Animation> deserialize(JsonElement json, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws RuntimeException {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
 
 		for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
 			try {
-				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject()));
+				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), bones, parents));
 			} catch (Exception ex) {
 				ModInit.LOGGER.error("Unable to parse animation: {}", entry.getKey(), ex);
 			}
@@ -76,16 +79,16 @@ public class BakedAnimationsAdapter {
 		return new KeyframeStack<>(xFrames, yFrames, zFrames);
 	}
 
-	private static Animation bakeAnimation(String name, JsonObject animationObj) throws CompoundException {
+	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws CompoundException {
 		double length = animationObj.has("animation_length") ? GsonHelper.getAsDouble(animationObj, "animation_length") * 20d : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
 		BoneAnimation[] boneAnimations = bakeBoneAnimations(GsonHelper.getAsJsonObject(animationObj, "bones", new JsonObject()));
-		Animation.Keyframes keyframes = KeyFramesAdapter.deserialize(animationObj);
+		Animation.Keyframes keyframes = KeyFramesLoader.deserialize(animationObj);
 
 		if (length == -1)
 			length = calculateAnimationLength(boneAnimations);
 
-		return new Animation(name, length, loopType, boneAnimations, keyframes);
+		return new Animation(name, length, loopType, boneAnimations, keyframes, bones, parents);
 	}
 
 	private static BoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
@@ -93,17 +96,11 @@ public class BakedAnimationsAdapter {
 		int index = 0;
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
-			if (entry.getKey().endsWith("_bend")) continue;
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
 			KeyframeStack<Keyframe<MolangExpression>> scaleFrames = buildKeyframeStack(getTripletObj(entryObj.get("scale")), TransformType.SCALE);
 			KeyframeStack<Keyframe<MolangExpression>> positionFrames = buildKeyframeStack(getTripletObj(entryObj.get("position")), TransformType.POSITION);
 			KeyframeStack<Keyframe<MolangExpression>> rotationFrames = buildKeyframeStack(getTripletObj(entryObj.get("rotation")), TransformType.ROTATION);
-			KeyframeStack<Keyframe<MolangExpression>> bendFrames;
-
-			if (bonesObj.has(entry.getKey() + "_bend")) {
-				bendFrames = buildKeyframeStack(getTripletObj(bonesObj.get(entry.getKey() + "_bend").getAsJsonObject().get("rotation")), TransformType.BEND);
-			}
-			else bendFrames = new KeyframeStack<>();
+			KeyframeStack<Keyframe<MolangExpression>> bendFrames = buildKeyframeStack(getTripletObj(entryObj.get("bend")), TransformType.BEND);
 
 			animations[index] = new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames, bendFrames);
 			index++;

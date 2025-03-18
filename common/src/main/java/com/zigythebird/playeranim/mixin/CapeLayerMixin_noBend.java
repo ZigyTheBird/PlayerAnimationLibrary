@@ -7,6 +7,7 @@ import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -31,7 +32,7 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
     @Shadow @Final private HumanoidModel<PlayerRenderState> model;
 
     @Unique
-    private final PlayerAnimBone playerAnimLib$capeAnimBone = new PlayerAnimBone(null, "cape");
+    private final PlayerAnimBone playerAnimLib$capeAnimBone = new PlayerAnimBone("cape");
 
     private CapeLayerMixin_noBend(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent, Void v) {
         super(renderLayerParent);
@@ -54,17 +55,7 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
                 PartPose initialPose = part.getInitialPose();
                 emote.get3DTransform(playerAnimLib$capeAnimBone);
 
-                part.x = playerAnimLib$capeAnimBone.getPosX() + initialPose.x();
-                part.y = playerAnimLib$capeAnimBone.getPosY() + initialPose.y();
-                part.z = playerAnimLib$capeAnimBone.getPosZ() + initialPose.z();
-
-                part.xRot = playerAnimLib$capeAnimBone.getRotX();
-                part.yRot = playerAnimLib$capeAnimBone.getRotY();
-                part.zRot = playerAnimLib$capeAnimBone.getRotZ();
-
-                part.xScale = playerAnimLib$capeAnimBone.getScaleX();
-                part.yScale = playerAnimLib$capeAnimBone.getScaleY();
-                part.zScale = playerAnimLib$capeAnimBone.getScaleZ();
+                RenderUtil.translatePartToBone(part, playerAnimLib$capeAnimBone, initialPose);
             }
         }
     }

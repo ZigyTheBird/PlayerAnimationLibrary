@@ -43,9 +43,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandLayer.class)
 public class ItemInHandLayerMixin {
     @Unique
-    private final PlayerAnimBone playerAnimLib$rightItem = new PlayerAnimBone(null, "right_item");
+    private final PlayerAnimBone playerAnimLib$rightItem = new PlayerAnimBone("right_item");
     @Unique
-    private final PlayerAnimBone playerAnimLib$leftItem = new PlayerAnimBone(null, "left_item");
+    private final PlayerAnimBone playerAnimLib$leftItem = new PlayerAnimBone("left_item");
 
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"))
     private void changeItemLocation(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, HumanoidArm arm, PoseStack matrices, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {

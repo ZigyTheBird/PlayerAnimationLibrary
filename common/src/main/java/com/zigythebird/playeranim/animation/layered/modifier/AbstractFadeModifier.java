@@ -84,7 +84,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
         super.get3DTransform(bone);
         if (calculateProgress(tickDelta) > 1) return;
         //Todo: Maybe look into optimizing this to work better with the new system
-        PlayerAnimBone animatedBone = new PlayerAnimBone(null, bone.getName());
+        PlayerAnimBone animatedBone = new PlayerAnimBone(bone.getName());
         animatedBone.copyOtherBone(bone);
         float a = getAlpha(bone, calculateProgress(tickDelta));
         if (beginAnimation != null && beginAnimation.isActive()) beginAnimation.get3DTransform(bone);

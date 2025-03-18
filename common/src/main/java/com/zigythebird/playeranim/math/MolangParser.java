@@ -28,7 +28,7 @@ public class MolangParser {
             raw = defaultValue;
         }
         if (isForRotation) {
-            return raw.isConstant() ? MolangExpression.of((float) Math.toRadians(raw.getConstant() * multi)) : raw;
+            return raw.isConstant() ? MolangExpression.of((float) Math.toRadians(raw.getConstant())) : raw;
         }
         return raw;
     }

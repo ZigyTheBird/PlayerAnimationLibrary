@@ -1,12 +1,13 @@
 package com.zigythebird.playeranim.animation;
 
+import com.zigythebird.playeranim.accessors.IModelPart;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.dataticket.DataTicket;
 import com.zigythebird.playeranim.math.Pair;
-import com.zigythebird.playeranim.math.Vec3f;
+import com.zigythebird.playeranim.util.RenderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -215,16 +216,10 @@ public class PlayerAnimManager implements IAnimation {
 		PlayerAnimBone bone = processor.getBone(partName);
 		PartPose initialPose = part.getInitialPose();
 
-		part.x = bone.getPosX() + initialPose.x();
-		part.y = bone.getPosY() + initialPose.y();
-		part.z = bone.getPosZ() + initialPose.z();
+		RenderUtil.translatePartToBone(part, bone, initialPose);
 
-		part.xRot = bone.getRotX();
-		part.yRot = bone.getRotY();
-		part.zRot = bone.getRotZ();
-
-		part.xScale = bone.getScaleX();
-		part.yScale = bone.getScaleY();
-		part.zScale = bone.getScaleZ();
+		if (bone.getParent() != null && bone.getParent() != bone)
+			((IModelPart)part).playerAnimLib$setParent(bone.getParent());
+		else ((IModelPart)part).playerAnimLib$setParent(null);
 	}
 }

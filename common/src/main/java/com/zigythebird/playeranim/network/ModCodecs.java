@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.misc;
+package com.zigythebird.playeranim.network;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.Utf8String;

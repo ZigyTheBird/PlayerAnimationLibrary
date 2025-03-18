@@ -14,7 +14,6 @@
     "HumanoidModelMixin",
     "ItemInHandLayerMixin",
     "LivingEntityRendererMixin",
-    "ModelMixin",
     "ModelPartAccessor",
     "ModelPartMixin",
     "PlayerModelMixin",

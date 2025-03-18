@@ -49,7 +49,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerRenderer.class)
 public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerRenderState, PlayerModel> {
     @Unique
-    private final PlayerAnimBone playerAnimLib$bodyAnimBone = new PlayerAnimBone(null, "body");
+    private final PlayerAnimBone playerAnimLib$bodyAnimBone = new PlayerAnimBone("body");
     
     public PlayerRendererMixin(EntityRendererProvider.Context context, PlayerModel entityModel, float f, Void v) {
         super(context, entityModel, f);

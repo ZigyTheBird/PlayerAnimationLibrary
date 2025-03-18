@@ -2,6 +2,7 @@ package com.zigythebird.playeranim.cache;
 
 import com.zigythebird.playeranim.animation.BoneSnapshot;
 import com.zigythebird.playeranim.math.Pair;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
@@ -14,8 +15,10 @@ import java.util.Objects;
  */
 @SuppressWarnings("LombokSetterMayBeUsed")
 public class PlayerAnimBone {
-	private final PlayerAnimBone parent;
+	private final Vec3 pivot;
 	private final String name;
+
+	public PlayerAnimBone parent;
 
 	private BoneSnapshot initialSnapshot;
 
@@ -39,9 +42,18 @@ public class PlayerAnimBone {
 	private boolean scaleChanged = false;
 	private boolean bendChanged = false;
 
-	public PlayerAnimBone(@Nullable PlayerAnimBone parent, String name) {
+	public PlayerAnimBone(String name) {
+		this(name, null);
+	}
+
+	public PlayerAnimBone(String name, Vec3 pivot) {
+		this(null, name, pivot);
+	}
+
+	public PlayerAnimBone(PlayerAnimBone parent, String name, Vec3 pivot) {
 		this.parent = parent;
 		this.name = name;
+		this.pivot = pivot;
 	}
 
 	public String getName() {
@@ -51,6 +63,8 @@ public class PlayerAnimBone {
 	public PlayerAnimBone getParent() {
 		return this.parent;
 	}
+
+	public Vec3 getPivot() {return this.pivot;}
 
 	public float getRotX() {
 		return this.rotX;

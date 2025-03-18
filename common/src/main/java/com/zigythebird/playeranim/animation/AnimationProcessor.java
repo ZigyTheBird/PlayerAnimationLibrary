@@ -83,7 +83,7 @@ public class AnimationProcessor {
 		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationState.copy());
 
 		if (!this.getRegisteredBones().isEmpty())
-			this.tickAnimation(player, animatableManager, this.animTime, animationState);
+			this.tickAnimation(animatableManager, this.animTime, animationState);
 	}
 
 	/**
@@ -123,21 +123,24 @@ public class AnimationProcessor {
 	/**
 	 * Tick and apply transformations to the model based on the current state of the {@link AnimationController}
 	 *
-	 * @param player            	The player object relevant to the animation being played
 	 * @param playerAnimManager		The PlayerAnimManager instance being used for this animation processor
 	 * @param animTime              The internal tick counter kept by the {@link PlayerAnimManager} for this player
 	 * @param state                 An {@link AnimationState} instance applied to this render frame
 	 */
-	public void tickAnimation(AbstractClientPlayer player, PlayerAnimManager playerAnimManager, float animTime, AnimationState state) {
+	public void tickAnimation(PlayerAnimManager playerAnimManager, float animTime, AnimationState state) {
 		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
+
+		for (PlayerAnimBone entry : this.bones.values()) {
+			entry.parent = null;
+		}
 
 		for (Pair<Integer, IAnimation> pair : playerAnimManager.getLayers()) {
 			IAnimation animation = pair.getRight();
 
 			animation.setupAnim(state.copy());
 
-			for (Map.Entry<String, PlayerAnimBone> entry : this.bones.entrySet()) {
-				animation.get3DTransform(entry.getValue());
+			for (PlayerAnimBone entry : this.bones.values()) {
+				animation.get3DTransform(entry);
 			}
 		}
 
@@ -252,7 +255,7 @@ public class AnimationProcessor {
 	}
 
 	private void registerPlayerAnimBone(String name) {
-		registerPlayerAnimBone(new PlayerAnimBone(null, name));
+		registerPlayerAnimBone(new PlayerAnimBone(name));
 	}
 
 	/**

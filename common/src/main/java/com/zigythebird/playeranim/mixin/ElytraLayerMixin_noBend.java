@@ -20,11 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(WingsLayer.class)
 public abstract class ElytraLayerMixin_noBend<S extends HumanoidRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
     @Unique
-    private final PlayerAnimBone playerAnimLib$capeAnimBone = new PlayerAnimBone(null, "cape");
+    private final PlayerAnimBone playerAnimLib$capeAnimBone = new PlayerAnimBone("cape");
     @Unique
-    private final PlayerAnimBone playerAnimLib$elytraAnimBone = new PlayerAnimBone(null, "elytra");
+    private final PlayerAnimBone playerAnimLib$elytraAnimBone = new PlayerAnimBone("elytra");
     @Unique
-    private final PlayerAnimBone playerAnimLib$torsoAnimBone = new PlayerAnimBone(null, "torso");
+    private final PlayerAnimBone playerAnimLib$torsoAnimBone = new PlayerAnimBone("torso");
 
     private ElytraLayerMixin_noBend(RenderLayerParent<S, M> renderLayerParent, Void v) {
         super(renderLayerParent);

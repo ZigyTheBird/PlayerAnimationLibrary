@@ -465,6 +465,7 @@ public class AnimationController implements IAnimation {
 		}
 
 		if (getAnimationState() == State.RUNNING) {
+			addBonesToQueue(this.currentAnimation.animation().bones().values());
 			processCurrentAnimation(adjustedTick, seekTime, crashWhenCantFindBone, state);
 		}
 		else if (this.animationState == State.TRANSITIONING) {
@@ -483,6 +484,7 @@ public class AnimationController implements IAnimation {
 
 			if (this.currentAnimation != null) {
 				this.animTime = 0;
+				addBonesToQueue(this.currentAnimation.animation().bones().values());
 
 				for (BoneAnimation boneAnimation : this.currentAnimation.animation().boneAnimations()) {
 					BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.get(boneAnimation.boneName());
@@ -668,6 +670,10 @@ public class AnimationController implements IAnimation {
 	private void createInitialQueues(Collection<PlayerAnimBone> boneList) {
 		this.boneAnimationQueues.clear();
 
+		addBonesToQueue(boneList);
+	}
+
+	private void addBonesToQueue(Collection<PlayerAnimBone> boneList) {
 		for (PlayerAnimBone bone : boneList) {
 			this.boneAnimationQueues.put(bone.getName(), new BoneAnimationQueue(bone));
 		}
@@ -786,6 +792,12 @@ public class AnimationController implements IAnimation {
 	public void get3DTransformRaw(@NotNull PlayerAnimBone bone) {
 		if (bones.containsKey(bone.getName())) {
 			bone.copyOtherBone(bones.get(bone.getName()));
+			bone.parent = null;
+		}
+		if (this.currentAnimation != null) {
+			Map<String, String> parents = this.currentAnimation.animation().parents();
+			if (parents.containsKey(bone.getName()))
+				bone.parent = this.currentAnimation.animation().bones().get(parents.get(bone.getName()));
 		}
 	}
 
@@ -853,7 +865,12 @@ public class AnimationController implements IAnimation {
 
 	protected void internalSetupAnim(AnimationState state) {
 		this.isJustStarting = state.getPlayerAnimManager().isFirstTick();
-		Map<String, BoneSnapshot> boneSnapshots = state.getPlayer().playerAnimLib$getAnimProcessor().boneSnapshots;
+        Map<String, BoneSnapshot> boneSnapshots = new HashMap<>(state.getPlayer().playerAnimLib$getAnimProcessor().boneSnapshots);
+		if (this.currentAnimation != null) {
+			for (PlayerAnimBone bone : this.currentAnimation.animation().bones().values()) {
+				boneSnapshots.put(bone.getName(), new BoneSnapshot(bone.getInitialSnapshot()));
+			}
+		}
 
 		this.process(state, this.bones, boneSnapshots, state.getPlayer().playerAnimLib$getAnimProcessor().animTime, false);
 
@@ -939,7 +956,7 @@ public class AnimationController implements IAnimation {
 	}
 
 	private void registerPlayerAnimBone(String name) {
-		registerPlayerAnimBone(new PlayerAnimBone(null, name));
+		registerPlayerAnimBone(new PlayerAnimBone(name));
 	}
 
 	/**

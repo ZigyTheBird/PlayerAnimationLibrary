@@ -1,5 +1,6 @@
 package com.zigythebird.playeranim.cache;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
@@ -9,10 +10,11 @@ import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.loading.BakedAnimationsAdapter;
+import com.zigythebird.playeranim.loading.BakedAnimationsLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +64,23 @@ public final class PlayerAnimCache {
 		try {
 			JsonObject json = ModInit.GSON.fromJson(new InputStreamReader(resource), JsonObject.class);
 			if (json.has("animations")) {
+				JsonObject model = GsonHelper.getAsJsonObject(json, "model", new JsonObject());
+				Map<String, PlayerAnimBone> bones = new HashMap<>();
+				for (Map.Entry<String, JsonElement> entry : model.entrySet()) {
+					JsonObject object = entry.getValue().getAsJsonObject();
+					JsonArray pivot = object.get("pivot").getAsJsonArray();
+					PlayerAnimBone bone = new PlayerAnimBone(object.has("parent") ? bones.get(object.get("parent").getAsString()) : null,
+							entry.getKey(), new Vec3(pivot.get(0).getAsDouble(), pivot.get(1).getAsDouble(), pivot.get(2).getAsDouble()));
+					bone.saveInitialSnapshot();
+					bones.put(entry.getKey(), bone);
+				}
+
+				JsonObject parentsObj = GsonHelper.getAsJsonObject(json, "parents", new JsonObject());
+				Map<String, String> parents = new HashMap<>();
+				for (Map.Entry<String, JsonElement> entry : parentsObj.entrySet()) {
+					parents.put(getCorrectPlayerBoneName(entry.getKey()), entry.getValue().getAsString());
+				}
+
 				json = json.get("animations").getAsJsonObject();
 				JsonObject modifiedJson = new JsonObject();
 				for (Map.Entry<String, JsonElement> entry : json.asMap().entrySet()) {
@@ -73,7 +92,7 @@ public final class PlayerAnimCache {
 					entryJson.add("bones", modifiedBones);
 					modifiedJson.add(id.getNamespace() + ":" + entry.getKey(), entryJson);
 				}
-				Map<String, Animation> anim = BakedAnimationsAdapter.deserialize(modifiedJson);
+				Map<String, Animation> anim = BakedAnimationsLoader.deserialize(modifiedJson, bones, parents);
 				for (Map.Entry<String, Animation> entry : anim.entrySet()) {
 					ANIMATIONS.put(ResourceLocation.parse(entry.getKey()), entry.getValue());
 				}
@@ -117,14 +136,14 @@ public final class PlayerAnimCache {
 					scales.add(new Pair<>(currentTick, new Vec3(scaleX, scaleY, scaleZ)));
 					bends.add(new Pair<>(currentTick, new Vec3(bendAxis, bend, 0)));
 
-					boneAnims.add(new BoneAnimation(getCorrectPlayerBoneName(entry.getKey()), BakedAnimationsAdapter.buildKeyframeStackFromLegacyAnim(rotations), BakedAnimationsAdapter.buildKeyframeStackFromLegacyAnim(rotations), BakedAnimationsAdapter.buildKeyframeStackFromLegacyAnim(scales), BakedAnimationsAdapter.buildKeyframeStackFromLegacyAnim(bends)));
+					boneAnims.add(new BoneAnimation(getCorrectPlayerBoneName(entry.getKey()), BakedAnimationsLoader.buildKeyframeStackFromLegacyAnim(rotations), BakedAnimationsLoader.buildKeyframeStackFromLegacyAnim(rotations), BakedAnimationsLoader.buildKeyframeStackFromLegacyAnim(scales), BakedAnimationsLoader.buildKeyframeStackFromLegacyAnim(bends)));
 				}
 			}
 		}
 		BoneAnimation[] boneAnimations = boneAnims.toArray(new BoneAnimation[]{});
 		String name = obj.get("name").getAsString();
-		return new Animation(name, BakedAnimationsAdapter.calculateAnimationLength(boneAnimations),
-				obj.get("emote").getAsJsonObject().get("isLoop").getAsBoolean() ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE, boneAnimations, NO_KEYFRAMES);
+		return new Animation(name, BakedAnimationsLoader.calculateAnimationLength(boneAnimations),
+				obj.get("emote").getAsJsonObject().get("isLoop").getAsBoolean() ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE, boneAnimations, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
 	}
 
 	public static String getCorrectPlayerBoneName(String name) {
