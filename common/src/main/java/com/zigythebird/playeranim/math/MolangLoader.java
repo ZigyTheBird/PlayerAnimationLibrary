@@ -27,19 +27,20 @@ public class MolangLoader {
     private static final Consumer<ParseException> HANDLER = e -> ModInit.LOGGER.warn("Failed to parse!", e);
 
     public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
-        List<Expression> expressions = new ArrayList<>(1);
+        List<Expression> expressions;
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
-            for (Expression raw : parser.parseAll()) {
-                if (isForRotation && IsConstantExpression.test(raw)) {
-                    expressions.add(new DoubleExpression(Math.toRadians(
-                            ((DoubleExpression) raw).value()
-                    )));
-                } else {
-                    expressions.add(raw);
-                }
+            List<Expression> expressions1 = parser.parseAll();
+            if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
+                expressions = new ArrayList<>(){{
+                    add(new DoubleExpression(Math.toRadians(((DoubleExpression) expressions1.getFirst()).value())));
+                }};
+            }
+            else {
+                expressions = expressions1;
             }
         } catch (IOException e) {
             ModInit.LOGGER.error("Failed to compile molang!", e);
+            if (defaultValue == null) return null;
             return Collections.singletonList(defaultValue);
         }
         return expressions;
@@ -51,6 +52,7 @@ public class MolangLoader {
 
         MutableObjectBinding queryBinding = new QueryBinding<>(controller);
         setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimTime);
+        setDoubleQuery(queryBinding, "controller_speed", AnimationController::getAnimationSpeed);
         MolangQueries.setDefaultQueryValues(queryBinding);
 
         MolangEvent.MOLANG_EVENT.invoker().registerMolangQueries(controller, engine, queryBinding);

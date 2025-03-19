@@ -112,15 +112,16 @@ public final class PlayerAnimCache {
 		JsonObject emoteObj = obj.get("emote").getAsJsonObject();
 		List<BoneAnimation> boneAnims = new ArrayList<>();
 		for (JsonElement jsonElement : emoteObj.get("moves").getAsJsonArray()) {
-			if (json.isJsonObject()) {
-				JsonObject move = (JsonObject) jsonElement;
+			if (jsonElement.isJsonObject()) {
+				JsonObject move = jsonElement.getAsJsonObject();
 				int currentTick = move.get("tick").getAsInt();
 				for (Map.Entry<String, JsonElement> entry : move.asMap().entrySet()) {
+					if (entry.getKey().equals("tick")) continue;
 					List<Pair<Integer, Vec3>> transforms = new ArrayList<>();
 					List<Pair<Integer, Vec3>> rotations = new ArrayList<>();
 					List<Pair<Integer, Vec3>> scales = new ArrayList<>();
 					List<Pair<Integer, Vec3>> bends = new ArrayList<>();
-					JsonObject jsonObject = (JsonObject) entry.getValue();
+					JsonObject jsonObject = entry.getValue().getAsJsonObject();
 					float x = jsonObject.has("x") ? jsonObject.get("x").getAsFloat() : 0;
 					float y = jsonObject.has("y") ? jsonObject.get("y").getAsFloat() : 0;
 					float z = jsonObject.has("z") ? jsonObject.get("z").getAsFloat() : 0;

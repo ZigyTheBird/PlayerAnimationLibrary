@@ -21,6 +21,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import team.unnamed.mocha.parser.ast.DoubleExpression;
 import team.unnamed.mocha.parser.ast.Expression;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -196,8 +197,8 @@ public class BakedAnimationsLoader {
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
-			List<Expression> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
-					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> new DoubleExpression(ele.getAsDouble())) :
+			List<List<Expression>> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
+					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(new DoubleExpression(ele.getAsDouble()))) :
 					new ObjectArrayList<>();
 
 			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));

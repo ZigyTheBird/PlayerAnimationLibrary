@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
@@ -70,6 +71,7 @@ public class AnimationController implements IAnimation {
 	protected Function<AbstractClientPlayer, Double> animationSpeedModifier = animatable -> 1d;
 	protected Function<AbstractClientPlayer, EasingType> overrideEasingTypeFunction = animatable -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
+	protected AnimationState renderState;
 	
 	protected Function<AbstractClientPlayer, FirstPersonMode> firstPersonMode = null;
 	protected Function<AbstractClientPlayer, FirstPersonConfiguration> firstPersonConfiguration = null;
@@ -250,6 +252,14 @@ public class AnimationController implements IAnimation {
 	@Override
 	public boolean isActive() {
 		return this.animationState.isActive();
+	}
+
+	public AnimationState getRenderState() {
+		return renderState;
+	}
+
+	public AbstractClientPlayer getPlayer() {
+		return this.player;
 	}
 
 	/**
@@ -733,6 +743,7 @@ public class AnimationController implements IAnimation {
 		double endValue;
 
 		try {
+			if (currentFrame.startValue().size() > 1) System.out.println(currentFrame.startValue());
 			startValue = this.molangRuntime.eval(currentFrame.startValue());
 			endValue = this.molangRuntime.eval(currentFrame.endValue());
 		} catch (Throwable e) {
@@ -743,16 +754,10 @@ public class AnimationController implements IAnimation {
 		if (type == TransformType.ROTATION) {
 			if (!(MolangLoader.isConstant(currentFrame.startValue()))) {
 				startValue = Math.toRadians(startValue);
-
-				if (axis == Axis.X || axis == Axis.Y)
-					startValue *= -1;
 			}
 
 			if (!(MolangLoader.isConstant(currentFrame.endValue()))) {
 				endValue = Math.toRadians(endValue);
-
-				if (axis == Axis.X || axis == Axis.Y)
-					endValue *= -1;
 			}
 		}
 
@@ -854,6 +859,7 @@ public class AnimationController implements IAnimation {
 
 	@Override
 	public void setupAnim(AnimationState state) {
+		this.renderState = state;
 		if (!modifiers.isEmpty()) {
 			modifiers.get(0).setupAnim(state);
 		}
@@ -1028,7 +1034,7 @@ public class AnimationController implements IAnimation {
 		void handle(CustomInstructionKeyframeEvent event);
 	}
 
-	private class InternalAnimationAccessor extends AnimationContainer<AnimationController> {
+	private static class InternalAnimationAccessor extends AnimationContainer<AnimationController> {
 		private InternalAnimationAccessor(AnimationController controller) {
 			super(controller);
 		}
@@ -1042,9 +1048,5 @@ public class AnimationController implements IAnimation {
 		public void get3DTransform(@NotNull PlayerAnimBone bone) {
 			this.anim.get3DTransformRaw(bone);
 		}
-	}
-
-	public AbstractClientPlayer getPlayer() {
-		return this.player;
 	}
 }

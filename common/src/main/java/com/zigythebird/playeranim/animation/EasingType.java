@@ -76,7 +76,7 @@ public interface EasingType {
 
 		try {
 			if (animationPoint.keyFrame() != null && !animationPoint.keyFrame().easingArgs().isEmpty())
-				easingVariable = env.eval(Collections.singletonList(animationPoint.keyFrame().easingArgs().getFirst()));
+				easingVariable = env.eval(animationPoint.keyFrame().easingArgs().getFirst());
 		} catch (Throwable e) {
 			ModInit.LOGGER.error("Failed to parse easing args", e);
 		}

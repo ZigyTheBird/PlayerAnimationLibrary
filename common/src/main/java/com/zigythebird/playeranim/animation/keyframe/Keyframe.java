@@ -22,7 +22,7 @@ import java.util.Objects;
  * @param easingType The {@code EasingType} to use for transformations
  * @param easingArgs The arguments to provide to the easing calculation
  */
-public record Keyframe(double length, List<Expression> startValue, List<Expression> endValue, EasingType easingType, List<Expression> easingArgs) {
+public record Keyframe(double length, List<Expression> startValue, List<Expression> endValue, EasingType easingType, List<List<Expression>> easingArgs) {
 	public Keyframe(double length, List<Expression> startValue, List<Expression> endValue) {
 		this(length, startValue, endValue, EasingType.LINEAR);
 	}

@@ -14,6 +14,9 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 
+/**
+ * DO NOT TOUCH THIS UNLESS YOU REALLY KNOW WHAT YOU'RE DOING.
+ */
 @ApiStatus.Internal
 public class AnimationProcessor {
 	private final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
@@ -50,7 +53,6 @@ public class AnimationProcessor {
 	 * <p>
 	 * It is an internal method for automated animation parsing.
 	 */
-	@ApiStatus.Internal
 	public void handleAnimations(float partialTick, boolean fullTick) {
 		Vec3 velocity = player.getDeltaMovement();
 		float avgVelocity = (float)((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
