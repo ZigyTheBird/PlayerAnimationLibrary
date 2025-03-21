@@ -14,13 +14,16 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 
+/**
+ * DO NOT TOUCH THIS UNLESS YOU REALLY KNOW WHAT YOU'RE DOING.
+ */
 @ApiStatus.Internal
 public class AnimationProcessor {
 	private final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected Map<String, BoneSnapshot> boneSnapshots;
 
-	protected float animTime;
-	private float lastGameTickTime;
+	protected double animTime;
+	private double lastGameTickTime;
 	private long lastRenderedInstance = -1;
 	private final AbstractClientPlayer player;
 
@@ -50,20 +53,18 @@ public class AnimationProcessor {
 	 * <p>
 	 * It is an internal method for automated animation parsing.
 	 */
-	@ApiStatus.Internal
 	public void handleAnimations(float partialTick, boolean fullTick) {
 		Vec3 velocity = player.getDeltaMovement();
-		float avgVelocity = (float)((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
-		AnimationState animationState = new AnimationState(player, partialTick, avgVelocity >= 0.015F);
+		AnimationData animationData = new AnimationData(player, partialTick, (Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
 
 		Minecraft mc = Minecraft.getInstance();
 		PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
-		float currentTick = player.tickCount;
+		double currentTick = player.tickCount;
 
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + partialTick);
 
-		float currentFrameTime = currentTick + partialTick;
+		double currentFrameTime = currentTick + partialTick;
 		boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
 
 		if (isReRender && player.getId() == this.lastRenderedInstance)
@@ -72,18 +73,18 @@ public class AnimationProcessor {
 		if (!mc.isPaused()) {
 			animatableManager.updatedAt(currentFrameTime);
 
-			float lastUpdateTime = animatableManager.getLastUpdateTime();
+			double lastUpdateTime = animatableManager.getLastUpdateTime();
 			this.animTime += lastUpdateTime - this.lastGameTickTime;
 			this.lastGameTickTime = lastUpdateTime;
 		}
 
-		animationState.animationTick = this.animTime;
+		animationData.setAnimationTick(this.animTime);
 		this.lastRenderedInstance = player.getId();
 
-		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationState.copy());
+		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationData.copy());
 
 		if (!this.getRegisteredBones().isEmpty())
-			this.tickAnimation(animatableManager, this.animTime, animationState);
+			this.tickAnimation(animatableManager, this.animTime, animationData);
 	}
 
 	/**
@@ -125,9 +126,9 @@ public class AnimationProcessor {
 	 *
 	 * @param playerAnimManager		The PlayerAnimManager instance being used for this animation processor
 	 * @param animTime              The internal tick counter kept by the {@link PlayerAnimManager} for this player
-	 * @param state                 An {@link AnimationState} instance applied to this render frame
+	 * @param state                 An {@link AnimationData} instance applied to this render frame
 	 */
-	public void tickAnimation(PlayerAnimManager playerAnimManager, float animTime, AnimationState state) {
+	public void tickAnimation(PlayerAnimManager playerAnimManager, double animTime, AnimationData state) {
 		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
 
 		for (PlayerAnimBone entry : this.bones.values()) {

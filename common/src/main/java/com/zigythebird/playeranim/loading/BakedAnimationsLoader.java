@@ -10,18 +10,18 @@ import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
-import com.zigythebird.playeranim.math.MolangParser;
+import com.zigythebird.playeranim.molang.MolangLoader;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.util.JsonUtil;
-import gg.moonflower.molangcompiler.api.MolangExpression;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.math.NumberUtils;
+import team.unnamed.mocha.parser.ast.DoubleExpression;
+import team.unnamed.mocha.parser.ast.Expression;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -41,17 +41,17 @@ public class BakedAnimationsLoader {
 		return animations;
 	}
 
-	public static KeyframeStack<Keyframe<MolangExpression>> buildKeyframeStackFromLegacyAnim(List<Pair<Integer, Vec3>> entries) throws CompoundException {
+	public static KeyframeStack<Keyframe> buildKeyframeStackFromLegacyAnim(List<Pair<Integer, Vec3>> entries) throws CompoundException {
 		if (entries.isEmpty())
 			return new KeyframeStack<>();
 
-		List<Keyframe<MolangExpression>> xFrames = new ObjectArrayList<>();
-		List<Keyframe<MolangExpression>> yFrames = new ObjectArrayList<>();
-		List<Keyframe<MolangExpression>> zFrames = new ObjectArrayList<>();
+		List<Keyframe> xFrames = new ObjectArrayList<>();
+		List<Keyframe> yFrames = new ObjectArrayList<>();
+		List<Keyframe> zFrames = new ObjectArrayList<>();
 
-		MolangExpression xPrev = null;
-		MolangExpression yPrev = null;
-		MolangExpression zPrev = null;
+		Expression xPrev = null;
+		Expression yPrev = null;
+		Expression zPrev = null;
 		Pair<Integer, Vec3> prevEntry = null;
 
 		for (Pair<Integer, Vec3> entry : entries) {
@@ -62,13 +62,13 @@ public class BakedAnimationsLoader {
 			float curTime = key;
 			float timeDelta = curTime - prevTime;
 
-			MolangExpression xValue = MolangExpression.of((float) keyFrameVector.x);
-			MolangExpression yValue = MolangExpression.of((float) keyFrameVector.y);
-			MolangExpression zValue = MolangExpression.of((float) keyFrameVector.z);
+			Expression xValue = new DoubleExpression(keyFrameVector.x);
+			Expression yValue = new DoubleExpression(keyFrameVector.y);
+			Expression zValue = new DoubleExpression(keyFrameVector.z);
 
-			xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, EasingType.LINEAR));
-			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, EasingType.LINEAR));
-			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, EasingType.LINEAR));
+			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, EasingType.LINEAR));
+			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, EasingType.LINEAR));
+			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, EasingType.LINEAR));
 
 			xPrev = xValue;
 			yPrev = yValue;
@@ -97,10 +97,10 @@ public class BakedAnimationsLoader {
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
-			KeyframeStack<Keyframe<MolangExpression>> scaleFrames = buildKeyframeStack(getTripletObj(entryObj.get("scale")), TransformType.SCALE);
-			KeyframeStack<Keyframe<MolangExpression>> positionFrames = buildKeyframeStack(getTripletObj(entryObj.get("position")), TransformType.POSITION);
-			KeyframeStack<Keyframe<MolangExpression>> rotationFrames = buildKeyframeStack(getTripletObj(entryObj.get("rotation")), TransformType.ROTATION);
-			KeyframeStack<Keyframe<MolangExpression>> bendFrames = buildKeyframeStack(getTripletObj(entryObj.get("bend")), TransformType.BEND);
+			KeyframeStack<Keyframe> scaleFrames = buildKeyframeStack(getTripletObj(entryObj.get("scale")), TransformType.SCALE);
+			KeyframeStack<Keyframe> positionFrames = buildKeyframeStack(getTripletObj(entryObj.get("position")), TransformType.POSITION);
+			KeyframeStack<Keyframe> rotationFrames = buildKeyframeStack(getTripletObj(entryObj.get("rotation")), TransformType.ROTATION);
+			KeyframeStack<Keyframe> bendFrames = buildKeyframeStack(getTripletObj(entryObj.get("bend")), TransformType.BEND);
 
 			animations[index] = new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames, bendFrames);
 			index++;
@@ -163,17 +163,17 @@ public class BakedAnimationsLoader {
 		throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
 	}
 
-	private static KeyframeStack<Keyframe<MolangExpression>> buildKeyframeStack(List<Pair<String, JsonElement>> entries, TransformType type) throws CompoundException {
+	private static KeyframeStack<Keyframe> buildKeyframeStack(List<Pair<String, JsonElement>> entries, TransformType type) throws CompoundException {
 		if (entries.isEmpty())
 			return new KeyframeStack<>();
 
-		List<Keyframe<MolangExpression>> xFrames = new ObjectArrayList<>();
-		List<Keyframe<MolangExpression>> yFrames = new ObjectArrayList<>();
-		List<Keyframe<MolangExpression>> zFrames = new ObjectArrayList<>();
+		List<Keyframe> xFrames = new ObjectArrayList<>();
+		List<Keyframe> yFrames = new ObjectArrayList<>();
+		List<Keyframe> zFrames = new ObjectArrayList<>();
 
-		MolangExpression xPrev = null;
-		MolangExpression yPrev = null;
-		MolangExpression zPrev = null;
+		List<Expression> xPrev = null;
+		List<Expression> yPrev = null;
+		List<Expression> zPrev = null;
 		Pair<String, JsonElement> prevEntry = null;
 
 		for (Pair<String, JsonElement> entry : entries) {
@@ -188,22 +188,22 @@ public class BakedAnimationsLoader {
 			float timeDelta = curTime - prevTime;
 
 			boolean isForRotation = type == TransformType.ROTATION;
-			MolangExpression defaultValue = MolangExpression.of(type == TransformType.SCALE ? 1 : 0);
+			Expression defaultValue = new DoubleExpression(type == TransformType.SCALE ? 1 : 0);
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
-			MolangExpression xValue = MolangParser.parseJson(isForRotation, -1, keyFrameVector.get(0), defaultValue);
-			MolangExpression yValue = MolangParser.parseJson(isForRotation, -1, keyFrameVector.get(1), defaultValue);
-			MolangExpression zValue = MolangParser.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
+			List<Expression> xValue = MolangLoader.parseJson(isForRotation, false, keyFrameVector.get(0), defaultValue);
+			List<Expression> yValue = MolangLoader.parseJson(isForRotation, true, keyFrameVector.get(1), defaultValue);
+			List<Expression> zValue = MolangLoader.parseJson(isForRotation, false, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
-			List<MolangExpression> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
-					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> MolangExpression.of((float) ele.getAsDouble())) :
+			List<List<Expression>> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
+					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(new DoubleExpression(ele.getAsDouble()))) :
 					new ObjectArrayList<>();
 
-			xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
-			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
-			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
+			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
+			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
+			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
 
 			xPrev = xValue;
 			yPrev = yValue;

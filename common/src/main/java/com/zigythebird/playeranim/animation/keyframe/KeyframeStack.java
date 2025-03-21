@@ -12,12 +12,12 @@ import java.util.List;
 /**
  * Stores a triplet of {@link Keyframe Keyframes} in an ordered stack
  */
-public record KeyframeStack<T extends Keyframe<?>>(List<T> xKeyframes, List<T> yKeyframes, List<T> zKeyframes) {
+public record KeyframeStack<T extends Keyframe>(List<T> xKeyframes, List<T> yKeyframes, List<T> zKeyframes) {
 	public KeyframeStack() {
 		this(new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>());
 	}
 
-	public static <F extends Keyframe<?>> KeyframeStack<F> from(KeyframeStack<F> otherStack) {
+	public static <F extends Keyframe> KeyframeStack<F> from(KeyframeStack<F> otherStack) {
 		return new KeyframeStack<>(otherStack.xKeyframes, otherStack.yKeyframes, otherStack.zKeyframes);
 	}
 

@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.animation.layered;
 
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
@@ -64,7 +64,7 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void tick(AnimationState state) {
+    public void tick(AnimationData state) {
         if (anim != null) anim.tick(state);
     }
 
@@ -74,7 +74,7 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void setupAnim(AnimationState state) {
+    public void setupAnim(AnimationData state) {
         if (this.anim != null) this.anim.setupAnim(state);
     }
 

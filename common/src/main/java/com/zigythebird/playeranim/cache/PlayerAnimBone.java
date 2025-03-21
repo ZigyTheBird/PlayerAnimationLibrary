@@ -2,6 +2,7 @@ package com.zigythebird.playeranim.cache;
 
 import com.zigythebird.playeranim.animation.BoneSnapshot;
 import com.zigythebird.playeranim.math.Pair;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
@@ -357,6 +358,23 @@ public class PlayerAnimBone {
 
 		this.bend = snapshot.getBend();
 		this.bendAxis = snapshot.getBendAxis();
+	}
+
+	public void copyVanillaPart(ModelPart part) {
+		this.positionX = part.x;
+		this.positionY = part.y;
+		this.positionZ = part.z;
+
+		this.rotX = part.zRot;
+		this.rotY = part.yRot;
+		this.rotZ = part.zRot;
+
+		this.scaleX = part.xScale;
+		this.scaleY = part.yScale;
+		this.scaleZ = part.zScale;
+
+		this.bendAxis = 0;
+		this.bend = 0;
 	}
 
 	public BoneSnapshot saveSnapshot() {

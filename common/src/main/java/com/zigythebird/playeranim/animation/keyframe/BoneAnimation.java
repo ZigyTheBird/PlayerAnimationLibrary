@@ -5,8 +5,6 @@
 
 package com.zigythebird.playeranim.animation.keyframe;
 
-import gg.moonflower.molangcompiler.api.MolangExpression;
-
 /**
  * A record of a deserialized animation for a given bone
  * <p>
@@ -19,8 +17,8 @@ import gg.moonflower.molangcompiler.api.MolangExpression;
  * @param bendKeyFrames The deserialized bend {@code Keyframe} stack
  */
 public record BoneAnimation(String boneName,
-							KeyframeStack<Keyframe<MolangExpression>> rotationKeyFrames,
-							KeyframeStack<Keyframe<MolangExpression>> positionKeyFrames,
-							KeyframeStack<Keyframe<MolangExpression>> scaleKeyFrames,
-							KeyframeStack<Keyframe<MolangExpression>> bendKeyFrames) {
+							KeyframeStack<Keyframe> rotationKeyFrames,
+							KeyframeStack<Keyframe> positionKeyFrames,
+							KeyframeStack<Keyframe> scaleKeyFrames,
+							KeyframeStack<Keyframe> bendKeyFrames) {
 }

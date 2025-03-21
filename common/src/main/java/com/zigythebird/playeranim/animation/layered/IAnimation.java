@@ -24,8 +24,7 @@
 
 package com.zigythebird.playeranim.animation.layered;
 
-import com.zigythebird.playeranim.animation.AnimationState;
-import com.zigythebird.playeranim.animation.State;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
@@ -38,13 +37,13 @@ public interface IAnimation {
      * Animation tick, on lag-free client 20 [tick/sec]
      * You can get the animations time from other places, but it will be invoked when the animation is ACTIVE
      */
-    default void tick(AnimationState state) {}
+    default void tick(AnimationData state) {}
 
     /**
      * Called before rendering a character
      * @param state Current animation state which can be used to get the player and the current partial tick.
      */
-    default void setupAnim(AnimationState state) {}
+    default void setupAnim(AnimationData state) {}
 
     /**
      * Is the animation currently active?

@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import lombok.NoArgsConstructor;
 
 /**
@@ -47,20 +47,20 @@ public class SpeedModifier extends AbstractModifier {
     }
 
     @Override
-    public void tick(AnimationState state) {
+    public void tick(AnimationData state) {
         float delta = 1f - this.delta;
         this.delta = 0;
         step(delta, state);
     }
 
     @Override
-    public void setupAnim(AnimationState state) {
+    public void setupAnim(AnimationData state) {
         float delta = state.getPartialTick() - this.delta; //this should stay positive
         this.delta = state.getPartialTick();
         step(delta, state);
     }
 
-    protected void step(float delta, AnimationState state) {
+    protected void step(float delta, AnimationData state) {
         delta *= speed;
         delta += shiftedDelta;
         while (delta > 1) {

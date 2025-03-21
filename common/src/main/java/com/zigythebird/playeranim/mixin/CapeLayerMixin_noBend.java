@@ -31,9 +31,6 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
 
     @Shadow @Final private HumanoidModel<PlayerRenderState> model;
 
-    @Unique
-    private final PlayerAnimBone playerAnimLib$capeAnimBone = new PlayerAnimBone("cape");
-
     private CapeLayerMixin_noBend(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent, Void v) {
         super(renderLayerParent);
     }
@@ -52,10 +49,12 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
                 poseStack.mulPose(Axis.YP.rotationDegrees(180));
 
                 ModelPart part = capeLayer.getCape();
+                PlayerAnimBone bone = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("cape");
                 PartPose initialPose = part.getInitialPose();
-                emote.get3DTransform(playerAnimLib$capeAnimBone);
+                bone.copyVanillaPart(part);
+                emote.get3DTransform(bone);
 
-                RenderUtil.translatePartToBone(part, playerAnimLib$capeAnimBone, initialPose);
+                RenderUtil.translatePartToBone(part, bone, initialPose);
             }
         }
     }

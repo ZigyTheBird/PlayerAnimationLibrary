@@ -55,7 +55,7 @@ public final class PlayerAnimCache {
 				loadPlayerAnim(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), splitPath[splitPath.length-1]), resource.getValue().open());
 			}
 			catch (Exception e) {
-				ModInit.LOGGER.error("Player Animation Library failed to load animation " + resource.getKey() + " because: " + e.getMessage());
+				ModInit.LOGGER.error("Player Animation Library failed to load animation {} because:", resource.getKey(), e);
 			}
 		}
 	}
@@ -103,23 +103,25 @@ public final class PlayerAnimCache {
 			}
 		}
 		catch (Exception e) {
-			ModInit.LOGGER.error("Player Animation Library failed to load animation " + id + " : " + e);
+			ModInit.LOGGER.error("Player Animation Library failed to load animation {}:", id, e);
 		}
 	}
 
 	public static Animation loadLegacyPlayerAnim(JsonElement json) {
 		JsonObject obj = json.getAsJsonObject();
+		JsonObject emoteObj = obj.get("emote").getAsJsonObject();
 		List<BoneAnimation> boneAnims = new ArrayList<>();
-		for (JsonElement jsonElement : obj.get("moves").getAsJsonArray()) {
-			if (json.isJsonObject()) {
-				JsonObject move = (JsonObject) jsonElement;
+		for (JsonElement jsonElement : emoteObj.get("moves").getAsJsonArray()) {
+			if (jsonElement.isJsonObject()) {
+				JsonObject move = jsonElement.getAsJsonObject();
 				int currentTick = move.get("tick").getAsInt();
 				for (Map.Entry<String, JsonElement> entry : move.asMap().entrySet()) {
+					if (entry.getKey().equals("tick")) continue;
 					List<Pair<Integer, Vec3>> transforms = new ArrayList<>();
 					List<Pair<Integer, Vec3>> rotations = new ArrayList<>();
 					List<Pair<Integer, Vec3>> scales = new ArrayList<>();
 					List<Pair<Integer, Vec3>> bends = new ArrayList<>();
-					JsonObject jsonObject = (JsonObject) entry.getValue();
+					JsonObject jsonObject = entry.getValue().getAsJsonObject();
 					float x = jsonObject.has("x") ? jsonObject.get("x").getAsFloat() : 0;
 					float y = jsonObject.has("y") ? jsonObject.get("y").getAsFloat() : 0;
 					float z = jsonObject.has("z") ? jsonObject.get("z").getAsFloat() : 0;
@@ -143,7 +145,7 @@ public final class PlayerAnimCache {
 		BoneAnimation[] boneAnimations = boneAnims.toArray(new BoneAnimation[]{});
 		String name = obj.get("name").getAsString();
 		return new Animation(name, BakedAnimationsLoader.calculateAnimationLength(boneAnimations),
-				obj.get("emote").getAsJsonObject().get("isLoop").getAsBoolean() ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE, boneAnimations, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+				emoteObj.get("isLoop").getAsBoolean() ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE, boneAnimations, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
 	}
 
 	public static String getCorrectPlayerBoneName(String name) {

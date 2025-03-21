@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
@@ -66,14 +66,14 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
     }
 
     @Override
-    public void setupAnim(AnimationState state) {
+    public void setupAnim(AnimationData state) {
         super.setupAnim(state);
         if (beginAnimation != null) beginAnimation.setupAnim(state);
         tickDelta = state.getPartialTick();
     }
 
     @Override
-    public void tick(AnimationState state) {
+    public void tick(AnimationData state) {
         super.tick(state);
         if (beginAnimation != null) beginAnimation.tick(state);
         this.time++;
@@ -114,7 +114,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
         return new AbstractFadeModifier(length) {
             @Override
             protected float getAlpha(PlayerAnimBone bone, float progress) {
-                return ease.buildTransformer(null).apply(progress);
+                return ease.buildTransformer(null).apply((double) progress).floatValue();
             }
         };
     }

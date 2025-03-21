@@ -6,7 +6,7 @@
 package com.zigythebird.playeranim.animation.keyframe.event;
 
 import com.zigythebird.playeranim.animation.AnimationController;
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
 import net.minecraft.client.player.AbstractClientPlayer;
 
@@ -17,8 +17,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
  */
 public class SoundKeyframeEvent extends KeyFrameEvent<SoundKeyframeData> {
 	public SoundKeyframeEvent(AbstractClientPlayer player, double animationTick, AnimationController controller,
-							  SoundKeyframeData keyFrameData, AnimationState animationState) {
-		super(player, animationTick, controller, keyFrameData, animationState);
+							  SoundKeyframeData keyFrameData, AnimationData animationData) {
+		super(player, animationTick, controller, keyFrameData, animationData);
 	}
 
 	@Override

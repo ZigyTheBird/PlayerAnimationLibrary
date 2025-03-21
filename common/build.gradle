@@ -8,6 +8,7 @@ loom {
 
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    implementation "team.unnamed:mocha:$rootProject.molang_version"
 
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
@@ -15,9 +16,6 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     compileOnly 'org.jetbrains:annotations:23.0.0'
-
-    //Original Repository: https://github.com/Ocelot5836/molang-compiler
-    compileOnly 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
 }
 
 publishing {

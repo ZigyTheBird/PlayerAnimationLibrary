@@ -20,6 +20,26 @@
 					}
 				}
 			}
+		},
+		"molang_test3": {
+			"animation_length": 5,
+			"bones": {
+				"body": {
+					"rotation": {
+						"vector": [0, "!query.is_on_fire ? math.sin(q.anim_time * 50) * 45 : 0", 0]
+					}
+				}
+			}
+		},
+		"molang_test4": {
+			"animation_length": 5,
+			"bones": {
+				"body": {
+					"rotation": {
+						"vector": [0, "v.cowcow = 45; return v.cowcow;", 0]
+					}
+				}
+			}
 		}
 	},
 	"geckolib_format_version": 2

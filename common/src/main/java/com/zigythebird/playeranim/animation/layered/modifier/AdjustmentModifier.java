@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
@@ -143,7 +143,7 @@ public class AdjustmentModifier extends AbstractModifier {
     }
 
     @Override
-    public void tick(AnimationState state) {
+    public void tick(AnimationData state) {
         super.tick(state);
 
         if (remainingFadeout > 0) {
@@ -155,7 +155,7 @@ public class AdjustmentModifier extends AbstractModifier {
     }
 
     @Override
-    public void setupAnim(AnimationState state) {
+    public void setupAnim(AnimationData state) {
         this.tickDelta = state.getPartialTick();
     }
 

@@ -37,11 +37,7 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 
-    //Original Repository: https://github.com/Ocelot5836/molang-compiler
-    runtimeOnly 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
-    compileOnly 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
-    forgeRuntimeLibrary 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
-    shadowBundle 'com.github.ThuverX:molang-compiler:f6ac2a31e9'
+    implementation forgeRuntimeLibrary(shadowBundle("team.unnamed:mocha:$rootProject.molang_version"))
 }
 
 processResources {
