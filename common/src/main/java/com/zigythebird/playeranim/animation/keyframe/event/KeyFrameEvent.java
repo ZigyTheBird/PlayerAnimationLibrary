@@ -6,7 +6,7 @@
 package com.zigythebird.playeranim.animation.keyframe.event;
 
 import com.zigythebird.playeranim.animation.AnimationController;
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.event.data.KeyFrameData;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -25,19 +25,19 @@ public abstract class KeyFrameEvent<E extends KeyFrameData> {
 	private final double animationTick;
 	private final AnimationController controller;
 	private final E eventKeyFrame;
-	private final AnimationState animationState;
+	private final AnimationData animationData;
 
-	public KeyFrameEvent(AbstractClientPlayer animatable, double animationTick, AnimationController controller, E eventKeyFrame, AnimationState animationState) {
+	public KeyFrameEvent(AbstractClientPlayer animatable, double animationTick, AnimationController controller, E eventKeyFrame, AnimationData animationData) {
 		this.animatable = animatable;
 		this.animationTick = animationTick;
 		this.controller = controller;
 		this.eventKeyFrame = eventKeyFrame;
-		this.animationState = animationState;
+		this.animationData = animationData;
 	}
 
 	/**
 	 * Gets the amount of ticks that have passed in either the current transition or
-	 * animation, depending on the controller's AnimationState.
+	 * animation, depending on the controller's AnimationData.
 	 */
 	public double getAnimationTick() {
 		return animationTick;
@@ -65,9 +65,9 @@ public abstract class KeyFrameEvent<E extends KeyFrameData> {
 	}
 
 	/**
-	 * Returns the {@link AnimationState} for the current render pass
+	 * Returns the {@link AnimationData} for the current render pass
 	 */
-	public AnimationState getAnimationState() {
-		return this.animationState;
+	public AnimationData getAnimationState() {
+		return this.animationData;
 	}
 }

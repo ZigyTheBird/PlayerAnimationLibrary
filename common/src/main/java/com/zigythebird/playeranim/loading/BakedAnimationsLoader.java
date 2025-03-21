@@ -10,7 +10,7 @@ import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
-import com.zigythebird.playeranim.math.MolangLoader;
+import com.zigythebird.playeranim.molang.MolangLoader;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.util.JsonUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -191,9 +191,9 @@ public class BakedAnimationsLoader {
 			Expression defaultValue = new DoubleExpression(type == TransformType.SCALE ? 1 : 0);
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
-			List<Expression> xValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(0), defaultValue);
-			List<Expression> yValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(1), defaultValue);
-			List<Expression> zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
+			List<Expression> xValue = MolangLoader.parseJson(isForRotation, false, keyFrameVector.get(0), defaultValue);
+			List<Expression> yValue = MolangLoader.parseJson(isForRotation, true, keyFrameVector.get(1), defaultValue);
+			List<Expression> zValue = MolangLoader.parseJson(isForRotation, false, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;

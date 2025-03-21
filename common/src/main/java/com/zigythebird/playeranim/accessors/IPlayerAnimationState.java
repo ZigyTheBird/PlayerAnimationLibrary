@@ -8,11 +8,6 @@ import org.jetbrains.annotations.Nullable;
  * Extension of PlayerRenderState
  */
 public interface IPlayerAnimationState {
-
-    // bool isLocalPlayer
-    boolean playerAnimLib$isLocalPlayer();
-    void playerAnimLib$setLocalPlayer(boolean value);
-
     boolean playerAnimLib$isCameraEntity();
     void playerAnimLib$setCameraEntity(boolean value);
 

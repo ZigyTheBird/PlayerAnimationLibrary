@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.animation.layered;
 
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranim.animation.layered.modifier.AbstractModifier;
@@ -39,7 +39,7 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void tick(AnimationState state) {
+    public void tick(AnimationData state) {
         for (int i = 0; i < modifiers.size(); i++) {
             if (modifiers.get(i).canRemove()) {
                 removeModifier(i--);
@@ -133,7 +133,7 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void setupAnim(AnimationState state) {
+    public void setupAnim(AnimationData state) {
         if (!modifiers.isEmpty()) {
             modifiers.get(0).setupAnim(state);
         } else if (animation != null) animation.setupAnim(state);

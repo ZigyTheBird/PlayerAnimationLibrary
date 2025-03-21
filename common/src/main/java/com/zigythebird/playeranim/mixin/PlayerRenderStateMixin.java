@@ -11,9 +11,6 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(PlayerRenderState.class)
 public class PlayerRenderStateMixin implements IPlayerAnimationState {
     @Unique
-    boolean playerAnimLib$isLocalPlayer = false;
-
-    @Unique
     boolean playerAnimLib$isCameraEntity = false;
 
     @Unique
@@ -21,16 +18,6 @@ public class PlayerRenderStateMixin implements IPlayerAnimationState {
 
     @Unique
     AnimationProcessor playerAnimLib$playerAnimProcessor = null;
-
-    @Override
-    public boolean playerAnimLib$isLocalPlayer() {
-        return playerAnimLib$isLocalPlayer;
-    }
-
-    @Override
-    public void playerAnimLib$setLocalPlayer(boolean value) {
-        playerAnimLib$isLocalPlayer = value;
-    }
 
     @Override
     public boolean playerAnimLib$isCameraEntity() {

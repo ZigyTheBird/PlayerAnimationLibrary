@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.animation.layered;
 
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.BoneSnapshot;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +65,7 @@ public abstract class PlayerAnimationFrame implements IAnimation {
 
 
     @Override
-    public void tick(AnimationState state) {
+    public void tick(AnimationData state) {
         IAnimation.super.tick(state);
     }
 

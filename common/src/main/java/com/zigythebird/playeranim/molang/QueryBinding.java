@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.math;
+package com.zigythebird.playeranim.molang;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

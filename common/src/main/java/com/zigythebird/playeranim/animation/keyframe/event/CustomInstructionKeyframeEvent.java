@@ -6,7 +6,7 @@
 package com.zigythebird.playeranim.animation.keyframe.event;
 
 import com.zigythebird.playeranim.animation.AnimationController;
-import com.zigythebird.playeranim.animation.AnimationState;
+import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import net.minecraft.client.player.AbstractClientPlayer;
 
@@ -17,8 +17,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
  */
 public class CustomInstructionKeyframeEvent extends KeyFrameEvent<CustomInstructionKeyframeData> {
 	public CustomInstructionKeyframeEvent(AbstractClientPlayer player, double animationTick, AnimationController controller,
-										  CustomInstructionKeyframeData customInstructionKeyframeData, AnimationState animationState) {
-		super(player, animationTick, controller, customInstructionKeyframeData, animationState);
+										  CustomInstructionKeyframeData customInstructionKeyframeData, AnimationData animationData) {
+		super(player, animationTick, controller, customInstructionKeyframeData, animationData);
 	}
 
 	/**

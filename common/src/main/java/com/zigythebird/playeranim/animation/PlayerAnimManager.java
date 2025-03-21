@@ -3,8 +3,6 @@ package com.zigythebird.playeranim.animation;
 import com.zigythebird.playeranim.accessors.IModelPart;
 import com.zigythebird.playeranim.animation.layered.AnimationStack;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
-import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import com.zigythebird.playeranim.dataticket.DataTicket;
 import com.zigythebird.playeranim.math.Pair;
@@ -14,7 +12,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -38,10 +35,6 @@ public class PlayerAnimManager extends AnimationStack {
 		this.player = player;
 	}
 
-	/**
-	 * DON'T YOU DARE TOUCH THIS!
-	 */
-	@ApiStatus.Internal
 	protected ArrayList<Pair<Integer, IAnimation>> getLayers() {
 		return this.layers;
 	}
@@ -82,6 +75,10 @@ public class PlayerAnimManager extends AnimationStack {
 		return this.tickDelta;
 	}
 
+	/**
+	 * If you touch this you're a horrible person.
+	 */
+	@ApiStatus.Internal
 	public void setTickDelta(float tickDelta) {
 		this.tickDelta = tickDelta;
 	}

@@ -55,8 +55,7 @@ public class AnimationProcessor {
 	 */
 	public void handleAnimations(float partialTick, boolean fullTick) {
 		Vec3 velocity = player.getDeltaMovement();
-		float avgVelocity = (float)((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
-		AnimationState animationState = new AnimationState(player, partialTick, avgVelocity >= 0.015F);
+		AnimationData animationData = new AnimationData(player, partialTick, (Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
 
 		Minecraft mc = Minecraft.getInstance();
 		PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
@@ -79,13 +78,13 @@ public class AnimationProcessor {
 			this.lastGameTickTime = lastUpdateTime;
 		}
 
-		animationState.animationTick = this.animTime;
+		animationData.setAnimationTick(this.animTime);
 		this.lastRenderedInstance = player.getId();
 
-		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationState.copy());
+		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationData.copy());
 
 		if (!this.getRegisteredBones().isEmpty())
-			this.tickAnimation(animatableManager, this.animTime, animationState);
+			this.tickAnimation(animatableManager, this.animTime, animationData);
 	}
 
 	/**
@@ -127,9 +126,9 @@ public class AnimationProcessor {
 	 *
 	 * @param playerAnimManager		The PlayerAnimManager instance being used for this animation processor
 	 * @param animTime              The internal tick counter kept by the {@link PlayerAnimManager} for this player
-	 * @param state                 An {@link AnimationState} instance applied to this render frame
+	 * @param state                 An {@link AnimationData} instance applied to this render frame
 	 */
-	public void tickAnimation(PlayerAnimManager playerAnimManager, double animTime, AnimationState state) {
+	public void tickAnimation(PlayerAnimManager playerAnimManager, double animTime, AnimationData state) {
 		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
 
 		for (PlayerAnimBone entry : this.bones.values()) {

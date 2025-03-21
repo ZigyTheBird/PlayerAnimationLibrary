@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.math;
+package com.zigythebird.playeranim.molang;
 
 import com.google.common.collect.Streams;
 import net.minecraft.client.CameraType;
@@ -84,7 +84,7 @@ public final class MolangQueries {
     static void setDefaultQueryValues(ObjectValue binding) {
         MolangLoader.setDoubleQuery(binding, CARDINAL_PLAYER_FACING, actor -> actor.getPlayer().getDirection().ordinal());
         MolangLoader.setDoubleQuery(binding, DAY, actor -> actor.getPlayer().level().getGameTime() / 24000d);
-        MolangLoader.setDoubleQuery(binding, FRAME_ALPHA, actor -> actor.getRenderState().getPartialTick());
+        MolangLoader.setDoubleQuery(binding, FRAME_ALPHA, actor -> actor.getAnimationData().getPartialTick());
         MolangLoader.setBoolQuery(binding, HAS_CAPE, actor -> actor.getPlayer().getSkin().capeTexture() != null);
         MolangLoader.setBoolQuery(binding, IS_FIRST_PERSON, actor -> Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON);
         MolangLoader.setDoubleQuery(binding, LIFE_TIME, actor -> actor.getAnimTime() / 20d);
@@ -98,8 +98,8 @@ public final class MolangQueries {
     }
 
     private static void setDefaultPlayerQueryValues(ObjectValue binding) {
-        MolangLoader.setDoubleQuery(binding, BODY_X_ROTATION, actor -> actor.getPlayer().getViewXRot(actor.getRenderState().getPartialTick()));
-        MolangLoader.setDoubleQuery(binding, BODY_Y_ROTATION, actor -> actor.getPlayer() instanceof LivingEntity living ? Mth.lerp(actor.getRenderState().getPartialTick(), living.yBodyRotO, living.yBodyRot) : actor.getPlayer().getViewYRot(actor.getRenderState().getPartialTick()));
+        MolangLoader.setDoubleQuery(binding, BODY_X_ROTATION, actor -> actor.getPlayer().getViewXRot(actor.getAnimationData().getPartialTick()));
+        MolangLoader.setDoubleQuery(binding, BODY_Y_ROTATION, actor -> actor.getPlayer() instanceof LivingEntity living ? Mth.lerp(actor.getAnimationData().getPartialTick(), living.yBodyRotO, living.yBodyRot) : actor.getPlayer().getViewYRot(actor.getAnimationData().getPartialTick()));
         MolangLoader.setDoubleQuery(binding, CARDINAL_FACING, actor -> actor.getPlayer().getDirection().get3DDataValue());
         MolangLoader.setDoubleQuery(binding, CARDINAL_FACING_2D, actor -> {
             int directionId = actor.getPlayer().getDirection().get3DDataValue();
@@ -123,7 +123,7 @@ public final class MolangQueries {
         MolangLoader.setBoolQuery(binding, IS_IN_WATER, actor -> actor.getPlayer().isInWater());
         MolangLoader.setBoolQuery(binding, IS_IN_WATER_OR_RAIN, actor -> actor.getPlayer().isInWaterOrRain());
         MolangLoader.setBoolQuery(binding, IS_LEASHED, actor -> actor.getPlayer() instanceof Leashable leashable && leashable.isLeashed());
-        MolangLoader.setBoolQuery(binding, IS_MOVING, actor -> actor.getRenderState().isMoving());
+        MolangLoader.setBoolQuery(binding, IS_MOVING, actor -> actor.getAnimationData().isMoving());
         MolangLoader.setBoolQuery(binding, IS_ON_FIRE, actor -> actor.getPlayer().isOnFire());
         MolangLoader.setBoolQuery(binding, IS_ON_GROUND, actor -> actor.getPlayer().onGround());
         MolangLoader.setBoolQuery(binding, IS_RIDING, actor -> actor.getPlayer().isPassenger());
@@ -132,29 +132,29 @@ public final class MolangQueries {
         MolangLoader.setBoolQuery(binding, IS_SNEAKING, actor -> actor.getPlayer().isCrouching());
         MolangLoader.setBoolQuery(binding, IS_SPRINTING, actor -> actor.getPlayer().isSprinting());
         MolangLoader.setBoolQuery(binding, IS_SWIMMING, actor -> actor.getPlayer().isSwimming());
-        MolangLoader.setDoubleQuery(binding, MOVEMENT_DIRECTION, actor -> actor.getRenderState().isMoving() ? Direction.getApproximateNearest(actor.getPlayer().getDeltaMovement()).get3DDataValue() : 6);
-        MolangLoader.setDoubleQuery(binding, RIDER_BODY_X_ROTATION, actor -> actor.getPlayer().isVehicle() ? actor.getPlayer().getFirstPassenger() instanceof LivingEntity ? 0 : actor.getPlayer().getFirstPassenger().getViewXRot(actor.getRenderState().getPartialTick()) : 0);
-        MolangLoader.setDoubleQuery(binding, RIDER_BODY_Y_ROTATION, actor -> actor.getPlayer().isVehicle() ? actor.getPlayer().getFirstPassenger() instanceof LivingEntity living ? Mth.lerp(actor.getRenderState().getPartialTick(), living.yBodyRotO, living.yBodyRot) : actor.getPlayer().getFirstPassenger().getViewYRot(actor.getRenderState().getPartialTick()) : 0);
-        MolangLoader.setDoubleQuery(binding, RIDER_HEAD_X_ROTATION, actor -> actor.getPlayer().getFirstPassenger() instanceof LivingEntity living ? living.getViewXRot(actor.getRenderState().getPartialTick()) : 0);
-        MolangLoader.setDoubleQuery(binding, RIDER_HEAD_Y_ROTATION, actor -> actor.getPlayer().getFirstPassenger() instanceof LivingEntity living ? living.getViewYRot(actor.getRenderState().getPartialTick()) : 0);
+        MolangLoader.setDoubleQuery(binding, MOVEMENT_DIRECTION, actor -> actor.getAnimationData().isMoving() ? Direction.getApproximateNearest(actor.getPlayer().getDeltaMovement()).get3DDataValue() : 6);
+        MolangLoader.setDoubleQuery(binding, RIDER_BODY_X_ROTATION, actor -> actor.getPlayer().isVehicle() ? actor.getPlayer().getFirstPassenger() instanceof LivingEntity ? 0 : actor.getPlayer().getFirstPassenger().getViewXRot(actor.getAnimationData().getPartialTick()) : 0);
+        MolangLoader.setDoubleQuery(binding, RIDER_BODY_Y_ROTATION, actor -> actor.getPlayer().isVehicle() ? actor.getPlayer().getFirstPassenger() instanceof LivingEntity living ? Mth.lerp(actor.getAnimationData().getPartialTick(), living.yBodyRotO, living.yBodyRot) : actor.getPlayer().getFirstPassenger().getViewYRot(actor.getAnimationData().getPartialTick()) : 0);
+        MolangLoader.setDoubleQuery(binding, RIDER_HEAD_X_ROTATION, actor -> actor.getPlayer().getFirstPassenger() instanceof LivingEntity living ? living.getViewXRot(actor.getAnimationData().getPartialTick()) : 0);
+        MolangLoader.setDoubleQuery(binding, RIDER_HEAD_Y_ROTATION, actor -> actor.getPlayer().getFirstPassenger() instanceof LivingEntity living ? living.getViewYRot(actor.getAnimationData().getPartialTick()) : 0);
         MolangLoader.setDoubleQuery(binding, VERTICAL_SPEED, actor -> actor.getPlayer().getDeltaMovement().y);
         MolangLoader.setDoubleQuery(binding, YAW_SPEED, actor -> actor.getPlayer().getYRot() - actor.getPlayer().yRotO);
         MolangLoader.setBoolQuery(binding, BLOCKING, actor -> actor.getPlayer().isBlocking());
-        MolangLoader.setDoubleQuery(binding, DEATH_TICKS, actor -> actor.getPlayer().deathTime == 0 ? 0 : actor.getPlayer().deathTime + actor.getRenderState().getPartialTick());
+        MolangLoader.setDoubleQuery(binding, DEATH_TICKS, actor -> actor.getPlayer().deathTime == 0 ? 0 : actor.getPlayer().deathTime + actor.getAnimationData().getPartialTick());
         MolangLoader.setDoubleQuery(binding, EQUIPMENT_COUNT, actor -> Streams.stream(actor.getPlayer().getArmorSlots()).filter(stack -> !stack.isEmpty()).count());
         MolangLoader.setDoubleQuery(binding, GROUND_SPEED, actor -> actor.getPlayer().getDeltaMovement().horizontalDistance());
         MolangLoader.setBoolQuery(binding, HAS_HEAD_GEAR, actor -> !actor.getPlayer().getItemBySlot(EquipmentSlot.HEAD).isEmpty());
-        MolangLoader.setDoubleQuery(binding, HEAD_X_ROTATION, actor -> actor.getPlayer().getViewXRot(actor.getRenderState().getPartialTick()));
-        MolangLoader.setDoubleQuery(binding, HEAD_Y_ROTATION, actor -> actor.getPlayer().getViewYRot(actor.getRenderState().getPartialTick()));
+        MolangLoader.setDoubleQuery(binding, HEAD_X_ROTATION, actor -> actor.getPlayer().getViewXRot(actor.getAnimationData().getPartialTick()));
+        MolangLoader.setDoubleQuery(binding, HEAD_Y_ROTATION, actor -> actor.getPlayer().getViewYRot(actor.getAnimationData().getPartialTick()));
         MolangLoader.setDoubleQuery(binding, HEALTH, actor -> actor.getPlayer().getHealth());
-        MolangLoader.setDoubleQuery(binding, HURT_TIME, actor -> actor.getPlayer().hurtTime == 0 ? 0 : actor.getPlayer().hurtTime - actor.getRenderState().getPartialTick());
-        MolangLoader.setDoubleQuery(binding, INVULNERABLE_TICKS, actor -> actor.getPlayer().invulnerableTime == 0 ? 0 : actor.getPlayer().invulnerableTime - actor.getRenderState().getPartialTick());
+        MolangLoader.setDoubleQuery(binding, HURT_TIME, actor -> actor.getPlayer().hurtTime == 0 ? 0 : actor.getPlayer().hurtTime - actor.getAnimationData().getPartialTick());
+        MolangLoader.setDoubleQuery(binding, INVULNERABLE_TICKS, actor -> actor.getPlayer().invulnerableTime == 0 ? 0 : actor.getPlayer().invulnerableTime - actor.getAnimationData().getPartialTick());
         MolangLoader.setBoolQuery(binding, IS_BABY, actor -> actor.getPlayer().isBaby());
         MolangLoader.setBoolQuery(binding, IS_SLEEPING, actor -> actor.getPlayer().isSleeping());
         MolangLoader.setBoolQuery(binding, IS_USING_ITEM, actor -> actor.getPlayer().isUsingItem());
         MolangLoader.setBoolQuery(binding, IS_WALL_CLIMBING, actor -> actor.getPlayer().onClimbable());
         MolangLoader.setDoubleQuery(binding, MAIN_HAND_ITEM_MAX_DURATION, actor -> actor.getPlayer().getMainHandItem().getUseDuration(actor.getPlayer()));
-        MolangLoader.setDoubleQuery(binding, MAIN_HAND_ITEM_USE_DURATION, actor -> actor.getPlayer().getUsedItemHand() == InteractionHand.MAIN_HAND ? actor.getPlayer().getTicksUsingItem() / 20d + actor.getRenderState().getPartialTick() : 0);
+        MolangLoader.setDoubleQuery(binding, MAIN_HAND_ITEM_USE_DURATION, actor -> actor.getPlayer().getUsedItemHand() == InteractionHand.MAIN_HAND ? actor.getPlayer().getTicksUsingItem() / 20d + actor.getAnimationData().getPartialTick() : 0);
         MolangLoader.setDoubleQuery(binding, MAX_HEALTH, actor -> actor.getPlayer().getMaxHealth());
         MolangLoader.setDoubleQuery(binding, SCALE, actor -> actor.getPlayer().getScale());
         MolangLoader.setDoubleQuery(binding, SLEEP_ROTATION, actor -> Optional.ofNullable(actor.getPlayer().getBedOrientation()).map(Direction::toYRot).orElse(0f));

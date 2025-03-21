@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.neoforge.event;
 
 import com.zigythebird.playeranim.animation.AnimationController;
-import com.zigythebird.playeranim.math.MolangLoader;
+import com.zigythebird.playeranim.molang.MolangLoader;
 import net.neoforged.bus.api.Event;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.runtime.value.MutableObjectBinding;

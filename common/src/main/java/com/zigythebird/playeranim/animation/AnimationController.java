@@ -15,13 +15,12 @@ import com.zigythebird.playeranim.animation.layered.modifier.AbstractModifier;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.cache.PlayerAnimBone;
-import com.zigythebird.playeranim.math.MolangLoader;
+import com.zigythebird.playeranim.molang.MolangLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
@@ -71,7 +70,7 @@ public class AnimationController implements IAnimation {
 	protected Function<AbstractClientPlayer, Double> animationSpeedModifier = animatable -> 1d;
 	protected Function<AbstractClientPlayer, EasingType> overrideEasingTypeFunction = animatable -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
-	protected AnimationState renderState;
+	protected AnimationData animationData;
 	
 	protected Function<AbstractClientPlayer, FirstPersonMode> firstPersonMode = null;
 	protected Function<AbstractClientPlayer, FirstPersonConfiguration> firstPersonConfiguration = null;
@@ -254,8 +253,8 @@ public class AnimationController implements IAnimation {
 		return this.animationState.isActive();
 	}
 
-	public AnimationState getRenderState() {
-		return renderState;
+	public AnimationData getAnimationData() {
+		return animationData;
 	}
 
 	public AbstractClientPlayer getPlayer() {
@@ -406,9 +405,9 @@ public class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * Handle a given AnimationState, alongside the current triggered animation if applicable
+	 * Handle a given AnimationData, alongside the current triggered animation if applicable
 	 */
-	protected PlayState handleAnimationState(AnimationState state) {
+	protected PlayState handleAnimationState(AnimationData state) {
 		if (this.triggeredAnimation != null) {
 			if (this.currentRawAnimation != this.triggeredAnimation)
 				this.currentAnimation = null;
@@ -435,7 +434,7 @@ public class AnimationController implements IAnimation {
 	 * @param seekTime              The current tick + partial tick
 	 * @param crashWhenCantFindBone Whether to hard-fail when a bone can't be found, or to continue with the remaining bones
 	 */
-	public void process(AnimationState state, Map<String, PlayerAnimBone> bones, Map<String, BoneSnapshot> snapshots, final double seekTime, boolean crashWhenCantFindBone) {
+	public void process(AnimationData state, Map<String, PlayerAnimBone> bones, Map<String, BoneSnapshot> snapshots, final double seekTime, boolean crashWhenCantFindBone) {
 		double adjustedTick = adjustTick(seekTime);
 
 		if (animationState == State.TRANSITIONING && adjustedTick >= this.transitionLength) {
@@ -553,7 +552,7 @@ public class AnimationController implements IAnimation {
 	 * @param seekTime The lerped tick (current tick + partial tick)
 	 * @param crashWhenCantFindBone Whether the controller should throw an exception when unable to find the required bone, or continue with the remaining bones
 	 */
-	private void processCurrentAnimation(double adjustedTick, double seekTime, boolean crashWhenCantFindBone, AnimationState animationState) {
+	private void processCurrentAnimation(double adjustedTick, double seekTime, boolean crashWhenCantFindBone, AnimationData animationData) {
 		if (adjustedTick >= this.currentAnimation.animation().length()) {
 			if (this.currentAnimation.loopType().shouldPlayAgain(this.player, this, this.currentAnimation.animation())) {
 				if (this.animationState != State.PAUSED) {
@@ -639,7 +638,7 @@ public class AnimationController implements IAnimation {
 					break;
 				}
 
-				this.soundKeyframeHandler.handle(new SoundKeyframeEvent(this.player, adjustedTick, this, keyframeData, animationState));
+				this.soundKeyframeHandler.handle(new SoundKeyframeEvent(this.player, adjustedTick, this, keyframeData, animationData));
 			}
 		}
 
@@ -651,7 +650,7 @@ public class AnimationController implements IAnimation {
 					break;
 				}
 
-				this.particleKeyframeHandler.handle(new ParticleKeyframeEvent(this.player, adjustedTick, this, keyframeData, animationState));
+				this.particleKeyframeHandler.handle(new ParticleKeyframeEvent(this.player, adjustedTick, this, keyframeData, animationData));
 			}
 		}
 
@@ -663,7 +662,7 @@ public class AnimationController implements IAnimation {
 					break;
 				}
 
-				this.customKeyframeHandler.handle(new CustomInstructionKeyframeEvent(this.player, adjustedTick, this, keyframeData, animationState));
+				this.customKeyframeHandler.handle(new CustomInstructionKeyframeEvent(this.player, adjustedTick, this, keyframeData, animationData));
 			}
 		}
 
@@ -840,7 +839,7 @@ public class AnimationController implements IAnimation {
 	}
 
 	@Override
-	public void tick(AnimationState state) {
+	public void tick(AnimationData state) {
 		for (int i = 0; i < modifiers.size(); i++) {
 			if (modifiers.get(i).canRemove()) {
 				removeModifier(i--);
@@ -858,15 +857,15 @@ public class AnimationController implements IAnimation {
 	}
 
 	@Override
-	public void setupAnim(AnimationState state) {
-		this.renderState = state;
+	public void setupAnim(AnimationData state) {
+		this.animationData = state;
 		if (!modifiers.isEmpty()) {
 			modifiers.get(0).setupAnim(state);
 		}
 		else internalSetupAnim(state);
 	}
 
-	protected void internalSetupAnim(AnimationState state) {
+	protected void internalSetupAnim(AnimationData state) {
 		this.isJustStarting = state.getPlayerAnimManager().isFirstTick();
         Map<String, BoneSnapshot> boneSnapshots = new HashMap<>(state.getPlayer().playerAnimLib$getAnimProcessor().boneSnapshots);
 		if (this.currentAnimation != null) {
@@ -998,7 +997,7 @@ public class AnimationController implements IAnimation {
 		 * Return {@link PlayState#CONTINUE} to tell the controller to continue animating,
 		 * or return {@link PlayState#STOP} to tell it to stop playing all animations and wait for the next {@link PlayState#CONTINUE} return.
 		 */
-		PlayState handle(AnimationState state);
+		PlayState handle(AnimationData state);
 	}
 
 	/**
@@ -1040,7 +1039,7 @@ public class AnimationController implements IAnimation {
 		}
 
 		@Override
-		public void setupAnim(AnimationState state) {
+		public void setupAnim(AnimationData state) {
 			this.anim.internalSetupAnim(state);
 		}
 

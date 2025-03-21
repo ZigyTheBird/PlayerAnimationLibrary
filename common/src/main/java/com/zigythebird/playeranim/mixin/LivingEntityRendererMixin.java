@@ -25,13 +25,16 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranim.cache.PlayerAnimBone;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -48,6 +51,35 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
         if (FirstPersonMode.isFirstPersonPass() && entityRenderState instanceof IPlayerAnimationState state
                 && state.playerAnimLib$isCameraEntity()) {
             playerAnimLib$setAllPartsVisible(true);
+        }
+    }
+    
+    @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;isBodyVisible(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Z"))
+    private void doTranslations(S livingEntityRenderState, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
+        if (livingEntityRenderState instanceof PlayerRenderState playerRenderState) {
+            var animationPlayer = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimManager();
+            if (animationPlayer != null && animationPlayer.isActive()) {
+                poseStack.translate(0.0F, 1.501F, 0.0F);
+                poseStack.scale(-1.0F, -1.0F, 1.0F);
+
+                PlayerAnimBone body = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("body");
+                body.setToInitialPose();
+
+                //These are additive properties
+                animationPlayer.get3DTransform(body);
+
+                poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
+                poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);
+
+                poseStack.mulPose(Axis.ZP.rotation(body.getRotZ()));    //roll
+                poseStack.mulPose(Axis.YP.rotation(body.getRotY()));    //pitch
+                poseStack.mulPose(Axis.XP.rotation(body.getRotX()));    //yaw
+
+                poseStack.translate(0, -0.75, 0);
+
+                poseStack.scale(-1.0F, -1.0F, 1.0F);
+                poseStack.translate(0.0F, -1.501F, 0.0F);
+            }
         }
     }
 
