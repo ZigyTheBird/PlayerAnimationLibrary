@@ -9,7 +9,6 @@ import com.zigythebird.playeranim.animation.keyframe.AnimationPoint;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import team.unnamed.mocha.MochaEngine;
 
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +26,7 @@ public interface EasingType {
 	Map<String, EasingType> EASING_TYPES = new ConcurrentHashMap<>(64);
 
 	EasingType LINEAR = register("linear", register("none", value -> easeIn(EasingType::linear)));
+	EasingType CONSTANT = register("constant", value -> easeIn(f -> 0D));
 	EasingType STEP = register("step", value -> easeIn(step(value)));
 	EasingType EASE_IN_SINE = register("easeinsine", value -> easeIn(EasingType::sine));
 	EasingType EASE_OUT_SINE = register("easeoutsine", value -> easeOut(EasingType::sine));

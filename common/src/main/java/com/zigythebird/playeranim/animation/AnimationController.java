@@ -771,6 +771,10 @@ public class AnimationController implements IAnimation {
 	 * @return A new {@code KeyFrameLocation} containing the current {@code KeyFrame} and the tick time used to find it
 	 */
 	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, double ageInTicks) {
+		if (frames.isEmpty()) {
+			return new KeyframeLocation<>(new Keyframe(0, 0), 0);
+		}
+
 		double totalFrameTime = 0;
 
 		for (Keyframe frame : frames) {

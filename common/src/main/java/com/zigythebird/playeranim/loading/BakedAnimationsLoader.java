@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.Animation;
+import com.zigythebird.playeranim.animation.AnimationExtraData;
 import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
@@ -16,7 +17,6 @@ import com.zigythebird.playeranim.util.JsonUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.math.NumberUtils;
 import team.unnamed.mocha.parser.ast.DoubleExpression;
 import team.unnamed.mocha.parser.ast.Expression;
@@ -41,44 +41,6 @@ public class BakedAnimationsLoader {
 		return animations;
 	}
 
-	public static KeyframeStack<Keyframe> buildKeyframeStackFromLegacyAnim(List<Pair<Integer, Vec3>> entries) throws CompoundException {
-		if (entries.isEmpty())
-			return new KeyframeStack<>();
-
-		List<Keyframe> xFrames = new ObjectArrayList<>();
-		List<Keyframe> yFrames = new ObjectArrayList<>();
-		List<Keyframe> zFrames = new ObjectArrayList<>();
-
-		Expression xPrev = null;
-		Expression yPrev = null;
-		Expression zPrev = null;
-		Pair<Integer, Vec3> prevEntry = null;
-
-		for (Pair<Integer, Vec3> entry : entries) {
-			Integer key = entry.getFirst();
-			Vec3 keyFrameVector = entry.getSecond();
-
-			float prevTime = prevEntry != null ? prevEntry.getFirst() : 0;
-			float curTime = key;
-			float timeDelta = curTime - prevTime;
-
-			Expression xValue = new DoubleExpression(keyFrameVector.x);
-			Expression yValue = new DoubleExpression(keyFrameVector.y);
-			Expression zValue = new DoubleExpression(keyFrameVector.z);
-
-			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, EasingType.LINEAR));
-			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, EasingType.LINEAR));
-			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, EasingType.LINEAR));
-
-			xPrev = xValue;
-			yPrev = yValue;
-			zPrev = zValue;
-			prevEntry = entry;
-		}
-
-		return new KeyframeStack<>(xFrames, yFrames, zFrames);
-	}
-
 	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws CompoundException {
 		double length = animationObj.has("animation_length") ? GsonHelper.getAsDouble(animationObj, "animation_length") * 20d : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
@@ -88,7 +50,16 @@ public class BakedAnimationsLoader {
 		if (length == -1)
 			length = calculateAnimationLength(boneAnimations);
 
-		return new Animation(name, length, loopType, boneAnimations, keyframes, bones, parents);
+		AnimationExtraData extraData = new AnimationExtraData();
+		if (animationObj.has(ModInit.MOD_ID)) {
+			extraData.fillJsonData(animationObj.getAsJsonObject(ModInit.MOD_ID));
+		}
+
+		if (extraData.data().isEmpty()) { // Fallback to name
+			extraData.data().put(AnimationExtraData.NAME_KEY, name);
+		}
+
+		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);
 	}
 
 	private static BoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
@@ -201,9 +172,9 @@ public class BakedAnimationsLoader {
 					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(new DoubleExpression(ele.getAsDouble()))) :
 					new ObjectArrayList<>();
 
-			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
-			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
-			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
+			xFrames.add(new Keyframe(0, timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
+			yFrames.add(new Keyframe(0, timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
+			zFrames.add(new Keyframe(0, timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
 
 			xPrev = xValue;
 			yPrev = yValue;
