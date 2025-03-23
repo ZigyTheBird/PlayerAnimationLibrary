@@ -16,7 +16,7 @@ public record ExtraAnimationData(Map<String, Object> data) {
     }
 
     public ExtraAnimationData() {
-        this(new HashMap<>(1)); // Mutable, 1 for name;
+        this(new HashMap<>(1)); // Mutable, 1 for name
     }
 
     @Nullable
