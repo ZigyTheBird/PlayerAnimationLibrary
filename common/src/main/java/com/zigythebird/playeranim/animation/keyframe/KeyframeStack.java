@@ -40,4 +40,34 @@ public record KeyframeStack<T extends Keyframe>(List<T> xKeyframes, List<T> yKey
 
 		return Math.max(xTime, Math.max(yTime, zTime));
 	}
+
+	public double getLastXAxisKeyframeTime() {
+		double xTime = 0;
+
+		for (T frame : xKeyframes()) {
+			xTime += frame.length();
+		}
+
+		return xTime;
+	}
+
+	public double getLastYAxisKeyframeTime() {
+		double yTime = 0;
+
+		for (T frame : yKeyframes()) {
+			yTime += frame.length();
+		}
+
+		return yTime;
+	}
+
+	public double getLastZAxisKeyframeTime() {
+		double zTime = 0;
+
+		for (T frame : zKeyframes()) {
+			zTime += frame.length();
+		}
+
+		return zTime;
+	}
 }

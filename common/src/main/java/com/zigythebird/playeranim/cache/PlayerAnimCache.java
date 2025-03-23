@@ -9,8 +9,11 @@ import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructio
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranim.loading.BakedAnimationsLoader;
-import com.zigythebird.playeranim.loading.playeranimator.PlayerAnimatorLoader;
+import com.zigythebird.playeranim.loading.PlayerAnimatorLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -97,7 +100,7 @@ public final class PlayerAnimCache {
 				}
 			} else {
 				Animation animation = PlayerAnimatorLoader.GSON.fromJson(json, Animation.class);
-				ANIMATIONS.put(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), animation.data().uuid().toString()), animation);
+				ANIMATIONS.put(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), animation.data().name()), animation);
 			}
 		}
 		catch (Exception e) {

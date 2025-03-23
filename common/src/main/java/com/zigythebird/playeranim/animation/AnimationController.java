@@ -558,7 +558,7 @@ public class AnimationController implements IAnimation {
 				if (this.animationState != State.PAUSED) {
 					this.shouldResetTick = true;
 
-					adjustedTick = adjustTick(seekTime);
+					adjustedTick = adjustTick(seekTime) + this.currentAnimation.animation().loopType().restartFromTick(player, this, this.currentAnimation.animation());
 					resetEventKeyFrames();
 				}
 			}
@@ -742,7 +742,6 @@ public class AnimationController implements IAnimation {
 		double endValue;
 
 		try {
-			if (currentFrame.startValue().size() > 1) System.out.println(currentFrame.startValue());
 			startValue = this.molangRuntime.eval(currentFrame.startValue());
 			endValue = this.molangRuntime.eval(currentFrame.endValue());
 		} catch (Throwable e) {
@@ -772,7 +771,7 @@ public class AnimationController implements IAnimation {
 	 */
 	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, double ageInTicks) {
 		if (frames.isEmpty()) {
-			return new KeyframeLocation<>(new Keyframe(0, 0), 0);
+			return new KeyframeLocation<>(new Keyframe(0), 0);
 		}
 
 		double totalFrameTime = 0;

@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.Animation;
-import com.zigythebird.playeranim.animation.AnimationExtraData;
+import com.zigythebird.playeranim.animation.ExtraAnimationData;
 import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
@@ -50,13 +50,13 @@ public class BakedAnimationsLoader {
 		if (length == -1)
 			length = calculateAnimationLength(boneAnimations);
 
-		AnimationExtraData extraData = new AnimationExtraData();
+		ExtraAnimationData extraData = new ExtraAnimationData();
 		if (animationObj.has(ModInit.MOD_ID)) {
-			extraData.fillJsonData(animationObj.getAsJsonObject(ModInit.MOD_ID));
+			extraData.fromJson(animationObj.getAsJsonObject(ModInit.MOD_ID));
 		}
 
 		if (extraData.data().isEmpty()) { // Fallback to name
-			extraData.data().put(AnimationExtraData.NAME_KEY, name);
+			extraData.data().put(ExtraAnimationData.NAME_KEY, name);
 		}
 
 		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);
@@ -172,9 +172,9 @@ public class BakedAnimationsLoader {
 					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(new DoubleExpression(ele.getAsDouble()))) :
 					new ObjectArrayList<>();
 
-			xFrames.add(new Keyframe(0, timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
-			yFrames.add(new Keyframe(0, timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
-			zFrames.add(new Keyframe(0, timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
+			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
+			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
+			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
 
 			xPrev = xValue;
 			yPrev = yValue;

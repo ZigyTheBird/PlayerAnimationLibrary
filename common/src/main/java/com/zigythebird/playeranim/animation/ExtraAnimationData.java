@@ -5,26 +5,29 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public record AnimationExtraData(Map<String, Object> data) {
+public record ExtraAnimationData(Map<String, Object> data) {
     public static final String NAME_KEY = "name";
     public static final String UUID_KEY = "uuid";
 
-    public AnimationExtraData(String key, Object value) {
+    public ExtraAnimationData(String key, Object value) {
         this(new HashMap<>(Collections.singletonMap(key, value)));
     }
 
-    public AnimationExtraData() {
+    public ExtraAnimationData() {
         this(new HashMap<>(1)); // Mutable, 1 for name;
     }
 
     @Nullable
-    public String name() {
+    public String displayName() {
         return (String) data().get(NAME_KEY);
+    }
+
+    @Nullable
+    public String name() {
+        String name = displayName();
+        return name != null ? name.toLowerCase(Locale.ROOT).replace("\"", "").replace(" ", "_") : null;
     }
 
     /**
@@ -34,7 +37,7 @@ public record AnimationExtraData(Map<String, Object> data) {
         return UUID.fromString((String) data().get(UUID_KEY));
     }
 
-    public void fillJsonData(JsonObject node) {
+    public void fromJson(JsonObject node) {
         for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
             String string = entry.getKey();
             JsonElement value = entry.getValue();
