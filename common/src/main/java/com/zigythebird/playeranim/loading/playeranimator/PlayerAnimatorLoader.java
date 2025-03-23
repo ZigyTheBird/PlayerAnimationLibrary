@@ -83,16 +83,16 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             }
         }
 
-        /*if(node.has("nsfw")){
+        /*if(node.has("nsfw")){ TODO
             builder.nsfw = node.get("nsfw").getAsBoolean();
-        }
+        }*/
 
-        builder.stopTick = node.has("stopTick") ? node.get("stopTick").getAsInt() : builder.endTick; TODO */
+        endTick = node.has("stopTick") ? node.get("stopTick").getAsInt() : endTick; // TODO
         boolean degrees = ! node.has("degrees") || node.get("degrees").getAsBoolean();
         // if (node.has("easeBeforeKeyframe"))builder.isEasingBefore = node.get("easeBeforeKeyframe").getAsBoolean(); TODO
         BoneAnimation[] bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version);
 
-        return new Animation(extra, node.get("endTick").getAsDouble(), loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+        return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
     private BoneAnimation[] moveDeserializer(List<JsonElement> node, boolean degrees, int version) {
