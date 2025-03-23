@@ -30,7 +30,6 @@ import com.zigythebird.playeranim.animation.layered.IAnimation;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("rawtypes")
 public abstract class AbstractModifier extends AnimationContainer<IAnimation> {
     @Setter
     protected IAnimation host;

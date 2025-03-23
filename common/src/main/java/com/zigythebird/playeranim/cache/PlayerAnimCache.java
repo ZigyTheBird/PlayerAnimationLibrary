@@ -31,13 +31,54 @@ public final class PlayerAnimCache {
 	public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[]{}, new ParticleKeyframeData[]{}, new CustomInstructionKeyframeData[]{});
 	private static final Map<ResourceLocation, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
 
-	public static boolean hasAnimation(ResourceLocation id) {
-		return ANIMATIONS.containsKey(id);
-	}
-
+	/**
+	 * Get an animation from the registry, using Identifier(MODID, animation_name) as the key.
+	 * @return animation, <code>null</code> if no animation
+	 */
 	public static @Nullable Animation getAnimation(ResourceLocation id) {
 		if (!ANIMATIONS.containsKey(id)) return null;
 		return ANIMATIONS.get(id);
+	}
+
+	/**
+	 * Get Optional animation from registry
+	 * @param identifier identifier
+	 * @return Optional animation
+	 */
+	@NotNull
+	public static Optional<Animation> getAnimationOptional(@NotNull ResourceLocation identifier) {
+		return Optional.ofNullable(getAnimation(identifier));
+	}
+
+	/**
+	 * @return an unmodifiable map of all the animations
+	 */
+	public static Map<ResourceLocation, Animation> getAnimations() {
+		return Map.copyOf(ANIMATIONS);
+	}
+
+	/**
+	 * Returns the animations of a specific mod/namespace
+	 * @param modid namespace (assets/modid)
+	 * @return map of path and animations
+	 */
+	@NotNull
+	public static Map<String, Animation> getModAnimations(@NotNull String modid) {
+		HashMap<String, Animation> map = new HashMap<>();
+		for (Map.Entry<ResourceLocation, Animation> entry: ANIMATIONS.entrySet()) {
+			if (entry.getKey().getNamespace().equals(modid)) {
+				map.put(entry.getKey().getPath(), entry.getValue());
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * @param id ID of the desired animation.
+	 * @return Returns true if that animation is available.
+	 */
+	public static boolean hasAnimation(ResourceLocation id) {
+		return ANIMATIONS.containsKey(id);
 	}
 
 	/**
