@@ -155,8 +155,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             double value = convertPlayerAnimValue(def, node.get(name).getAsDouble(), isAngle, degrees);
             List<Expression> expressions = Collections.singletonList(new DoubleExpression(value));
             part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, easingArgs));
-            if (rotate != 0)
-                part.add(new Keyframe(0, expressions, Collections.singletonList(new DoubleExpression(value + Math.PI * 2d * rotate)), easing, easingArgs));
+            if (isAngle && rotate != 0) {
+                part.add(new Keyframe(tick - prevTime, expressions, Collections.singletonList(new DoubleExpression(value + Math.PI * 2d * rotate)), easing, easingArgs));
+            }
         } /*else {
             List<Expression> expressions = Collections.singletonList(name.contains("scale") ? DoubleExpression.ONE : DoubleExpression.ZERO);
             part.add(new Keyframe(tick, tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easingTypeFromString(easing), easingArgs));
