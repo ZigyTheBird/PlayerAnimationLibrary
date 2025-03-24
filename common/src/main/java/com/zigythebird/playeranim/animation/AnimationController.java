@@ -436,9 +436,8 @@ public class AnimationController implements IAnimation {
 	 */
 	public void process(AnimationData state, Map<String, PlayerAnimBone> bones, Map<String, BoneSnapshot> snapshots, final double seekTime, boolean crashWhenCantFindBone) {
 		double adjustedTick = adjustTick(seekTime);
-		boolean doneTransitioning = hasBeginTick() ? (double) this.currentAnimation.animation().data().get("beginTick") <= adjustedTick : this.transitionLength <= adjustedTick;
 
-		if (animationState == State.TRANSITIONING && doneTransitioning) {
+		if (animationState == State.TRANSITIONING && adjustedTick >= this.transitionLength) {
 			this.shouldResetTick = true;
 			this.animationState = State.RUNNING;
 			adjustedTick = adjustTick(seekTime);
@@ -630,7 +629,7 @@ public class AnimationController implements IAnimation {
 			}
 		}
 
-		adjustedTick += hasBeginTick() ? (double) this.currentAnimation.animation().data().get("beginTick") : this.transitionLength;
+		adjustedTick += this.transitionLength;
 
 		for (SoundKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().sounds()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
@@ -734,10 +733,6 @@ public class AnimationController implements IAnimation {
 		return this.animTime;
 	}
 
-	public boolean hasBeginTick() {
-		return this.currentAnimation != null && this.currentAnimation.animation().data().has("beginTick");
-	}
-
 	/**
 	 * Convert a {@link KeyframeLocation} to an {@link AnimationPoint}
 	 */
@@ -748,6 +743,8 @@ public class AnimationController implements IAnimation {
 		double endValue;
 
 		try {
+			System.out.println(this.molangRuntime.eval(Collections.emptyList()));
+
 			startValue = this.molangRuntime.eval(currentFrame.startValue());
 			endValue = this.molangRuntime.eval(currentFrame.endValue());
 		} catch (Throwable e) {
