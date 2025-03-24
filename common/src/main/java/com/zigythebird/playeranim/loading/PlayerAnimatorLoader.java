@@ -73,7 +73,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         if (node.has("beginTick")) {
             beginTick = node.get("beginTick").getAsDouble();
         }
-        double endTick = node.get("endTick").getAsDouble();
+        double endTick = Math.max(beginTick + 1, node.get("endTick").getAsDouble());
         if(endTick <= 0) throw new JsonParseException("endTick must be bigger than 0");
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if(node.has("isLoop") && node.has("returnTick")) {
@@ -95,18 +95,16 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 "easeBeforeKeyframe", node.get("easeBeforeKeyframe").getAsBoolean()
         );
 
-        Double stopTick = node.has("stopTick") ? node.get("stopTick").getAsDouble() : null;
-        if (stopTick != null) {
-            extra.data().put("endTick", endTick);
-            endTick = stopTick;
-        }
+        double stopTick = node.has("stopTick") ? node.get("stopTick").getAsDouble() : 0;
+        endTick = stopTick <= endTick ? endTick + 3 : stopTick; // https://github.com/KosmX/minecraftPlayerAnimator/blob/1.21/coreLib/src/main/java/dev/kosmx/playerAnim/core/data/KeyframeAnimation.java#L80
+
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();
-        BoneAnimation[] bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, beginTick, version);
+        BoneAnimation[] bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, beginTick, endTick, version);
 
         return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
-    private BoneAnimation[] moveDeserializer(List<JsonElement> node, boolean degrees, double beginTick, int version) {
+    private BoneAnimation[] moveDeserializer(List<JsonElement> node, boolean degrees, double beginTick, double endTick, int version) {
         Map<String, BoneAnimation> bones = new HashMap<>();
         node.sort((e1, e2) -> {
             final int i1 = e1.getAsJsonObject().get("tick").getAsInt();
@@ -140,7 +138,24 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 addBodyPartIfExists(bone, collection, entry.getValue(), degrees, beginTick, tick, easing, easingArg, turn);
             }
         }
+        for (BoneAnimation bone : bones.values()) {
+            addEndFrame(bone.rotationKeyFrames(), endTick, DoubleExpression.ZERO);
+            addEndFrame(bone.positionKeyFrames(), endTick, DoubleExpression.ZERO);
+            addEndFrame(bone.scaleKeyFrames(), endTick, DoubleExpression.ONE);
+            // No bends
+        }
         return bones.values().toArray(BoneAnimation[]::new);
+    }
+
+    private void addEndFrame(KeyframeStack<Keyframe> stack, double endTick, DoubleExpression expression) {
+        if (!stack.xKeyframes().isEmpty()) addEndFrame(stack.xKeyframes(), endTick - stack.getLastXAxisKeyframeTime(), expression);
+        if (!stack.yKeyframes().isEmpty()) addEndFrame(stack.yKeyframes(), endTick - stack.getLastYAxisKeyframeTime(), expression);
+        if (!stack.zKeyframes().isEmpty()) addEndFrame(stack.zKeyframes(), endTick - stack.getLastZAxisKeyframeTime(), expression);
+    }
+
+    private void addEndFrame(List<Keyframe> stack, double tick, DoubleExpression expression) {
+        Keyframe endFrame = new Keyframe(tick, stack.getLast().endValue(), Collections.singletonList(expression), DEFALUT_EASING);
+        stack.add(endFrame);
     }
 
     private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, double beginTick, int tick, EasingType easing, Double easingArg, int turn) {
