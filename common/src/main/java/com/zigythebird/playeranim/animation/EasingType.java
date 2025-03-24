@@ -26,7 +26,6 @@ public interface EasingType {
 	Map<String, EasingType> EASING_TYPES = new ConcurrentHashMap<>(64);
 
 	EasingType LINEAR = register("linear", register("none", value -> easeIn(EasingType::linear)));
-	EasingType CONSTANT = register("constant", value -> easeIn(f -> 0D));
 	EasingType STEP = register("step", value -> easeIn(step(value)));
 	EasingType EASE_IN_SINE = register("easeinsine", value -> easeIn(EasingType::sine));
 	EasingType EASE_OUT_SINE = register("easeoutsine", value -> easeOut(EasingType::sine));
