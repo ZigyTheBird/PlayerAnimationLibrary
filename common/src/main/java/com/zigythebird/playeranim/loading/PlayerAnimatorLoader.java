@@ -64,10 +64,10 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private Animation emoteDeserializer(ExtraAnimationData extra, JsonObject node, int version) throws JsonParseException{
-        /*int beginTick = 0; TODO
+        int beginTick = 0;
         if(node.has("beginTick")) {
             beginTick = node.get("beginTick").getAsInt();
-        }*/
+        }
         double endTick = node.get("endTick").getAsDouble();
         if(endTick <= 0) throw new JsonParseException("endTick must be bigger than 0");
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
@@ -76,9 +76,10 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             int returnTick = node.get("returnTick").getAsInt();
             if (isLooped) {
                 if (returnTick > endTick || returnTick < 0) {
-                    throw new JsonParseException("return tick have to be smaller than endTick and not smaller than 0");
+                    throw new JsonParseException("The returnTick has to be a non-negative value smaller than the endTick value");
                 }
-                loopType = Animation.LoopType.returnToTickLoop(returnTick);
+                if (returnTick == 0) loopType = Animation.LoopType.LOOP;
+                else loopType = Animation.LoopType.returnToTickLoop(returnTick);
             }
         }
 
@@ -89,8 +90,14 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 "easeBeforeKeyframe", node.get("easeBeforeKeyframe").getAsBoolean()
         );
 
-        endTick = node.has("stopTick") ? node.get("stopTick").getAsInt() : endTick; // TODO
-        boolean degrees = ! node.has("degrees") || node.get("degrees").getAsBoolean();
+        Double stopTick = node.has("stopTick") ? node.get("stopTick").getAsDouble() : null;
+        if (stopTick != null) {
+            extra.data().put("endTick", endTick);
+            endTick = stopTick;
+        }
+        if (beginTick != 0)
+            extra.data().put("beginTick", beginTick);
+        boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();
         BoneAnimation[] bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version);
 
         return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());

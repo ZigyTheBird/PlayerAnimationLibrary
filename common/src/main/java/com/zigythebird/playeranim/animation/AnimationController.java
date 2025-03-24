@@ -437,7 +437,11 @@ public class AnimationController implements IAnimation {
 	public void process(AnimationData state, Map<String, PlayerAnimBone> bones, Map<String, BoneSnapshot> snapshots, final double seekTime, boolean crashWhenCantFindBone) {
 		double adjustedTick = adjustTick(seekTime);
 
-		if (animationState == State.TRANSITIONING && adjustedTick >= this.transitionLength) {
+		boolean doneTransitioning = this.currentAnimation != null && this.currentAnimation.animation().data().has("beginTick")
+				&& (double) this.currentAnimation.animation().data().get("beginTick") <= adjustedTick;
+		if (!doneTransitioning) doneTransitioning = adjustedTick >= this.transitionLength;
+
+		if (animationState == State.TRANSITIONING && doneTransitioning) {
 			this.shouldResetTick = true;
 			this.animationState = State.RUNNING;
 			adjustedTick = adjustTick(seekTime);
@@ -553,7 +557,8 @@ public class AnimationController implements IAnimation {
 	 * @param crashWhenCantFindBone Whether the controller should throw an exception when unable to find the required bone, or continue with the remaining bones
 	 */
 	private void processCurrentAnimation(double adjustedTick, double seekTime, boolean crashWhenCantFindBone, AnimationData animationData) {
-		if (adjustedTick >= this.currentAnimation.animation().length()) {
+		if (adjustedTick >= this.currentAnimation.animation().length() || (this.currentAnimation.animation().data().has("endTick") &&
+				adjustedTick >= (double)this.currentAnimation.animation().data().get("endTick"))) {
 			if (this.currentAnimation.loopType().shouldPlayAgain(this.player, this, this.currentAnimation.animation())) {
 				if (this.animationState != State.PAUSED) {
 					this.shouldResetTick = true;

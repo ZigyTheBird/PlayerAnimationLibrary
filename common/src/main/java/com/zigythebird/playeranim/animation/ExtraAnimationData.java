@@ -30,6 +30,14 @@ public record ExtraAnimationData(Map<String, Object> data) {
         return name != null ? name.toLowerCase(Locale.ROOT).replace("\"", "").replace(" ", "_") : null;
     }
 
+    public boolean has(String name) {
+        return data().containsKey(name);
+    }
+
+    public Object get(String name) {
+        return data().get(name);
+    }
+
     /**
      * Not null for playeranimator animations, for geckolib most likely null
      */
