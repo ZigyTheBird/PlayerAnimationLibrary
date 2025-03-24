@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class BakedAnimationsLoader {
+public class AnimationLoader {
 	public static Map<String, Animation> deserialize(JsonElement json, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws RuntimeException {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
@@ -45,7 +45,7 @@ public class BakedAnimationsLoader {
 		double length = animationObj.has("animation_length") ? GsonHelper.getAsDouble(animationObj, "animation_length") * 20d : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
 		BoneAnimation[] boneAnimations = bakeBoneAnimations(GsonHelper.getAsJsonObject(animationObj, "bones", new JsonObject()));
-		Animation.Keyframes keyframes = KeyFramesLoader.deserialize(animationObj);
+		Animation.Keyframes keyframes = KeyFrameLoader.deserialize(animationObj);
 
 		if (length == -1)
 			length = calculateAnimationLength(boneAnimations);

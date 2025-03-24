@@ -11,7 +11,7 @@ import net.minecraft.util.GsonHelper;
 
 import java.util.Map;
 
-public class KeyFramesLoader {
+public class KeyFrameLoader {
 	public static Animation.Keyframes deserialize(JsonElement json) throws JsonParseException {
 		JsonObject obj = json.getAsJsonObject();
 		SoundKeyframeData[] sounds = buildSoundFrameData(obj);

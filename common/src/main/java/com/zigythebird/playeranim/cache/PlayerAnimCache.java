@@ -8,12 +8,9 @@ import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.loading.BakedAnimationsLoader;
+import com.zigythebird.playeranim.loading.AnimationLoader;
 import com.zigythebird.playeranim.loading.PlayerAnimatorLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -94,7 +91,7 @@ public final class PlayerAnimCache {
 					entryJson.add("bones", modifiedBones);
 					modifiedJson.add(id.getNamespace() + ":" + entry.getKey(), entryJson);
 				}
-				Map<String, Animation> anim = BakedAnimationsLoader.deserialize(modifiedJson, bones, parents);
+				Map<String, Animation> anim = AnimationLoader.deserialize(modifiedJson, bones, parents);
 				for (Map.Entry<String, Animation> entry : anim.entrySet()) {
 					ANIMATIONS.put(ResourceLocation.parse(entry.getKey()), entry.getValue());
 				}

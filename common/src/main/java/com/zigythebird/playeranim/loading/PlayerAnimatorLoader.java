@@ -64,9 +64,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private Animation emoteDeserializer(ExtraAnimationData extra, JsonObject node, int version) throws JsonParseException{
-        int beginTick = 0;
+        double beginTick = 0;
         if(node.has("beginTick")) {
-            beginTick = node.get("beginTick").getAsInt();
+            beginTick = node.get("beginTick").getAsDouble();
         }
         double endTick = node.get("endTick").getAsDouble();
         if(endTick <= 0) throw new JsonParseException("endTick must be bigger than 0");
@@ -173,7 +173,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
     private static double convertPlayerAnimValue(double def, double value, boolean isAngle, boolean degrees) {
         if (!isAngle) value -= def;
-        if (degrees && isAngle) value = 0.01745329251f;
+        if (degrees && isAngle) value = Math.toRadians(value);
 
         return value;
     }
