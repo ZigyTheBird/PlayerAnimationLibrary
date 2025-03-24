@@ -553,13 +553,12 @@ public class AnimationController implements IAnimation {
 	 * @param crashWhenCantFindBone Whether the controller should throw an exception when unable to find the required bone, or continue with the remaining bones
 	 */
 	private void processCurrentAnimation(double adjustedTick, double seekTime, boolean crashWhenCantFindBone, AnimationData animationData) {
-		if (adjustedTick >= this.currentAnimation.animation().length() || (this.currentAnimation.animation().data().has("endTick") &&
-				adjustedTick >= (double)this.currentAnimation.animation().data().get("endTick"))) {
+		if (adjustedTick >= this.currentAnimation.animation().length()) {
 			if (this.currentAnimation.loopType().shouldPlayAgain(this.player, this, this.currentAnimation.animation())) {
 				if (this.animationState != State.PAUSED) {
 					this.shouldResetTick = true;
 
-					adjustedTick = adjustTick(seekTime) + this.currentAnimation.animation().loopType().restartFromTick(player, this, this.currentAnimation.animation());
+					adjustedTick = adjustTick(seekTime);
 					resetEventKeyFrames();
 				}
 			}
@@ -743,8 +742,6 @@ public class AnimationController implements IAnimation {
 		double endValue;
 
 		try {
-			System.out.println(this.molangRuntime.eval(Collections.emptyList()));
-
 			startValue = this.molangRuntime.eval(currentFrame.startValue());
 			endValue = this.molangRuntime.eval(currentFrame.endValue());
 		} catch (Throwable e) {
