@@ -515,28 +515,28 @@ public class AnimationController implements IAnimation {
 					KeyframeStack<Keyframe> scaleKeyFrames = boneAnimation.scaleKeyFrames();
 					KeyframeStack<Keyframe> bendKeyFrames = boneAnimation.bendKeyFrames();
 
-					if (!rotationKeyFrames.xKeyframes().isEmpty() || !rotationKeyFrames.yKeyframes().isEmpty() || !rotationKeyFrames.zKeyframes().isEmpty()) {
+					if (rotationKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextRotation(null, adjustedTick, this.transitionLength, boneSnapshot, bone.getInitialSnapshot(),
 								getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), 0, TransformType.ROTATION, Axis.X),
 								getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), 0, TransformType.ROTATION, Axis.Y),
 								getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), 0, TransformType.ROTATION, Axis.Z));
 					}
 
-					if (!positionKeyFrames.xKeyframes().isEmpty() || !positionKeyFrames.yKeyframes().isEmpty() || !positionKeyFrames.zKeyframes().isEmpty()) {
+					if (positionKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextPosition(null, adjustedTick, this.transitionLength, boneSnapshot,
 								getAnimationPointAtTick(positionKeyFrames.xKeyframes(), 0, TransformType.POSITION, Axis.X),
 								getAnimationPointAtTick(positionKeyFrames.yKeyframes(), 0, TransformType.POSITION, Axis.Y),
 								getAnimationPointAtTick(positionKeyFrames.zKeyframes(), 0, TransformType.POSITION, Axis.Z));
 					}
 
-					if (!scaleKeyFrames.xKeyframes().isEmpty() || !scaleKeyFrames.yKeyframes().isEmpty() || !scaleKeyFrames.zKeyframes().isEmpty()) {
+					if (scaleKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextScale(null, adjustedTick, this.transitionLength, boneSnapshot,
 								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.SCALE, Axis.X),
 								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.SCALE, Axis.Y),
 								getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), 0, TransformType.SCALE, Axis.Z));
 					}
 
-					if (!bendKeyFrames.xKeyframes().isEmpty() || !bendKeyFrames.yKeyframes().isEmpty()) {
+					if (bendKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextBend(null, adjustedTick, this.transitionLength, boneSnapshot, bone.getInitialSnapshot(),
 								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.BEND, Axis.X),
 								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.BEND, Axis.Y));
@@ -602,28 +602,28 @@ public class AnimationController implements IAnimation {
 			KeyframeStack<Keyframe> scaleKeyFrames = boneAnimation.scaleKeyFrames();
 			KeyframeStack<Keyframe> bendKeyFrames = boneAnimation.bendKeyFrames();
 
-			if (!rotationKeyFrames.xKeyframes().isEmpty() || !rotationKeyFrames.yKeyframes().isEmpty() || !rotationKeyFrames.zKeyframes().isEmpty()) {
+			if (rotationKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addRotations(
 						getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), adjustedTick, TransformType.ROTATION, Axis.X),
 						getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), adjustedTick, TransformType.ROTATION, Axis.Y),
 						getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), adjustedTick, TransformType.ROTATION, Axis.Z));
 			}
 
-			if (!positionKeyFrames.xKeyframes().isEmpty() || !positionKeyFrames.yKeyframes().isEmpty() || !positionKeyFrames.zKeyframes().isEmpty()) {
+			if (positionKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addPositions(
 						getAnimationPointAtTick(positionKeyFrames.xKeyframes(), adjustedTick, TransformType.POSITION, Axis.X),
 						getAnimationPointAtTick(positionKeyFrames.yKeyframes(), adjustedTick, TransformType.POSITION, Axis.Y),
 						getAnimationPointAtTick(positionKeyFrames.zKeyframes(), adjustedTick, TransformType.POSITION, Axis.Z));
 			}
 
-			if (!scaleKeyFrames.xKeyframes().isEmpty() || !scaleKeyFrames.yKeyframes().isEmpty() || !scaleKeyFrames.zKeyframes().isEmpty()) {
+			if (scaleKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addScales(
 						getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), adjustedTick, TransformType.SCALE, Axis.X),
 						getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), adjustedTick, TransformType.SCALE, Axis.Y),
 						getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), adjustedTick, TransformType.SCALE, Axis.Z));
 			}
 
-			if (!bendKeyFrames.xKeyframes().isEmpty() || !bendKeyFrames.yKeyframes().isEmpty()) {
+			if (bendKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addBends(
 						getAnimationPointAtTick(bendKeyFrames.xKeyframes(), adjustedTick, TransformType.BEND, Axis.X),
 						getAnimationPointAtTick(bendKeyFrames.yKeyframes(), adjustedTick, TransformType.BEND, Axis.Y));

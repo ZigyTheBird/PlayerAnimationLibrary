@@ -22,23 +22,8 @@ public record KeyframeStack<T extends Keyframe>(List<T> xKeyframes, List<T> yKey
 	}
 
 	public double getLastKeyframeTime() {
-		double xTime = 0;
-		double yTime = 0;
-		double zTime = 0;
-
-		for (T frame : xKeyframes()) {
-			xTime += frame.length();
-		}
-
-		for (T frame : yKeyframes()) {
-			yTime += frame.length();
-		}
-
-		for (T frame : zKeyframes()) {
-			zTime += frame.length();
-		}
-
-		return Math.max(xTime, Math.max(yTime, zTime));
+		return Math.max(getLastXAxisKeyframeTime(),
+				Math.max(getLastYAxisKeyframeTime(), getLastZAxisKeyframeTime()));
 	}
 
 	public double getLastXAxisKeyframeTime() {
@@ -69,5 +54,9 @@ public record KeyframeStack<T extends Keyframe>(List<T> xKeyframes, List<T> yKey
 		}
 
 		return zTime;
+	}
+
+	public boolean hasKeyframes() {
+		return !xKeyframes().isEmpty() || !yKeyframes().isEmpty() || !zKeyframes().isEmpty();
 	}
 }
