@@ -10,7 +10,7 @@ import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.molang.MolangLoader;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.util.JsonUtil;

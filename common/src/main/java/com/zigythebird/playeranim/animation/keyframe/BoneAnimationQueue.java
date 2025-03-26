@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.animation.keyframe;
 
 import com.zigythebird.playeranim.animation.AnimationController;
-import com.zigythebird.playeranim.animation.BoneSnapshot;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 
 /**
  * A bone pseudo-stack for bone animation positions, scales, and rotations
@@ -178,15 +178,14 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param lerpedTick The lerped time (current tick + partial tick) that the point starts at
 	 * @param transitionLength The length of the transition (base on the {@link AnimationController}
 	 * @param startSnapshot The {@link BoneSnapshot} that serves as the starting rotations relevant to the keyframe provided
-	 * @param initialSnapshot The {@link BoneSnapshot} that serves as the unmodified rotations of the bone
 	 * @param nextXPoint The X {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 * @param nextYPoint The Y {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 * @param nextZPoint The Z {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 */
-	public void addNextRotation(Keyframe keyFrame, double lerpedTick, double transitionLength, BoneSnapshot startSnapshot, BoneSnapshot initialSnapshot, AnimationPoint nextXPoint, AnimationPoint nextYPoint, AnimationPoint nextZPoint) {
-		addRotationXPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotX() - initialSnapshot.getRotX(), nextXPoint.animationStartValue());
-		addRotationYPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotY() - initialSnapshot.getRotY(), nextYPoint.animationStartValue());
-		addRotationZPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotZ() - initialSnapshot.getRotZ(), nextZPoint.animationStartValue());
+	public void addNextRotation(Keyframe keyFrame, double lerpedTick, double transitionLength, BoneSnapshot startSnapshot, AnimationPoint nextXPoint, AnimationPoint nextYPoint, AnimationPoint nextZPoint) {
+		addRotationXPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotX(), nextXPoint.animationStartValue());
+		addRotationYPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotY(), nextYPoint.animationStartValue());
+		addRotationZPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotZ(), nextZPoint.animationStartValue());
 	}
 
 	/**
@@ -222,13 +221,12 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param lerpedTick The lerped time (current tick + partial tick) that the point starts at
 	 * @param transitionLength The length of the transition (base on the {@link AnimationController}
 	 * @param startSnapshot The {@link BoneSnapshot} that serves as the starting rotations relevant to the keyframe provided
-	 * @param initialSnapshot The {@link BoneSnapshot} that serves as the unmodified rotations of the bone
 	 * @param nextBendAxis The bend axis {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 * @param nextBend The bend {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 */
-	public void addNextBend(Keyframe keyFrame, double lerpedTick, double transitionLength, BoneSnapshot startSnapshot, BoneSnapshot initialSnapshot, AnimationPoint nextBendAxis, AnimationPoint nextBend) {
-		addBendAxisPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getBendAxis() - initialSnapshot.getBendAxis(), nextBendAxis.animationStartValue());
-		addBendPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getBend() - initialSnapshot.getBend(), nextBend.animationStartValue());
+	public void addNextBend(Keyframe keyFrame, double lerpedTick, double transitionLength, BoneSnapshot startSnapshot, AnimationPoint nextBendAxis, AnimationPoint nextBend) {
+		addBendAxisPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getBendAxis(), nextBendAxis.animationStartValue());
+		addBendPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getBend(), nextBend.animationStartValue());
 	}
 
 	/**

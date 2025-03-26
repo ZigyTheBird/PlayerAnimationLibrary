@@ -14,18 +14,21 @@ import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.animation.layered.modifier.AbstractModifier;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.AdvancedPlayerAnimBone;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.molang.MolangLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
+import team.unnamed.mocha.parser.ast.Expression;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -40,7 +43,7 @@ public class AnimationController implements IAnimation {
 	protected final AnimationStateHandler stateHandler;
 	protected final Map<String, BoneAnimationQueue> boneAnimationQueues = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, BoneSnapshot> boneSnapshots = new Object2ObjectOpenHashMap<>();
-	protected final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
+	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected Queue<AnimationProcessor.QueuedAnimation> animationQueue = new LinkedList<>();
 	protected final MochaEngine<AnimationController> molangRuntime;
 
@@ -429,12 +432,12 @@ public class AnimationController implements IAnimation {
 	 * queues, and process animation state logic
 	 *
 	 * @param state                 The animation test state
-	 * @param bones                 The registered {@link PlayerAnimBone bones} for this model
+	 * @param bones                 The registered {@link AdvancedPlayerAnimBone bones} for this model
 	 * @param snapshots             The {@link BoneSnapshot} map
 	 * @param seekTime              The current tick + partial tick
 	 * @param crashWhenCantFindBone Whether to hard-fail when a bone can't be found, or to continue with the remaining bones
 	 */
-	public void process(AnimationData state, Map<String, PlayerAnimBone> bones, Map<String, BoneSnapshot> snapshots, final double seekTime, boolean crashWhenCantFindBone) {
+	public void process(AnimationData state, Map<String, AdvancedPlayerAnimBone> bones, Map<String, BoneSnapshot> snapshots, final double seekTime, boolean crashWhenCantFindBone) {
 		double adjustedTick = adjustTick(seekTime);
 
 		if (animationState == State.TRANSITIONING && adjustedTick >= this.transitionLength) {
@@ -497,7 +500,7 @@ public class AnimationController implements IAnimation {
 				for (BoneAnimation boneAnimation : this.currentAnimation.animation().boneAnimations()) {
 					BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.get(boneAnimation.boneName());
 					BoneSnapshot boneSnapshot = this.boneSnapshots.get(boneAnimation.boneName());
-					PlayerAnimBone bone = bones.get(boneAnimation.boneName());
+					AdvancedPlayerAnimBone bone = bones.get(boneAnimation.boneName());
 
 					if (boneSnapshot == null)
 						continue;
@@ -515,30 +518,30 @@ public class AnimationController implements IAnimation {
 					KeyframeStack<Keyframe> bendKeyFrames = boneAnimation.bendKeyFrames();
 
 					if (rotationKeyFrames.hasKeyframes()) {
-						boneAnimationQueue.addNextRotation(null, adjustedTick, this.transitionLength, boneSnapshot, bone.getInitialSnapshot(),
-								getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), 0, TransformType.ROTATION, Axis.X),
-								getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), 0, TransformType.ROTATION, Axis.Y),
-								getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), 0, TransformType.ROTATION, Axis.Z));
+						boneAnimationQueue.addNextRotation(null, adjustedTick, this.transitionLength, boneSnapshot,
+								getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), 0, TransformType.ROTATION, bone::setRotXBeginTransitionLength),
+								getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), 0, TransformType.ROTATION, bone::setRotYBeginTransitionLength),
+								getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), 0, TransformType.ROTATION, bone::setRotZBeginTransitionLength));
 					}
 
 					if (positionKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextPosition(null, adjustedTick, this.transitionLength, boneSnapshot,
-								getAnimationPointAtTick(positionKeyFrames.xKeyframes(), 0, TransformType.POSITION, Axis.X),
-								getAnimationPointAtTick(positionKeyFrames.yKeyframes(), 0, TransformType.POSITION, Axis.Y),
-								getAnimationPointAtTick(positionKeyFrames.zKeyframes(), 0, TransformType.POSITION, Axis.Z));
+								getAnimationPointAtTick(positionKeyFrames.xKeyframes(), 0, TransformType.POSITION, bone::setPositionXBeginTransitionLength),
+								getAnimationPointAtTick(positionKeyFrames.yKeyframes(), 0, TransformType.POSITION, bone::setPositionYBeginTransitionLength),
+								getAnimationPointAtTick(positionKeyFrames.zKeyframes(), 0, TransformType.POSITION, bone::setPositionZBeginTransitionLength));
 					}
 
 					if (scaleKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextScale(null, adjustedTick, this.transitionLength, boneSnapshot,
-								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.SCALE, Axis.X),
-								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.SCALE, Axis.Y),
-								getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), 0, TransformType.SCALE, Axis.Z));
+								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.SCALE, bone::setScaleXBeginTransitionLength),
+								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.SCALE, bone::setScaleYBeginTransitionLength),
+								getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), 0, TransformType.SCALE, bone::setScaleZBeginTransitionLength));
 					}
 
 					if (bendKeyFrames.hasKeyframes()) {
-						boneAnimationQueue.addNextBend(null, adjustedTick, this.transitionLength, boneSnapshot, bone.getInitialSnapshot(),
-								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.BEND, Axis.X),
-								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.BEND, Axis.Y));
+						boneAnimationQueue.addNextBend(null, adjustedTick, this.transitionLength, boneSnapshot,
+								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.BEND, bone::setBendAxisBeginTransitionLength),
+								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.BEND, bone::setBendBeginTransitionLength));
 					}
 				}
 			}
@@ -587,6 +590,7 @@ public class AnimationController implements IAnimation {
 
 		for (BoneAnimation boneAnimation : this.currentAnimation.animation().boneAnimations()) {
 			BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.get(boneAnimation.boneName());
+			AdvancedPlayerAnimBone bone = this.bones.get(boneAnimation.boneName());
 
 			if (boneAnimationQueue == null) {
 				if (crashWhenCantFindBone)
@@ -602,29 +606,29 @@ public class AnimationController implements IAnimation {
 
 			if (rotationKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addRotations(
-						getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), adjustedTick, TransformType.ROTATION, Axis.X),
-						getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), adjustedTick, TransformType.ROTATION, Axis.Y),
-						getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), adjustedTick, TransformType.ROTATION, Axis.Z));
+						getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotXBeginTransitionLength),
+						getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotYBeginTransitionLength),
+						getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotZBeginTransitionLength));
 			}
 
 			if (positionKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addPositions(
-						getAnimationPointAtTick(positionKeyFrames.xKeyframes(), adjustedTick, TransformType.POSITION, Axis.X),
-						getAnimationPointAtTick(positionKeyFrames.yKeyframes(), adjustedTick, TransformType.POSITION, Axis.Y),
-						getAnimationPointAtTick(positionKeyFrames.zKeyframes(), adjustedTick, TransformType.POSITION, Axis.Z));
+						getAnimationPointAtTick(positionKeyFrames.xKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionXBeginTransitionLength),
+						getAnimationPointAtTick(positionKeyFrames.yKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionYBeginTransitionLength),
+						getAnimationPointAtTick(positionKeyFrames.zKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionZBeginTransitionLength));
 			}
 
 			if (scaleKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addScales(
-						getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), adjustedTick, TransformType.SCALE, Axis.X),
-						getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), adjustedTick, TransformType.SCALE, Axis.Y),
-						getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), adjustedTick, TransformType.SCALE, Axis.Z));
+						getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleXBeginTransitionLength),
+						getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleYBeginTransitionLength),
+						getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleZBeginTransitionLength));
 			}
 
 			if (bendKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addBends(
-						getAnimationPointAtTick(bendKeyFrames.xKeyframes(), adjustedTick, TransformType.BEND, Axis.X),
-						getAnimationPointAtTick(bendKeyFrames.yKeyframes(), adjustedTick, TransformType.BEND, Axis.Y));
+						getAnimationPointAtTick(bendKeyFrames.xKeyframes(), adjustedTick, TransformType.BEND, bone::setBendAxisBeginTransitionLength),
+						getAnimationPointAtTick(bendKeyFrames.yKeyframes(), adjustedTick, TransformType.BEND, bone::setBendBeginTransitionLength));
 			}
 		}
 
@@ -675,13 +679,13 @@ public class AnimationController implements IAnimation {
 	 *
 	 * @param boneList The bone list from the {@link AnimationProcessor}
 	 */
-	private void createInitialQueues(Collection<PlayerAnimBone> boneList) {
+	private void createInitialQueues(Collection<? extends PlayerAnimBone> boneList) {
 		this.boneAnimationQueues.clear();
 
 		addBonesToQueue(boneList);
 	}
 
-	private void addBonesToQueue(Collection<PlayerAnimBone> boneList) {
+	private void addBonesToQueue(Collection<? extends PlayerAnimBone> boneList) {
 		for (PlayerAnimBone bone : boneList) {
 			this.boneAnimationQueues.put(bone.getName(), new BoneAnimationQueue(bone));
 		}
@@ -728,14 +732,33 @@ public class AnimationController implements IAnimation {
 		return 0;
 	}
 
-	public double getAnimTime() {
+	/**
+	 * Duration of the animation spent in seconds
+	 */
+	public double getAnimationTime() {
 		return this.animTime;
+	}
+
+	/**
+	 * Duration of the animation spent in ticks
+	 * tick + tick delta
+	 */
+	public double getAnimationTicks() {
+		return this.animTime * 20;
+	}
+
+	public boolean hasBeginTick() {
+		return this.currentAnimation != null && this.currentAnimation.animation().data().has("beginTick");
+	}
+
+	public boolean hasIsEasingBefore() {
+		return this.currentAnimation != null && this.currentAnimation.animation().data().has("isEasingBefore");
 	}
 
 	/**
 	 * Convert a {@link KeyframeLocation} to an {@link AnimationPoint}
 	 */
-	private AnimationPoint getAnimationPointAtTick(List<Keyframe> frames, double tick, TransformType type, Axis axis) {
+	private AnimationPoint getAnimationPointAtTick(List<Keyframe> frames, double tick, TransformType type, Consumer<Float> beginTransitionLengthSetter) {
 		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick);
 		Keyframe currentFrame = location.keyframe();
 		double startValue;
@@ -759,7 +782,30 @@ public class AnimationController implements IAnimation {
 			}
 		}
 
-		return new AnimationPoint(currentFrame, location.startTick(), currentFrame.length(), startValue, endValue);
+		EasingType easingType = currentFrame.easingType();
+		List<List<Expression>> easingArgs = currentFrame.easingArgs();
+
+		if (hasIsEasingBefore() && !(boolean)this.currentAnimation.animation().data().get("isEasingBefore")) {
+			int index = frames.indexOf(currentFrame) - 1;
+			if (index >= 0) {
+				Keyframe prevFrame = frames.get(index);
+				easingType = prevFrame.easingType();
+				easingArgs = prevFrame.easingArgs();
+			}
+			else {
+				easingType = EasingType.EASE_IN_OUT_SINE;
+				easingArgs = new ArrayList<>();
+			}
+		}
+
+		if (!frames.isEmpty() && currentFrame == frames.getFirst() && tick < currentFrame.length() && hasBeginTick()
+				&& (double)this.currentAnimation.animation().data().get("beginTick") > tick) {
+			startValue = endValue;
+			beginTransitionLengthSetter.accept((float) currentFrame.length());
+		}
+		else beginTransitionLengthSetter.accept(null);
+
+		return new AnimationPoint(easingType, easingArgs, location.startTick(), currentFrame.length(), startValue, endValue);
 	}
 
 	/**
@@ -795,7 +841,9 @@ public class AnimationController implements IAnimation {
 	
 	public void get3DTransformRaw(@NotNull PlayerAnimBone bone) {
 		if (bones.containsKey(bone.getName())) {
-			bone.copyOtherBone(bones.get(bone.getName()));
+			if (hasBeginTick() && (double)this.currentAnimation.animation().data().get("beginTick") > this.getAnimationTicks())
+				bone.beginTickLerp(bones.get(bone.getName()), (float) this.getAnimationTicks());
+			else bone.copyOtherBone(bones.get(bone.getName()));
 			bone.parent = null;
 		}
 		if (this.currentAnimation != null) {
@@ -873,7 +921,7 @@ public class AnimationController implements IAnimation {
         Map<String, BoneSnapshot> boneSnapshots = new HashMap<>(state.getPlayer().playerAnimLib$getAnimProcessor().boneSnapshots);
 		if (this.currentAnimation != null) {
 			for (PlayerAnimBone bone : this.currentAnimation.animation().bones().values()) {
-				boneSnapshots.put(bone.getName(), new BoneSnapshot(bone.getInitialSnapshot()));
+				boneSnapshots.put(bone.getName(), new BoneSnapshot(bone, true));
 			}
 		}
 
@@ -882,7 +930,6 @@ public class AnimationController implements IAnimation {
 		for (BoneAnimationQueue boneAnimation : this.getBoneAnimationQueues().values()) {
 			PlayerAnimBone bone = boneAnimation.bone();
 			BoneSnapshot snapshot = boneSnapshots.get(bone.getName());
-			BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
 
 			AnimationPoint rotXPoint = boneAnimation.rotationXQueue().poll();
 			AnimationPoint rotYPoint = boneAnimation.rotationYQueue().poll();
@@ -898,9 +945,9 @@ public class AnimationController implements IAnimation {
 			EasingType easingType = this.overrideEasingTypeFunction.apply(player);
 
 			if (rotXPoint != null && rotYPoint != null && rotZPoint != null) {
-				bone.setRotX((float) EasingType.lerpWithOverride(this.molangRuntime, rotXPoint, easingType) + initialSnapshot.getRotX());
-				bone.setRotY((float) EasingType.lerpWithOverride(this.molangRuntime, rotYPoint, easingType) + initialSnapshot.getRotY());
-				bone.setRotZ((float) EasingType.lerpWithOverride(this.molangRuntime, rotZPoint, easingType) + initialSnapshot.getRotZ());
+				bone.setRotX((float) EasingType.lerpWithOverride(this.molangRuntime, rotXPoint, easingType));
+				bone.setRotY((float) EasingType.lerpWithOverride(this.molangRuntime, rotYPoint, easingType));
+				bone.setRotZ((float) EasingType.lerpWithOverride(this.molangRuntime, rotZPoint, easingType));
 				snapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
 				snapshot.startRotAnim();
 				bone.markRotationAsChanged();
@@ -961,7 +1008,7 @@ public class AnimationController implements IAnimation {
 	}
 
 	private void registerPlayerAnimBone(String name) {
-		registerPlayerAnimBone(new PlayerAnimBone(name));
+		registerPlayerAnimBone(new AdvancedPlayerAnimBone(name));
 	}
 
 	/**
@@ -969,8 +1016,7 @@ public class AnimationController implements IAnimation {
 	 * <p>
 	 * This is normally handled automatically by the mod
 	 */
-	private void registerPlayerAnimBone(PlayerAnimBone bone) {
-		bone.saveInitialSnapshot();
+	private void registerPlayerAnimBone(AdvancedPlayerAnimBone bone) {
 		this.bones.put(bone.getName(), bone);
 	}
 

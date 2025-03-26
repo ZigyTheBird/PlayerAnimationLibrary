@@ -1,6 +1,7 @@
-package com.zigythebird.playeranim.animation;
+package com.zigythebird.playeranim.bones;
 
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.animation.AnimationProcessor;
+import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.math.Pair;
 import com.zigythebird.playeranim.math.Vec3f;
 
@@ -77,6 +78,27 @@ public class BoneSnapshot {
 
 		this.bendAxis = bone.getBendAxis();
 		this.bend = bone.getBend();
+	}
+
+	public BoneSnapshot(PlayerAnimBone bone, boolean isInitial) {
+		this.bone = bone;
+		if (!isInitial) {
+			this.rotX = bone.getRotX();
+			this.rotY = bone.getRotY();
+			this.rotZ = bone.getRotZ();
+
+			this.offsetPosX = bone.getPosX();
+			this.offsetPosY = bone.getPosY();
+			this.offsetPosZ = bone.getPosZ();
+
+			this.scaleX = bone.getScaleX();
+			this.scaleY = bone.getScaleY();
+			this.scaleZ = bone.getScaleZ();
+
+			this.bendAxis = bone.getBendAxis();
+			this.bend = bone.getBend();
+		}
+		else setToInitialPose();
 	}
 
 	public PlayerAnimBone getBone() {return this.bone;}

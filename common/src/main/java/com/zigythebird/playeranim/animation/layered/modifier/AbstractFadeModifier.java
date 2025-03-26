@@ -27,7 +27,7 @@ package com.zigythebird.playeranim.animation.layered.modifier;
 import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

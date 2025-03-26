@@ -1,10 +1,10 @@
-package com.zigythebird.playeranim.cache;
+package com.zigythebird.playeranim.bones;
 
-import com.zigythebird.playeranim.animation.BoneSnapshot;
+import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.math.Pair;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
 import java.util.Objects;
@@ -21,22 +21,20 @@ public class PlayerAnimBone {
 
 	public PlayerAnimBone parent;
 
-	private BoneSnapshot initialSnapshot;
+	protected float scaleX = 1;
+	protected float scaleY = 1;
+	protected float scaleZ = 1;
 
-	private float scaleX = 1;
-	private float scaleY = 1;
-	private float scaleZ = 1;
+	protected float positionX;
+	protected float positionY;
+	protected float positionZ;
 
-	private float positionX;
-	private float positionY;
-	private float positionZ;
+	protected float rotX;
+	protected float rotY;
+	protected float rotZ;
 
-	private float rotX;
-	private float rotY;
-	private float rotZ;
-
-	private float bendAxis;
-	private float bend;
+	protected float bendAxis;
+	protected float bend;
 
 	private boolean positionChanged = false;
 	private boolean rotationChanged = false;
@@ -112,18 +110,21 @@ public class PlayerAnimBone {
 	}
 
 	public void setRotX(float value) {
+		if (Float.isNaN(value)) return;
 		this.rotX = value;
 
 		markRotationAsChanged();
 	}
 
 	public void setRotY(float value) {
+		if (Float.isNaN(value)) return;
 		this.rotY = value;
 
 		markRotationAsChanged();
 	}
 
 	public void setRotZ(float value) {
+		if (Float.isNaN(value)) return;
 		this.rotZ = value;
 
 		markRotationAsChanged();
@@ -136,18 +137,21 @@ public class PlayerAnimBone {
 	}
 
 	public void setPosX(float value) {
+		if (Float.isNaN(value)) return;
 		this.positionX = value;
 
 		markPositionAsChanged();
 	}
 
 	public void setPosY(float value) {
+		if (Float.isNaN(value)) return;
 		this.positionY = value;
 
 		markPositionAsChanged();
 	}
 
 	public void setPosZ(float value) {
+		if (Float.isNaN(value)) return;
 		this.positionZ = value;
 
 		markPositionAsChanged();
@@ -160,18 +164,21 @@ public class PlayerAnimBone {
 	}
 
 	public void setScaleX(float value) {
+		if (Float.isNaN(value)) return;
 		this.scaleX = value;
 
 		markScaleAsChanged();
 	}
 
 	public void setScaleY(float value) {
+		if (Float.isNaN(value)) return;
 		this.scaleY = value;
 
 		markScaleAsChanged();
 	}
 
 	public void setScaleZ(float value) {
+		if (Float.isNaN(value)) return;
 		this.scaleZ = value;
 
 		markScaleAsChanged();
@@ -243,15 +250,6 @@ public class PlayerAnimBone {
 		this.positionChanged = false;
 		this.bendChanged = false;
 	}
-
-	public BoneSnapshot getInitialSnapshot() {
-		return this.initialSnapshot;
-	}
-
-	public void saveInitialSnapshot() {
-		if (this.initialSnapshot == null)
-			this.initialSnapshot = saveSnapshot();
-	}
 	
 	public void setToInitialPose() {
 		this.positionX = 0;
@@ -283,9 +281,9 @@ public class PlayerAnimBone {
 	}
 
 	public void addRotationOffsetFromBone(PlayerAnimBone source) {
-		setRotX(getRotX() + source.getRotX() - source.getInitialSnapshot().getRotX());
-		setRotY(getRotY() + source.getRotY() - source.getInitialSnapshot().getRotY());
-		setRotZ(getRotZ() + source.getRotZ() - source.getInitialSnapshot().getRotZ());
+		setRotX(getRotX() + source.getRotX());
+		setRotY(getRotY() + source.getRotY());
+		setRotZ(getRotZ() + source.getRotZ());
 	}
 	
 	public PlayerAnimBone scale(float value) {
@@ -327,20 +325,57 @@ public class PlayerAnimBone {
 	}
 
 	public void copyOtherBone(PlayerAnimBone bone) {
-		this.positionX = bone.positionX;
-		this.positionY = bone.positionY;
-		this.positionZ = bone.positionZ;
+		if (!Float.isNaN(bone.positionX))
+			this.positionX = bone.positionX;
+		if (!Float.isNaN(bone.positionY))
+			this.positionY = bone.positionY;
+		if (!Float.isNaN(bone.positionZ))
+			this.positionZ = bone.positionZ;
 
-		this.rotX = bone.rotX;
-		this.rotY = bone.rotY;
-		this.rotZ = bone.rotZ;
+		if (!Float.isNaN(bone.rotX))
+			this.rotX = bone.rotX;
+		if (!Float.isNaN(bone.rotY))
+			this.rotY = bone.rotY;
+		if (!Float.isNaN(bone.rotZ))
+			this.rotZ = bone.rotZ;
 
-		this.scaleX = bone.scaleX;
-		this.scaleY = bone.scaleY;
-		this.scaleZ = bone.scaleZ;
+		if (!Float.isNaN(bone.scaleX))
+			this.scaleX = bone.scaleX;
+		if (!Float.isNaN(bone.scaleY))
+			this.scaleY = bone.scaleY;
+		if (!Float.isNaN(bone.scaleZ))
+			this.scaleZ = bone.scaleZ;
 
-		this.bendAxis = bone.bendAxis;
-		this.bend = bone.bend;
+		if (!Float.isNaN(bone.bendAxis))
+			this.bendAxis = bone.bendAxis;
+		if (!Float.isNaN(bone.bend))
+			this.bend = bone.bend;
+	}
+
+	public void beginTickLerp(AdvancedPlayerAnimBone bone, float animTime) {
+		this.positionX = applyBeginTickLerp(positionX, bone.positionX, bone.positionXBeginTransitionLength, animTime);
+		this.positionY = applyBeginTickLerp(positionY, bone.positionY, bone.positionYBeginTransitionLength, animTime);
+		this.positionZ = applyBeginTickLerp(positionZ, bone.positionZ, bone.positionZBeginTransitionLength, animTime);
+
+		this.rotX = applyBeginTickLerp(rotX, bone.rotX, bone.rotXBeginTransitionLength, animTime);
+		this.rotY = applyBeginTickLerp(rotY, bone.rotY, bone.rotYBeginTransitionLength, animTime);
+		this.rotZ = applyBeginTickLerp(rotZ, bone.rotZ, bone.rotZBeginTransitionLength, animTime);
+
+		this.scaleX = applyBeginTickLerp(scaleX, bone.scaleX, bone.scaleXBeginTransitionLength, animTime);
+		this.scaleY = applyBeginTickLerp(scaleY, bone.scaleY, bone.scaleYBeginTransitionLength, animTime);
+		this.scaleZ = applyBeginTickLerp(scaleZ, bone.scaleZ, bone.scaleZBeginTransitionLength, animTime);
+
+		this.bendAxis = applyBeginTickLerp(bendAxis, bone.bendAxis, bone.bendAxisBeginTransitionLength, animTime);
+		this.bend = applyBeginTickLerp(bend, bone.bend, bone.bendBeginTransitionLength, animTime);
+	}
+	
+	private float applyBeginTickLerp(float startValue, float endValue, Float transitionLength, float animTime) {
+		if (!Float.isNaN(endValue)) {
+			if (transitionLength != null)
+				return (float) EasingType.EASE_IN_OUT_SINE.apply(startValue, endValue, animTime / transitionLength);
+			return endValue;
+		}
+		return startValue;
 	}
 
 	public void copySnapshot(BoneSnapshot snapshot) {
@@ -361,9 +396,11 @@ public class PlayerAnimBone {
 	}
 
 	public void copyVanillaPart(ModelPart part) {
-		this.positionX = part.x;
-		this.positionY = part.y;
-		this.positionZ = part.z;
+		PartPose initialPose = part.getInitialPose();
+
+		this.positionX = part.x - initialPose.x();
+		this.positionY = part.y - initialPose.y();
+		this.positionZ = part.z - initialPose.z();
 
 		this.rotX = part.zRot;
 		this.rotY = part.yRot;

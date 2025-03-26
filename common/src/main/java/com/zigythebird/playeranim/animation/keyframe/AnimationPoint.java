@@ -5,18 +5,27 @@
 
 package com.zigythebird.playeranim.animation.keyframe;
 
+import com.zigythebird.playeranim.animation.EasingType;
 import org.jetbrains.annotations.Nullable;
+import team.unnamed.mocha.parser.ast.Expression;
+
+import java.util.List;
 
 /**
  * Animation state record that holds the state of an animation at a given point
  *
+ * @param easingType The easing type
+ * @param easingArgs The easing arguments
  * @param currentTick The lerped tick time (current tick + partial tick) of the point
  * @param transitionLength The length of time (in ticks) that the point should take to transition
  * @param animationStartValue The start value to provide to the animation handling system
  * @param animationEndValue The end value to provide to the animation handling system
- * @param keyFrame The {@code Nullable} Keyframe
  */
-public record AnimationPoint(@Nullable Keyframe keyFrame, double currentTick, double transitionLength, double animationStartValue, double animationEndValue) {
+public record AnimationPoint(EasingType easingType, @Nullable List<List<Expression>> easingArgs, double currentTick, double transitionLength, double animationStartValue, double animationEndValue) {
+	public AnimationPoint(Keyframe keyframe, double currentTick, double transitionLength, double animationStartValue, double animationEndValue) {
+		this(keyframe == null ? EasingType.LINEAR : keyframe.easingType(), keyframe == null ? null : keyframe.easingArgs(), currentTick, transitionLength, animationStartValue, animationEndValue);
+	}
+
 	@Override
 	public String toString() {
 		return "Tick: " + this.currentTick +

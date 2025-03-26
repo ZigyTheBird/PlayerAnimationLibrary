@@ -25,8 +25,8 @@
 package com.zigythebird.playeranim.animation.layered;
 
 import com.zigythebird.playeranim.animation.AnimationData;
-import com.zigythebird.playeranim.animation.BoneSnapshot;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

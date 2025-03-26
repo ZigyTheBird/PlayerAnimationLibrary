@@ -2,7 +2,8 @@ package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.cache.PlayerAnimCache;
 import com.zigythebird.playeranim.math.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -151,7 +152,6 @@ public class AnimationProcessor {
 
 		for (PlayerAnimBone bone : getRegisteredBones()) {
 			if (!bone.hasRotationChanged()) {
-				BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
 				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
 
 				if (saveSnapshot.isRotAnimInProgress())
@@ -159,16 +159,15 @@ public class AnimationProcessor {
 
 				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetRotationTick()) / resetTickLength, 1);
 
-				bone.setRotX((float)Mth.lerp(percentageReset, saveSnapshot.getRotX(), initialSnapshot.getRotX()));
-				bone.setRotY((float)Mth.lerp(percentageReset, saveSnapshot.getRotY(), initialSnapshot.getRotY()));
-				bone.setRotZ((float)Mth.lerp(percentageReset, saveSnapshot.getRotZ(), initialSnapshot.getRotZ()));
+				bone.setRotX((float)Mth.lerp(percentageReset, saveSnapshot.getRotX(), 0));
+				bone.setRotY((float)Mth.lerp(percentageReset, saveSnapshot.getRotY(), 0));
+				bone.setRotZ((float)Mth.lerp(percentageReset, saveSnapshot.getRotZ(), 0));
 
 				if (percentageReset >= 1)
 					saveSnapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
 			}
 
 			if (!bone.hasPositionChanged()) {
-				BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
 				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
 
 				if (saveSnapshot.isPosAnimInProgress())
@@ -176,16 +175,15 @@ public class AnimationProcessor {
 
 				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetPositionTick()) / resetTickLength, 1);
 
-				bone.setPosX((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetX(), initialSnapshot.getOffsetX()));
-				bone.setPosY((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetY(), initialSnapshot.getOffsetY()));
-				bone.setPosZ((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetZ(), initialSnapshot.getOffsetZ()));
+				bone.setPosX((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetX(), 0));
+				bone.setPosY((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetY(), 0));
+				bone.setPosZ((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetZ(), 0));
 
 				if (percentageReset >= 1)
 					saveSnapshot.updateOffset(bone.getPosX(), bone.getPosY(), bone.getPosZ());
 			}
 
 			if (!bone.hasScaleChanged()) {
-				BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
 				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
 
 				if (saveSnapshot.isScaleAnimInProgress())
@@ -193,16 +191,15 @@ public class AnimationProcessor {
 
 				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetScaleTick()) / resetTickLength, 1);
 
-				bone.setScaleX((float)Mth.lerp(percentageReset, saveSnapshot.getScaleX(), initialSnapshot.getScaleX()));
-				bone.setScaleY((float)Mth.lerp(percentageReset, saveSnapshot.getScaleY(), initialSnapshot.getScaleY()));
-				bone.setScaleZ((float)Mth.lerp(percentageReset, saveSnapshot.getScaleZ(), initialSnapshot.getScaleZ()));
+				bone.setScaleX((float)Mth.lerp(percentageReset, saveSnapshot.getScaleX(), 1));
+				bone.setScaleY((float)Mth.lerp(percentageReset, saveSnapshot.getScaleY(), 1));
+				bone.setScaleZ((float)Mth.lerp(percentageReset, saveSnapshot.getScaleZ(), 1));
 
 				if (percentageReset >= 1)
 					saveSnapshot.updateScale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 			}
 
 			if (!bone.hasBendChanged()) {
-				BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
 				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
 
 				if (saveSnapshot.isBendAnimInProgress())
@@ -210,8 +207,8 @@ public class AnimationProcessor {
 
 				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetBendTick()) / resetTickLength, 1);
 
-				bone.setBendAxis((float)Mth.lerp(percentageReset, saveSnapshot.getBendAxis(), initialSnapshot.getBendAxis()));
-				bone.setBend((float)Mth.lerp(percentageReset, saveSnapshot.getBend(), initialSnapshot.getBend()));
+				bone.setBendAxis((float)Mth.lerp(percentageReset, saveSnapshot.getBendAxis(), 0));
+				bone.setBend((float)Mth.lerp(percentageReset, saveSnapshot.getBend(), 0));
 
 				if (percentageReset >= 1)
 					saveSnapshot.updateBend(bone.getBendAxis(), bone.getBend());
@@ -239,7 +236,7 @@ public class AnimationProcessor {
 	private Map<String, BoneSnapshot> updateBoneSnapshots(Map<String, BoneSnapshot> snapshots) {
 		for (PlayerAnimBone bone : getRegisteredBones()) {
 			if (!snapshots.containsKey(bone.getName()))
-				snapshots.put(bone.getName(), new BoneSnapshot(bone.getInitialSnapshot()));
+				snapshots.put(bone.getName(), new BoneSnapshot(bone, true));
 		}
 
 		return snapshots;
@@ -267,7 +264,6 @@ public class AnimationProcessor {
 	 * Failure to properly register a bone will break things.
 	 */
 	private void registerPlayerAnimBone(PlayerAnimBone bone) {
-		bone.saveInitialSnapshot();
 		this.bones.put(bone.getName(), bone);
 	}
 

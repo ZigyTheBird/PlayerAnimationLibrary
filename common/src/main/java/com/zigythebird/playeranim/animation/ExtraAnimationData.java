@@ -38,6 +38,10 @@ public record ExtraAnimationData(Map<String, Object> data) {
         return data().get(name);
     }
 
+    public void put(String name, Object object) {
+        data.put(name, object);
+    }
+
     /**
      * Not null for playeranimator animations, for geckolib most likely null
      */

@@ -65,7 +65,7 @@ public interface EasingType {
 		EasingType easingType = override;
 
 		if (override == null)
-			easingType = animationPoint.keyFrame() == null ? LINEAR : animationPoint.keyFrame().easingType();
+			easingType = animationPoint.easingType();
 
 		return easingType.apply(env, animationPoint);
 	}
@@ -74,8 +74,8 @@ public interface EasingType {
 		Double easingVariable = null;
 
 		try {
-			if (animationPoint.keyFrame() != null && !animationPoint.keyFrame().easingArgs().isEmpty())
-				easingVariable = env.eval(animationPoint.keyFrame().easingArgs().getFirst());
+			if (animationPoint.easingArgs() != null && !animationPoint.easingArgs().isEmpty())
+				easingVariable = env.eval(animationPoint.easingArgs().getFirst());
 		} catch (Throwable e) {
 			ModInit.LOGGER.error("Failed to parse easing args", e);
 		}
@@ -84,10 +84,18 @@ public interface EasingType {
 	}
 
 	default double apply(AnimationPoint animationPoint, Double easingValue, double lerpValue) {
-		if (animationPoint.currentTick() >= animationPoint.transitionLength())
+		if (lerpValue >= 1)
 			return animationPoint.animationEndValue();
 
-		return Mth.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
+		return apply(animationPoint.animationStartValue(), animationPoint.animationEndValue(), easingValue, lerpValue);
+	}
+
+	default double apply(double startValue, double endValue, double lerpValue) {
+		return apply(startValue, endValue, null, lerpValue);
+	}
+
+	default double apply(double startValue, double endValue, Double easingValue, double lerpValue) {
+		return Mth.lerp(buildTransformer(easingValue).apply(lerpValue), startValue, endValue);
 	}
 
 	/**

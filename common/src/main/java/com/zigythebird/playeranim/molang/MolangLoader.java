@@ -51,7 +51,7 @@ public class MolangLoader {
         engine.handleParseExceptions(MolangLoader.HANDLER);
 
         MutableObjectBinding queryBinding = new QueryBinding<>(controller);
-        setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimTime);
+        setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimationTime);
         setDoubleQuery(queryBinding, "controller_speed", AnimationController::getAnimationSpeed);
         MolangQueries.setDefaultQueryValues(queryBinding);
 

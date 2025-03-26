@@ -3,7 +3,8 @@ package com.zigythebird.playeranim.animation;
 import com.zigythebird.playeranim.accessors.IModelPart;
 import com.zigythebird.playeranim.animation.layered.AnimationStack;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.dataticket.DataTicket;
 import com.zigythebird.playeranim.math.Pair;
 import com.zigythebird.playeranim.util.RenderUtil;
@@ -110,7 +111,7 @@ public class PlayerAnimManager extends AnimationStack {
 	public void updatePart(String partName, ModelPart part, AnimationProcessor processor) {
 		PlayerAnimBone bone = processor.getBone(partName);
 		PartPose initialPose = part.getInitialPose();
-
+		this.get3DTransform(bone);
 		RenderUtil.translatePartToBone(part, bone, initialPose);
 
 		if (bone.getParent() != null && bone.getParent() != bone)

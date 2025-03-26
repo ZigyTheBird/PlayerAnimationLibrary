@@ -8,6 +8,7 @@ import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.loading.AnimationLoader;
 import com.zigythebird.playeranim.loading.PlayerAnimatorLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -70,7 +71,6 @@ public final class PlayerAnimCache {
 					JsonArray pivot = object.get("pivot").getAsJsonArray();
 					PlayerAnimBone bone = new PlayerAnimBone(object.has("parent") ? bones.get(object.get("parent").getAsString()) : null,
 							entry.getKey(), new Vec3(pivot.get(0).getAsDouble(), pivot.get(1).getAsDouble(), pivot.get(2).getAsDouble()));
-					bone.saveInitialSnapshot();
 					bones.put(entry.getKey(), bone);
 				}
 
