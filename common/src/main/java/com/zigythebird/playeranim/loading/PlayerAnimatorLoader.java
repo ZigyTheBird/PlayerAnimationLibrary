@@ -71,7 +71,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             extra.put("beginTick", beginTick);
         }
         float endTick = beginTick + 1;
-        if (node.has("beginTick")) {
+        if (node.has("endTick")) {
             endTick = Math.max(node.get("endTick").getAsFloat(), endTick);
             extra.put("endTick", endTick);
         }

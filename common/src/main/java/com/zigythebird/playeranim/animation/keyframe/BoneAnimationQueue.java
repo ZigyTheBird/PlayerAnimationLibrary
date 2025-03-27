@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.animation.keyframe;
 
 import com.zigythebird.playeranim.animation.AnimationController;
-import com.zigythebird.playeranim.bones.BoneSnapshot;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.cache.bones.BoneSnapshot;
+import com.zigythebird.playeranim.cache.bones.PlayerAnimBone;
 
 /**
  * A bone pseudo-stack for bone animation positions, scales, and rotations

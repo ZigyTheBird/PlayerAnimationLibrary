@@ -26,7 +26,7 @@ package com.zigythebird.playeranim.animation.layered.modifier;
 
 import com.zigythebird.playeranim.animation.AnimationController;
 import com.zigythebird.playeranim.animation.AnimationData;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.cache.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
 

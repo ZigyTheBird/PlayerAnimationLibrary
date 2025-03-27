@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.bones;
+package com.zigythebird.playeranim.cache.bones;
 
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;

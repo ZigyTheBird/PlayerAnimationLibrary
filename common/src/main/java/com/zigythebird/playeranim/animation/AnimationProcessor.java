@@ -2,8 +2,8 @@ package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.bones.BoneSnapshot;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.cache.bones.BoneSnapshot;
+import com.zigythebird.playeranim.cache.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.cache.PlayerAnimCache;
 import com.zigythebird.playeranim.math.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;

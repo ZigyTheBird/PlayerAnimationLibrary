@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.bones;
+package com.zigythebird.playeranim.cache.bones;
 
 import net.minecraft.world.phys.Vec3;
 

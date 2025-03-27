@@ -28,7 +28,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.zigythebird.playeranim.accessors.IModelPart;
 import com.zigythebird.playeranim.accessors.IUpperPartHelper;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.cache.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
