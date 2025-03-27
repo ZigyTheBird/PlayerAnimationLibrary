@@ -64,13 +64,17 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private Animation emoteDeserializer(ExtraAnimationData extra, JsonObject node, int version) throws JsonParseException {
-        extra.put("isEasingBefore", node.has("isEasingBefore") ? node.get("isEasingBefore").getAsBoolean() : false);
-        double beginTick = 0;
+        extra.put("isEasingBefore", node.has("isEasingBefore") && node.get("isEasingBefore").getAsBoolean());
+        float beginTick = 0;
         if (node.has("beginTick")) {
-            beginTick = node.get("beginTick").getAsDouble();
+            beginTick = node.get("beginTick").getAsFloat();
             extra.put("beginTick", beginTick);
         }
-        double endTick = Math.max(beginTick + 1, node.get("endTick").getAsDouble());
+        float endTick = beginTick + 1;
+        if (node.has("beginTick")) {
+            endTick = Math.max(node.get("endTick").getAsFloat(), endTick);
+            extra.put("endTick", endTick);
+        }
         if(endTick <= 0) throw new JsonParseException("endTick must be bigger than 0");
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if(node.has("isLoop") && node.has("returnTick")) {
@@ -92,7 +96,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 "easeBeforeKeyframe", node.get("easeBeforeKeyframe").getAsBoolean()
         );
 
-        double stopTick = node.has("stopTick") ? node.get("stopTick").getAsDouble() : 0;
+        float stopTick = node.has("stopTick") ? node.get("stopTick").getAsFloat() : 0;
         endTick = stopTick <= endTick ? endTick + 3 : stopTick; // https://github.com/KosmX/minecraftPlayerAnimator/blob/1.21/coreLib/src/main/java/dev/kosmx/playerAnim/core/data/KeyframeAnimation.java#L80
 
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();

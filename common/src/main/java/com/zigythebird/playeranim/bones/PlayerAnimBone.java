@@ -1,12 +1,20 @@
 package com.zigythebird.playeranim.bones;
 
+import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;
+import com.zigythebird.playeranim.animation.TransformType;
+import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
+import com.zigythebird.playeranim.animation.keyframe.Keyframe;
+import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranim.math.Pair;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3d;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -352,27 +360,52 @@ public class PlayerAnimBone {
 			this.bend = bone.bend;
 	}
 
-	public void beginTickLerp(AdvancedPlayerAnimBone bone, float animTime) {
-		this.positionX = applyBeginTickLerp(positionX, bone.positionX, bone.positionXBeginTransitionLength, animTime);
-		this.positionY = applyBeginTickLerp(positionY, bone.positionY, bone.positionYBeginTransitionLength, animTime);
-		this.positionZ = applyBeginTickLerp(positionZ, bone.positionZ, bone.positionZBeginTransitionLength, animTime);
+	@ApiStatus.Internal
+	public void beginOrEndTickLerp(AdvancedPlayerAnimBone bone, float animTime, Animation animation) {
+		this.positionX = beginOrEndTickLerp(positionX, bone.positionX, bone.positionXTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.X);
+		this.positionY = beginOrEndTickLerp(positionY, bone.positionY, bone.positionYTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.Y);
+		this.positionZ = beginOrEndTickLerp(positionZ, bone.positionZ, bone.positionZTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.Z);
 
-		this.rotX = applyBeginTickLerp(rotX, bone.rotX, bone.rotXBeginTransitionLength, animTime);
-		this.rotY = applyBeginTickLerp(rotY, bone.rotY, bone.rotYBeginTransitionLength, animTime);
-		this.rotZ = applyBeginTickLerp(rotZ, bone.rotZ, bone.rotZBeginTransitionLength, animTime);
+		this.rotX = beginOrEndTickLerp(rotX, bone.rotX, bone.rotXTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.X);
+		this.rotY = beginOrEndTickLerp(rotY, bone.rotY, bone.rotYTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.Y);
+		this.rotZ = beginOrEndTickLerp(rotZ, bone.rotZ, bone.rotZTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.Z);
 
-		this.scaleX = applyBeginTickLerp(scaleX, bone.scaleX, bone.scaleXBeginTransitionLength, animTime);
-		this.scaleY = applyBeginTickLerp(scaleY, bone.scaleY, bone.scaleYBeginTransitionLength, animTime);
-		this.scaleZ = applyBeginTickLerp(scaleZ, bone.scaleZ, bone.scaleZBeginTransitionLength, animTime);
+		this.scaleX = beginOrEndTickLerp(scaleX, bone.scaleX, bone.scaleXTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.X);
+		this.scaleY = beginOrEndTickLerp(scaleY, bone.scaleY, bone.scaleYTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.Y);
+		this.scaleZ = beginOrEndTickLerp(scaleZ, bone.scaleZ, bone.scaleZTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.Z);
 
-		this.bendAxis = applyBeginTickLerp(bendAxis, bone.bendAxis, bone.bendAxisBeginTransitionLength, animTime);
-		this.bend = applyBeginTickLerp(bend, bone.bend, bone.bendBeginTransitionLength, animTime);
+		this.bendAxis = beginOrEndTickLerp(bendAxis, bone.bendAxis, bone.bendAxisTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.X);
+		this.bend = beginOrEndTickLerp(bend, bone.bend, bone.bendTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.Y);
 	}
 	
-	private float applyBeginTickLerp(float startValue, float endValue, Float transitionLength, float animTime) {
+	private float beginOrEndTickLerp(float startValue, float endValue, Float transitionLength, float animTime, Animation animation, TransformType type, Direction.Axis axis) {
 		if (!Float.isNaN(endValue)) {
-			if (transitionLength != null)
-				return (float) EasingType.EASE_IN_OUT_SINE.apply(startValue, endValue, animTime / transitionLength);
+			if (animation != null) {
+				float temp = startValue;
+				startValue = endValue;
+				endValue = temp;
+			}
+			if (transitionLength != null) {
+				EasingType easingType = EasingType.EASE_IN_OUT_SINE;
+				try {
+					if (!(boolean) animation.data().get("isEasingBefore")) {
+						BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
+						KeyframeStack<Keyframe> keyframeStack;
+						switch (type) {
+							case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
+							case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
+							case SCALE -> keyframeStack = boneAnimation.scaleKeyFrames();
+							default -> keyframeStack = boneAnimation.positionKeyFrames();
+						}
+						switch (axis) {
+							case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
+							case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
+							default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
+						}
+					}
+				} catch (Exception ignore) {}
+				return (float) easingType.apply(startValue, endValue, animTime / transitionLength);
+			}
 			return endValue;
 		}
 		return startValue;

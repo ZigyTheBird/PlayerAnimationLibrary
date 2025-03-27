@@ -9,7 +9,6 @@ import com.zigythebird.playeranim.math.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -85,7 +84,7 @@ public class AnimationProcessor {
 		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationData.copy());
 
 		if (!this.getRegisteredBones().isEmpty())
-			this.tickAnimation(animatableManager, this.animTime, animationData);
+			this.tickAnimation(animatableManager, animationData);
 	}
 
 	/**
@@ -126,10 +125,9 @@ public class AnimationProcessor {
 	 * Tick and apply transformations to the model based on the current state of the {@link AnimationController}
 	 *
 	 * @param playerAnimManager		The PlayerAnimManager instance being used for this animation processor
-	 * @param animTime              The internal tick counter kept by the {@link PlayerAnimManager} for this player
 	 * @param state                 An {@link AnimationData} instance applied to this render frame
 	 */
-	public void tickAnimation(PlayerAnimManager playerAnimManager, double animTime, AnimationData state) {
+	public void tickAnimation(PlayerAnimManager playerAnimManager, AnimationData state) {
 		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
 
 		for (PlayerAnimBone entry : this.bones.values()) {
@@ -140,79 +138,6 @@ public class AnimationProcessor {
 			IAnimation animation = pair.getRight();
 
 			animation.setupAnim(state.copy());
-
-			for (PlayerAnimBone entry : this.bones.values()) {
-				animation.get3DTransform(entry);
-			}
-		}
-
-		//Todo: Maybe allow mod developers to set this somewhere.
-		//Also maybe this should be 0 instead of 1 by default.
-		double resetTickLength = 1;
-
-		for (PlayerAnimBone bone : getRegisteredBones()) {
-			if (!bone.hasRotationChanged()) {
-				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
-
-				if (saveSnapshot.isRotAnimInProgress())
-					saveSnapshot.stopRotAnim(animTime);
-
-				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetRotationTick()) / resetTickLength, 1);
-
-				bone.setRotX((float)Mth.lerp(percentageReset, saveSnapshot.getRotX(), 0));
-				bone.setRotY((float)Mth.lerp(percentageReset, saveSnapshot.getRotY(), 0));
-				bone.setRotZ((float)Mth.lerp(percentageReset, saveSnapshot.getRotZ(), 0));
-
-				if (percentageReset >= 1)
-					saveSnapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
-			}
-
-			if (!bone.hasPositionChanged()) {
-				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
-
-				if (saveSnapshot.isPosAnimInProgress())
-					saveSnapshot.stopPosAnim(animTime);
-
-				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetPositionTick()) / resetTickLength, 1);
-
-				bone.setPosX((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetX(), 0));
-				bone.setPosY((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetY(), 0));
-				bone.setPosZ((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetZ(), 0));
-
-				if (percentageReset >= 1)
-					saveSnapshot.updateOffset(bone.getPosX(), bone.getPosY(), bone.getPosZ());
-			}
-
-			if (!bone.hasScaleChanged()) {
-				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
-
-				if (saveSnapshot.isScaleAnimInProgress())
-					saveSnapshot.stopScaleAnim(animTime);
-
-				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetScaleTick()) / resetTickLength, 1);
-
-				bone.setScaleX((float)Mth.lerp(percentageReset, saveSnapshot.getScaleX(), 1));
-				bone.setScaleY((float)Mth.lerp(percentageReset, saveSnapshot.getScaleY(), 1));
-				bone.setScaleZ((float)Mth.lerp(percentageReset, saveSnapshot.getScaleZ(), 1));
-
-				if (percentageReset >= 1)
-					saveSnapshot.updateScale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
-			}
-
-			if (!bone.hasBendChanged()) {
-				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
-
-				if (saveSnapshot.isBendAnimInProgress())
-					saveSnapshot.stopBendAnim(animTime);
-
-				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetBendTick()) / resetTickLength, 1);
-
-				bone.setBendAxis((float)Mth.lerp(percentageReset, saveSnapshot.getBendAxis(), 0));
-				bone.setBend((float)Mth.lerp(percentageReset, saveSnapshot.getBend(), 0));
-
-				if (percentageReset >= 1)
-					saveSnapshot.updateBend(bone.getBendAxis(), bone.getBend());
-			}
 		}
 
 		resetBoneTransformationMarkers();

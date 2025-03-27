@@ -519,29 +519,29 @@ public class AnimationController implements IAnimation {
 
 					if (rotationKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextRotation(null, adjustedTick, this.transitionLength, boneSnapshot,
-								getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), 0, TransformType.ROTATION, bone::setRotXBeginTransitionLength),
-								getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), 0, TransformType.ROTATION, bone::setRotYBeginTransitionLength),
-								getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), 0, TransformType.ROTATION, bone::setRotZBeginTransitionLength));
+								getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), 0, TransformType.ROTATION, bone::setRotXTransitionLength),
+								getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), 0, TransformType.ROTATION, bone::setRotYTransitionLength),
+								getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), 0, TransformType.ROTATION, bone::setRotZTransitionLength));
 					}
 
 					if (positionKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextPosition(null, adjustedTick, this.transitionLength, boneSnapshot,
-								getAnimationPointAtTick(positionKeyFrames.xKeyframes(), 0, TransformType.POSITION, bone::setPositionXBeginTransitionLength),
-								getAnimationPointAtTick(positionKeyFrames.yKeyframes(), 0, TransformType.POSITION, bone::setPositionYBeginTransitionLength),
-								getAnimationPointAtTick(positionKeyFrames.zKeyframes(), 0, TransformType.POSITION, bone::setPositionZBeginTransitionLength));
+								getAnimationPointAtTick(positionKeyFrames.xKeyframes(), 0, TransformType.POSITION, bone::setPositionXTransitionLength),
+								getAnimationPointAtTick(positionKeyFrames.yKeyframes(), 0, TransformType.POSITION, bone::setPositionYTransitionLength),
+								getAnimationPointAtTick(positionKeyFrames.zKeyframes(), 0, TransformType.POSITION, bone::setPositionZTransitionLength));
 					}
 
 					if (scaleKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextScale(null, adjustedTick, this.transitionLength, boneSnapshot,
-								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.SCALE, bone::setScaleXBeginTransitionLength),
-								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.SCALE, bone::setScaleYBeginTransitionLength),
-								getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), 0, TransformType.SCALE, bone::setScaleZBeginTransitionLength));
+								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.SCALE, bone::setScaleXTransitionLength),
+								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.SCALE, bone::setScaleYTransitionLength),
+								getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), 0, TransformType.SCALE, bone::setScaleZTransitionLength));
 					}
 
 					if (bendKeyFrames.hasKeyframes()) {
 						boneAnimationQueue.addNextBend(null, adjustedTick, this.transitionLength, boneSnapshot,
-								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.BEND, bone::setBendAxisBeginTransitionLength),
-								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.BEND, bone::setBendBeginTransitionLength));
+								getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), 0, TransformType.BEND, bone::setBendAxisTransitionLength),
+								getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), 0, TransformType.BEND, bone::setBendTransitionLength));
 					}
 				}
 			}
@@ -572,6 +572,10 @@ public class AnimationController implements IAnimation {
 
 				if (nextAnimation == null) {
 					this.animationState = State.STOPPED;
+					this.currentAnimation = null;
+					for (AdvancedPlayerAnimBone bone : this.bones.values()) {
+						bone.setToInitialPose();
+					}
 
 					return;
 				}
@@ -606,29 +610,29 @@ public class AnimationController implements IAnimation {
 
 			if (rotationKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addRotations(
-						getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotXBeginTransitionLength),
-						getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotYBeginTransitionLength),
-						getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotZBeginTransitionLength));
+						getAnimationPointAtTick(rotationKeyFrames.xKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotXTransitionLength),
+						getAnimationPointAtTick(rotationKeyFrames.yKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotYTransitionLength),
+						getAnimationPointAtTick(rotationKeyFrames.zKeyframes(), adjustedTick, TransformType.ROTATION, bone::setRotZTransitionLength));
 			}
 
 			if (positionKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addPositions(
-						getAnimationPointAtTick(positionKeyFrames.xKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionXBeginTransitionLength),
-						getAnimationPointAtTick(positionKeyFrames.yKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionYBeginTransitionLength),
-						getAnimationPointAtTick(positionKeyFrames.zKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionZBeginTransitionLength));
+						getAnimationPointAtTick(positionKeyFrames.xKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionXTransitionLength),
+						getAnimationPointAtTick(positionKeyFrames.yKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionYTransitionLength),
+						getAnimationPointAtTick(positionKeyFrames.zKeyframes(), adjustedTick, TransformType.POSITION, bone::setPositionZTransitionLength));
 			}
 
 			if (scaleKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addScales(
-						getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleXBeginTransitionLength),
-						getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleYBeginTransitionLength),
-						getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleZBeginTransitionLength));
+						getAnimationPointAtTick(scaleKeyFrames.xKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleXTransitionLength),
+						getAnimationPointAtTick(scaleKeyFrames.yKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleYTransitionLength),
+						getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), adjustedTick, TransformType.SCALE, bone::setScaleZTransitionLength));
 			}
 
 			if (bendKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addBends(
-						getAnimationPointAtTick(bendKeyFrames.xKeyframes(), adjustedTick, TransformType.BEND, bone::setBendAxisBeginTransitionLength),
-						getAnimationPointAtTick(bendKeyFrames.yKeyframes(), adjustedTick, TransformType.BEND, bone::setBendBeginTransitionLength));
+						getAnimationPointAtTick(bendKeyFrames.xKeyframes(), adjustedTick, TransformType.BEND, bone::setBendAxisTransitionLength),
+						getAnimationPointAtTick(bendKeyFrames.yKeyframes(), adjustedTick, TransformType.BEND, bone::setBendTransitionLength));
 			}
 		}
 
@@ -751,6 +755,10 @@ public class AnimationController implements IAnimation {
 		return this.currentAnimation != null && this.currentAnimation.animation().data().has("beginTick");
 	}
 
+	public boolean hasEndTick() {
+		return this.currentAnimation != null && this.currentAnimation.animation().data().has("endTick");
+	}
+
 	public boolean hasIsEasingBefore() {
 		return this.currentAnimation != null && this.currentAnimation.animation().data().has("isEasingBefore");
 	}
@@ -758,7 +766,7 @@ public class AnimationController implements IAnimation {
 	/**
 	 * Convert a {@link KeyframeLocation} to an {@link AnimationPoint}
 	 */
-	private AnimationPoint getAnimationPointAtTick(List<Keyframe> frames, double tick, TransformType type, Consumer<Float> beginTransitionLengthSetter) {
+	private AnimationPoint getAnimationPointAtTick(List<Keyframe> frames, double tick, TransformType type, Consumer<Float> transitionLengthSetter) {
 		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick);
 		Keyframe currentFrame = location.keyframe();
 		double startValue;
@@ -798,12 +806,17 @@ public class AnimationController implements IAnimation {
 			}
 		}
 
-		if (!frames.isEmpty() && currentFrame == frames.getFirst() && tick < currentFrame.length() && hasBeginTick()
-				&& (double)this.currentAnimation.animation().data().get("beginTick") > tick) {
+		if (hasBeginTick() && !frames.isEmpty() && currentFrame == frames.getFirst() && tick < currentFrame.length()
+				&& (float)this.currentAnimation.animation().data().get("beginTick") > tick) {
 			startValue = endValue;
-			beginTransitionLengthSetter.accept((float) currentFrame.length());
+			transitionLengthSetter.accept((float) currentFrame.length());
 		}
-		else beginTransitionLengthSetter.accept(null);
+		else if (hasEndTick() && !frames.isEmpty() && currentFrame == frames.getLast() && tick >= location.tick()
+				&& (float)this.currentAnimation.animation().data().get("endTick") <= tick) {
+
+			transitionLengthSetter.accept((float) (this.currentAnimation.animation().length() - (float)this.currentAnimation.animation().data().get("endTick")));
+		}
+		else transitionLengthSetter.accept(null);
 
 		return new AnimationPoint(easingType, easingArgs, location.startTick(), currentFrame.length(), startValue, endValue);
 	}
@@ -817,7 +830,7 @@ public class AnimationController implements IAnimation {
 	 */
 	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, double ageInTicks) {
 		if (frames.isEmpty()) {
-			return new KeyframeLocation<>(new Keyframe(0), 0);
+			return new KeyframeLocation<>(new Keyframe(0), 0, 0);
 		}
 
 		double totalFrameTime = 0;
@@ -826,10 +839,10 @@ public class AnimationController implements IAnimation {
 			totalFrameTime += frame.length();
 
 			if (totalFrameTime > ageInTicks)
-				return new KeyframeLocation<>(frame, (ageInTicks - (totalFrameTime - frame.length())));
+				return new KeyframeLocation<>(frame, (ageInTicks - (totalFrameTime - frame.length())), (float) totalFrameTime);
 		}
 
-		return new KeyframeLocation<>(frames.getLast(), ageInTicks);
+		return new KeyframeLocation<>(frames.getLast(), ageInTicks, (float) ageInTicks);
 	}
 
 	/**
@@ -841,8 +854,10 @@ public class AnimationController implements IAnimation {
 	
 	public void get3DTransformRaw(@NotNull PlayerAnimBone bone) {
 		if (bones.containsKey(bone.getName())) {
-			if (hasBeginTick() && (double)this.currentAnimation.animation().data().get("beginTick") > this.getAnimationTicks())
-				bone.beginTickLerp(bones.get(bone.getName()), (float) this.getAnimationTicks());
+			if (hasBeginTick() && (float)this.currentAnimation.animation().data().get("beginTick") > this.getAnimationTicks())
+				bone.beginOrEndTickLerp(bones.get(bone.getName()), (float) this.getAnimationTicks(), null);
+			else if (hasEndTick() && (float)this.currentAnimation.animation().data().get("endTick") <= this.getAnimationTicks())
+				bone.beginOrEndTickLerp(bones.get(bone.getName()), (float) this.getAnimationTicks() - (float)this.currentAnimation.animation().data().get("endTick"), this.currentAnimation.animation());
 			else bone.copyOtherBone(bones.get(bone.getName()));
 			bone.parent = null;
 		}

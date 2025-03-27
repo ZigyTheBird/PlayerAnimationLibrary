@@ -3,20 +3,20 @@ package com.zigythebird.playeranim.bones;
 import net.minecraft.world.phys.Vec3;
 
 public class AdvancedPlayerAnimBone extends PlayerAnimBone {
-    public Float scaleXBeginTransitionLength = null;
-    public Float scaleYBeginTransitionLength = null;
-    public Float scaleZBeginTransitionLength = null;
+    public Float scaleXTransitionLength = null;
+    public Float scaleYTransitionLength = null;
+    public Float scaleZTransitionLength = null;
 
-    public Float positionXBeginTransitionLength = null;
-    public Float positionYBeginTransitionLength = null;
-    public Float positionZBeginTransitionLength = null;
+    public Float positionXTransitionLength = null;
+    public Float positionYTransitionLength = null;
+    public Float positionZTransitionLength = null;
 
-    public Float rotXBeginTransitionLength = null;
-    public Float rotYBeginTransitionLength = null;
-    public Float rotZBeginTransitionLength = null;
+    public Float rotXTransitionLength = null;
+    public Float rotYTransitionLength = null;
+    public Float rotZTransitionLength = null;
 
-    public Float bendAxisBeginTransitionLength = null;
-    public Float bendBeginTransitionLength = null;
+    public Float bendAxisTransitionLength = null;
+    public Float bendTransitionLength = null;
 
     public AdvancedPlayerAnimBone(String name) {
         super(name);
@@ -30,47 +30,47 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone {
         super(parent, name, pivot);
     }
 
-    public void setBendBeginTransitionLength(Float bendBeginTransitionLength) {
-        this.bendBeginTransitionLength = bendBeginTransitionLength;
+    public void setBendTransitionLength(Float bendTransitionLength) {
+        this.bendTransitionLength = bendTransitionLength;
     }
 
-    public void setBendAxisBeginTransitionLength(Float bendAxisBeginTransitionLength) {
-        this.bendAxisBeginTransitionLength = bendAxisBeginTransitionLength;
+    public void setBendAxisTransitionLength(Float bendAxisTransitionLength) {
+        this.bendAxisTransitionLength = bendAxisTransitionLength;
     }
 
-    public void setRotZBeginTransitionLength(Float rotZBeginTransitionLength) {
-        this.rotZBeginTransitionLength = rotZBeginTransitionLength;
+    public void setRotZTransitionLength(Float rotZTransitionLength) {
+        this.rotZTransitionLength = rotZTransitionLength;
     }
 
-    public void setRotYBeginTransitionLength(Float rotYBeginTransitionLength) {
-        this.rotYBeginTransitionLength = rotYBeginTransitionLength;
+    public void setRotYTransitionLength(Float rotYTransitionLength) {
+        this.rotYTransitionLength = rotYTransitionLength;
     }
 
-    public void setRotXBeginTransitionLength(Float rotXBeginTransitionLength) {
-        this.rotXBeginTransitionLength = rotXBeginTransitionLength;
+    public void setRotXTransitionLength(Float rotXTransitionLength) {
+        this.rotXTransitionLength = rotXTransitionLength;
     }
 
-    public void setPositionZBeginTransitionLength(Float positionZBeginTransitionLength) {
-        this.positionZBeginTransitionLength = positionZBeginTransitionLength;
+    public void setPositionZTransitionLength(Float positionZTransitionLength) {
+        this.positionZTransitionLength = positionZTransitionLength;
     }
 
-    public void setPositionYBeginTransitionLength(Float positionYBeginTransitionLength) {
-        this.positionYBeginTransitionLength = positionYBeginTransitionLength;
+    public void setPositionYTransitionLength(Float positionYTransitionLength) {
+        this.positionYTransitionLength = positionYTransitionLength;
     }
 
-    public void setPositionXBeginTransitionLength(Float positionXBeginTransitionLength) {
-        this.positionXBeginTransitionLength = positionXBeginTransitionLength;
+    public void setPositionXTransitionLength(Float positionXTransitionLength) {
+        this.positionXTransitionLength = positionXTransitionLength;
     }
 
-    public void setScaleZBeginTransitionLength(Float scaleZBeginTransitionLength) {
-        this.scaleZBeginTransitionLength = scaleZBeginTransitionLength;
+    public void setScaleZTransitionLength(Float scaleZTransitionLength) {
+        this.scaleZTransitionLength = scaleZTransitionLength;
     }
 
-    public void setScaleYBeginTransitionLength(Float scaleYBeginTransitionLength) {
-        this.scaleYBeginTransitionLength = scaleYBeginTransitionLength;
+    public void setScaleYTransitionLength(Float scaleYTransitionLength) {
+        this.scaleYTransitionLength = scaleYTransitionLength;
     }
 
-    public void setScaleXBeginTransitionLength(Float scaleXBeginTransitionLength) {
-        this.scaleXBeginTransitionLength = scaleXBeginTransitionLength;
+    public void setScaleXTransitionLength(Float scaleXTransitionLength) {
+        this.scaleXTransitionLength = scaleXTransitionLength;
     }
 }
