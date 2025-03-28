@@ -29,6 +29,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.accessors.IPlayerModel;
+import com.zigythebird.playeranim.accessors.IUpperPartHelper;
 import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
@@ -56,6 +57,14 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
         super(modelPart, function);
     }
 
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void initBend(ModelPart modelPart, boolean bl, CallbackInfo ci){
+        ((IUpperPartHelper)rightArm).playerAnimLib$setUpperPart(true);
+        ((IUpperPartHelper)leftArm).playerAnimLib$setUpperPart(true);
+        ((IUpperPartHelper)head).playerAnimLib$setUpperPart(true);
+        ((IUpperPartHelper)hat).playerAnimLib$setUpperPart(true);
+    }
+
     @Unique
     private void playerAnimLib$setToInitialPose(){
         this.head.resetPose();
@@ -73,7 +82,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "RETURN"))
     private void setupPlayerAnimation(PlayerRenderState playerRenderState, CallbackInfo ci) {
-        if(!playerAnimLib$firstPersonNext && playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
+        if (!playerAnimLib$firstPersonNext && playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
             AnimationProcessor processor = state.playerAnimLib$getAnimProcessor();
             processor.handleAnimations(emote.getTickDelta(), false);

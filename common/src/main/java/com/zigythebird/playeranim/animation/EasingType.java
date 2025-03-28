@@ -62,6 +62,8 @@ public interface EasingType {
 	Double2DoubleFunction buildTransformer(Double value);
 
 	static double lerpWithOverride(MochaEngine<?> env, AnimationPoint animationPoint, EasingType override) {
+		if (animationPoint == null) return Double.NaN;
+
 		EasingType easingType = override;
 
 		if (override == null)

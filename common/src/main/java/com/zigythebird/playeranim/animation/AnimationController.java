@@ -767,6 +767,8 @@ public class AnimationController implements IAnimation {
 	 * Convert a {@link KeyframeLocation} to an {@link AnimationPoint}
 	 */
 	private AnimationPoint getAnimationPointAtTick(List<Keyframe> frames, double tick, TransformType type, Consumer<Float> transitionLengthSetter) {
+		if (frames.isEmpty()) return null;
+
 		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick);
 		Keyframe currentFrame = location.keyframe();
 		double startValue;
@@ -829,10 +831,6 @@ public class AnimationController implements IAnimation {
 	 * @return A new {@code KeyFrameLocation} containing the current {@code KeyFrame} and the tick time used to find it
 	 */
 	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, double ageInTicks) {
-		if (frames.isEmpty()) {
-			return new KeyframeLocation<>(new Keyframe(0), 0, 0);
-		}
-
 		double totalFrameTime = 0;
 
 		for (Keyframe frame : frames) {
@@ -959,40 +957,32 @@ public class AnimationController implements IAnimation {
 			AnimationPoint bendPoint = boneAnimation.bendQueue().poll();
 			EasingType easingType = this.overrideEasingTypeFunction.apply(player);
 
-			if (rotXPoint != null && rotYPoint != null && rotZPoint != null) {
-				bone.setRotX((float) EasingType.lerpWithOverride(this.molangRuntime, rotXPoint, easingType));
-				bone.setRotY((float) EasingType.lerpWithOverride(this.molangRuntime, rotYPoint, easingType));
-				bone.setRotZ((float) EasingType.lerpWithOverride(this.molangRuntime, rotZPoint, easingType));
-				snapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
-				snapshot.startRotAnim();
-				bone.markRotationAsChanged();
-			}
+			bone.setRotX((float) EasingType.lerpWithOverride(this.molangRuntime, rotXPoint, easingType));
+			bone.setRotY((float) EasingType.lerpWithOverride(this.molangRuntime, rotYPoint, easingType));
+			bone.setRotZ((float) EasingType.lerpWithOverride(this.molangRuntime, rotZPoint, easingType));
+			snapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
+			snapshot.startRotAnim();
+			bone.markRotationAsChanged();
 
-			if (posXPoint != null && posYPoint != null && posZPoint != null) {
-				bone.setPosX((float) EasingType.lerpWithOverride(this.molangRuntime, posXPoint, easingType));
-				bone.setPosY((float) EasingType.lerpWithOverride(this.molangRuntime, posYPoint, easingType));
-				bone.setPosZ((float) EasingType.lerpWithOverride(this.molangRuntime, posZPoint, easingType));
-				snapshot.updateOffset(bone.getPosX(), bone.getPosY(), bone.getPosZ());
-				snapshot.startPosAnim();
-				bone.markPositionAsChanged();
-			}
+			bone.setPosX((float) EasingType.lerpWithOverride(this.molangRuntime, posXPoint, easingType));
+			bone.setPosY((float) EasingType.lerpWithOverride(this.molangRuntime, posYPoint, easingType));
+			bone.setPosZ((float) EasingType.lerpWithOverride(this.molangRuntime, posZPoint, easingType));
+			snapshot.updateOffset(bone.getPosX(), bone.getPosY(), bone.getPosZ());
+			snapshot.startPosAnim();
+			bone.markPositionAsChanged();
 
-			if (scaleXPoint != null && scaleYPoint != null && scaleZPoint != null) {
-				bone.setScaleX((float) EasingType.lerpWithOverride(this.molangRuntime, scaleXPoint, easingType));
-				bone.setScaleY((float) EasingType.lerpWithOverride(this.molangRuntime, scaleYPoint, easingType));
-				bone.setScaleZ((float) EasingType.lerpWithOverride(this.molangRuntime, scaleZPoint, easingType));
-				snapshot.updateScale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
-				snapshot.startScaleAnim();
-				bone.markScaleAsChanged();
-			}
+			bone.setScaleX((float) EasingType.lerpWithOverride(this.molangRuntime, scaleXPoint, easingType));
+			bone.setScaleY((float) EasingType.lerpWithOverride(this.molangRuntime, scaleYPoint, easingType));
+			bone.setScaleZ((float) EasingType.lerpWithOverride(this.molangRuntime, scaleZPoint, easingType));
+			snapshot.updateScale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
+			snapshot.startScaleAnim();
+			bone.markScaleAsChanged();
 
-			if (bendAxisPoint != null && bendPoint != null) {
-				bone.setBendAxis((float) EasingType.lerpWithOverride(this.molangRuntime, bendAxisPoint, easingType));
-				bone.setBend((float) EasingType.lerpWithOverride(this.molangRuntime, bendPoint, easingType));
-				snapshot.updateBend(bone.getBendAxis(), bone.getBend());
-				snapshot.startBendAnim();
-				bone.markBendAsChanged();
-			}
+			bone.setBendAxis((float) EasingType.lerpWithOverride(this.molangRuntime, bendAxisPoint, easingType));
+			bone.setBend((float) EasingType.lerpWithOverride(this.molangRuntime, bendPoint, easingType));
+			snapshot.updateBend(bone.getBendAxis(), bone.getBend());
+			snapshot.startBendAnim();
+			bone.markBendAsChanged();
 		}
 	}
 

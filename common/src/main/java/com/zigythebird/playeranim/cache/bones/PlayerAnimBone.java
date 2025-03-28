@@ -118,21 +118,18 @@ public class PlayerAnimBone {
 	}
 
 	public void setRotX(float value) {
-		if (Float.isNaN(value)) return;
 		this.rotX = value;
 
 		markRotationAsChanged();
 	}
 
 	public void setRotY(float value) {
-		if (Float.isNaN(value)) return;
 		this.rotY = value;
 
 		markRotationAsChanged();
 	}
 
 	public void setRotZ(float value) {
-		if (Float.isNaN(value)) return;
 		this.rotZ = value;
 
 		markRotationAsChanged();
@@ -145,21 +142,18 @@ public class PlayerAnimBone {
 	}
 
 	public void setPosX(float value) {
-		if (Float.isNaN(value)) return;
 		this.positionX = value;
 
 		markPositionAsChanged();
 	}
 
 	public void setPosY(float value) {
-		if (Float.isNaN(value)) return;
 		this.positionY = value;
 
 		markPositionAsChanged();
 	}
 
 	public void setPosZ(float value) {
-		if (Float.isNaN(value)) return;
 		this.positionZ = value;
 
 		markPositionAsChanged();
@@ -172,21 +166,18 @@ public class PlayerAnimBone {
 	}
 
 	public void setScaleX(float value) {
-		if (Float.isNaN(value)) return;
 		this.scaleX = value;
 
 		markScaleAsChanged();
 	}
 
 	public void setScaleY(float value) {
-		if (Float.isNaN(value)) return;
 		this.scaleY = value;
 
 		markScaleAsChanged();
 	}
 
 	public void setScaleZ(float value) {
-		if (Float.isNaN(value)) return;
 		this.scaleZ = value;
 
 		markScaleAsChanged();
