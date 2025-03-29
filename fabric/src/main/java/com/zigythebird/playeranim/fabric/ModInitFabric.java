@@ -1,9 +1,8 @@
 package com.zigythebird.playeranim.fabric;
 
+import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.commands.PlayPlayerAnimationCommand;
 import net.fabricmc.api.ModInitializer;
-
-import com.zigythebird.playeranim.ModInit;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public final class ModInitFabric implements ModInitializer {

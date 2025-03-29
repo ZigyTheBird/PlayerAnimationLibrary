@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.bones;
 
 import com.zigythebird.playeranim.animation.AnimationProcessor;
-import com.zigythebird.playeranim.animation.TransformType;
+import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.math.Pair;
 import com.zigythebird.playeranim.math.Vec3f;
 

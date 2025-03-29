@@ -12,6 +12,7 @@ import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructio
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.enums.State;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;

@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim;
 
 import com.zigythebird.playeranim.animation.AnimationController;
-import com.zigythebird.playeranim.animation.PlayState;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
+import com.zigythebird.playeranim.enums.PlayState;
 import net.minecraft.resources.ResourceLocation;
 
 public class ModInitClient {

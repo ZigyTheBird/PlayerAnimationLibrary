@@ -3,10 +3,10 @@ package com.zigythebird.playeranim.animation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.zigythebird.playeranim.ModInit;
-import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import net.minecraft.util.Mth;
 import com.zigythebird.playeranim.animation.keyframe.AnimationPoint;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
+import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import net.minecraft.util.Mth;
 import team.unnamed.mocha.MochaEngine;
 
 import java.util.Locale;

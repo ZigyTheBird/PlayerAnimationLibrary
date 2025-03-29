@@ -21,7 +21,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Cache class for holding loaded {@link Animation Animations}

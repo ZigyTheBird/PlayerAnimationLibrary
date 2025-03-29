@@ -1,21 +1,13 @@
 package com.zigythebird.playeranim.loading;
 
-import static com.zigythebird.playeranim.animation.PlayerAnimResources.NO_KEYFRAMES;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.google.gson.*;
 import com.zigythebird.playeranim.animation.Animation;
-import com.zigythebird.playeranim.animation.ExtraAnimationData;
 import com.zigythebird.playeranim.animation.EasingType;
+import com.zigythebird.playeranim.animation.ExtraAnimationData;
+import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +19,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.zigythebird.playeranim.animation.PlayerAnimResources.NO_KEYFRAMES;
 
 public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     private final static int modVersion = 3;

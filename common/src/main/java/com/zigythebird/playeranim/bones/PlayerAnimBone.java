@@ -2,10 +2,10 @@ package com.zigythebird.playeranim.bones;
 
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;
-import com.zigythebird.playeranim.animation.TransformType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
+import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.math.Pair;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;

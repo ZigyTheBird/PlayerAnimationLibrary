@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranim.animation.*;
+import com.zigythebird.playeranim.animation.AnimationController;
 import com.zigythebird.playeranim.animation.layered.AnimationContainer;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import lombok.Setter;

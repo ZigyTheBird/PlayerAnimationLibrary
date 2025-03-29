@@ -5,8 +5,8 @@
 
 package com.zigythebird.playeranim.animation.keyframe;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import com.zigythebird.playeranim.animation.EasingType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import team.unnamed.mocha.parser.ast.Expression;
 
 import java.util.Collections;

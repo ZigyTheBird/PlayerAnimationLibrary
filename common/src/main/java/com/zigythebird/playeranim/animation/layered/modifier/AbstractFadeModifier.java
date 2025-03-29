@@ -38,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
  * length in ticks
  */
 public abstract class AbstractFadeModifier extends AbstractModifier {
-
     protected int time = 0;
     protected int length;
     protected float tickDelta;
