@@ -80,7 +80,7 @@ public class AnimationController implements IAnimation {
 	
 	protected Function<AbstractClientPlayer, FirstPersonMode> firstPersonMode = null;
 	protected Function<AbstractClientPlayer, FirstPersonConfiguration> firstPersonConfiguration = null;
-	private final List<AbstractModifier> modifiers = new ArrayList<>();
+	protected final List<AbstractModifier> modifiers = new ArrayList<>();
 
 	private final InternalAnimationAccessor internalAnimationAccessor = new InternalAnimationAccessor(this);
 
@@ -872,7 +872,7 @@ public class AnimationController implements IAnimation {
 	@Override
 	public void get3DTransform(@NotNull PlayerAnimBone bone) {
 		if (!modifiers.isEmpty()) {
-			modifiers.get(0).get3DTransform(bone);
+			modifiers.getFirst().get3DTransform(bone);
 		}
 		else get3DTransformRaw(bone);
 	}
@@ -912,8 +912,8 @@ public class AnimationController implements IAnimation {
 				removeModifier(i--);
 			}
 		}
-		if (modifiers.size() > 0) {
-			modifiers.get(0).tick(state);
+		if (!modifiers.isEmpty()) {
+			modifiers.getFirst().tick(state);
 		}
 	}
 
@@ -927,7 +927,7 @@ public class AnimationController implements IAnimation {
 	public void setupAnim(AnimationData state) {
 		this.animationData = state;
 		if (!modifiers.isEmpty()) {
-			modifiers.get(0).setupAnim(state);
+			modifiers.getFirst().setupAnim(state);
 		}
 		else internalSetupAnim(state);
 	}
@@ -965,27 +965,23 @@ public class AnimationController implements IAnimation {
 			bone.setRotZ((float) EasingType.lerpWithOverride(this.molangRuntime, rotZPoint, easingType));
 			snapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
 			snapshot.startRotAnim();
-			bone.markRotationAsChanged();
 
 			bone.setPosX((float) EasingType.lerpWithOverride(this.molangRuntime, posXPoint, easingType));
 			bone.setPosY((float) EasingType.lerpWithOverride(this.molangRuntime, posYPoint, easingType));
 			bone.setPosZ((float) EasingType.lerpWithOverride(this.molangRuntime, posZPoint, easingType));
 			snapshot.updateOffset(bone.getPosX(), bone.getPosY(), bone.getPosZ());
 			snapshot.startPosAnim();
-			bone.markPositionAsChanged();
 
 			bone.setScaleX((float) EasingType.lerpWithOverride(this.molangRuntime, scaleXPoint, easingType));
 			bone.setScaleY((float) EasingType.lerpWithOverride(this.molangRuntime, scaleYPoint, easingType));
 			bone.setScaleZ((float) EasingType.lerpWithOverride(this.molangRuntime, scaleZPoint, easingType));
 			snapshot.updateScale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 			snapshot.startScaleAnim();
-			bone.markScaleAsChanged();
 
 			bone.setBendAxis((float) EasingType.lerpWithOverride(this.molangRuntime, bendAxisPoint, easingType));
 			bone.setBend((float) EasingType.lerpWithOverride(this.molangRuntime, bendPoint, easingType));
 			snapshot.updateBend(bone.getBendAxis(), bone.getBend());
 			snapshot.startBendAnim();
-			bone.markBendAsChanged();
 		}
 	}
 
@@ -1090,6 +1086,7 @@ public class AnimationController implements IAnimation {
 		void handle(CustomInstructionKeyframeEvent event);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private static class InternalAnimationAccessor extends AnimationContainer<AnimationController> {
 		private InternalAnimationAccessor(AnimationController controller) {
 			super(controller);

@@ -40,7 +40,10 @@ public abstract class AbstractModifier extends AnimationContainer<IAnimation> {
      */
     @Nullable
     protected AnimationController getController() {
-        return host instanceof AnimationController ? (AnimationController) host : null;
+        if (host instanceof AnimationContainer<?> container && container.getAnim() instanceof AnimationController controller)
+            return controller;
+        if (host instanceof AnimationController controller) return controller;
+        return null;
     }
 
     public AbstractModifier() {}

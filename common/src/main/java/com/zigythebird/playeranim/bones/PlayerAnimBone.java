@@ -41,11 +41,6 @@ public class PlayerAnimBone {
 	protected float bendAxis;
 	protected float bend;
 
-	private boolean positionChanged = false;
-	private boolean rotationChanged = false;
-	private boolean scaleChanged = false;
-	private boolean bendChanged = false;
-
 	public PlayerAnimBone(String name) {
 		this(name, null);
 	}
@@ -116,20 +111,14 @@ public class PlayerAnimBone {
 
 	public void setRotX(float value) {
 		this.rotX = value;
-
-		markRotationAsChanged();
 	}
 
 	public void setRotY(float value) {
 		this.rotY = value;
-
-		markRotationAsChanged();
 	}
 
 	public void setRotZ(float value) {
 		this.rotZ = value;
-
-		markRotationAsChanged();
 	}
 
 	public void updateRotation(float xRot, float yRot, float zRot) {
@@ -140,20 +129,14 @@ public class PlayerAnimBone {
 
 	public void setPosX(float value) {
 		this.positionX = value;
-
-		markPositionAsChanged();
 	}
 
 	public void setPosY(float value) {
 		this.positionY = value;
-
-		markPositionAsChanged();
 	}
 
 	public void setPosZ(float value) {
 		this.positionZ = value;
-
-		markPositionAsChanged();
 	}
 
 	public void updatePosition(float posX, float posY, float posZ) {
@@ -164,20 +147,14 @@ public class PlayerAnimBone {
 
 	public void setScaleX(float value) {
 		this.scaleX = value;
-
-		markScaleAsChanged();
 	}
 
 	public void setScaleY(float value) {
 		this.scaleY = value;
-
-		markScaleAsChanged();
 	}
 
 	public void setScaleZ(float value) {
 		this.scaleZ = value;
-
-		markScaleAsChanged();
 	}
 
 	public void updateScale(float scaleX, float scaleY, float scaleZ) {
@@ -189,13 +166,10 @@ public class PlayerAnimBone {
 	public void setBendAxis(float value) {
 		this.bendAxis = value;
 
-		this.markBendAsChanged();
 	}
 
 	public void setBend(float value) {
 		this.bend = value;
-
-		this.markBendAsChanged();
 	}
 
 	public void updateBend(float bendAxis, float bend) {
@@ -208,45 +182,6 @@ public class PlayerAnimBone {
 		setBend(bend.getRight());
 	}
 
-	public void markScaleAsChanged() {
-		this.scaleChanged = true;
-	}
-
-	public void markBendAsChanged() {
-		this.bendChanged = true;
-	}
-
-	public void markRotationAsChanged() {
-		this.rotationChanged = true;
-	}
-
-	public void markPositionAsChanged() {
-		this.positionChanged = true;
-	}
-
-	public boolean hasScaleChanged() {
-		return this.scaleChanged;
-	}
-
-	public boolean hasBendChanged() {
-		return this.bendChanged;
-	}
-
-	public boolean hasRotationChanged() {
-		return this.rotationChanged;
-	}
-
-	public boolean hasPositionChanged() {
-		return this.positionChanged;
-	}
-
-	public void resetStateChanges() {
-		this.scaleChanged = false;
-		this.rotationChanged = false;
-		this.positionChanged = false;
-		this.bendChanged = false;
-	}
-	
 	public void setToInitialPose() {
 		this.positionX = 0;
 		this.positionY = 0;
@@ -281,7 +216,7 @@ public class PlayerAnimBone {
 		setRotY(getRotY() + source.getRotY());
 		setRotZ(getRotZ() + source.getRotZ());
 	}
-	
+
 	public PlayerAnimBone scale(float value) {
 		this.positionX *= value;
 		this.positionY *= value;

@@ -142,15 +142,7 @@ public class AnimationProcessor {
 			animation.setupAnim(state.copy());
 		}
 
-		resetBoneTransformationMarkers();
 		playerAnimManager.finishFirstTick();
-	}
-
-	/**
-	 * Reset the transformation markers applied to each {@link PlayerAnimBone} ready for the next render frame
-	 */
-	private void resetBoneTransformationMarkers() {
-		getRegisteredBones().forEach(PlayerAnimBone::resetStateChanges);
 	}
 
 	/**
