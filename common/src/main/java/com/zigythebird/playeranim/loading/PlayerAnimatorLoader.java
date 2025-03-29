@@ -109,7 +109,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         });
         for (JsonElement n : node) {
             JsonObject obj = n.getAsJsonObject();
-            int tick = obj.get("tick").getAsInt();
+            float tick = obj.get("tick").getAsFloat();
             EasingType easing = easingTypeFromString(obj.has("easing") ? obj.get("easing").getAsString() : "linear");
             Double easingArg = null;
             try {
@@ -137,7 +137,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return bones.values().toArray(BoneAnimation[]::new);
     }
 
-    private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, int tick, EasingType easing, Double easingArg, int turn) {
+    private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, Double easingArg, int turn) {
         JsonObject partNode = node.getAsJsonObject();
         fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, easingArg, turn);
         fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, easingArg, turn);
@@ -145,13 +145,13 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         fillKeyframeStack(bone.bendKeyFrames(), Vec3.ZERO, TransformType.BEND, "bend", "axis", null, partNode, degrees, tick, easing, easingArg, turn);
     }
 
-    private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vec3 def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, int tick, EasingType easing, Double easingArg, int turn) {
+    private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vec3 def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, Double easingArg, int turn) {
         addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, easingArg, turn);
         addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, easingArg, turn);
         if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, easingArg, turn);
     }
 
-    private void addPartIfExists(double lastTick, List<Keyframe> part, double def, TransformType transformType, String name, JsonObject node, boolean degrees, int tick, EasingType easing, Double easingArg, int rotate) {
+    private void addPartIfExists(double lastTick, List<Keyframe> part, double def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, Double easingArg, int rotate) {
         Keyframe lastFrame = part.isEmpty() ? null : part.getLast();
         double prevTime = lastFrame != null ? lastTick : 0;
         List<List<Expression>> easingArgs = Collections.singletonList(easingArg == null ? new ObjectArrayList<>(0) : Collections.singletonList(new DoubleExpression(easingArg)));
