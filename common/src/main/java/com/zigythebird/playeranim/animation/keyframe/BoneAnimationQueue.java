@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.animation.keyframe;
 
 import com.zigythebird.playeranim.animation.AnimationController;
-import com.zigythebird.playeranim.animation.BoneSnapshot;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 
 /**
  * A bone pseudo-stack for bone animation positions, scales, and rotations
@@ -29,7 +29,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addPosXPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addPosXPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.positionXQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -42,7 +42,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addPosYPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addPosYPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.positionYQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -55,7 +55,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addPosZPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addPosZPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.positionZQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -70,10 +70,13 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param nextYPoint The Y {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 * @param nextZPoint The Z {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 */
-	public void addNextPosition(Keyframe keyFrame, double lerpedTick, double transitionLength, BoneSnapshot startSnapshot, AnimationPoint nextXPoint, AnimationPoint nextYPoint, AnimationPoint nextZPoint) {
-		addPosXPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getOffsetX(), nextXPoint.animationStartValue());
-		addPosYPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getOffsetY(), nextYPoint.animationStartValue());
-		addPosZPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getOffsetZ(), nextZPoint.animationStartValue());
+	public void addNextPosition(Keyframe keyFrame, float lerpedTick, float transitionLength, BoneSnapshot startSnapshot, AnimationPoint nextXPoint, AnimationPoint nextYPoint, AnimationPoint nextZPoint) {
+		if (nextXPoint != null)
+			addPosXPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getOffsetX(), nextXPoint.animationStartValue());
+		if (nextYPoint != null)
+			addPosYPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getOffsetY(), nextYPoint.animationStartValue());
+		if (nextZPoint != null)
+			addPosZPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getOffsetZ(), nextZPoint.animationStartValue());
 	}
 
 	/**
@@ -85,7 +88,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addScaleXPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addScaleXPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.scaleXQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -98,7 +101,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addScaleYPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addScaleYPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.scaleYQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -111,7 +114,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addScaleZPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addScaleZPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.scaleZQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -126,10 +129,13 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param nextYPoint The Y {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 * @param nextZPoint The Z {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 */
-	public void addNextScale(Keyframe keyFrame, double lerpedTick, double transitionLength, BoneSnapshot startSnapshot, AnimationPoint nextXPoint, AnimationPoint nextYPoint, AnimationPoint nextZPoint) {
-		addScaleXPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getScaleX(), nextXPoint.animationStartValue());
-		addScaleYPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getScaleY(), nextYPoint.animationStartValue());
-		addScaleZPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getScaleZ(), nextZPoint.animationStartValue());
+	public void addNextScale(Keyframe keyFrame, float lerpedTick, float transitionLength, BoneSnapshot startSnapshot, AnimationPoint nextXPoint, AnimationPoint nextYPoint, AnimationPoint nextZPoint) {
+		if (nextXPoint != null)
+			addScaleXPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getScaleX(), nextXPoint.animationStartValue());
+		if (nextYPoint != null)
+			addScaleYPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getScaleY(), nextYPoint.animationStartValue());
+		if (nextZPoint != null)
+			addScaleZPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getScaleZ(), nextZPoint.animationStartValue());
 	}
 
 	/**
@@ -141,7 +147,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addRotationXPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addRotationXPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.rotationXQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -154,7 +160,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addRotationYPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addRotationYPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.rotationYQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -167,7 +173,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addRotationZPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addRotationZPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.rotationZQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -178,15 +184,17 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param lerpedTick The lerped time (current tick + partial tick) that the point starts at
 	 * @param transitionLength The length of the transition (base on the {@link AnimationController}
 	 * @param startSnapshot The {@link BoneSnapshot} that serves as the starting rotations relevant to the keyframe provided
-	 * @param initialSnapshot The {@link BoneSnapshot} that serves as the unmodified rotations of the bone
 	 * @param nextXPoint The X {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 * @param nextYPoint The Y {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 * @param nextZPoint The Z {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 */
-	public void addNextRotation(Keyframe keyFrame, double lerpedTick, double transitionLength, BoneSnapshot startSnapshot, BoneSnapshot initialSnapshot, AnimationPoint nextXPoint, AnimationPoint nextYPoint, AnimationPoint nextZPoint) {
-		addRotationXPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotX() - initialSnapshot.getRotX(), nextXPoint.animationStartValue());
-		addRotationYPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotY() - initialSnapshot.getRotY(), nextYPoint.animationStartValue());
-		addRotationZPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotZ() - initialSnapshot.getRotZ(), nextZPoint.animationStartValue());
+	public void addNextRotation(Keyframe keyFrame, float lerpedTick, float transitionLength, BoneSnapshot startSnapshot, AnimationPoint nextXPoint, AnimationPoint nextYPoint, AnimationPoint nextZPoint) {
+		if (nextXPoint != null)
+			addRotationXPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotX(), nextXPoint.animationStartValue());
+		if (nextYPoint != null)
+			addRotationYPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotY(), nextYPoint.animationStartValue());
+		if (nextZPoint != null)
+			addRotationZPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getRotZ(), nextZPoint.animationStartValue());
 	}
 
 	/**
@@ -198,7 +206,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addBendAxisPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addBendAxisPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.bendAxisQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -211,7 +219,7 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param startValue The value of the point at the start of its transition
 	 * @param endValue The value of the point at the end of its transition
 	 */
-	public void addBendPoint(Keyframe keyFrame, double lerpedTick, double transitionLength, double startValue, double endValue) {
+	public void addBendPoint(Keyframe keyFrame, float lerpedTick, float transitionLength, float startValue, float endValue) {
 		this.bendQueue.add(new AnimationPoint(keyFrame, lerpedTick, transitionLength, startValue, endValue));
 	}
 
@@ -222,13 +230,14 @@ public record BoneAnimationQueue(PlayerAnimBone bone, AnimationPointQueue rotati
 	 * @param lerpedTick The lerped time (current tick + partial tick) that the point starts at
 	 * @param transitionLength The length of the transition (base on the {@link AnimationController}
 	 * @param startSnapshot The {@link BoneSnapshot} that serves as the starting rotations relevant to the keyframe provided
-	 * @param initialSnapshot The {@link BoneSnapshot} that serves as the unmodified rotations of the bone
 	 * @param nextBendAxis The bend axis {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 * @param nextBend The bend {@code AnimationPoint} that is next in the queue, to serve as the end value of the new point
 	 */
-	public void addNextBend(Keyframe keyFrame, double lerpedTick, double transitionLength, BoneSnapshot startSnapshot, BoneSnapshot initialSnapshot, AnimationPoint nextBendAxis, AnimationPoint nextBend) {
-		addBendAxisPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getBendAxis() - initialSnapshot.getBendAxis(), nextBendAxis.animationStartValue());
-		addBendPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getBend() - initialSnapshot.getBend(), nextBend.animationStartValue());
+	public void addNextBend(Keyframe keyFrame, float lerpedTick, float transitionLength, BoneSnapshot startSnapshot, AnimationPoint nextBendAxis, AnimationPoint nextBend) {
+		if (nextBendAxis != null)
+			addBendAxisPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getBendAxis(), nextBendAxis.animationStartValue());
+		if (nextBend != null)
+			addBendPoint(keyFrame, lerpedTick, transitionLength, startSnapshot.getBend(), nextBend.animationStartValue());
 	}
 
 	/**

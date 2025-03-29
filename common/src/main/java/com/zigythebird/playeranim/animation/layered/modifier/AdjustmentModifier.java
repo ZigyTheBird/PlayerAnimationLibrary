@@ -24,8 +24,9 @@
 
 package com.zigythebird.playeranim.animation.layered.modifier;
 
+import com.zigythebird.playeranim.animation.AnimationController;
 import com.zigythebird.playeranim.animation.AnimationData;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
 
@@ -175,7 +176,30 @@ public class AdjustmentModifier extends AbstractModifier {
             fadeOut = Math.min(fadeOut, 1F);
             return fadeOut;
         }
+        if (getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
+            float stopTick = (float) controller.getCurrentAnimation().animation().length();
+            float endTick = controller.getCurrentAnimation().animation().data().has("endTick") ? (float) controller.getCurrentAnimation().animation().data().get("endTick") : stopTick;
+            float position = (float) ((-1F) * (controller.getAnimationTicks() - stopTick));
+            float length = stopTick - endTick;
+            if (length > 0) {
+                fadeOut = position / length;
+                fadeOut = Math.min(fadeOut, 1F);
+            }
+        }
         return fadeOut;
+    }
+
+    protected float getFadeIn(float delta) {
+        float fadeIn = 1;
+        if (getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
+            float beginTick;
+            if (controller.getCurrentAnimation().animation().data().has("beginTick"))
+                beginTick = (float) controller.getCurrentAnimation().animation().data().get("beginTick");
+            else beginTick = 0;
+            fadeIn = beginTick > 0 ? (float) (controller.getAnimationTicks() / beginTick) : 1F;
+            fadeIn = Math.min(fadeIn, 1F);
+        }
+        return fadeIn;
     }
 
     @Override
@@ -187,7 +211,7 @@ public class AdjustmentModifier extends AbstractModifier {
 
         Optional<PartModifier> partModifier = source.apply(bone.getName());
 
-        float fade = getFadeOut(tickDelta);
+        float fade = getFadeIn(tickDelta) * getFadeOut(tickDelta);
         if (partModifier.isPresent()) {
             super.get3DTransform(bone);
             transformBone(bone, partModifier.get(), fade);

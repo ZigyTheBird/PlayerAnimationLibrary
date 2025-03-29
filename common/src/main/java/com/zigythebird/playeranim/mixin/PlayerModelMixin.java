@@ -29,6 +29,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.accessors.IPlayerModel;
+import com.zigythebird.playeranim.accessors.IUpperPartHelper;
 import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
@@ -56,58 +57,36 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
         super(modelPart, function);
     }
 
-    @Unique
-    private void playerAnimLib$setDefaultPivot(){
-        this.leftLeg.setPos(1.9F, 12.0F, 0.0F);
-        this.rightLeg.setPos(- 1.9F, 12.0F, 0.0F);
-        this.head.setPos(0.0F, 0.0F, 0.0F);
-        this.rightArm.z = 0.0F;
-        this.rightArm.x = - 5.0F;
-        this.leftArm.z = 0.0F;
-        this.leftArm.x = 5.0F;
-        this.body.xRot = 0.0F;
-        this.rightLeg.z = 0.1F;
-        this.leftLeg.z = 0.1F;
-        this.rightLeg.y = 12.0F;
-        this.leftLeg.y = 12.0F;
-        this.head.y = 0.0F;
-        this.head.zRot = 0f;
-        this.body.y = 0.0F;
-        this.body.x = 0f;
-        this.body.z = 0f;
-        this.body.yRot = 0;
-        this.body.zRot = 0;
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void initBend(ModelPart modelPart, boolean bl, CallbackInfo ci){
+        ((IUpperPartHelper)rightArm).playerAnimLib$setUpperPart(true);
+        ((IUpperPartHelper)leftArm).playerAnimLib$setUpperPart(true);
+        ((IUpperPartHelper)head).playerAnimLib$setUpperPart(true);
+        ((IUpperPartHelper)hat).playerAnimLib$setUpperPart(true);
+    }
 
-        this.head.xScale = ModelPart.DEFAULT_SCALE;
-        this.head.yScale = ModelPart.DEFAULT_SCALE;
-        this.head.zScale = ModelPart.DEFAULT_SCALE;
-        this.body.xScale = ModelPart.DEFAULT_SCALE;
-        this.body.yScale = ModelPart.DEFAULT_SCALE;
-        this.body.zScale = ModelPart.DEFAULT_SCALE;
-        this.rightArm.xScale = ModelPart.DEFAULT_SCALE;
-        this.rightArm.yScale = ModelPart.DEFAULT_SCALE;
-        this.rightArm.zScale = ModelPart.DEFAULT_SCALE;
-        this.leftArm.xScale = ModelPart.DEFAULT_SCALE;
-        this.leftArm.yScale = ModelPart.DEFAULT_SCALE;
-        this.leftArm.zScale = ModelPart.DEFAULT_SCALE;
-        this.rightLeg.xScale = ModelPart.DEFAULT_SCALE;
-        this.rightLeg.yScale = ModelPart.DEFAULT_SCALE;
-        this.rightLeg.zScale = ModelPart.DEFAULT_SCALE;
-        this.leftLeg.xScale = ModelPart.DEFAULT_SCALE;
-        this.leftLeg.yScale = ModelPart.DEFAULT_SCALE;
-        this.leftLeg.zScale = ModelPart.DEFAULT_SCALE;
+    @Unique
+    private void playerAnimLib$setToInitialPose(){
+        this.head.resetPose();
+        this.body.resetPose();
+        this.rightArm.resetPose();
+        this.leftArm.resetPose();
+        this.rightLeg.resetPose();
+        this.leftLeg.resetPose();
     }
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "HEAD"))
     private void setDefaultBeforeRender(PlayerRenderState playerRenderState, CallbackInfo ci){
-        playerAnimLib$setDefaultPivot(); //to not make everything wrong
+        playerAnimLib$setToInitialPose(); //to not make everything wrong
     }
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "RETURN"))
     private void setupPlayerAnimation(PlayerRenderState playerRenderState, CallbackInfo ci) {
-        if(!playerAnimLib$firstPersonNext && playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
+        if (!playerAnimLib$firstPersonNext && playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
             AnimationProcessor processor = state.playerAnimLib$getAnimProcessor();
+            processor.handleAnimations(emote.getTickDelta(), false);
+            ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
             processor.getBone("head").copyVanillaPart(this.head);
             processor.getBone("torso").copyVanillaPart(this.body);
@@ -115,9 +94,6 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
             processor.getBone("left_arm").copyVanillaPart(this.leftArm);
             processor.getBone("right_leg").copyVanillaPart(this.rightLeg);
             processor.getBone("left_leg").copyVanillaPart(this.leftLeg);
-            
-            processor.handleAnimations(emote.getTickDelta(), false);
-            ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
             emote.updatePart("head", this.head, processor);
             emote.updatePart("right_arm", this.rightArm, processor);

@@ -11,7 +11,8 @@ import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.enums.State;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
@@ -23,11 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-public record Animation(String name, double length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames, Map<String, PlayerAnimBone> bones, Map<String, String> parents) {
+public record Animation(ExtraAnimationData data, float length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames, Map<String, PlayerAnimBone> bones, Map<String, String> parents) {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 
-    static Animation generateWaitAnimation(double length) {
-        return new Animation(RawAnimation.Stage.WAIT.getPath(), length, LoopType.PLAY_ONCE, new BoneAnimation[0],
+    static Animation generateWaitAnimation(float length) {
+        return new Animation(new ExtraAnimationData(ExtraAnimationData.NAME_KEY, RawAnimation.Stage.WAIT.getPath()), length, LoopType.PLAY_ONCE, new BoneAnimation[0],
                 new Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]), new HashMap<>(), new HashMap<>());
     }
 
@@ -58,6 +59,32 @@ public record Animation(String name, double length, LoopType loopType, BoneAnima
          * @return Whether the animation should play again, or stop
          */
         boolean shouldPlayAgain(Player player, AnimationController controller, Animation currentAnimation);
+
+        /**
+         * Override in a custom instance to dynamically decide where an animation should start after looping.
+         *
+         * @param player The player relevant to this method call
+         * @param controller The {@link AnimationController} playing the current animation
+         * @param currentAnimation The current animation that just played
+         * @return The tick the animation starts from after looping.
+         */
+        default float restartFromTick(Player player, AnimationController controller, Animation currentAnimation) {
+            return 0;
+        }
+
+        static LoopType returnToTickLoop(float tick) {
+            return new LoopType() {
+                @Override
+                public boolean shouldPlayAgain(Player player, AnimationController controller, Animation currentAnimation) {
+                    return true;
+                }
+
+                @Override
+                public float restartFromTick(Player player, AnimationController controller, Animation currentAnimation) {
+                    return tick;
+                }
+            };
+        }
 
         /**
          * Retrieve a LoopType instance based on a {@link JsonElement}

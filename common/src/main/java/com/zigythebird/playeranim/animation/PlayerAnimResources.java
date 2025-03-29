@@ -1,16 +1,15 @@
-package com.zigythebird.playeranim.cache;
+package com.zigythebird.playeranim.animation;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
 import com.zigythebird.playeranim.ModInit;
-import com.zigythebird.playeranim.animation.Animation;
-import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.loading.BakedAnimationsLoader;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.loading.AnimationLoader;
+import com.zigythebird.playeranim.loading.PlayerAnimatorLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -22,12 +21,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Cache class for holding loaded {@link Animation Animations}
  */
-public final class PlayerAnimCache {
+public final class PlayerAnimResources {
 	public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[]{}, new ParticleKeyframeData[]{}, new CustomInstructionKeyframeData[]{});
 	private static final Map<ResourceLocation, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
 
@@ -111,8 +112,7 @@ public final class PlayerAnimCache {
 					JsonObject object = entry.getValue().getAsJsonObject();
 					JsonArray pivot = object.get("pivot").getAsJsonArray();
 					PlayerAnimBone bone = new PlayerAnimBone(object.has("parent") ? bones.get(object.get("parent").getAsString()) : null,
-							entry.getKey(), new Vec3(pivot.get(0).getAsDouble(), pivot.get(1).getAsDouble(), pivot.get(2).getAsDouble()));
-					bone.saveInitialSnapshot();
+							entry.getKey(), new Vec3(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat()));
 					bones.put(entry.getKey(), bone);
 				}
 
@@ -133,60 +133,18 @@ public final class PlayerAnimCache {
 					entryJson.add("bones", modifiedBones);
 					modifiedJson.add(id.getNamespace() + ":" + entry.getKey(), entryJson);
 				}
-				Map<String, Animation> anim = BakedAnimationsLoader.deserialize(modifiedJson, bones, parents);
+				Map<String, Animation> anim = AnimationLoader.deserialize(modifiedJson, bones, parents);
 				for (Map.Entry<String, Animation> entry : anim.entrySet()) {
 					ANIMATIONS.put(ResourceLocation.parse(entry.getKey()), entry.getValue());
 				}
-			}
-			else {
-				Animation animation = loadLegacyPlayerAnim(json);
-				ANIMATIONS.put(id, animation);
+			} else {
+				Animation animation = PlayerAnimatorLoader.GSON.fromJson(json, Animation.class);
+				ANIMATIONS.put(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), animation.data().name()), animation);
 			}
 		}
 		catch (Exception e) {
 			ModInit.LOGGER.error("Player Animation Library failed to load animation {}:", id, e);
 		}
-	}
-
-	public static Animation loadLegacyPlayerAnim(JsonElement json) {
-		JsonObject obj = json.getAsJsonObject();
-		JsonObject emoteObj = obj.get("emote").getAsJsonObject();
-		List<BoneAnimation> boneAnims = new ArrayList<>();
-		for (JsonElement jsonElement : emoteObj.get("moves").getAsJsonArray()) {
-			if (jsonElement.isJsonObject()) {
-				JsonObject move = jsonElement.getAsJsonObject();
-				int currentTick = move.get("tick").getAsInt();
-				for (Map.Entry<String, JsonElement> entry : move.asMap().entrySet()) {
-					if (entry.getKey().equals("tick")) continue;
-					List<Pair<Integer, Vec3>> transforms = new ArrayList<>();
-					List<Pair<Integer, Vec3>> rotations = new ArrayList<>();
-					List<Pair<Integer, Vec3>> scales = new ArrayList<>();
-					List<Pair<Integer, Vec3>> bends = new ArrayList<>();
-					JsonObject jsonObject = entry.getValue().getAsJsonObject();
-					float x = jsonObject.has("x") ? jsonObject.get("x").getAsFloat() : 0;
-					float y = jsonObject.has("y") ? jsonObject.get("y").getAsFloat() : 0;
-					float z = jsonObject.has("z") ? jsonObject.get("z").getAsFloat() : 0;
-					float pitch = jsonObject.has("pitch") ? jsonObject.get("pitch").getAsFloat() : 0;
-					float yaw = jsonObject.has("yaw") ? jsonObject.get("yaw").getAsFloat() : 0;
-					float roll = jsonObject.has("roll") ? jsonObject.get("roll").getAsFloat() : 0;
-					float scaleX = jsonObject.has("scaleX") ? jsonObject.get("scaleX").getAsFloat() : 1;
-					float scaleY = jsonObject.has("scaleY") ? jsonObject.get("scaleY").getAsFloat() : 1;
-					float scaleZ = jsonObject.has("scaleZ") ? jsonObject.get("scaleZ").getAsFloat() : 1;
-					float bendAxis = jsonObject.has("axis") ? jsonObject.get("axis").getAsFloat() : 0;
-					float bend = jsonObject.has("bend") ? jsonObject.get("bend").getAsFloat() : 0;
-					transforms.add(new Pair<>(currentTick, new Vec3(x, y, z)));
-					rotations.add(new Pair<>(currentTick, new Vec3(pitch, yaw, roll)));
-					scales.add(new Pair<>(currentTick, new Vec3(scaleX, scaleY, scaleZ)));
-					bends.add(new Pair<>(currentTick, new Vec3(bendAxis, bend, 0)));
-
-					boneAnims.add(new BoneAnimation(getCorrectPlayerBoneName(entry.getKey()), BakedAnimationsLoader.buildKeyframeStackFromLegacyAnim(rotations), BakedAnimationsLoader.buildKeyframeStackFromLegacyAnim(rotations), BakedAnimationsLoader.buildKeyframeStackFromLegacyAnim(scales), BakedAnimationsLoader.buildKeyframeStackFromLegacyAnim(bends)));
-				}
-			}
-		}
-		BoneAnimation[] boneAnimations = boneAnims.toArray(new BoneAnimation[]{});
-		String name = obj.get("name").getAsString();
-		return new Animation(name, BakedAnimationsLoader.calculateAnimationLength(boneAnimations),
-				emoteObj.get("isLoop").getAsBoolean() ? Animation.LoopType.LOOP : Animation.LoopType.PLAY_ONCE, boneAnimations, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
 	}
 
 	public static String getCorrectPlayerBoneName(String name) {

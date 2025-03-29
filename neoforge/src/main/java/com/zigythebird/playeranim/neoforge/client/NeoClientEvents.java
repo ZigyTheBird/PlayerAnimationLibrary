@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.neoforge.client;
 
 import com.zigythebird.playeranim.ModInit;
-import com.zigythebird.playeranim.cache.PlayerAnimCache;
+import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,7 +14,7 @@ public class NeoClientEvents {
     public static class modEventBus {
         @SubscribeEvent
         public static void resourceLoadingListener(@NotNull AddClientReloadListenersEvent event) {
-            event.addListener(ModInit.id("animation") ,(ResourceManagerReloadListener) PlayerAnimCache::resourceLoaderCallback);
+            event.addListener(ModInit.id("animation") ,(ResourceManagerReloadListener) PlayerAnimResources::resourceLoaderCallback);
         }
     }
 }

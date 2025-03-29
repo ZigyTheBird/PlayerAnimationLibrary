@@ -11,7 +11,7 @@ import net.minecraft.util.GsonHelper;
 
 import java.util.Map;
 
-public class KeyFramesLoader {
+public class KeyFrameLoader {
 	public static Animation.Keyframes deserialize(JsonElement json) throws JsonParseException {
 		JsonObject obj = json.getAsJsonObject();
 		SoundKeyframeData[] sounds = buildSoundFrameData(obj);
@@ -27,7 +27,7 @@ public class KeyFramesLoader {
 		int index = 0;
 
 		for (Map.Entry<String, JsonElement> entry : soundsObj.entrySet()) {
-			sounds[index] = new SoundKeyframeData(Double.parseDouble(entry.getKey()) * 20d, GsonHelper.getAsString(entry.getValue().getAsJsonObject(), "effect"));
+			sounds[index] = new SoundKeyframeData(Float.parseFloat(entry.getKey()) * 20f, GsonHelper.getAsString(entry.getValue().getAsJsonObject(), "effect"));
 			index++;
 		}
 
@@ -45,7 +45,7 @@ public class KeyFramesLoader {
 			String locator = GsonHelper.getAsString(obj, "locator", "");
 			String script = GsonHelper.getAsString(obj, "pre_effect_script", "");
 
-			particles[index] = new ParticleKeyframeData(Double.parseDouble(entry.getKey()) * 20d, effect, locator, script);
+			particles[index] = new ParticleKeyframeData(Float.parseFloat(entry.getKey()) * 20f, effect, locator, script);
 			index++;
 		}
 
@@ -67,7 +67,7 @@ public class KeyFramesLoader {
 				instructions = primitive.getAsString();
 			}
 
-			customInstructions[index] = new CustomInstructionKeyframeData(Double.parseDouble(entry.getKey()) * 20d, instructions);
+			customInstructions[index] = new CustomInstructionKeyframeData(Float.parseFloat(entry.getKey()) * 20f, instructions);
 			index++;
 		}
 

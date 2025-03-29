@@ -2,17 +2,19 @@ package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
-import com.zigythebird.playeranim.cache.PlayerAnimCache;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.math.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * DO NOT TOUCH THIS UNLESS YOU REALLY KNOW WHAT YOU'RE DOING.
@@ -22,8 +24,8 @@ public class AnimationProcessor {
 	private final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected Map<String, BoneSnapshot> boneSnapshots;
 
-	protected double animTime;
-	private double lastGameTickTime;
+	protected float animTime;
+	private float lastGameTickTime;
 	private long lastRenderedInstance = -1;
 	private final AbstractClientPlayer player;
 
@@ -55,16 +57,16 @@ public class AnimationProcessor {
 	 */
 	public void handleAnimations(float partialTick, boolean fullTick) {
 		Vec3 velocity = player.getDeltaMovement();
-		AnimationData animationData = new AnimationData(player, partialTick, (Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
+		AnimationData animationData = new AnimationData(player, partialTick, (float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f));
 
 		Minecraft mc = Minecraft.getInstance();
 		PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
-		double currentTick = player.tickCount;
+		int currentTick = player.tickCount;
 
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + partialTick);
 
-		double currentFrameTime = currentTick + partialTick;
+		float currentFrameTime = currentTick + partialTick;
 		boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
 
 		if (isReRender && player.getId() == this.lastRenderedInstance)
@@ -73,7 +75,7 @@ public class AnimationProcessor {
 		if (!mc.isPaused()) {
 			animatableManager.updatedAt(currentFrameTime);
 
-			double lastUpdateTime = animatableManager.getLastUpdateTime();
+			float lastUpdateTime = animatableManager.getLastUpdateTime();
 			this.animTime += lastUpdateTime - this.lastGameTickTime;
 			this.lastGameTickTime = lastUpdateTime;
 		}
@@ -84,7 +86,7 @@ public class AnimationProcessor {
 		if (fullTick) player.playerAnimLib$getAnimManager().tick(animationData.copy());
 
 		if (!this.getRegisteredBones().isEmpty())
-			this.tickAnimation(animatableManager, this.animTime, animationData);
+			this.tickAnimation(animatableManager, animationData);
 	}
 
 	/**
@@ -105,10 +107,10 @@ public class AnimationProcessor {
 			}
 			else {
 				try {
-					animation = PlayerAnimCache.getAnimation(stage.animationID());
+					animation = PlayerAnimResources.getAnimation(stage.animationID());
 				}
 				catch (RuntimeException ex) {
-					ModInit.LOGGER.error("Unable to find animation: " + stage.animationID() + " for " + player.getClass().getSimpleName(), ex);
+                    ModInit.LOGGER.error("Unable to find animation: {} for {}", stage.animationID(), player.getClass().getSimpleName(), ex);
 
 					error = true;
 				}
@@ -125,10 +127,9 @@ public class AnimationProcessor {
 	 * Tick and apply transformations to the model based on the current state of the {@link AnimationController}
 	 *
 	 * @param playerAnimManager		The PlayerAnimManager instance being used for this animation processor
-	 * @param animTime              The internal tick counter kept by the {@link PlayerAnimManager} for this player
 	 * @param state                 An {@link AnimationData} instance applied to this render frame
 	 */
-	public void tickAnimation(PlayerAnimManager playerAnimManager, double animTime, AnimationData state) {
+	public void tickAnimation(PlayerAnimManager playerAnimManager, AnimationData state) {
 		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
 
 		for (PlayerAnimBone entry : this.bones.values()) {
@@ -139,94 +140,9 @@ public class AnimationProcessor {
 			IAnimation animation = pair.getRight();
 
 			animation.setupAnim(state.copy());
-
-			for (PlayerAnimBone entry : this.bones.values()) {
-				animation.get3DTransform(entry);
-			}
 		}
 
-		//Todo: Maybe allow mod developers to set this somewhere.
-		//Also maybe this should be 0 instead of 1 by default.
-		double resetTickLength = 1;
-
-		for (PlayerAnimBone bone : getRegisteredBones()) {
-			if (!bone.hasRotationChanged()) {
-				BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
-				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
-
-				if (saveSnapshot.isRotAnimInProgress())
-					saveSnapshot.stopRotAnim(animTime);
-
-				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetRotationTick()) / resetTickLength, 1);
-
-				bone.setRotX((float)Mth.lerp(percentageReset, saveSnapshot.getRotX(), initialSnapshot.getRotX()));
-				bone.setRotY((float)Mth.lerp(percentageReset, saveSnapshot.getRotY(), initialSnapshot.getRotY()));
-				bone.setRotZ((float)Mth.lerp(percentageReset, saveSnapshot.getRotZ(), initialSnapshot.getRotZ()));
-
-				if (percentageReset >= 1)
-					saveSnapshot.updateRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
-			}
-
-			if (!bone.hasPositionChanged()) {
-				BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
-				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
-
-				if (saveSnapshot.isPosAnimInProgress())
-					saveSnapshot.stopPosAnim(animTime);
-
-				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetPositionTick()) / resetTickLength, 1);
-
-				bone.setPosX((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetX(), initialSnapshot.getOffsetX()));
-				bone.setPosY((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetY(), initialSnapshot.getOffsetY()));
-				bone.setPosZ((float)Mth.lerp(percentageReset, saveSnapshot.getOffsetZ(), initialSnapshot.getOffsetZ()));
-
-				if (percentageReset >= 1)
-					saveSnapshot.updateOffset(bone.getPosX(), bone.getPosY(), bone.getPosZ());
-			}
-
-			if (!bone.hasScaleChanged()) {
-				BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
-				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
-
-				if (saveSnapshot.isScaleAnimInProgress())
-					saveSnapshot.stopScaleAnim(animTime);
-
-				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetScaleTick()) / resetTickLength, 1);
-
-				bone.setScaleX((float)Mth.lerp(percentageReset, saveSnapshot.getScaleX(), initialSnapshot.getScaleX()));
-				bone.setScaleY((float)Mth.lerp(percentageReset, saveSnapshot.getScaleY(), initialSnapshot.getScaleY()));
-				bone.setScaleZ((float)Mth.lerp(percentageReset, saveSnapshot.getScaleZ(), initialSnapshot.getScaleZ()));
-
-				if (percentageReset >= 1)
-					saveSnapshot.updateScale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
-			}
-
-			if (!bone.hasBendChanged()) {
-				BoneSnapshot initialSnapshot = bone.getInitialSnapshot();
-				BoneSnapshot saveSnapshot = boneSnapshots.get(bone.getName());
-
-				if (saveSnapshot.isBendAnimInProgress())
-					saveSnapshot.stopBendAnim(animTime);
-
-				double percentageReset = Math.min((animTime - saveSnapshot.getLastResetBendTick()) / resetTickLength, 1);
-
-				bone.setBendAxis((float)Mth.lerp(percentageReset, saveSnapshot.getBendAxis(), initialSnapshot.getBendAxis()));
-				bone.setBend((float)Mth.lerp(percentageReset, saveSnapshot.getBend(), initialSnapshot.getBend()));
-
-				if (percentageReset >= 1)
-					saveSnapshot.updateBend(bone.getBendAxis(), bone.getBend());
-			}
-		}
-
-		resetBoneTransformationMarkers();
 		playerAnimManager.finishFirstTick();
-	}
-
-	/**
-	 * Reset the transformation markers applied to each {@link PlayerAnimBone} ready for the next render frame
-	 */
-	private void resetBoneTransformationMarkers() {
-		getRegisteredBones().forEach(PlayerAnimBone::resetStateChanges);
 	}
 
 	/**
@@ -239,7 +155,7 @@ public class AnimationProcessor {
 	private Map<String, BoneSnapshot> updateBoneSnapshots(Map<String, BoneSnapshot> snapshots) {
 		for (PlayerAnimBone bone : getRegisteredBones()) {
 			if (!snapshots.containsKey(bone.getName()))
-				snapshots.put(bone.getName(), new BoneSnapshot(bone.getInitialSnapshot()));
+				snapshots.put(bone.getName(), new BoneSnapshot(bone, true));
 		}
 
 		return snapshots;
@@ -267,7 +183,6 @@ public class AnimationProcessor {
 	 * Failure to properly register a bone will break things.
 	 */
 	private void registerPlayerAnimBone(PlayerAnimBone bone) {
-		bone.saveInitialSnapshot();
 		this.bones.put(bone.getName(), bone);
 	}
 

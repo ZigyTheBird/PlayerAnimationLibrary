@@ -1,6 +1,7 @@
-package com.zigythebird.playeranim.animation;
+package com.zigythebird.playeranim.bones;
 
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.animation.AnimationProcessor;
+import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.math.Pair;
 import com.zigythebird.playeranim.math.Vec3f;
 
@@ -26,10 +27,10 @@ public class BoneSnapshot {
 	private float bendAxis;
 	private float bend;
 
-	private double lastResetRotationTick = 0;
-	private double lastResetPositionTick = 0;
-	private double lastResetScaleTick = 0;
-	private double lastResetBendTick = 0;
+	private float lastResetRotationTick = 0;
+	private float lastResetPositionTick = 0;
+	private float lastResetScaleTick = 0;
+	private float lastResetBendTick = 0;
 
 	protected boolean rotAnimInProgress = true;
 	protected boolean posAnimInProgress = true;
@@ -79,6 +80,27 @@ public class BoneSnapshot {
 		this.bend = bone.getBend();
 	}
 
+	public BoneSnapshot(PlayerAnimBone bone, boolean isInitial) {
+		this.bone = bone;
+		if (!isInitial) {
+			this.rotX = bone.getRotX();
+			this.rotY = bone.getRotY();
+			this.rotZ = bone.getRotZ();
+
+			this.offsetPosX = bone.getPosX();
+			this.offsetPosY = bone.getPosY();
+			this.offsetPosZ = bone.getPosZ();
+
+			this.scaleX = bone.getScaleX();
+			this.scaleY = bone.getScaleY();
+			this.scaleZ = bone.getScaleZ();
+
+			this.bendAxis = bone.getBendAxis();
+			this.bend = bone.getBend();
+		}
+		else setToInitialPose();
+	}
+
 	public PlayerAnimBone getBone() {return this.bone;}
 
 	public float getScaleX() {
@@ -125,19 +147,19 @@ public class BoneSnapshot {
 		return this.bend;
 	}
 
-	public double getLastResetRotationTick() {
+	public float getLastResetRotationTick() {
 		return this.lastResetRotationTick;
 	}
 
-	public double getLastResetPositionTick() {
+	public float getLastResetPositionTick() {
 		return this.lastResetPositionTick;
 	}
 
-	public double getLastResetScaleTick() {
+	public float getLastResetScaleTick() {
 		return this.lastResetScaleTick;
 	}
 
-	public double getLastResetBendTick() {
+	public float getLastResetBendTick() {
 		return this.lastResetBendTick;
 	}
 
@@ -197,7 +219,7 @@ public class BoneSnapshot {
 		this.posAnimInProgress = true;
 	}
 
-	public void stopPosAnim(double tick) {
+	public void stopPosAnim(float tick) {
 		this.posAnimInProgress = false;
 		this.lastResetPositionTick = tick;
 	}
@@ -206,7 +228,7 @@ public class BoneSnapshot {
 		this.rotAnimInProgress = true;
 	}
 
-	public void stopRotAnim(double tick) {
+	public void stopRotAnim(float tick) {
 		this.rotAnimInProgress = false;
 		this.lastResetRotationTick = tick;
 	}
@@ -215,7 +237,7 @@ public class BoneSnapshot {
 		this.scaleAnimInProgress = true;
 	}
 
-	public void stopScaleAnim(double tick) {
+	public void stopScaleAnim(float tick) {
 		this.scaleAnimInProgress = false;
 		this.lastResetScaleTick = tick;
 	}
@@ -224,7 +246,7 @@ public class BoneSnapshot {
 		this.bendAnimInProgress = true;
 	}
 
-	public void stopBendAnim(double tick) {
+	public void stopBendAnim(float tick) {
 		this.bendAnimInProgress = false;
 		this.lastResetBendTick = tick;
 	}

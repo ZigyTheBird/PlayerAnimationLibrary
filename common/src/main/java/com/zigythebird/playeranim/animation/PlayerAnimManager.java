@@ -3,7 +3,8 @@ package com.zigythebird.playeranim.animation;
 import com.zigythebird.playeranim.accessors.IModelPart;
 import com.zigythebird.playeranim.animation.layered.AnimationStack;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.dataticket.DataTicket;
 import com.zigythebird.playeranim.math.Pair;
 import com.zigythebird.playeranim.util.RenderUtil;
@@ -26,9 +27,9 @@ public class PlayerAnimManager extends AnimationStack {
 	private Map<DataTicket<?>, Object> extraData;
 	private final AbstractClientPlayer player;
 
-	private double lastUpdateTime;
+	private float lastUpdateTime;
 	private boolean isFirstTick = true;
-	private double firstTickTime = -1;
+	private float firstTickTime = -1;
 	private float tickDelta;
 
 	public PlayerAnimManager(AbstractClientPlayer player) {
@@ -47,19 +48,19 @@ public class PlayerAnimManager extends AnimationStack {
 		getBoneSnapshotCollection().clear();
 	}
 
-	public double getLastUpdateTime() {
+	public float getLastUpdateTime() {
 		return this.lastUpdateTime;
 	}
 
-	public void updatedAt(double updateTime) {
+	public void updatedAt(float updateTime) {
 		this.lastUpdateTime = updateTime;
 	}
 
-	public double getFirstTickTime() {
+	public float getFirstTickTime() {
 		return this.firstTickTime;
 	}
 
-	public void startedAt(double time) {
+	public void startedAt(float time) {
 		this.firstTickTime = time;
 	}
 
@@ -110,7 +111,7 @@ public class PlayerAnimManager extends AnimationStack {
 	public void updatePart(String partName, ModelPart part, AnimationProcessor processor) {
 		PlayerAnimBone bone = processor.getBone(partName);
 		PartPose initialPose = part.getInitialPose();
-
+		this.get3DTransform(bone);
 		RenderUtil.translatePartToBone(part, bone, initialPose);
 
 		if (bone.getParent() != null && bone.getParent() != bone)

@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.animation;
+package com.zigythebird.playeranim.enums;
 
 import lombok.Getter;
 

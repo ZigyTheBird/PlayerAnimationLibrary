@@ -16,16 +16,16 @@ import java.util.Objects;
  * @see SoundKeyframeData
  */
 public abstract class KeyFrameData {
-	private final double startTick;
+	private final float startTick;
 
-	public KeyFrameData(double startTick) {
+	public KeyFrameData(float startTick) {
 		this.startTick = startTick;
 	}
 
 	/**
 	 * Gets the start tick of the keyframe instruction
 	 */
-	public double getStartTick() {
+	public float getStartTick() {
 		return this.startTick;
 	}
 

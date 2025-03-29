@@ -6,7 +6,7 @@ import com.zigythebird.playeranim.animation.layered.modifier.AbstractFadeModifie
 import com.zigythebird.playeranim.animation.layered.modifier.AbstractModifier;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

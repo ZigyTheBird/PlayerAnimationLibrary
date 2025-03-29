@@ -18,20 +18,20 @@ public final class JsonUtil {
     private JsonUtil() {}
 
     /**
-     * Convert a {@link JsonArray} of doubles to a {@code double[]}
+     * Convert a {@link JsonArray} of floats to a {@code float[]}
      * <p>
-     * No type checking is done, so if the array contains anything other than doubles, this will throw an exception
+     * No type checking is done, so if the array contains anything other than floats, this will throw an exception
      * <p>
      * Ensures a minimum size of 3, as this is the expected usage of this method
      */
-    public static double[] jsonArrayToDoubleArray(@Nullable JsonArray array) throws JsonParseException{
+    public static float[] jsonArrayToFloatArray(@Nullable JsonArray array) throws JsonParseException{
         if (array == null)
-            return new double[3];
+            return new float[3];
 
-        double[] output = new double[array.size()];
+        float[] output = new float[array.size()];
 
         for (int i = 0; i < array.size(); i++) {
-            output[i] = array.get(i).getAsDouble();
+            output[i] = array.get(i).getAsFloat();
         }
 
         return output;

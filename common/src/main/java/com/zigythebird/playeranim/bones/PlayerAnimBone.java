@@ -1,47 +1,45 @@
-package com.zigythebird.playeranim.cache;
+package com.zigythebird.playeranim.bones;
 
-import com.zigythebird.playeranim.animation.BoneSnapshot;
+import com.zigythebird.playeranim.animation.Animation;
+import com.zigythebird.playeranim.animation.EasingType;
+import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
+import com.zigythebird.playeranim.animation.keyframe.Keyframe;
+import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
+import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.math.Pair;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3d;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Mutable bone object representing a set of cubes, as well as child bones
- * <p>
  * This is the object that is directly modified by animations to handle movement
  */
-@SuppressWarnings("LombokSetterMayBeUsed")
 public class PlayerAnimBone {
 	private final Vec3 pivot;
 	private final String name;
 
 	public PlayerAnimBone parent;
 
-	private BoneSnapshot initialSnapshot;
+	protected float scaleX = 1;
+	protected float scaleY = 1;
+	protected float scaleZ = 1;
 
-	private float scaleX = 1;
-	private float scaleY = 1;
-	private float scaleZ = 1;
+	protected float positionX;
+	protected float positionY;
+	protected float positionZ;
 
-	private float positionX;
-	private float positionY;
-	private float positionZ;
+	protected float rotX;
+	protected float rotY;
+	protected float rotZ;
 
-	private float rotX;
-	private float rotY;
-	private float rotZ;
-
-	private float bendAxis;
-	private float bend;
-
-	private boolean positionChanged = false;
-	private boolean rotationChanged = false;
-	private boolean scaleChanged = false;
-	private boolean bendChanged = false;
+	protected float bendAxis;
+	protected float bend;
 
 	public PlayerAnimBone(String name) {
 		this(name, null);
@@ -113,20 +111,14 @@ public class PlayerAnimBone {
 
 	public void setRotX(float value) {
 		this.rotX = value;
-
-		markRotationAsChanged();
 	}
 
 	public void setRotY(float value) {
 		this.rotY = value;
-
-		markRotationAsChanged();
 	}
 
 	public void setRotZ(float value) {
 		this.rotZ = value;
-
-		markRotationAsChanged();
 	}
 
 	public void updateRotation(float xRot, float yRot, float zRot) {
@@ -137,20 +129,14 @@ public class PlayerAnimBone {
 
 	public void setPosX(float value) {
 		this.positionX = value;
-
-		markPositionAsChanged();
 	}
 
 	public void setPosY(float value) {
 		this.positionY = value;
-
-		markPositionAsChanged();
 	}
 
 	public void setPosZ(float value) {
 		this.positionZ = value;
-
-		markPositionAsChanged();
 	}
 
 	public void updatePosition(float posX, float posY, float posZ) {
@@ -161,20 +147,14 @@ public class PlayerAnimBone {
 
 	public void setScaleX(float value) {
 		this.scaleX = value;
-
-		markScaleAsChanged();
 	}
 
 	public void setScaleY(float value) {
 		this.scaleY = value;
-
-		markScaleAsChanged();
 	}
 
 	public void setScaleZ(float value) {
 		this.scaleZ = value;
-
-		markScaleAsChanged();
 	}
 
 	public void updateScale(float scaleX, float scaleY, float scaleZ) {
@@ -186,13 +166,10 @@ public class PlayerAnimBone {
 	public void setBendAxis(float value) {
 		this.bendAxis = value;
 
-		this.markBendAsChanged();
 	}
 
 	public void setBend(float value) {
 		this.bend = value;
-
-		this.markBendAsChanged();
 	}
 
 	public void updateBend(float bendAxis, float bend) {
@@ -205,54 +182,6 @@ public class PlayerAnimBone {
 		setBend(bend.getRight());
 	}
 
-	public void markScaleAsChanged() {
-		this.scaleChanged = true;
-	}
-
-	public void markBendAsChanged() {
-		this.bendChanged = true;
-	}
-
-	public void markRotationAsChanged() {
-		this.rotationChanged = true;
-	}
-
-	public void markPositionAsChanged() {
-		this.positionChanged = true;
-	}
-
-	public boolean hasScaleChanged() {
-		return this.scaleChanged;
-	}
-
-	public boolean hasBendChanged() {
-		return this.bendChanged;
-	}
-
-	public boolean hasRotationChanged() {
-		return this.rotationChanged;
-	}
-
-	public boolean hasPositionChanged() {
-		return this.positionChanged;
-	}
-
-	public void resetStateChanges() {
-		this.scaleChanged = false;
-		this.rotationChanged = false;
-		this.positionChanged = false;
-		this.bendChanged = false;
-	}
-
-	public BoneSnapshot getInitialSnapshot() {
-		return this.initialSnapshot;
-	}
-
-	public void saveInitialSnapshot() {
-		if (this.initialSnapshot == null)
-			this.initialSnapshot = saveSnapshot();
-	}
-	
 	public void setToInitialPose() {
 		this.positionX = 0;
 		this.positionY = 0;
@@ -283,11 +212,11 @@ public class PlayerAnimBone {
 	}
 
 	public void addRotationOffsetFromBone(PlayerAnimBone source) {
-		setRotX(getRotX() + source.getRotX() - source.getInitialSnapshot().getRotX());
-		setRotY(getRotY() + source.getRotY() - source.getInitialSnapshot().getRotY());
-		setRotZ(getRotZ() + source.getRotZ() - source.getInitialSnapshot().getRotZ());
+		setRotX(getRotX() + source.getRotX());
+		setRotY(getRotY() + source.getRotY());
+		setRotZ(getRotZ() + source.getRotZ());
 	}
-	
+
 	public PlayerAnimBone scale(float value) {
 		this.positionX *= value;
 		this.positionY *= value;
@@ -327,20 +256,82 @@ public class PlayerAnimBone {
 	}
 
 	public void copyOtherBone(PlayerAnimBone bone) {
-		this.positionX = bone.positionX;
-		this.positionY = bone.positionY;
-		this.positionZ = bone.positionZ;
+		if (!Float.isNaN(bone.positionX))
+			this.positionX = bone.positionX;
+		if (!Float.isNaN(bone.positionY))
+			this.positionY = bone.positionY;
+		if (!Float.isNaN(bone.positionZ))
+			this.positionZ = bone.positionZ;
 
-		this.rotX = bone.rotX;
-		this.rotY = bone.rotY;
-		this.rotZ = bone.rotZ;
+		if (!Float.isNaN(bone.rotX))
+			this.rotX = bone.rotX;
+		if (!Float.isNaN(bone.rotY))
+			this.rotY = bone.rotY;
+		if (!Float.isNaN(bone.rotZ))
+			this.rotZ = bone.rotZ;
 
-		this.scaleX = bone.scaleX;
-		this.scaleY = bone.scaleY;
-		this.scaleZ = bone.scaleZ;
+		if (!Float.isNaN(bone.scaleX))
+			this.scaleX = bone.scaleX;
+		if (!Float.isNaN(bone.scaleY))
+			this.scaleY = bone.scaleY;
+		if (!Float.isNaN(bone.scaleZ))
+			this.scaleZ = bone.scaleZ;
 
-		this.bendAxis = bone.bendAxis;
-		this.bend = bone.bend;
+		if (!Float.isNaN(bone.bendAxis))
+			this.bendAxis = bone.bendAxis;
+		if (!Float.isNaN(bone.bend))
+			this.bend = bone.bend;
+	}
+
+	@ApiStatus.Internal
+	public void beginOrEndTickLerp(AdvancedPlayerAnimBone bone, float animTime, Animation animation) {
+		this.positionX = beginOrEndTickLerp(positionX, bone.positionX, bone.positionXTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.X);
+		this.positionY = beginOrEndTickLerp(positionY, bone.positionY, bone.positionYTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.Y);
+		this.positionZ = beginOrEndTickLerp(positionZ, bone.positionZ, bone.positionZTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.Z);
+
+		this.rotX = beginOrEndTickLerp(rotX, bone.rotX, bone.rotXTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.X);
+		this.rotY = beginOrEndTickLerp(rotY, bone.rotY, bone.rotYTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.Y);
+		this.rotZ = beginOrEndTickLerp(rotZ, bone.rotZ, bone.rotZTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.Z);
+
+		this.scaleX = beginOrEndTickLerp(scaleX, bone.scaleX, bone.scaleXTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.X);
+		this.scaleY = beginOrEndTickLerp(scaleY, bone.scaleY, bone.scaleYTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.Y);
+		this.scaleZ = beginOrEndTickLerp(scaleZ, bone.scaleZ, bone.scaleZTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.Z);
+
+		this.bendAxis = beginOrEndTickLerp(bendAxis, bone.bendAxis, bone.bendAxisTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.X);
+		this.bend = beginOrEndTickLerp(bend, bone.bend, bone.bendTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.Y);
+	}
+	
+	private float beginOrEndTickLerp(float startValue, float endValue, Float transitionLength, float animTime, Animation animation, TransformType type, Direction.Axis axis) {
+		if (!Float.isNaN(endValue)) {
+			if (animation != null) {
+				float temp = startValue;
+				startValue = endValue;
+				endValue = temp;
+			}
+			if (transitionLength != null) {
+				EasingType easingType = EasingType.EASE_IN_OUT_SINE;
+				try {
+					if (!(boolean) animation.data().get("isEasingBefore")) {
+						BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
+						KeyframeStack<Keyframe> keyframeStack;
+						switch (type) {
+							case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
+							case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
+							case SCALE -> keyframeStack = boneAnimation.scaleKeyFrames();
+							default -> keyframeStack = boneAnimation.positionKeyFrames();
+						}
+						switch (axis) {
+							case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
+							case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
+							default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
+						}
+					}
+				} catch (Exception ignore) {}
+				return (float) easingType.apply(startValue, endValue, animTime / transitionLength);
+			}
+			return endValue;
+		}
+		return startValue;
 	}
 
 	public void copySnapshot(BoneSnapshot snapshot) {
@@ -361,9 +352,11 @@ public class PlayerAnimBone {
 	}
 
 	public void copyVanillaPart(ModelPart part) {
-		this.positionX = part.x;
-		this.positionY = part.y;
-		this.positionZ = part.z;
+		PartPose initialPose = part.getInitialPose();
+
+		this.positionX = part.x - initialPose.x();
+		this.positionY = part.y - initialPose.y();
+		this.positionZ = part.z - initialPose.z();
 
 		this.rotX = part.zRot;
 		this.rotY = part.yRot;

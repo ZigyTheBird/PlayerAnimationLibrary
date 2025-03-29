@@ -5,18 +5,18 @@ import com.mojang.datafixers.util.Pair;
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;
-import com.zigythebird.playeranim.animation.TransformType;
+import com.zigythebird.playeranim.animation.ExtraAnimationData;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
-import com.zigythebird.playeranim.molang.MolangLoader;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.misc.CompoundException;
+import com.zigythebird.playeranim.molang.MolangLoader;
 import com.zigythebird.playeranim.util.JsonUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.math.NumberUtils;
 import team.unnamed.mocha.parser.ast.DoubleExpression;
 import team.unnamed.mocha.parser.ast.Expression;
@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class BakedAnimationsLoader {
+public class AnimationLoader {
 	public static Map<String, Animation> deserialize(JsonElement json, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws RuntimeException {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
@@ -41,54 +41,25 @@ public class BakedAnimationsLoader {
 		return animations;
 	}
 
-	public static KeyframeStack<Keyframe> buildKeyframeStackFromLegacyAnim(List<Pair<Integer, Vec3>> entries) throws CompoundException {
-		if (entries.isEmpty())
-			return new KeyframeStack<>();
-
-		List<Keyframe> xFrames = new ObjectArrayList<>();
-		List<Keyframe> yFrames = new ObjectArrayList<>();
-		List<Keyframe> zFrames = new ObjectArrayList<>();
-
-		Expression xPrev = null;
-		Expression yPrev = null;
-		Expression zPrev = null;
-		Pair<Integer, Vec3> prevEntry = null;
-
-		for (Pair<Integer, Vec3> entry : entries) {
-			Integer key = entry.getFirst();
-			Vec3 keyFrameVector = entry.getSecond();
-
-			float prevTime = prevEntry != null ? prevEntry.getFirst() : 0;
-			float curTime = key;
-			float timeDelta = curTime - prevTime;
-
-			Expression xValue = new DoubleExpression(keyFrameVector.x);
-			Expression yValue = new DoubleExpression(keyFrameVector.y);
-			Expression zValue = new DoubleExpression(keyFrameVector.z);
-
-			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, EasingType.LINEAR));
-			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, EasingType.LINEAR));
-			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, EasingType.LINEAR));
-
-			xPrev = xValue;
-			yPrev = yValue;
-			zPrev = zValue;
-			prevEntry = entry;
-		}
-
-		return new KeyframeStack<>(xFrames, yFrames, zFrames);
-	}
-
 	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws CompoundException {
-		double length = animationObj.has("animation_length") ? GsonHelper.getAsDouble(animationObj, "animation_length") * 20d : -1;
+		float length = animationObj.has("animation_length") ? GsonHelper.getAsFloat(animationObj, "animation_length") * 20f : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
 		BoneAnimation[] boneAnimations = bakeBoneAnimations(GsonHelper.getAsJsonObject(animationObj, "bones", new JsonObject()));
-		Animation.Keyframes keyframes = KeyFramesLoader.deserialize(animationObj);
+		Animation.Keyframes keyframes = KeyFrameLoader.deserialize(animationObj);
 
 		if (length == -1)
 			length = calculateAnimationLength(boneAnimations);
 
-		return new Animation(name, length, loopType, boneAnimations, keyframes, bones, parents);
+		ExtraAnimationData extraData = new ExtraAnimationData();
+		if (animationObj.has(ModInit.MOD_ID)) {
+			extraData.fromJson(animationObj.getAsJsonObject(ModInit.MOD_ID));
+		}
+
+		if (extraData.data().isEmpty()) { // Fallback to name
+			extraData.data().put(ExtraAnimationData.NAME_KEY, name);
+		}
+
+		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);
 	}
 
 	private static BoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
@@ -198,7 +169,7 @@ public class BakedAnimationsLoader {
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
 			List<List<Expression>> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
-					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(new DoubleExpression(ele.getAsDouble()))) :
+					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(new DoubleExpression(ele.getAsFloat()))) :
 					new ObjectArrayList<>();
 
 			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
@@ -214,8 +185,8 @@ public class BakedAnimationsLoader {
 		return new KeyframeStack<>(xFrames, yFrames, zFrames);
 	}
 
-	public static double calculateAnimationLength(BoneAnimation[] boneAnimations) {
-		double length = 0;
+	public static float calculateAnimationLength(BoneAnimation[] boneAnimations) {
+		float length = 0;
 
 		for (BoneAnimation animation : boneAnimations) {
 			length = Math.max(length, animation.rotationKeyFrames().getLastKeyframeTime());
@@ -223,6 +194,6 @@ public class BakedAnimationsLoader {
 			length = Math.max(length, animation.scaleKeyFrames().getLastKeyframeTime());
 		}
 
-		return length == 0 ? Double.MAX_VALUE : length;
+		return length == 0 ? Float.MAX_VALUE : length;
 	}
 }

@@ -87,7 +87,7 @@ public final class MolangQueries {
         MolangLoader.setDoubleQuery(binding, FRAME_ALPHA, actor -> actor.getAnimationData().getPartialTick());
         MolangLoader.setBoolQuery(binding, HAS_CAPE, actor -> actor.getPlayer().getSkin().capeTexture() != null);
         MolangLoader.setBoolQuery(binding, IS_FIRST_PERSON, actor -> Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON);
-        MolangLoader.setDoubleQuery(binding, LIFE_TIME, actor -> actor.getAnimTime() / 20d);
+        MolangLoader.setDoubleQuery(binding, LIFE_TIME, actor -> actor.isActive() ? actor.getAnimationTime() : 0);
         MolangLoader.setDoubleQuery(binding, MOON_BRIGHTNESS, actor -> actor.getPlayer().level().getMoonBrightness());
         MolangLoader.setDoubleQuery(binding, MOON_PHASE, actor -> actor.getPlayer().level().getMoonPhase());
         MolangLoader.setDoubleQuery(binding, PLAYER_LEVEL, actor -> actor.getPlayer().experienceLevel);

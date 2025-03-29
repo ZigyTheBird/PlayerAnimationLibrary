@@ -11,12 +11,12 @@ import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructio
 import net.minecraft.client.player.AbstractClientPlayer;
 
 /**
- * The {@link KeyFrameEvent} specific to the {@link AnimationController#customKeyframeHandler}
+ * The {@link KeyFrameEvent} specific to the {@link AnimationController#setCustomInstructionKeyframeHandler(AnimationController.CustomKeyframeHandler)}
  * <p>
  * Called when a custom instruction keyframe is encountered
  */
 public class CustomInstructionKeyframeEvent extends KeyFrameEvent<CustomInstructionKeyframeData> {
-	public CustomInstructionKeyframeEvent(AbstractClientPlayer player, double animationTick, AnimationController controller,
+	public CustomInstructionKeyframeEvent(AbstractClientPlayer player, float animationTick, AnimationController controller,
 										  CustomInstructionKeyframeData customInstructionKeyframeData, AnimationData animationData) {
 		super(player, animationTick, controller, customInstructionKeyframeData, animationData);
 	}

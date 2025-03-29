@@ -10,7 +10,7 @@ import java.util.Objects;
 public class CustomInstructionKeyframeData extends KeyFrameData {
 	private final String instructions;
 
-	public CustomInstructionKeyframeData(double startTick, String instructions) {
+	public CustomInstructionKeyframeData(float startTick, String instructions) {
 		super(startTick);
 
 		this.instructions = instructions;

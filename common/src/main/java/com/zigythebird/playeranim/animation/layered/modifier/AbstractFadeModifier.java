@@ -27,7 +27,7 @@ package com.zigythebird.playeranim.animation.layered.modifier;
 import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.cache.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
  * length in ticks
  */
 public abstract class AbstractFadeModifier extends AbstractModifier {
-
     protected int time = 0;
     protected int length;
     protected float tickDelta;
@@ -114,7 +113,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
         return new AbstractFadeModifier(length) {
             @Override
             protected float getAlpha(PlayerAnimBone bone, float progress) {
-                return ease.buildTransformer(null).apply((double) progress).floatValue();
+                return ease.buildTransformer(null).apply(progress);
             }
         };
     }

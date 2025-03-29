@@ -2,8 +2,8 @@ package com.zigythebird.playeranim.fabric.client;
 
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.ModInitClient;
+import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
-import com.zigythebird.playeranim.cache.PlayerAnimCache;
 import com.zigythebird.playeranim.event.MolangEvent;
 import com.zigythebird.playeranim.fabric.event.PlayerAnimationRegisterEvent;
 import com.zigythebird.playeranim.network.BasicPlayerAnimPacket;
@@ -28,7 +28,7 @@ public final class ModInitFabricClient implements ClientModInitializer {
 
             @Override
             public void onResourceManagerReload(@NotNull ResourceManager manager) {
-                PlayerAnimCache.resourceLoaderCallback(manager);
+                PlayerAnimResources.resourceLoaderCallback(manager);
             }
         });
 

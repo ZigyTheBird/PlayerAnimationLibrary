@@ -10,7 +10,7 @@ import java.util.Objects;
 public class SoundKeyframeData extends KeyFrameData {
 	private final String sound;
 
-	public SoundKeyframeData(Double startTick, String sound) {
+	public SoundKeyframeData(Float startTick, String sound) {
 		super(startTick);
 
 		this.sound = sound;
