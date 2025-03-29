@@ -9,9 +9,10 @@ import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranim.enums.TransformType;
+import com.zigythebird.playeranim.util.MthUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import team.unnamed.mocha.parser.ast.DoubleExpression;
 import team.unnamed.mocha.parser.ast.Expression;
 
@@ -111,10 +112,10 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             JsonObject obj = n.getAsJsonObject();
             float tick = obj.get("tick").getAsFloat();
             EasingType easing = easingTypeFromString(obj.has("easing") ? obj.get("easing").getAsString() : "linear");
-            Double easingArg = null;
+            Float easingArg = null;
             try {
                 if (obj.has("easingArg")) {
-                    easingArg = obj.get("easingArg").getAsDouble();
+                    easingArg = obj.get("easingArg").getAsFloat();
                 }
             }
             catch (NullPointerException ignore) {}
@@ -137,30 +138,30 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return bones.values().toArray(BoneAnimation[]::new);
     }
 
-    private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, Double easingArg, int turn) {
+    private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, Float easingArg, int turn) {
         JsonObject partNode = node.getAsJsonObject();
         fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, easingArg, turn);
         fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, easingArg, turn);
         fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, easingArg, turn);
-        fillKeyframeStack(bone.bendKeyFrames(), Vec3.ZERO, TransformType.BEND, "bend", "axis", null, partNode, degrees, tick, easing, easingArg, turn);
+        fillKeyframeStack(bone.bendKeyFrames(), MthUtil.ZERO, TransformType.BEND, "bend", "axis", null, partNode, degrees, tick, easing, easingArg, turn);
     }
 
-    private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vec3 def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, Double easingArg, int turn) {
+    private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vector3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, Float easingArg, int turn) {
         addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, easingArg, turn);
         addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, easingArg, turn);
         if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, easingArg, turn);
     }
 
-    private void addPartIfExists(double lastTick, List<Keyframe> part, double def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, Double easingArg, int rotate) {
+    private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, Float easingArg, int rotate) {
         Keyframe lastFrame = part.isEmpty() ? null : part.getLast();
-        double prevTime = lastFrame != null ? lastTick : 0;
+        float prevTime = lastFrame != null ? lastTick : 0;
         List<List<Expression>> easingArgs = Collections.singletonList(easingArg == null ? new ObjectArrayList<>(0) : Collections.singletonList(new DoubleExpression(easingArg)));
         if (node.has(name)) {
-            double value = convertPlayerAnimValue(def, node.get(name).getAsDouble(), transformType, degrees);
+            float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees);
             List<Expression> expressions = Collections.singletonList(new DoubleExpression(value));
             part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, easingArgs));
             if (transformType == TransformType.ROTATION && rotate != 0) {
-                part.add(new Keyframe(tick - prevTime, expressions, Collections.singletonList(new DoubleExpression(value + Math.PI * 2d * rotate)), easing, easingArgs));
+                part.add(new Keyframe(tick - prevTime, expressions, Collections.singletonList(new DoubleExpression(value + MthUtil.PI * 2f * rotate)), easing, easingArgs));
             }
         } /*else {
             List<Expression> expressions = Collections.singletonList(name.contains("scale") ? DoubleExpression.ONE : DoubleExpression.ZERO);
@@ -168,9 +169,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         }*/
     }
 
-    private static double convertPlayerAnimValue(double def, double value, TransformType transformType, boolean degrees) {
+    private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees) {
         if (transformType != TransformType.ROTATION) value -= def;
-        if (degrees && transformType != TransformType.ROTATION) value = Math.toRadians(value);
+        if (degrees && transformType == TransformType.ROTATION) value = MthUtil.toRadians(value);
         if (transformType == TransformType.POSITION) value *= 16;
 
         return value;
@@ -184,16 +185,16 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return easingType;
     }
 
-    public static final StateCollection EMPTY = new StateCollection(Vec3.ZERO, Vec3.ZERO, new Vec3(1.0F, 1.0F, 1.0F));
+    public static final StateCollection EMPTY = new StateCollection(MthUtil.ZERO, MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F));
 
     private static final Map<String, StateCollection> DEFAULT_VALUES = Map.of(
-            "rightArm", new StateCollection(new Vec3(-5, 2, 0), Vec3.ZERO, new Vec3(1.0F, 1.0F, 1.0F)),
-            "leftArm", new StateCollection(new Vec3(5, 2, 0), Vec3.ZERO, new Vec3(1.0F, 1.0F, 1.0F)),
-            "leftLeg", new StateCollection(new Vec3(1.9f, 12, 0.1f), Vec3.ZERO, new Vec3(1.0F, 1.0F, 1.0F)),
-            "rightLeg", new StateCollection(new Vec3(-1.9f, 12, 0.1f), Vec3.ZERO, new Vec3(1.0F, 1.0F, 1.0F))
+            "rightArm", new StateCollection(new Vector3f(-5, 2, 0), MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
+            "leftArm", new StateCollection(new Vector3f(5, 2, 0), MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
+            "leftLeg", new StateCollection(new Vector3f(1.9f, 12, 0.1f), MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
+            "rightLeg", new StateCollection(new Vector3f(-1.9f, 12, 0.1f), MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F))
     );
 
-    public record StateCollection(Vec3 pos, Vec3 rot, Vec3 scale) {}
+    public record StateCollection(Vector3f pos, Vector3f rot, Vector3f scale) {}
 
     public static StateCollection getDefaultValues(String bone) {
         return DEFAULT_VALUES.getOrDefault(bone, EMPTY);

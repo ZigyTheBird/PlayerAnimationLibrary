@@ -27,10 +27,10 @@ public class BoneSnapshot {
 	private float bendAxis;
 	private float bend;
 
-	private double lastResetRotationTick = 0;
-	private double lastResetPositionTick = 0;
-	private double lastResetScaleTick = 0;
-	private double lastResetBendTick = 0;
+	private float lastResetRotationTick = 0;
+	private float lastResetPositionTick = 0;
+	private float lastResetScaleTick = 0;
+	private float lastResetBendTick = 0;
 
 	protected boolean rotAnimInProgress = true;
 	protected boolean posAnimInProgress = true;
@@ -147,19 +147,19 @@ public class BoneSnapshot {
 		return this.bend;
 	}
 
-	public double getLastResetRotationTick() {
+	public float getLastResetRotationTick() {
 		return this.lastResetRotationTick;
 	}
 
-	public double getLastResetPositionTick() {
+	public float getLastResetPositionTick() {
 		return this.lastResetPositionTick;
 	}
 
-	public double getLastResetScaleTick() {
+	public float getLastResetScaleTick() {
 		return this.lastResetScaleTick;
 	}
 
-	public double getLastResetBendTick() {
+	public float getLastResetBendTick() {
 		return this.lastResetBendTick;
 	}
 
@@ -219,7 +219,7 @@ public class BoneSnapshot {
 		this.posAnimInProgress = true;
 	}
 
-	public void stopPosAnim(double tick) {
+	public void stopPosAnim(float tick) {
 		this.posAnimInProgress = false;
 		this.lastResetPositionTick = tick;
 	}
@@ -228,7 +228,7 @@ public class BoneSnapshot {
 		this.rotAnimInProgress = true;
 	}
 
-	public void stopRotAnim(double tick) {
+	public void stopRotAnim(float tick) {
 		this.rotAnimInProgress = false;
 		this.lastResetRotationTick = tick;
 	}
@@ -237,7 +237,7 @@ public class BoneSnapshot {
 		this.scaleAnimInProgress = true;
 	}
 
-	public void stopScaleAnim(double tick) {
+	public void stopScaleAnim(float tick) {
 		this.scaleAnimInProgress = false;
 		this.lastResetScaleTick = tick;
 	}
@@ -246,7 +246,7 @@ public class BoneSnapshot {
 		this.bendAnimInProgress = true;
 	}
 
-	public void stopBendAnim(double tick) {
+	public void stopBendAnim(float tick) {
 		this.bendAnimInProgress = false;
 		this.lastResetBendTick = tick;
 	}

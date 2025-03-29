@@ -24,10 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-public record Animation(ExtraAnimationData data, double length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames, Map<String, PlayerAnimBone> bones, Map<String, String> parents) {
+public record Animation(ExtraAnimationData data, float length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames, Map<String, PlayerAnimBone> bones, Map<String, String> parents) {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 
-    static Animation generateWaitAnimation(double length) {
+    static Animation generateWaitAnimation(float length) {
         return new Animation(new ExtraAnimationData(ExtraAnimationData.NAME_KEY, RawAnimation.Stage.WAIT.getPath()), length, LoopType.PLAY_ONCE, new BoneAnimation[0],
                 new Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]), new HashMap<>(), new HashMap<>());
     }
@@ -68,11 +68,11 @@ public record Animation(ExtraAnimationData data, double length, LoopType loopTyp
          * @param currentAnimation The current animation that just played
          * @return The tick the animation starts from after looping.
          */
-        default double restartFromTick(Player player, AnimationController controller, Animation currentAnimation) {
+        default float restartFromTick(Player player, AnimationController controller, Animation currentAnimation) {
             return 0;
         }
 
-        static LoopType returnToTickLoop(double tick) {
+        static LoopType returnToTickLoop(float tick) {
             return new LoopType() {
                 @Override
                 public boolean shouldPlayAgain(Player player, AnimationController controller, Animation currentAnimation) {
@@ -80,7 +80,7 @@ public record Animation(ExtraAnimationData data, double length, LoopType loopTyp
                 }
 
                 @Override
-                public double restartFromTick(Player player, AnimationController controller, Animation currentAnimation) {
+                public float restartFromTick(Player player, AnimationController controller, Animation currentAnimation) {
                     return tick;
                 }
             };

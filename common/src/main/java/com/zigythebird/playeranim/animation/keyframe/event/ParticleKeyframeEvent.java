@@ -6,12 +6,12 @@ import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframe
 import net.minecraft.client.player.AbstractClientPlayer;
 
 /**
- * The {@link KeyFrameEvent} specific to the {@link AnimationController#particleKeyframeHandler}
+ * The {@link KeyFrameEvent} specific to the {@link AnimationController#setParticleKeyframeHandler(AnimationController.ParticleKeyframeHandler)}
  * <p>
  * Called when a particle instruction keyframe is encountered
  */
 public class ParticleKeyframeEvent extends KeyFrameEvent<ParticleKeyframeData> {
-	public ParticleKeyframeEvent(AbstractClientPlayer player, double animationTick, AnimationController controller,
+	public ParticleKeyframeEvent(AbstractClientPlayer player, float animationTick, AnimationController controller,
 								 ParticleKeyframeData particleKeyFrameData, AnimationData animationData) {
 		super(player, animationTick, controller, particleKeyFrameData, animationData);
 	}

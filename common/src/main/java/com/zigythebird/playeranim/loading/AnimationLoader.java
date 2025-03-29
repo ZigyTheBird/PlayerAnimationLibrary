@@ -42,7 +42,7 @@ public class AnimationLoader {
 	}
 
 	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws CompoundException {
-		double length = animationObj.has("animation_length") ? GsonHelper.getAsDouble(animationObj, "animation_length") * 20d : -1;
+		float length = animationObj.has("animation_length") ? GsonHelper.getAsFloat(animationObj, "animation_length") * 20f : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
 		BoneAnimation[] boneAnimations = bakeBoneAnimations(GsonHelper.getAsJsonObject(animationObj, "bones", new JsonObject()));
 		Animation.Keyframes keyframes = KeyFrameLoader.deserialize(animationObj);
@@ -169,7 +169,7 @@ public class AnimationLoader {
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
 			List<List<Expression>> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
-					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(new DoubleExpression(ele.getAsDouble()))) :
+					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(new DoubleExpression(ele.getAsFloat()))) :
 					new ObjectArrayList<>();
 
 			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
@@ -185,8 +185,8 @@ public class AnimationLoader {
 		return new KeyframeStack<>(xFrames, yFrames, zFrames);
 	}
 
-	public static double calculateAnimationLength(BoneAnimation[] boneAnimations) {
-		double length = 0;
+	public static float calculateAnimationLength(BoneAnimation[] boneAnimations) {
+		float length = 0;
 
 		for (BoneAnimation animation : boneAnimations) {
 			length = Math.max(length, animation.rotationKeyFrames().getLastKeyframeTime());
@@ -194,6 +194,6 @@ public class AnimationLoader {
 			length = Math.max(length, animation.scaleKeyFrames().getLastKeyframeTime());
 		}
 
-		return length == 0 ? Double.MAX_VALUE : length;
+		return length == 0 ? Float.MAX_VALUE : length;
 	}
 }

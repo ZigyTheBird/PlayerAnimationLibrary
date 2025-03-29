@@ -24,8 +24,8 @@ public class AnimationProcessor {
 	private final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected Map<String, BoneSnapshot> boneSnapshots;
 
-	protected double animTime;
-	private double lastGameTickTime;
+	protected float animTime;
+	private float lastGameTickTime;
 	private long lastRenderedInstance = -1;
 	private final AbstractClientPlayer player;
 
@@ -57,16 +57,16 @@ public class AnimationProcessor {
 	 */
 	public void handleAnimations(float partialTick, boolean fullTick) {
 		Vec3 velocity = player.getDeltaMovement();
-		AnimationData animationData = new AnimationData(player, partialTick, (Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
+		AnimationData animationData = new AnimationData(player, partialTick, (float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f));
 
 		Minecraft mc = Minecraft.getInstance();
 		PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
-		double currentTick = player.tickCount;
+		int currentTick = player.tickCount;
 
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + partialTick);
 
-		double currentFrameTime = currentTick + partialTick;
+		float currentFrameTime = currentTick + partialTick;
 		boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
 
 		if (isReRender && player.getId() == this.lastRenderedInstance)
@@ -75,7 +75,7 @@ public class AnimationProcessor {
 		if (!mc.isPaused()) {
 			animatableManager.updatedAt(currentFrameTime);
 
-			double lastUpdateTime = animatableManager.getLastUpdateTime();
+			float lastUpdateTime = animatableManager.getLastUpdateTime();
 			this.animTime += lastUpdateTime - this.lastGameTickTime;
 			this.lastGameTickTime = lastUpdateTime;
 		}
@@ -110,7 +110,7 @@ public class AnimationProcessor {
 					animation = PlayerAnimResources.getAnimation(stage.animationID());
 				}
 				catch (RuntimeException ex) {
-					ModInit.LOGGER.error("Unable to find animation: " + stage.animationID() + " for " + player.getClass().getSimpleName(), ex);
+                    ModInit.LOGGER.error("Unable to find animation: {} for {}", stage.animationID(), player.getClass().getSimpleName(), ex);
 
 					error = true;
 				}

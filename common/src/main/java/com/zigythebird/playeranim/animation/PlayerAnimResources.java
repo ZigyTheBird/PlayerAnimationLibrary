@@ -112,7 +112,7 @@ public final class PlayerAnimResources {
 					JsonObject object = entry.getValue().getAsJsonObject();
 					JsonArray pivot = object.get("pivot").getAsJsonArray();
 					PlayerAnimBone bone = new PlayerAnimBone(object.has("parent") ? bones.get(object.get("parent").getAsString()) : null,
-							entry.getKey(), new Vec3(pivot.get(0).getAsDouble(), pivot.get(1).getAsDouble(), pivot.get(2).getAsDouble()));
+							entry.getKey(), new Vec3(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat()));
 					bones.put(entry.getKey(), bone);
 				}
 

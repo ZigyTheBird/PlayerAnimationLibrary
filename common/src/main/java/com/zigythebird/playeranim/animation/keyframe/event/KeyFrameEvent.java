@@ -22,12 +22,12 @@ import net.minecraft.client.player.AbstractClientPlayer;
  */
 public abstract class KeyFrameEvent<E extends KeyFrameData> {
 	private final AbstractClientPlayer animatable;
-	private final double animationTick;
+	private final float animationTick;
 	private final AnimationController controller;
 	private final E eventKeyFrame;
 	private final AnimationData animationData;
 
-	public KeyFrameEvent(AbstractClientPlayer animatable, double animationTick, AnimationController controller, E eventKeyFrame, AnimationData animationData) {
+	public KeyFrameEvent(AbstractClientPlayer animatable, float animationTick, AnimationController controller, E eventKeyFrame, AnimationData animationData) {
 		this.animatable = animatable;
 		this.animationTick = animationTick;
 		this.controller = controller;
@@ -39,7 +39,7 @@ public abstract class KeyFrameEvent<E extends KeyFrameData> {
 	 * Gets the amount of ticks that have passed in either the current transition or
 	 * animation, depending on the controller's AnimationData.
 	 */
-	public double getAnimationTick() {
+	public float getAnimationTick() {
 		return animationTick;
 	}
 

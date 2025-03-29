@@ -113,7 +113,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
         return new AbstractFadeModifier(length) {
             @Override
             protected float getAlpha(PlayerAnimBone bone, float progress) {
-                return ease.buildTransformer(null).apply((double) progress).floatValue();
+                return ease.buildTransformer(null).apply(progress);
             }
         };
     }

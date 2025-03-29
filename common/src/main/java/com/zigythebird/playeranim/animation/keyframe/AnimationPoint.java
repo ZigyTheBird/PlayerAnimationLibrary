@@ -21,8 +21,8 @@ import java.util.List;
  * @param animationStartValue The start value to provide to the animation handling system
  * @param animationEndValue The end value to provide to the animation handling system
  */
-public record AnimationPoint(EasingType easingType, @Nullable List<List<Expression>> easingArgs, double currentTick, double transitionLength, double animationStartValue, double animationEndValue) {
-	public AnimationPoint(Keyframe keyframe, double currentTick, double transitionLength, double animationStartValue, double animationEndValue) {
+public record AnimationPoint(EasingType easingType, @Nullable List<List<Expression>> easingArgs, float currentTick, float transitionLength, float animationStartValue, float animationEndValue) {
+	public AnimationPoint(Keyframe keyframe, float currentTick, float transitionLength, float animationStartValue, float animationEndValue) {
 		this(keyframe == null ? EasingType.LINEAR : keyframe.easingType(), keyframe == null ? null : keyframe.easingArgs(), currentTick, transitionLength, animationStartValue, animationEndValue);
 	}
 

@@ -5,16 +5,16 @@ import net.minecraft.client.player.AbstractClientPlayer;
 public class AnimationData {
 	private final AbstractClientPlayer player;
 	private float partialTick;
-	private double velocity;
-	private double animationTick;
+	private float velocity;
+	private float animationTick;
 
-	public AnimationData(AbstractClientPlayer player, float partialTick, double velocity) {
+	public AnimationData(AbstractClientPlayer player, float partialTick, float velocity) {
 		this.player = player;
 		this.partialTick = partialTick;
 		this.velocity = velocity;
 	}
 
-	public AnimationData(AbstractClientPlayer player, float partialTick, double velocity, double animationTick) {
+	public AnimationData(AbstractClientPlayer player, float partialTick, float velocity, float animationTick) {
 		this.player = player;
 		this.partialTick = partialTick;
 		this.velocity = velocity;
@@ -39,7 +39,7 @@ public class AnimationData {
 	 * Gets the number of ticks that have passed in either the current transition or
 	 * animation, depending on the controller's AnimationData.
 	 */
-	public double getAnimationTick() {
+	public float getAnimationTick() {
 		return this.animationTick;
 	}
 
@@ -53,7 +53,7 @@ public class AnimationData {
 	/**
 	 * The player's velocity.
 	 */
-	public double getVelocity() {
+	public float getVelocity() {
 		return this.velocity;
 	}
 
@@ -71,7 +71,7 @@ public class AnimationData {
 		return this.velocity > 1.0E-6F;
 	}
 
-	public void setAnimationTick(double animationTick) {
+	public void setAnimationTick(float animationTick) {
 		this.animationTick = animationTick;
 	}
 
@@ -79,7 +79,7 @@ public class AnimationData {
 		this.partialTick = partialTick;
 	}
 
-	public void setVelocity(double velocity) {
+	public void setVelocity(float velocity) {
 		this.velocity = velocity;
 	}
 
