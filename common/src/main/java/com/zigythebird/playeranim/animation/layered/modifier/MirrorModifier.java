@@ -25,7 +25,7 @@
 package com.zigythebird.playeranim.animation.layered.modifier;
 
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
-import com.zigythebird.playeranim.cache.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;

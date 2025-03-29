@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.cache.bones;
+package com.zigythebird.playeranim.bones;
 
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;
@@ -18,11 +18,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Mutable bone object representing a set of cubes, as well as child bones
- * <p>
  * This is the object that is directly modified by animations to handle movement
  */
-@SuppressWarnings("LombokSetterMayBeUsed")
 public class PlayerAnimBone {
 	private final Vec3 pivot;
 	private final String name;

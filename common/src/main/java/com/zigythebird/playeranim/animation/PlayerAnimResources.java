@@ -1,14 +1,13 @@
-package com.zigythebird.playeranim.cache;
+package com.zigythebird.playeranim.animation;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.zigythebird.playeranim.ModInit;
-import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.cache.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.loading.AnimationLoader;
 import com.zigythebird.playeranim.loading.PlayerAnimatorLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -27,7 +26,7 @@ import java.util.*;
 /**
  * Cache class for holding loaded {@link Animation Animations}
  */
-public final class PlayerAnimCache {
+public final class PlayerAnimResources {
 	public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[]{}, new ParticleKeyframeData[]{}, new CustomInstructionKeyframeData[]{});
 	private static final Map<ResourceLocation, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
 

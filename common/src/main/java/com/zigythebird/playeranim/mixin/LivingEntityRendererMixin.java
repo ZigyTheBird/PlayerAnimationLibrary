@@ -28,7 +28,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranim.cache.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;

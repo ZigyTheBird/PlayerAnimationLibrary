@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.cache.bones;
+package com.zigythebird.playeranim.bones;
 
 import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.TransformType;

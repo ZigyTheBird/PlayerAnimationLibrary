@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.loading;
 
-import static com.zigythebird.playeranim.cache.PlayerAnimCache.NO_KEYFRAMES;
+import static com.zigythebird.playeranim.animation.PlayerAnimResources.NO_KEYFRAMES;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,7 +15,7 @@ import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranim.cache.PlayerAnimCache;
+import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -133,7 +133,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 if(version < 3 && boneKey.equals("torso")) boneKey = "body";// rename part
 
                 StateCollection collection = getDefaultValues(boneKey);
-                BoneAnimation bone = bones.computeIfAbsent(PlayerAnimCache.getCorrectPlayerBoneName(boneKey),boneName ->
+                BoneAnimation bone = bones.computeIfAbsent(PlayerAnimResources.getCorrectPlayerBoneName(boneKey), boneName ->
                         new BoneAnimation(boneName, new KeyframeStack<>(), new KeyframeStack<>(), new KeyframeStack<>(), new KeyframeStack<>())
                 );
                 addBodyPartIfExists(bone, collection, entry.getValue(), degrees, tick, easing, easingArg, turn);

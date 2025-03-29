@@ -25,8 +25,8 @@
 package com.zigythebird.playeranim.animation.layered;
 
 import com.zigythebird.playeranim.animation.AnimationData;
-import com.zigythebird.playeranim.cache.bones.BoneSnapshot;
-import com.zigythebird.playeranim.cache.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.BoneSnapshot;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -109,6 +109,7 @@ public abstract class PlayerAnimationFrame implements IAnimation {
             this.rotAnimInProgress = false;
             this.scaleAnimInProgress = false;
             this.bendAnimInProgress = false;
+            super.setToInitialPose();
         }
         
         public void updateScale(float scaleX, float scaleY, float scaleZ) {
