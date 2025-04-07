@@ -651,8 +651,8 @@ public class AnimationController implements IAnimation {
 		return this.currentAnimation != null && this.currentAnimation.animation().data().has("endTick");
 	}
 
-	public boolean hasIsEasingBefore() {
-		return this.currentAnimation != null && this.currentAnimation.animation().data().has("isEasingBefore");
+	public boolean hasEaseBefore() {
+		return this.currentAnimation != null && this.currentAnimation.animation().data().has("easeBeforeKeyframe");
 	}
 
 	public boolean isAnimationPlayerAnimatorFormat() {
@@ -683,7 +683,7 @@ public class AnimationController implements IAnimation {
 		EasingType easingType = currentFrame.easingType();
 		List<List<Expression>> easingArgs = currentFrame.easingArgs();
 
-		if (hasIsEasingBefore() && !(boolean)this.currentAnimation.animation().data().get("isEasingBefore")) {
+		if (hasEaseBefore() && !(boolean)this.currentAnimation.animation().data().get("easeBeforeKeyframe")) {
 			int index = frames.indexOf(currentFrame) - 1;
 			if (index >= 0) {
 				Keyframe prevFrame = frames.get(index);

@@ -18,10 +18,7 @@ import team.unnamed.mocha.parser.ast.DoubleExpression;
 import team.unnamed.mocha.parser.ast.Expression;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.zigythebird.playeranim.animation.PlayerAnimResources.NO_KEYFRAMES;
 
@@ -62,7 +59,8 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private Animation emoteDeserializer(ExtraAnimationData extra, JsonObject node, int version) throws JsonParseException {
-        extra.put("isEasingBefore", node.has("isEasingBefore") && node.get("isEasingBefore").getAsBoolean());
+        boolean easeBeforeKeyframe = node.has("easeBeforeKeyframe") && node.get("easeBeforeKeyframe").getAsBoolean();
+        extra.put("easeBeforeKeyframe", easeBeforeKeyframe);
         float beginTick = 0;
         if (node.has("beginTick")) {
             beginTick = node.get("beginTick").getAsFloat();
@@ -90,9 +88,6 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         if (node.has("nsfw")) extra.data().put(
                 "nsfw", node.get("nsfw").getAsBoolean()
         );
-        if (node.has("easeBeforeKeyframe")) extra.data().put(
-                "easeBeforeKeyframe", node.get("easeBeforeKeyframe").getAsBoolean()
-        );
 
         float stopTick = node.has("stopTick") ? node.get("stopTick").getAsFloat() : 0;
         endTick = stopTick <= endTick ? endTick + 3 : stopTick; // https://github.com/KosmX/minecraftPlayerAnimator/blob/1.21/coreLib/src/main/java/dev/kosmx/playerAnim/core/data/KeyframeAnimation.java#L80
@@ -100,7 +95,35 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();
         BoneAnimation[] bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version);
 
+        for (BoneAnimation boneAnimation : bones) {
+            resolveConstantEasing(boneAnimation.positionKeyFrames(), easeBeforeKeyframe);
+            resolveConstantEasing(boneAnimation.rotationKeyFrames(), easeBeforeKeyframe);
+            resolveConstantEasing(boneAnimation.scaleKeyFrames(), easeBeforeKeyframe);
+            resolveConstantEasing(boneAnimation.bendKeyFrames(), easeBeforeKeyframe);
+        }
+
         return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+    }
+
+    private void resolveConstantEasing(KeyframeStack<Keyframe> keyframeStack, boolean easeBefore) {
+        resolveConstantEasing(keyframeStack.xKeyframes(), easeBefore);
+        resolveConstantEasing(keyframeStack.yKeyframes(), easeBefore);
+        resolveConstantEasing(keyframeStack.zKeyframes(), easeBefore);
+    }
+
+    private void resolveConstantEasing(List<Keyframe> list, boolean easeBefore) {
+        List<Integer> constantIndexes = new ArrayList<>();
+        for (Keyframe keyframe : list) {
+            if (keyframe.easingType() == null) constantIndexes.add(list.indexOf(keyframe));
+        }
+        for (Integer index : constantIndexes) {
+            Keyframe keyframe = list.get(index);
+            list.set(index, new Keyframe(keyframe.length(), keyframe.startValue(), keyframe.endValue(), EasingType.LINEAR, keyframe.easingArgs()));
+            int constantKeyframeIndex = easeBefore ? index : index + 1;
+            list.add(constantKeyframeIndex, new Keyframe(list.get(constantKeyframeIndex).length() - 0.001F, keyframe.endValue(), keyframe.endValue(), EasingType.LINEAR, keyframe.easingArgs()));
+            keyframe = list.get(constantKeyframeIndex + 1);
+            list.set(constantKeyframeIndex + 1, new Keyframe(0.001F, keyframe.startValue(), keyframe.endValue(), EasingType.LINEAR, keyframe.easingArgs()));
+        }
     }
 
     private BoneAnimation[] moveDeserializer(List<JsonElement> node, boolean degrees, int version) {
@@ -163,7 +186,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             List<Expression> expressions = Collections.singletonList(new DoubleExpression(value));
             part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, easingArgs));
             if (transformType == TransformType.ROTATION && rotate != 0) {
-                part.add(new Keyframe(tick - prevTime, expressions, Collections.singletonList(new DoubleExpression(value + MathHelper.PI * 2f * rotate)), easing, easingArgs));
+                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(new DoubleExpression(value + MathHelper.PI * 2f * rotate)), easing, easingArgs));
             }
         }
     }
@@ -177,6 +200,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     public static EasingType easingTypeFromString(String string) {
+        if (string.equalsIgnoreCase("CONSTANT")) return null;
         EasingType easingType = EasingType.fromString(string.toLowerCase());
         if (easingType == EasingType.LINEAR) {
             return EasingType.fromString("ease" + string.toLowerCase());
