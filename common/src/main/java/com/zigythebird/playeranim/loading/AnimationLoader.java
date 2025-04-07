@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.loading;
 
 import com.google.gson.*;
-import com.mojang.datafixers.util.Pair;
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;
@@ -14,6 +13,7 @@ import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.molang.MolangLoader;
 import com.zigythebird.playeranim.util.JsonUtil;
+import it.unimi.dsi.fastutil.floats.FloatObjectPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.GsonHelper;
@@ -68,10 +68,10 @@ public class AnimationLoader {
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
-			KeyframeStack<Keyframe> scaleFrames = buildKeyframeStack(getTripletObj(entryObj.get("scale")), TransformType.SCALE);
-			KeyframeStack<Keyframe> positionFrames = buildKeyframeStack(getTripletObj(entryObj.get("position")), TransformType.POSITION);
-			KeyframeStack<Keyframe> rotationFrames = buildKeyframeStack(getTripletObj(entryObj.get("rotation")), TransformType.ROTATION);
-			KeyframeStack<Keyframe> bendFrames = buildKeyframeStack(getTripletObj(entryObj.get("bend")), TransformType.BEND);
+			KeyframeStack<Keyframe> scaleFrames = buildKeyframeStack(getKeyframes(entryObj.get("scale")), TransformType.SCALE);
+			KeyframeStack<Keyframe> positionFrames = buildKeyframeStack(getKeyframes(entryObj.get("position")), TransformType.POSITION);
+			KeyframeStack<Keyframe> rotationFrames = buildKeyframeStack(getKeyframes(entryObj.get("rotation")), TransformType.ROTATION);
+			KeyframeStack<Keyframe> bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND);
 
 			animations[index] = new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames, bendFrames);
 			index++;
@@ -80,7 +80,7 @@ public class AnimationLoader {
 		return animations;
 	}
 
-	private static List<Pair<String, JsonElement>> getTripletObj(JsonElement element) {
+	private static List<FloatObjectPair<JsonElement>> getKeyframes(JsonElement element) {
 		if (element == null)
 			return List.of();
 
@@ -95,19 +95,27 @@ public class AnimationLoader {
 		}
 
 		if (element instanceof JsonArray array)
-			return ObjectArrayList.of(Pair.of("0", array));
+			return ObjectArrayList.of(FloatObjectPair.of(0, array));
 
 		if (element instanceof JsonObject obj) {
-			List<Pair<String, JsonElement>> list = new ObjectArrayList<>();
+			if (obj.has("vector"))
+				return ObjectArrayList.of(FloatObjectPair.of(0, obj));
+
+			List<FloatObjectPair<JsonElement>> list = new ObjectArrayList<>();
 
 			for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+				float timestamp = readTimestamp(entry.getKey());
+
+				if (timestamp == 0 && !list.isEmpty())
+					throw new JsonParseException("Invalid keyframe data - multiple starting keyframes?" + entry.getKey());
+
 				if (entry.getValue() instanceof JsonObject entryObj && !entryObj.has("vector")) {
-					list.add(getTripletObjBedrock(entry.getKey(), entryObj));
+					addBedrockKeyframes(timestamp, entryObj, list);
 
 					continue;
 				}
 
-				list.add(Pair.of(entry.getKey(), entry.getValue()));
+				list.add(FloatObjectPair.of(timestamp, entry.getValue()));
 			}
 
 			return list;
@@ -116,25 +124,40 @@ public class AnimationLoader {
 		throw new JsonParseException("Invalid object type provided to getTripletObj, got: " + element);
 	}
 
-	private static Pair<String, JsonElement> getTripletObjBedrock(String timestamp, JsonObject keyframe) {
-		JsonArray keyframeValues = null;
+	private static void addBedrockKeyframes(float timestamp, JsonObject keyframe, List<FloatObjectPair<JsonElement>> keyframes) {
+		boolean addedFrame = false;
 
 		if (keyframe.has("pre")) {
 			JsonElement pre = keyframe.get("pre");
-			keyframeValues = pre.isJsonArray() ? pre.getAsJsonArray() : GsonHelper.getAsJsonArray(pre.getAsJsonObject(), "vector");
+			addedFrame = true;
+
+			keyframes.add(FloatObjectPair.of(timestamp == 0 ? timestamp : timestamp - 0.001f, pre.isJsonArray() ? pre.getAsJsonArray() : GsonHelper.getAsJsonArray(pre.getAsJsonObject(), "vector")));
 		}
-		else if (keyframe.has("post")) {
+
+		if (keyframe.has("post")) {
 			JsonElement post = keyframe.get("post");
-			keyframeValues = post.isJsonArray() ? post.getAsJsonArray() : GsonHelper.getAsJsonArray(post.getAsJsonObject(), "vector");
+			JsonArray values = post.isJsonArray() ? post.getAsJsonArray() : GsonHelper.getAsJsonArray(post.getAsJsonObject(), "vector");
+
+			if (keyframe.has("lerp_mode")) {
+				JsonObject keyframeObj = new JsonObject();
+
+				keyframeObj.add("vector", values);
+				keyframeObj.add("easing", keyframe.get("lerp_mode"));
+
+				keyframes.add(FloatObjectPair.of(timestamp, keyframeObj));
+			}
+			else {
+				keyframes.add(FloatObjectPair.of(timestamp, values));
+			}
+
+			return;
 		}
 
-		if (keyframeValues != null)
-			return Pair.of(NumberUtils.isCreatable(timestamp) ? timestamp : "0", keyframeValues);
-
-		throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
+		if (!addedFrame)
+			throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
 	}
 
-	private static KeyframeStack<Keyframe> buildKeyframeStack(List<Pair<String, JsonElement>> entries, TransformType type) throws CompoundException {
+	private static KeyframeStack<Keyframe> buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type) throws CompoundException {
 		if (entries.isEmpty())
 			return new KeyframeStack<>();
 
@@ -145,17 +168,13 @@ public class AnimationLoader {
 		List<Expression> xPrev = null;
 		List<Expression> yPrev = null;
 		List<Expression> zPrev = null;
-		Pair<String, JsonElement> prevEntry = null;
+		FloatObjectPair<JsonElement> prevEntry = null;
 
-		for (Pair<String, JsonElement> entry : entries) {
-			String key = entry.getFirst();
-			JsonElement element = entry.getSecond();
+		for (FloatObjectPair<JsonElement> entry : entries) {
+			JsonElement element = entry.right();
 
-			if (key.equals("easing") || key.equals("easingArgs") || key.equals("lerp_mode"))
-				continue;
-
-			float prevTime = prevEntry != null ? Float.parseFloat(prevEntry.getFirst()) : 0;
-			float curTime = NumberUtils.isCreatable(key) ? Float.parseFloat(entry.getFirst()) : 0;
+			float prevTime = prevEntry != null ? prevEntry.leftFloat() : 0;
+			float curTime = entry.leftFloat();
 			float timeDelta = curTime - prevTime;
 
 			boolean isForRotation = type == TransformType.ROTATION;
@@ -182,7 +201,32 @@ public class AnimationLoader {
 			prevEntry = entry;
 		}
 
-		return new KeyframeStack<>(xFrames, yFrames, zFrames);
+		return new KeyframeStack<>(addSplineArgs(xFrames), addSplineArgs(yFrames), addSplineArgs(zFrames));
+	}
+
+	private static List<Keyframe> addSplineArgs(List<Keyframe> frames) {
+		if (frames.size() == 1) {
+			Keyframe frame = frames.getFirst();
+
+			if (frame.easingType() != EasingType.LINEAR) {
+				frames.set(0, new Keyframe(frame.length(), frame.startValue(), frame.endValue()));
+
+				return frames;
+			}
+		}
+
+		for (int i = 0; i < frames.size(); i++) {
+			Keyframe frame = frames.get(i);
+
+			if (frame.easingType() == EasingType.CATMULLROM) {
+				frames.set(i, new Keyframe(frame.length(), frame.startValue(), frame.endValue(), frame.easingType(), ObjectArrayList.of(
+						i == 0 ? frame.startValue() : frames.get(i - 1).endValue(),
+						i + 1 >= frames.size() ? frame.endValue() : frames.get(i + 1).endValue()
+				)));
+			}
+		}
+
+		return frames;
 	}
 
 	public static float calculateAnimationLength(BoneAnimation[] boneAnimations) {
@@ -195,5 +239,9 @@ public class AnimationLoader {
 		}
 
 		return length == 0 ? Float.MAX_VALUE : length;
+	}
+
+	private static float readTimestamp(String timestamp) {
+		return NumberUtils.isCreatable(timestamp) ? Float.parseFloat(timestamp) : 0;
 	}
 }
