@@ -256,6 +256,23 @@ public class PlayerAnimBone {
 	}
 
 	public void copyOtherBone(PlayerAnimBone bone) {
+		this.positionX = bone.positionX;
+		this.positionY = bone.positionY;
+		this.positionZ = bone.positionZ;
+
+		this.rotX = bone.rotX;
+		this.rotY = bone.rotY;
+		this.rotZ = bone.rotZ;
+
+		this.scaleX = bone.scaleX;
+		this.scaleY = bone.scaleY;
+		this.scaleZ = bone.scaleZ;
+
+		this.bendAxis = bone.bendAxis;
+		this.bend = bone.bend;
+	}
+
+	public void copyOtherBoneSafe(PlayerAnimBone bone) {
 		if (!Float.isNaN(bone.positionX))
 			this.positionX = bone.positionX;
 		if (!Float.isNaN(bone.positionY))
@@ -349,6 +366,34 @@ public class PlayerAnimBone {
 
 		this.bend = snapshot.getBend();
 		this.bendAxis = snapshot.getBendAxis();
+	}
+
+	public void copySnapshotSafe(BoneSnapshot snapshot) {
+		if (!Float.isNaN(snapshot.getOffsetX()))
+			this.positionX = snapshot.getOffsetX();
+		if (!Float.isNaN(snapshot.getOffsetY()))
+			this.positionY = snapshot.getOffsetY();
+		if (!Float.isNaN(snapshot.getOffsetZ()))
+			this.positionZ = snapshot.getOffsetZ();
+
+		if (!Float.isNaN(snapshot.getRotX()))
+			this.rotX = snapshot.getRotX();
+		if (!Float.isNaN(snapshot.getRotY()))
+			this.rotY = snapshot.getRotY();
+		if (!Float.isNaN(snapshot.getRotZ()))
+			this.rotZ = snapshot.getRotZ();
+
+		if (!Float.isNaN(snapshot.getScaleX()))
+			this.scaleX = snapshot.getScaleX();
+		if (!Float.isNaN(snapshot.getScaleY()))
+			this.scaleY = snapshot.getScaleY();
+		if (!Float.isNaN(snapshot.getScaleZ()))
+			this.scaleZ = snapshot.getScaleZ();
+
+		if (!Float.isNaN(snapshot.getBend()))
+			this.bend = snapshot.getBend();
+		if (!Float.isNaN(snapshot.getBendAxis()))
+			this.bendAxis = snapshot.getBendAxis();
 	}
 
 	public void copyVanillaPart(ModelPart part) {

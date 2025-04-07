@@ -82,7 +82,7 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
      * @param newAnimation New animation can be null to fade into default state.
      */
     public void replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable T newAnimation) {
-        replaceAnimationWithFade(fadeModifier, newAnimation, false);
+        replaceAnimationWithFade(fadeModifier, newAnimation, true);
     }
 
     /**
@@ -93,7 +93,7 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
      */
     public void replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable T newAnimation, boolean fadeFromNothing) {
         if (fadeFromNothing || getAnimation() != null && getAnimation().isActive()) {
-            fadeModifier.setBeginAnimation(this.getAnimation());
+            fadeModifier.setTransitionAnimation(this.getAnimation());
             addModifierLast(fadeModifier);
         }
         this.setAnimation(newAnimation);

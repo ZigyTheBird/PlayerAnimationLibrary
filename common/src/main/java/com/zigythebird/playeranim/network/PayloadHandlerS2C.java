@@ -12,6 +12,6 @@ public class PayloadHandlerS2C {
         AbstractClientPlayer player = (AbstractClientPlayer) Minecraft.getInstance().level.getPlayerByUUID(packet.player());
         if (player == null) return;
         AnimationController controller = (AnimationController) PlayerAnimationAccess.getPlayerAnimationLayer(player, ModInitClient.animationLayerId);
-        controller.tryTriggerAnimation(RawAnimation.begin().thenPlay(packet.anim()));
+        controller.triggerAnimation(RawAnimation.begin().thenPlay(packet.anim()));
     }
 }

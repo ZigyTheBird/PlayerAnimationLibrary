@@ -2,7 +2,6 @@ package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.bones.BoneSnapshot;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.math.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -22,7 +21,6 @@ import java.util.Queue;
 @ApiStatus.Internal
 public class AnimationProcessor {
 	private final Map<String, PlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
-	protected Map<String, BoneSnapshot> boneSnapshots;
 
 	protected float animTime;
 	private float lastGameTickTime;
@@ -130,8 +128,6 @@ public class AnimationProcessor {
 	 * @param state                 An {@link AnimationData} instance applied to this render frame
 	 */
 	public void tickAnimation(PlayerAnimManager playerAnimManager, AnimationData state) {
-		boneSnapshots = updateBoneSnapshots(playerAnimManager.getBoneSnapshotCollection());
-
 		for (PlayerAnimBone entry : this.bones.values()) {
 			entry.parent = null;
 		}
@@ -143,22 +139,6 @@ public class AnimationProcessor {
 		}
 
 		playerAnimManager.finishFirstTick();
-	}
-
-	/**
-	 * Create new bone {@link BoneSnapshot} based on the bone's initial snapshot for the currently registered {@link PlayerAnimBone PlayerAnimBones},
-	 * filtered by the bones already present in the master snapshots map
-	 *
-	 * @param snapshots The master bone snapshots map from the related {@link PlayerAnimManager}
-	 * @return The input snapshots map, for easy assignment
-	 */
-	private Map<String, BoneSnapshot> updateBoneSnapshots(Map<String, BoneSnapshot> snapshots) {
-		for (PlayerAnimBone bone : getRegisteredBones()) {
-			if (!snapshots.containsKey(bone.getName()))
-				snapshots.put(bone.getName(), new BoneSnapshot(bone, true));
-		}
-
-		return snapshots;
 	}
 
 	/**

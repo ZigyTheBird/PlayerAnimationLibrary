@@ -8,5 +8,4 @@ Make an MC independent module
 Port to older MC versions (at least to 1.21)
 Website/Script/App to convert legacy animation formats to bedrock ones
 Epic fight + Vampirism + Werewolves compat (if we port to 1.20.1 or they port to 1.21)
-Make sure all legacy animation formats and versions are supported
-Make a new fade system (I don't like the old one)
+Wavey capes compat

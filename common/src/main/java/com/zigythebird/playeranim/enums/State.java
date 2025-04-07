@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public enum State {
     RUNNING(true),
-    TRANSITIONING(true),
+    TRANSITIONING(false),
     PAUSED(true),
     STOPPED(false);
 
