@@ -2,10 +2,9 @@ Make a good way to test the mod with lots of test anims using different features
 Make an API for playing anims server side and using commands (kind of like https://github.com/ZigyTheBird/ZigysPlayerAnimatorAPI/wiki/Getting-Started but with less shit code)
 Make a great wiki for the mod (a dedicated website where older versions of the wiki are saved like the neoforge wiki)
 Add compat with og player animator
-Do what the "//Todo" comments in the code say
 Blockbench plugin that supports exporting player anims with extra bones
 Make an MC independent module
 Port to older MC versions (at least to 1.21)
-Website/Script/App to convert legacy animation formats to bedrock ones
+Website, App, or Discord bot to convert legacy animation formats to bedrock ones
 Epic fight + Vampirism + Werewolves compat (if we port to 1.20.1 or they port to 1.21)
 Wavey capes compat

@@ -21,7 +21,7 @@ public final class PlayerAnimationAccess {
      */
     public static PlayerAnimManager getPlayerAnimManager(AbstractClientPlayer player) throws IllegalArgumentException {
         if (player instanceof IAnimatedPlayer) {
-            return ((IAnimatedPlayer) player).playerAnimLib$getAnimManager();
+            return player.playerAnimLib$getAnimManager();
         } else throw new IllegalArgumentException(player + " is not a player or library mixins failed");
     }
 

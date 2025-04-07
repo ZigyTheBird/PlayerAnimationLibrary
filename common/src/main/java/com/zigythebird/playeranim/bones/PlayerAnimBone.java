@@ -344,7 +344,7 @@ public class PlayerAnimBone {
 						}
 					}
 				} catch (Exception ignore) {}
-				return (float) easingType.apply(startValue, endValue, animTime / transitionLength);
+				return easingType.apply(startValue, endValue, animTime / transitionLength);
 			}
 			return endValue;
 		}
@@ -403,7 +403,7 @@ public class PlayerAnimBone {
 		this.positionY = part.y - initialPose.y();
 		this.positionZ = part.z - initialPose.z();
 
-		this.rotX = part.zRot;
+		this.rotX = part.xRot;
 		this.rotY = part.yRot;
 		this.rotZ = part.zRot;
 

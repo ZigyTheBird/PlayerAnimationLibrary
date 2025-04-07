@@ -13,6 +13,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -77,7 +78,7 @@ public class PlayerAnimManager extends AnimationStack {
 	}
 
 	/**
-	 * If you touch this you're a horrible person.
+	 * If you touch this, you're a horrible person.
 	 */
 	@ApiStatus.Internal
 	public void setTickDelta(float tickDelta) {
@@ -100,7 +101,7 @@ public class PlayerAnimManager extends AnimationStack {
 	/**
 	 * Retrieve a custom data point that was stored earlier, or null if it hasn't been stored
 	 */
-	public <D> D getData(DataTicket<D> dataTicket) {
+	public @Nullable <D> D getData(DataTicket<D> dataTicket) {
 		return this.extraData != null ? dataTicket.getData(this.extraData) : null;
 	}
 

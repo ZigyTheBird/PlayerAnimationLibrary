@@ -8,8 +8,9 @@ import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
+import com.zigythebird.playeranim.enums.AnimationFormat;
 import com.zigythebird.playeranim.enums.TransformType;
-import com.zigythebird.playeranim.util.MthUtil;
+import com.zigythebird.playeranim.math.MathHelper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -51,6 +52,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
         ExtraAnimationData extra = new ExtraAnimationData();
         extra.fromJson(node);
+        extra.put("format", AnimationFormat.PLAYER_ANIMATOR);
 
         if (modVersion < version){
             throw new JsonParseException(extra.name() + " is version " + version + ". Player Animation library can only process version " + modVersion + ".");
@@ -143,7 +145,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, easingArg, turn);
         fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, easingArg, turn);
         fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, easingArg, turn);
-        fillKeyframeStack(bone.bendKeyFrames(), MthUtil.ZERO, TransformType.BEND, "bend", "axis", null, partNode, degrees, tick, easing, easingArg, turn);
+        fillKeyframeStack(bone.bendKeyFrames(), MathHelper.ZERO, TransformType.BEND, "bend", "axis", null, partNode, degrees, tick, easing, easingArg, turn);
     }
 
     private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vector3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, Float easingArg, int turn) {
@@ -161,17 +163,14 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             List<Expression> expressions = Collections.singletonList(new DoubleExpression(value));
             part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, easingArgs));
             if (transformType == TransformType.ROTATION && rotate != 0) {
-                part.add(new Keyframe(tick - prevTime, expressions, Collections.singletonList(new DoubleExpression(value + MthUtil.PI * 2f * rotate)), easing, easingArgs));
+                part.add(new Keyframe(tick - prevTime, expressions, Collections.singletonList(new DoubleExpression(value + MathHelper.PI * 2f * rotate)), easing, easingArgs));
             }
-        } /*else {
-            List<Expression> expressions = Collections.singletonList(name.contains("scale") ? DoubleExpression.ONE : DoubleExpression.ZERO);
-            part.add(new Keyframe(tick, tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easingTypeFromString(easing), easingArgs));
-        }*/
+        }
     }
 
     private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees) {
         if (transformType != TransformType.ROTATION) value -= def;
-        if (degrees && transformType == TransformType.ROTATION) value = MthUtil.toRadians(value);
+        if (degrees && transformType == TransformType.ROTATION) value = MathHelper.toRadians(value);
         if (transformType == TransformType.POSITION) value *= 16;
 
         return value;
@@ -185,13 +184,13 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return easingType;
     }
 
-    public static final StateCollection EMPTY = new StateCollection(MthUtil.ZERO, MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F));
+    public static final StateCollection EMPTY = new StateCollection(MathHelper.ZERO, MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F));
 
     private static final Map<String, StateCollection> DEFAULT_VALUES = Map.of(
-            "rightArm", new StateCollection(new Vector3f(-5, 2, 0), MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
-            "leftArm", new StateCollection(new Vector3f(5, 2, 0), MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
-            "leftLeg", new StateCollection(new Vector3f(1.9f, 12, 0.1f), MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
-            "rightLeg", new StateCollection(new Vector3f(-1.9f, 12, 0.1f), MthUtil.ZERO, new Vector3f(1.0F, 1.0F, 1.0F))
+            "rightArm", new StateCollection(new Vector3f(-5, 2, 0), MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
+            "leftArm", new StateCollection(new Vector3f(5, 2, 0), MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
+            "leftLeg", new StateCollection(new Vector3f(1.9f, 12, 0.1f), MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
+            "rightLeg", new StateCollection(new Vector3f(-1.9f, 12, 0.1f), MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F))
     );
 
     public record StateCollection(Vector3f pos, Vector3f rot, Vector3f scale) {}

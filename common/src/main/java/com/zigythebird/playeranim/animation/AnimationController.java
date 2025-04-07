@@ -19,6 +19,7 @@ import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.bones.AdvancedPlayerAnimBone;
 import com.zigythebird.playeranim.bones.BoneSnapshot;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.enums.AnimationFormat;
 import com.zigythebird.playeranim.enums.PlayState;
 import com.zigythebird.playeranim.enums.State;
 import com.zigythebird.playeranim.enums.TransformType;
@@ -58,9 +59,6 @@ public class AnimationController implements IAnimation {
 	private boolean justStopped = true;
 	protected boolean justStartedTransition = false;
 
-	//Todo: Make default implementations of these.
-	//For example a default sound keyframe handler that can play note block sounds + existing MC sounds.
-	//Check out the AutoPlayingSoundKeyframeHandler class
 	protected SoundKeyframeHandler soundKeyframeHandler = null;
 	protected ParticleKeyframeHandler particleKeyframeHandler = null;
 	protected CustomKeyframeHandler customKeyframeHandler = null;
@@ -99,7 +97,6 @@ public class AnimationController implements IAnimation {
 		this.stateHandler = animationHandler;
 		this.molangRuntime = MolangLoader.createNewEngine(this);
 
-		//Todo: Make an event where you can add custom body parts here
 		this.registerPlayerAnimBone("body");
 		this.registerPlayerAnimBone("right_arm");
 		this.registerPlayerAnimBone("left_arm");
@@ -658,11 +655,15 @@ public class AnimationController implements IAnimation {
 		return this.currentAnimation != null && this.currentAnimation.animation().data().has("isEasingBefore");
 	}
 
+	public boolean isAnimationPlayerAnimatorFormat() {
+		return this.currentAnimation != null && this.currentAnimation.animation().data().has("format") && this.currentAnimation.animation().data().get("format") == AnimationFormat.PLAYER_ANIMATOR;
+	}
+
 	/**
 	 * Convert a {@link KeyframeLocation} to an {@link AnimationPoint}
 	 */
 	private AnimationPoint getAnimationPointAtTick(List<Keyframe> frames, float tick, TransformType type, Consumer<Float> transitionLengthSetter) {
-		if (frames.isEmpty()) return null;
+		if (frames.isEmpty() && isAnimationPlayerAnimatorFormat()) return null;
 
 		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick);
 		Keyframe currentFrame = location.keyframe();
@@ -718,6 +719,9 @@ public class AnimationController implements IAnimation {
 	 * @return A new {@code KeyFrameLocation} containing the current {@code KeyFrame} and the tick time used to find it
 	 */
 	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, float ageInTicks) {
+		if (frames.isEmpty())
+			return new KeyframeLocation<>(new Keyframe(0), 0, 0);
+
 		float totalFrameTime = 0;
 
 		for (Keyframe frame : frames) {
@@ -738,12 +742,12 @@ public class AnimationController implements IAnimation {
 	}
 	
 	public void get3DTransformRaw(@NotNull PlayerAnimBone bone) {
-		if (bones.containsKey(bone.getName())) {
+		if (activeBones.containsKey(bone.getName())) {
 			if (hasBeginTick() && (float)this.currentAnimation.animation().data().get("beginTick") > this.getAnimationTicks())
-				bone.beginOrEndTickLerp(bones.get(bone.getName()), this.getAnimationTicks(), null);
+				bone.beginOrEndTickLerp(activeBones.get(bone.getName()), this.getAnimationTicks(), null);
 			else if (hasEndTick() && (float)this.currentAnimation.animation().data().get("endTick") <= this.getAnimationTicks())
-				bone.beginOrEndTickLerp(bones.get(bone.getName()), this.getAnimationTicks() - (float)this.currentAnimation.animation().data().get("endTick"), this.currentAnimation.animation());
-			else bone.copyOtherBoneSafe(bones.get(bone.getName()));
+				bone.beginOrEndTickLerp(activeBones.get(bone.getName()), this.getAnimationTicks() - (float)this.currentAnimation.animation().data().get("endTick"), this.currentAnimation.animation());
+			else bone.copyOtherBoneSafe(activeBones.get(bone.getName()));
 			bone.parent = null;
 		}
 		if (this.currentAnimation != null) {
@@ -820,6 +824,7 @@ public class AnimationController implements IAnimation {
 
 		this.process(state, state.getPlayer().playerAnimLib$getAnimProcessor().animTime, false);
 
+		this.activeBones.clear();
 		for (BoneAnimationQueue boneAnimation : this.getBoneAnimationQueues().values()) {
 			PlayerAnimBone bone = boneAnimation.bone();
 			if (bone instanceof AdvancedPlayerAnimBone advancedPlayerAnimBone)
@@ -881,7 +886,7 @@ public class AnimationController implements IAnimation {
 		}
 	}
 
-	private void registerPlayerAnimBone(String name) {
+	protected void registerPlayerAnimBone(String name) {
 		registerPlayerAnimBone(new AdvancedPlayerAnimBone(name));
 	}
 
@@ -890,7 +895,7 @@ public class AnimationController implements IAnimation {
 	 * <p>
 	 * This is normally handled automatically by the mod
 	 */
-	private void registerPlayerAnimBone(AdvancedPlayerAnimBone bone) {
+	protected void registerPlayerAnimBone(AdvancedPlayerAnimBone bone) {
 		this.bones.put(bone.getName(), bone);
 	}
 

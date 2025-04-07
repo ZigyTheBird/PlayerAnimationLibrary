@@ -177,9 +177,9 @@ public class AdjustmentModifier extends AbstractModifier {
             return fadeOut;
         }
         if (getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
-            float stopTick = (float) controller.getCurrentAnimation().animation().length();
+            float stopTick = controller.getCurrentAnimation().animation().length();
             float endTick = controller.getCurrentAnimation().animation().data().has("endTick") ? (float) controller.getCurrentAnimation().animation().data().get("endTick") : stopTick;
-            float position = (float) ((-1F) * (controller.getAnimationTicks() - stopTick));
+            float position = (-1F) * (controller.getAnimationTicks() - stopTick);
             float length = stopTick - endTick;
             if (length > 0) {
                 fadeOut = position / length;
@@ -196,7 +196,7 @@ public class AdjustmentModifier extends AbstractModifier {
             if (controller.getCurrentAnimation().animation().data().has("beginTick"))
                 beginTick = (float) controller.getCurrentAnimation().animation().data().get("beginTick");
             else beginTick = 0;
-            fadeIn = beginTick > 0 ? (float) (controller.getAnimationTicks() / beginTick) : 1F;
+            fadeIn = beginTick > 0 ? controller.getAnimationTicks() / beginTick : 1F;
             fadeIn = Math.min(fadeIn, 1F);
         }
         return fadeIn;

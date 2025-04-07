@@ -34,7 +34,6 @@ public class AnimationProcessor {
 	public AnimationProcessor(AbstractClientPlayer player) {
 		this.player = player;
 
-		//Todo: Make an event where you can add custom body parts here
 		this.registerPlayerAnimBone("body");
 		this.registerPlayerAnimBone("right_arm");
 		this.registerPlayerAnimBone("left_arm");

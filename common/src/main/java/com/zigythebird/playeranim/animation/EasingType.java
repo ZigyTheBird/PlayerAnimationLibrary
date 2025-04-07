@@ -4,11 +4,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.zigythebird.playeranim.animation.keyframe.AnimationPoint;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
-import com.zigythebird.playeranim.util.MthUtil;
+import com.zigythebird.playeranim.math.MathHelper;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
+import team.unnamed.mocha.parser.ast.Expression;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,11 +60,11 @@ public interface EasingType {
 	EasingType EASE_IN_BOUNCE = register("easeinbounce", value -> easeIn(bounce(value)));
 	EasingType EASE_OUT_BOUNCE = register("easeoutbounce", value -> easeOut(bounce(value)));
 	EasingType EASE_IN_OUT_BOUNCE = register("easeinoutbounce", value -> easeInOut(bounce(value)));
-	EasingType CATMULLROM = register("catmullrom", value -> easeInOut(EasingType::catmullRom));
+	EasingType CATMULLROM = register("catmullrom", new CatmullRomEasing());
 
-	Float2FloatFunction buildTransformer(Float value);
+	Float2FloatFunction buildTransformer(@Nullable Float value);
 
-	static float lerpWithOverride(MochaEngine<?> env, AnimationPoint animationPoint, EasingType override) {
+	static float lerpWithOverride(MochaEngine<?> env, @Nullable AnimationPoint animationPoint, @Nullable EasingType override) {
 		if (animationPoint == null) return Float.NaN;
 
 		EasingType easingType = override;
@@ -78,10 +81,10 @@ public interface EasingType {
 		if (animationPoint.easingArgs() != null && !animationPoint.easingArgs().isEmpty())
 			easingVariable = (float) env.eval(animationPoint.easingArgs().getFirst());
 
-		return apply(animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
+		return apply(env, animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
 	}
 
-	default float apply(AnimationPoint animationPoint, Float easingValue, float lerpValue) {
+	default float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue) {
 		if (lerpValue >= 1)
 			return animationPoint.animationEndValue();
 
@@ -92,7 +95,7 @@ public interface EasingType {
 		return apply(startValue, endValue, null, lerpValue);
 	}
 
-	default float apply(float startValue, float endValue, Float easingValue, float lerpValue) {
+	default float apply(float startValue, float endValue, @Nullable Float easingValue, float lerpValue) {
 		return Mth.lerp(buildTransformer(easingValue).apply(lerpValue), startValue, endValue);
 	}
 
@@ -137,25 +140,7 @@ public interface EasingType {
 	}
 
 	// ---> Easing Transition Type Functions <--- //
-
-	/**
-	 * Returns an easing function running linearly. Functionally equivalent to no easing
-	 */
-	static Float2FloatFunction linear(Float2FloatFunction function) {
-		return function;
-	}
 	
-	/**
-	 * Performs a Catmull-Rom interpolation, used to get smooth interpolated motion between keyframes
-	 * <p>
-	 * <a href="https://pub.dev/documentation/latlong2/latest/spline/CatmullRom-class.html">CatmullRom#position</a>
-	 */
-	static float catmullRom(float n) {
-		return (0.5f * (2.0f * (n + 1) + ((n + 2) - n) * 1
-				+ (2.0f * n - 5.0f * (n + 1) + 4.0f * (n + 2) - (n + 3)) * 1
-				+ (3.0f * (n + 1) - n - 3.0f * (n + 2) + (n + 3)) * 1));
-	}
-
 	/**
 	 * Returns an easing function running forward in time
 	 */
@@ -224,7 +209,7 @@ public interface EasingType {
 	 * <a href="http://easings.net/#easeInSine">Easings.net#easeInSine</a>
 	 */
 	static float sine(float n) {
-		return 1 - MthUtil.cos(n * MthUtil.PI / 2f);
+		return 1 - MathHelper.cos(n * MathHelper.PI / 2f);
 	}
 
 	/**
@@ -235,7 +220,7 @@ public interface EasingType {
 	 * <a href="http://easings.net/#easeInCirc">Easings.net#easeInCirc</a>
 	 */
 	static float circle(float n) {
-		return 1 - MthUtil.sqrt(1 - n * n);
+		return 1 - MathHelper.sqrt(1 - n * n);
 	}
 
 	/**
@@ -246,7 +231,7 @@ public interface EasingType {
 	 * <a href="http://easings.net/#easeInExpo">Easings.net#easeInExpo</a>
 	 */
 	static float exp(float n) {
-		return MthUtil.pow(2, 10 * (n - 1));
+		return MathHelper.pow(2, 10 * (n - 1));
 	}
 
 	// ---> Easing Curve Functions <--- //
@@ -263,7 +248,7 @@ public interface EasingType {
 	static Float2FloatFunction elastic(Float n) {
 		float n2 = n == null ? 1 : n;
 
-		return t -> 1 - MthUtil.pow(MthUtil.cos(t * MthUtil.PI / 2f), 3) * MthUtil.cos(t * n2 * MthUtil.PI);
+		return t -> 1 - MathHelper.pow(MathHelper.cos(t * MathHelper.PI / 2f), 3) * MathHelper.cos(t * n2 * MathHelper.PI);
 	}
 
 	/**
@@ -279,9 +264,9 @@ public interface EasingType {
 		final float n2 = n == null ? 0.5f : n;
 
 		Float2FloatFunction one = x -> 121f / 16f * x * x;
-		Float2FloatFunction two = x -> 121f / 4f * n2 * MthUtil.pow(x - 6f / 11f, 2) + 1 - n2;
-		Float2FloatFunction three = x -> 121 * n2 * n2 * MthUtil.pow(x - 9f / 11f, 2) + 1 - n2 * n2;
-		Float2FloatFunction four = x -> 484 * n2 * n2 * n2 * MthUtil.pow(x - 10.5f / 11f, 2) + 1 - n2 * n2 * n2;
+		Float2FloatFunction two = x -> 121f / 4f * n2 * MathHelper.pow(x - 6f / 11f, 2) + 1 - n2;
+		Float2FloatFunction three = x -> 121 * n2 * n2 * MathHelper.pow(x - 9f / 11f, 2) + 1 - n2 * n2;
+		Float2FloatFunction four = x -> 484 * n2 * n2 * n2 * MathHelper.pow(x - 10.5f / 11f, 2) + 1 - n2 * n2 * n2;
 
 		return t -> Math.min(Math.min(one.apply(t), two.apply(t)), Math.min(three.apply(t), four.apply(t)));
 	}
@@ -307,7 +292,7 @@ public interface EasingType {
 	 * @param n The exponent
 	 */
 	static Float2FloatFunction pow(float n) {
-		return t -> MthUtil.pow(t, n);
+		return t -> MathHelper.pow(t, n);
 	}
 
 	// The MIT license notice below applies to the function step
@@ -373,5 +358,47 @@ public interface EasingType {
 
 			return leftBorderIndex * stepLength;
 		};
+	}
+
+	/**
+	 * Custom EasingType implementation required for special-handling of spline-based interpolation
+	 */
+	class CatmullRomEasing implements EasingType {
+		/**
+		 * Generates a value from a given Catmull-Rom spline range with Centripetal parameterization (alpha=0.5)
+		 * <p>
+		 * Per standard implementation, this generates a spline curve over control points p1-p2, with p0 and p3
+		 * acting as curve anchors.<br>
+		 * We then apply the delta to determine the point on the generated spline to return.
+		 * <p>
+		 * Functionally equivalent to {@link Mth#catmullrom(float, float, float, float, float)}
+		 *
+		 * @see <a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Wikipedia</a>
+		 */
+		public static float getPointOnSpline(float delta, float p0, float p1, float p2, float p3) {
+			return 0.5f * (2f * p1 + (p2 - p0) * delta +
+					(2f * p0 - 5f * p1 + 4f * p2 - p3) * delta * delta +
+					(3f * p1 - p0 - 3f * p2 + p3) * delta * delta * delta);
+		}
+
+		@Override
+		public Float2FloatFunction buildTransformer(Float value) {
+			return easeInOut((n) -> 0.5f * (2f * (n + 1f) + 2f
+                    + (2f * n - 5f * (n + 1f) + 4f * (n + 2f) - (n + 3f))
+                    + (3f * (n + 1f) - n - 3f * (n + 2f) + (n + 3f))));
+		}
+
+		@Override
+		public float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue)  {
+			if (animationPoint.currentTick() >= animationPoint.transitionLength())
+				return animationPoint.animationEndValue();
+
+			List<List<Expression>> easingArgs = animationPoint.easingArgs();
+
+			if (easingArgs.size() < 2)
+				return Mth.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
+
+			return getPointOnSpline(lerpValue, (float) env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), (float) env.eval(easingArgs.get(1)));
+		}
 	}
 }

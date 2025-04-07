@@ -27,16 +27,6 @@ public class BoneSnapshot {
 	private float bendAxis;
 	private float bend;
 
-	private float lastResetRotationTick = 0;
-	private float lastResetPositionTick = 0;
-	private float lastResetScaleTick = 0;
-	private float lastResetBendTick = 0;
-
-	protected boolean rotAnimInProgress = true;
-	protected boolean posAnimInProgress = true;
-	protected boolean scaleAnimInProgress = true;
-	protected boolean bendAnimInProgress = true;
-
 	public BoneSnapshot() {
 		this.bone = null;
 		setToInitialPose();
@@ -147,38 +137,6 @@ public class BoneSnapshot {
 		return this.bend;
 	}
 
-	public float getLastResetRotationTick() {
-		return this.lastResetRotationTick;
-	}
-
-	public float getLastResetPositionTick() {
-		return this.lastResetPositionTick;
-	}
-
-	public float getLastResetScaleTick() {
-		return this.lastResetScaleTick;
-	}
-
-	public float getLastResetBendTick() {
-		return this.lastResetBendTick;
-	}
-
-	public boolean isRotAnimInProgress() {
-		return this.rotAnimInProgress;
-	}
-
-	public boolean isPosAnimInProgress() {
-		return this.posAnimInProgress;
-	}
-
-	public boolean isScaleAnimInProgress() {
-		return this.scaleAnimInProgress;
-	}
-
-	public boolean isBendAnimInProgress() {
-		return this.bendAnimInProgress;
-	}
-
 	/**
 	 * Update the scale state of this snapshot
 	 */
@@ -213,42 +171,6 @@ public class BoneSnapshot {
 
 	public void updateBend(Pair<Float, Float> bend) {
 		updateBend(bend.getLeft(), bend.getRight());
-	}
-
-	public void startPosAnim() {
-		this.posAnimInProgress = true;
-	}
-
-	public void stopPosAnim(float tick) {
-		this.posAnimInProgress = false;
-		this.lastResetPositionTick = tick;
-	}
-
-	public void startRotAnim() {
-		this.rotAnimInProgress = true;
-	}
-
-	public void stopRotAnim(float tick) {
-		this.rotAnimInProgress = false;
-		this.lastResetRotationTick = tick;
-	}
-
-	public void startScaleAnim() {
-		this.scaleAnimInProgress = true;
-	}
-
-	public void stopScaleAnim(float tick) {
-		this.scaleAnimInProgress = false;
-		this.lastResetScaleTick = tick;
-	}
-
-	public void startBendAnim() {
-		this.bendAnimInProgress = true;
-	}
-
-	public void stopBendAnim(float tick) {
-		this.bendAnimInProgress = false;
-		this.lastResetBendTick = tick;
 	}
 
 	public Vec3f getTransformFromType(TransformType type) {

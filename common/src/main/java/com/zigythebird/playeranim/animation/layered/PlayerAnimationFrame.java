@@ -60,7 +60,6 @@ public abstract class PlayerAnimationFrame implements IAnimation {
         parts.put("leftItem", leftItem);
     }
 
-
     @Override
     public void tick(AnimationData state) {
         IAnimation.super.tick(state);
@@ -69,7 +68,7 @@ public abstract class PlayerAnimationFrame implements IAnimation {
     @Override
     public boolean isActive() {
         for (Map.Entry<String, PlayerBone> entry: parts.entrySet()) {
-            BoneSnapshot part = entry.getValue();
+            PlayerBone part = entry.getValue();
             if (part.isScaleAnimInProgress() || part.isRotAnimInProgress() || part.isPosAnimInProgress() || part.isBendAnimInProgress()) return true;
         }
         return false;
@@ -92,6 +91,11 @@ public abstract class PlayerAnimationFrame implements IAnimation {
     }
     
     public static class PlayerBone extends BoneSnapshot {
+        protected boolean rotAnimInProgress;
+        protected boolean posAnimInProgress;
+        protected boolean scaleAnimInProgress;
+        protected boolean bendAnimInProgress;
+
         public PlayerBone() {
             super();
             this.posAnimInProgress = false;
@@ -127,6 +131,22 @@ public abstract class PlayerAnimationFrame implements IAnimation {
         public void updateBend(float bendAxis, float bend) {
             super.updateBend(bendAxis, bend);
             this.bendAnimInProgress = bend != 0;
+        }
+
+        public boolean isRotAnimInProgress() {
+            return this.rotAnimInProgress;
+        }
+
+        public boolean isPosAnimInProgress() {
+            return this.posAnimInProgress;
+        }
+
+        public boolean isScaleAnimInProgress() {
+            return this.scaleAnimInProgress;
+        }
+
+        public boolean isBendAnimInProgress() {
+            return this.bendAnimInProgress;
         }
     }
 }
