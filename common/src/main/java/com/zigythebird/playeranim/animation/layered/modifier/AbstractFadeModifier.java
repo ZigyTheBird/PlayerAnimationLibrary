@@ -64,7 +64,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
 
     @Override
     public boolean canRemove() {
-        return calculateProgress(tickDelta) >= 1;
+        return getFadeType() == FadeType.FADE_IN && calculateProgress(tickDelta, null) >= 1;
     }
 
     @Override
@@ -83,7 +83,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
 
     @Override
     public void get3DTransform(@NotNull PlayerAnimBone bone) {
-        if (calculateProgress(tickDelta) > 1) {
+        if (calculateProgress(tickDelta, bone.getName()) > 1) {
             super.get3DTransform(bone);
             return;
         }
@@ -92,21 +92,21 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
         copy.copyOtherBone(bone);
         copy2.copyOtherBone(bone);
         super.get3DTransform(copy2);
-        float a = getAlpha(copy2.getName(), calculateProgress(tickDelta));
+        float a = getAlpha(copy2.getName(), calculateProgress(tickDelta, bone.getName()));
         if (getFadeType() == FadeType.FADE_IN) {
             if (transitionAnimation != null && transitionAnimation.isActive()) transitionAnimation.get3DTransform(copy);
-        } else a = 1 - a;
+        }
         copy2.scale(a).add(copy.scale(1 - a));
         bone.copyOtherBoneSafe(copy2);
     }
 
-    protected float calculateProgress(float f) {
+    protected float calculateProgress(float f, String boneName) {
         float actualTime = time + f;
         if (getFadeType() == FadeType.FADE_IN) return actualTime / length;
-        float endTime = getEndTime();
-        float delta = endTime - actualTime;
-        if (endTime > 0 && delta <= length) return length / delta;
-        return 0;
+        float endTime = getEndTime(boneName);
+        if (actualTime >= endTime) return 0;
+        if (actualTime < endTime - length) return 1;
+        return (endTime - actualTime) / length;
     }
 
     /**
@@ -126,7 +126,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
      * Gets the time when the animation is supposed to end, only called when fading out.
      * Override this if you want to fade out on something that isn't a controller.
      */
-    protected float getEndTime() {
+    protected float getEndTime(String boneName) {
         if (getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
             return controller.getCurrentAnimation().animation().length();
         }
