@@ -95,34 +95,41 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();
         BoneAnimation[] bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version);
 
+        //Replaces all keyframes with their easing set to null with two keyframes to get a constant easing/step bedrock keyframe effect
+        //Also shifts all easings to the right by one if easeBeforeKeyframe is false
         for (BoneAnimation boneAnimation : bones) {
-            resolveConstantEasing(boneAnimation.positionKeyFrames(), easeBeforeKeyframe);
-            resolveConstantEasing(boneAnimation.rotationKeyFrames(), easeBeforeKeyframe);
-            resolveConstantEasing(boneAnimation.scaleKeyFrames(), easeBeforeKeyframe);
-            resolveConstantEasing(boneAnimation.bendKeyFrames(), easeBeforeKeyframe);
+            correctEasings(boneAnimation.positionKeyFrames(), easeBeforeKeyframe);
+            correctEasings(boneAnimation.rotationKeyFrames(), easeBeforeKeyframe);
+            correctEasings(boneAnimation.scaleKeyFrames(), easeBeforeKeyframe);
+            correctEasings(boneAnimation.bendKeyFrames(), easeBeforeKeyframe);
         }
 
         return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
-    private void resolveConstantEasing(KeyframeStack<Keyframe> keyframeStack, boolean easeBefore) {
-        resolveConstantEasing(keyframeStack.xKeyframes(), easeBefore);
-        resolveConstantEasing(keyframeStack.yKeyframes(), easeBefore);
-        resolveConstantEasing(keyframeStack.zKeyframes(), easeBefore);
+    private void correctEasings(KeyframeStack<Keyframe> keyframeStack, boolean easeBefore) {
+        correctEasings(keyframeStack.xKeyframes(), easeBefore);
+        correctEasings(keyframeStack.yKeyframes(), easeBefore);
+        correctEasings(keyframeStack.zKeyframes(), easeBefore);
     }
 
-    private void resolveConstantEasing(List<Keyframe> list, boolean easeBefore) {
+    private void correctEasings(List<Keyframe> list, boolean easeBefore) {
+        if (!easeBefore) {
+            EasingType previousEasing = EasingType.EASE_IN_SINE;
+            for (int i=0;i<list.size();i++) {
+                Keyframe keyframe = list.get(i);
+                list.set(i, new Keyframe(keyframe.length(), keyframe.startValue(), keyframe.endValue(), previousEasing, keyframe.easingArgs()));
+                previousEasing = keyframe.easingType();
+            }
+        }
         List<Integer> constantIndexes = new ArrayList<>();
         for (Keyframe keyframe : list) {
             if (keyframe.easingType() == null) constantIndexes.add(list.indexOf(keyframe));
         }
         for (Integer index : constantIndexes) {
             Keyframe keyframe = list.get(index);
-            list.set(index, new Keyframe(keyframe.length(), keyframe.startValue(), keyframe.endValue(), EasingType.LINEAR, keyframe.easingArgs()));
-            int constantKeyframeIndex = easeBefore ? index : index + 1;
-            list.add(constantKeyframeIndex, new Keyframe(list.get(constantKeyframeIndex).length() - 0.001F, keyframe.endValue(), keyframe.endValue(), EasingType.LINEAR, keyframe.easingArgs()));
-            keyframe = list.get(constantKeyframeIndex + 1);
-            list.set(constantKeyframeIndex + 1, new Keyframe(0.001F, keyframe.startValue(), keyframe.endValue(), EasingType.LINEAR, keyframe.easingArgs()));
+            list.set(index, new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), EasingType.LINEAR, keyframe.easingArgs()));
+            list.add(index, new Keyframe(keyframe.length() - 0.001F, keyframe.startValue(), keyframe.startValue(), EasingType.LINEAR, keyframe.easingArgs()));
         }
     }
 
@@ -137,13 +144,6 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             JsonObject obj = n.getAsJsonObject();
             float tick = obj.get("tick").getAsFloat();
             EasingType easing = easingTypeFromString(obj.has("easing") ? obj.get("easing").getAsString() : "linear");
-            Float easingArg = null;
-            try {
-                if (obj.has("easingArg")) {
-                    easingArg = obj.get("easingArg").getAsFloat();
-                }
-            }
-            catch (NullPointerException ignore) {}
             int turn = obj.has("turn") ? obj.get("turn").getAsInt() : 0;
             for (Map.Entry<String, JsonElement> entry : obj.entrySet()){
                 if(entry.getKey().equals("tick") || entry.getKey().equals("comment") || entry.getKey().equals("easing") || entry.getKey().equals("turn")) {
@@ -157,36 +157,35 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 BoneAnimation bone = bones.computeIfAbsent(PlayerAnimResources.getCorrectPlayerBoneName(boneKey), boneName ->
                         new BoneAnimation(boneName, new KeyframeStack<>(), new KeyframeStack<>(), new KeyframeStack<>(), new KeyframeStack<>())
                 );
-                addBodyPartIfExists(bone, collection, entry.getValue(), degrees, tick, easing, easingArg, turn);
+                addBodyPartIfExists(bone, collection, entry.getValue(), degrees, tick, easing, turn);
             }
         }
         return bones.values().toArray(BoneAnimation[]::new);
     }
 
-    private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, Float easingArg, int turn) {
+    private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
         JsonObject partNode = node.getAsJsonObject();
-        fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, easingArg, turn);
-        fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, easingArg, turn);
-        fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, easingArg, turn);
-        fillKeyframeStack(bone.bendKeyFrames(), MathHelper.ZERO, TransformType.BEND, "bend", "axis", null, partNode, degrees, tick, easing, easingArg, turn);
+        fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn);
+        fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn);
+        fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn);
+        fillKeyframeStack(bone.bendKeyFrames(), MathHelper.ZERO, TransformType.BEND, "bend", "axis", null, partNode, degrees, tick, easing, turn);
     }
 
-    private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vector3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, Float easingArg, int turn) {
-        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, easingArg, turn);
-        addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, easingArg, turn);
-        if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, easingArg, turn);
+    private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vector3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn) {
+        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn);
+        addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, turn);
+        if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn);
     }
 
-    private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, Float easingArg, int rotate) {
+    private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, int rotate) {
         Keyframe lastFrame = part.isEmpty() ? null : part.getLast();
         float prevTime = lastFrame != null ? lastTick : 0;
-        List<List<Expression>> easingArgs = Collections.singletonList(easingArg == null ? new ObjectArrayList<>(0) : Collections.singletonList(new DoubleExpression(easingArg)));
         if (node.has(name)) {
             float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees);
             List<Expression> expressions = Collections.singletonList(new DoubleExpression(value));
-            part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, easingArgs));
+            part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, Collections.singletonList(new ObjectArrayList<>(0))));
             if (transformType == TransformType.ROTATION && rotate != 0) {
-                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(new DoubleExpression(value + MathHelper.PI * 2f * rotate)), easing, easingArgs));
+                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(new DoubleExpression(value + MathHelper.PI * 2f * rotate)), easing, Collections.singletonList(new ObjectArrayList<>(0))));
             }
         }
     }

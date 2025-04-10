@@ -651,10 +651,6 @@ public class AnimationController implements IAnimation {
 		return this.currentAnimation != null && this.currentAnimation.animation().data().has("endTick");
 	}
 
-	public boolean hasEaseBefore() {
-		return this.currentAnimation != null && this.currentAnimation.animation().data().has("easeBeforeKeyframe");
-	}
-
 	public boolean isAnimationPlayerAnimatorFormat() {
 		return this.currentAnimation != null && this.currentAnimation.animation().data().has("format") && this.currentAnimation.animation().data().get("format") == AnimationFormat.PLAYER_ANIMATOR;
 	}
@@ -680,22 +676,6 @@ public class AnimationController implements IAnimation {
 			}
 		}
 
-		EasingType easingType = currentFrame.easingType();
-		List<List<Expression>> easingArgs = currentFrame.easingArgs();
-
-		if (hasEaseBefore() && !(boolean)this.currentAnimation.animation().data().get("easeBeforeKeyframe")) {
-			int index = frames.indexOf(currentFrame) - 1;
-			if (index >= 0) {
-				Keyframe prevFrame = frames.get(index);
-				easingType = prevFrame.easingType();
-				easingArgs = prevFrame.easingArgs();
-			}
-			else {
-				easingType = EasingType.EASE_IN_OUT_SINE;
-				easingArgs = new ArrayList<>();
-			}
-		}
-
 		if (hasBeginTick() && !frames.isEmpty() && currentFrame == frames.getFirst() && tick < currentFrame.length()
 				&& (float)this.currentAnimation.animation().data().get("beginTick") > tick) {
 			startValue = endValue;
@@ -708,7 +688,7 @@ public class AnimationController implements IAnimation {
 		}
 		else transitionLengthSetter.accept(null);
 
-		return new AnimationPoint(easingType, easingArgs, location.startTick(), currentFrame.length(), startValue, endValue);
+		return new AnimationPoint(currentFrame.easingType(), currentFrame.easingArgs(), location.startTick(), currentFrame.length(), startValue, endValue);
 	}
 
 	/**

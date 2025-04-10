@@ -327,23 +327,21 @@ public class PlayerAnimBone {
 			}
 			if (transitionLength != null) {
 				EasingType easingType = EasingType.EASE_IN_OUT_SINE;
-				try {
-					if (!(boolean) animation.data().get("isEasingBefore")) {
-						BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
-						KeyframeStack<Keyframe> keyframeStack;
-						switch (type) {
-							case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
-							case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
-							case SCALE -> keyframeStack = boneAnimation.scaleKeyFrames();
-							default -> keyframeStack = boneAnimation.positionKeyFrames();
-						}
-						switch (axis) {
-							case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
-							case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
-							default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
-						}
+				if (animation != null && animation.data().has("easeBeforeKeyframe") && !(boolean)animation.data().get("easeBeforeKeyframe")) {
+					BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
+					KeyframeStack<Keyframe> keyframeStack;
+					switch (type) {
+						case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
+						case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
+						case SCALE -> keyframeStack = boneAnimation.scaleKeyFrames();
+						default -> keyframeStack = boneAnimation.positionKeyFrames();
 					}
-				} catch (Exception ignore) {}
+					switch (axis) {
+						case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
+						case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
+						default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
+					}
+				}
 				return easingType.apply(startValue, endValue, animTime / transitionLength);
 			}
 			return endValue;
