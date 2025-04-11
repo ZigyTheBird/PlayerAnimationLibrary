@@ -31,10 +31,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             .create();
 
     protected PlayerAnimatorLoader() {}
-
-    /**
-     * I think, we can stick with this <i>legacy</i> name: <code>emote</code>
-     */
+    
     @Override
     public Animation deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject node = json.getAsJsonObject();
@@ -97,6 +94,8 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
         //Replaces all keyframes with their easing set to null with two keyframes to get a constant easing/step bedrock keyframe effect
         //Also shifts all easings to the right by one if easeBeforeKeyframe is false
+        //If easings are shifted in order for the last keyframe's easing to not be ignored a 0.001 tick long keyframe gets added at the end with that easing
+        //The reason why the last easing can't be ignored is because it's used by endTick lerping
         for (BoneAnimation boneAnimation : bones) {
             correctEasings(boneAnimation.positionKeyFrames(), easeBeforeKeyframe);
             correctEasings(boneAnimation.rotationKeyFrames(), easeBeforeKeyframe);
@@ -119,6 +118,11 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             for (int i=0;i<list.size();i++) {
                 Keyframe keyframe = list.get(i);
                 list.set(i, new Keyframe(keyframe.length(), keyframe.startValue(), keyframe.endValue(), previousEasing, keyframe.easingArgs()));
+                if (i == list.size()-1 && previousEasing != keyframe.easingType()) {
+                    //If the final easing is constant, it defaults to linear instead
+                    //If you don't want your anim to have endTick lerp then just set stopTick to endTick + 1...
+                    list.add(new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), keyframe.easingType() == null ? EasingType.LINEAR : keyframe.easingType(), keyframe.easingArgs()));
+                }
                 previousEasing = keyframe.easingType();
             }
         }
