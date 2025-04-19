@@ -2,6 +2,7 @@ package com.zigythebird.playeranim.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -30,22 +31,22 @@ public final class RenderUtil {
 		poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 	}
 
-	public static void translateToPivotPoint(PoseStack poseStack, PlayerAnimBone bone) {
+	public static void translateToPivotPoint(PoseStack poseStack, PivotBone bone) {
 		Vec3 pivot = bone.getPivot();
 		poseStack.translate(pivot.x()/16, pivot.y()/16, pivot.z()/16);
 	}
 
-	public static void translateAwayFromPivotPoint(PoseStack poseStack, PlayerAnimBone bone) {
+	public static void translateAwayFromPivotPoint(PoseStack poseStack, PivotBone bone) {
 		Vec3 pivot = bone.getPivot();
 		poseStack.translate(-pivot.x()/16, -pivot.y()/16, -pivot.z()/16);
 	}
 
-	public static void translateAndRotateMatrixForBone(PoseStack poseStack, PlayerAnimBone bone) {
+	public static void translateAndRotateMatrixForBone(PoseStack poseStack, PivotBone bone) {
 		translateToPivotPoint(poseStack, bone);
 		rotateMatrixAroundBone(poseStack, bone);
 	}
 
-	public static void prepMatrixForBone(PoseStack poseStack, PlayerAnimBone bone) {
+	public static void prepMatrixForBone(PoseStack poseStack, PivotBone bone) {
 		translateMatrixToBone(poseStack, bone);
 		translateToPivotPoint(poseStack, bone);
 		rotateMatrixAroundBone(poseStack, bone);

@@ -50,6 +50,7 @@ public abstract class AbstractModifier extends AnimationContainer<IAnimation> {
     /**
      * Return true if the modifier should be removed.
      */
+    @Override
     public boolean canRemove() {
         return false;
     }

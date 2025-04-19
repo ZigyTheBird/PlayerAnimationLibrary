@@ -8,7 +8,7 @@ import com.zigythebird.playeranim.animation.ExtraAnimationData;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.molang.MolangLoader;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AnimationLoader {
-	public static Map<String, Animation> deserialize(JsonElement json, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws RuntimeException {
+	public static Map<String, Animation> deserialize(JsonElement json, Map<String, PivotBone> bones, Map<String, String> parents) throws RuntimeException {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
 
@@ -41,7 +41,7 @@ public class AnimationLoader {
 		return animations;
 	}
 
-	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PlayerAnimBone> bones, Map<String, String> parents) throws CompoundException {
+	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PivotBone> bones, Map<String, String> parents) throws CompoundException {
 		float length = animationObj.has("animation_length") ? GsonHelper.getAsFloat(animationObj, "animation_length") * 20f : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
 		BoneAnimation[] boneAnimations = bakeBoneAnimations(GsonHelper.getAsJsonObject(animationObj, "bones", new JsonObject()));
@@ -181,9 +181,9 @@ public class AnimationLoader {
 			Expression defaultValue = new DoubleExpression(type == TransformType.SCALE ? 1 : 0);
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
-			List<Expression> xValue = MolangLoader.parseJson(isForRotation, false, keyFrameVector.get(0), defaultValue);
-			List<Expression> yValue = MolangLoader.parseJson(isForRotation, true, keyFrameVector.get(1), defaultValue);
-			List<Expression> zValue = MolangLoader.parseJson(isForRotation, false, keyFrameVector.get(2), defaultValue);
+			List<Expression> xValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(0), defaultValue);
+			List<Expression> yValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(1), defaultValue);
+			List<Expression> zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;

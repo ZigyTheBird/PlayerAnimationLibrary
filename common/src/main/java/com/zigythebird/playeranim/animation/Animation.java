@@ -11,7 +11,7 @@ import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.enums.State;
 import net.minecraft.world.entity.player.Player;
 
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-public record Animation(ExtraAnimationData data, float length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames, Map<String, PlayerAnimBone> bones, Map<String, String> parents) {
+    public record Animation(ExtraAnimationData data, float length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames, Map<String, PivotBone> bones, Map<String, String> parents) {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 
     static Animation generateWaitAnimation(float length) {

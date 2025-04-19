@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 
 /**
@@ -53,7 +54,7 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
     public void addModifier(@NotNull AbstractModifier modifier, int idx) {
         modifier.setHost(this);
         modifiers.add(idx, modifier);
-        this.linkModifiers();
+        linkModifiers();
     }
 
     public void addModifierBefore(@NotNull AbstractModifier modifier) {
@@ -66,9 +67,28 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
 
     public void removeModifier(int idx) {
         modifiers.remove(idx);
-        this.linkModifiers();
+        linkModifiers();
     }
 
+    public void removeAllModifiers() {
+        modifiers.clear();
+    }
+
+    public int getModifierCount() {
+        return modifiers.size();
+    }
+
+    public @Nullable AbstractModifier getModifier(int idx) {
+        try {
+            return modifiers.get(idx);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    public boolean removeModifierIf(Predicate<? super AbstractModifier> predicate) {
+        return modifiers.removeIf(predicate);
+    }
 
     public void setAnimation(@Nullable T animation) {
         this.animation = animation;

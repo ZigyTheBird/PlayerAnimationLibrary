@@ -35,12 +35,13 @@ public interface IAnimation {
 
     /**
      * Animation tick, on lag-free client 20 [tick/sec]
-     * You can get the animations time from other places, but it will be invoked when the animation is ACTIVE
+     * This is called even when the animation is inactive
      */
     default void tick(AnimationData state) {}
 
     /**
      * Called before rendering a character
+     * Only called when the animation is active.
      * @param state Current animation state which can be used to get the player and the current partial tick.
      */
     default void setupAnim(AnimationData state) {}
@@ -53,6 +54,7 @@ public interface IAnimation {
 
     /**
      * Transform a bone to match the current animation.
+     * Only called when the animation is active.
      * @param bone the bone being currently animated.
      */
     default void get3DTransform(@NotNull PlayerAnimBone bone) {}
@@ -71,5 +73,12 @@ public interface IAnimation {
     @NotNull
     default FirstPersonConfiguration getFirstPersonConfiguration() {
         return DEFAULT_FIRST_PERSON_CONFIG;
+    }
+
+    /**
+     * Return true if the animation should be removed.
+     */
+    default boolean canRemove() {
+        return false;
     }
 }

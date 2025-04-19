@@ -12,7 +12,7 @@ public class ModInitClient {
         PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(
                 animationLayerId,
                 1000,
-                player -> new AnimationController(player, animationLayerId, state -> PlayState.STOP)
+                player -> new AnimationController(player, animationLayerId, (controller, state, animSetter) -> PlayState.STOP)
         );
     }
 }

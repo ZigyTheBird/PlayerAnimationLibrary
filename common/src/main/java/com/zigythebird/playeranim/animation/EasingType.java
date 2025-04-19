@@ -64,9 +64,7 @@ public interface EasingType {
 
 	Float2FloatFunction buildTransformer(@Nullable Float value);
 
-	static float lerpWithOverride(MochaEngine<?> env, @Nullable AnimationPoint animationPoint, @Nullable EasingType override) {
-		if (animationPoint == null) return Float.NaN;
-
+	static float lerpWithOverride(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable EasingType override) {
 		EasingType easingType = override;
 
 		if (override == null)

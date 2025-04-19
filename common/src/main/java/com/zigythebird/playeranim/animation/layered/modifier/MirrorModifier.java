@@ -42,10 +42,10 @@ public class MirrorModifier extends AbstractModifier {
         transformBone(bone);
 
         PlayerAnimBone newBone = new PlayerAnimBone(modelName);
-        newBone.copyOtherBoneSafe(bone);
+        newBone.copyOtherBone(bone);
         super.get3DTransform(newBone);
         transformBone(newBone);
-        bone.copyOtherBoneSafe(newBone);
+        bone.copyOtherBone(newBone);
     }
 
     // Override candidate

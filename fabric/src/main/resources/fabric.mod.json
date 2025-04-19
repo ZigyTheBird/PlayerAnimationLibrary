@@ -3,12 +3,15 @@
   "id": "player_animation_library",
   "version": "${version}",
   "name": "Player Animation Library",
-  "description": "Library that allows mods and data packs to animate the player.",
+  "description": "A library that allows mods and data packs to animate the player, in a way that doesn't conflict with other mods. (and much more!)",
   "authors": [
-    "Zigy"
+    "Zigy",
+    "dima_dencep"
   ],
   "contact": {
-    "sources": "https://github.com/ZigyTheBird/PlayerAnimationLibrary"
+    "homepage": "https://pal-docs.zigythebird.com",
+    "sources": "https://github.com/ZigyTheBird/PlayerAnimationLibrary",
+    "issues": "https://github.com/ZigyTheBird/PlayerAnimationLibrary/issues"
   },
   "license": "MIT License",
   "icon": "assets/player_animation_library/icon.png",
@@ -29,5 +32,10 @@
     "minecraft": "~1.21.4",
     "java": ">=21",
     "fabric-api": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [ "library" ]
+    }
   }
 }

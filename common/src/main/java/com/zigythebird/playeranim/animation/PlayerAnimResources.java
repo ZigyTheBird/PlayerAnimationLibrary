@@ -7,7 +7,7 @@ import com.zigythebird.playeranim.ModInit;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.loading.AnimationLoader;
 import com.zigythebird.playeranim.loading.PlayerAnimatorLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -107,12 +107,11 @@ public final class PlayerAnimResources {
 			JsonObject json = ModInit.GSON.fromJson(new InputStreamReader(resource), JsonObject.class);
 			if (json.has("animations")) {
 				JsonObject model = GsonHelper.getAsJsonObject(json, "model", new JsonObject());
-				Map<String, PlayerAnimBone> bones = new HashMap<>();
+				Map<String, PivotBone> bones = new HashMap<>();
 				for (Map.Entry<String, JsonElement> entry : model.entrySet()) {
 					JsonObject object = entry.getValue().getAsJsonObject();
 					JsonArray pivot = object.get("pivot").getAsJsonArray();
-					PlayerAnimBone bone = new PlayerAnimBone(object.has("parent") ? bones.get(object.get("parent").getAsString()) : null,
-							entry.getKey(), new Vec3(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat()));
+					PivotBone bone = new PivotBone(entry.getKey(), new Vec3(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat()));
 					bones.put(entry.getKey(), bone);
 				}
 

@@ -28,6 +28,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.zigythebird.playeranim.accessors.IModelPart;
 import com.zigythebird.playeranim.accessors.IUpperPartHelper;
+import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.model.geom.ModelPart;
@@ -75,7 +76,8 @@ public class ModelPartMixin implements IUpperPartHelper, IModelPart {
             }
 
             for (PlayerAnimBone bone : parents) {
-                RenderUtil.prepMatrixForBone(poseStack, bone);
+                if (bone instanceof PivotBone pivotBone)
+                    RenderUtil.prepMatrixForBone(poseStack, pivotBone);
             }
         }
     }

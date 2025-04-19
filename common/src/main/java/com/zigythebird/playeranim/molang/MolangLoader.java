@@ -26,13 +26,13 @@ import java.util.function.ToDoubleFunction;
 public class MolangLoader {
     private static final Consumer<ParseException> HANDLER = e -> ModInit.LOGGER.warn("Failed to parse!", e);
 
-    public static List<Expression> parseJson(boolean isForRotation, boolean negate, JsonElement element, Expression defaultValue) {
+    public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
         List<Expression> expressions;
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
             List<Expression> expressions1 = parser.parseAll();
             if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
                 expressions = new ArrayList<>(){{
-                    add(new DoubleExpression(Math.toRadians(((DoubleExpression) expressions1.getFirst()).value()) * (negate ? -1 : 1)));
+                    add(new DoubleExpression(Math.toRadians(((DoubleExpression) expressions1.getFirst()).value())));
                 }};
             }
             else {

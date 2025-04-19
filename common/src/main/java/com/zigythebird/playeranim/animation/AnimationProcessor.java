@@ -131,10 +131,12 @@ public class AnimationProcessor {
 			entry.parent = null;
 		}
 
+		playerAnimManager.getLayers().removeIf(pair -> pair.getRight() == null || pair.getRight().canRemove());
 		for (Pair<Integer, IAnimation> pair : playerAnimManager.getLayers()) {
 			IAnimation animation = pair.getRight();
 
-			animation.setupAnim(state.copy());
+			if (animation.isActive())
+				animation.setupAnim(state.copy());
 		}
 
 		playerAnimManager.finishFirstTick();

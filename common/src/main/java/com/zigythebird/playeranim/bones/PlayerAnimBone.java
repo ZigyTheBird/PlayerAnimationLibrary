@@ -10,7 +10,6 @@ import com.zigythebird.playeranim.math.Pair;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.core.Direction;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3d;
 
@@ -21,7 +20,6 @@ import java.util.Objects;
  * This is the object that is directly modified by animations to handle movement
  */
 public class PlayerAnimBone {
-	private final Vec3 pivot;
 	private final String name;
 
 	public PlayerAnimBone parent;
@@ -42,17 +40,12 @@ public class PlayerAnimBone {
 	protected float bend;
 
 	public PlayerAnimBone(String name) {
-		this(name, null);
-	}
-
-	public PlayerAnimBone(String name, Vec3 pivot) {
-		this(null, name, pivot);
-	}
-
-	public PlayerAnimBone(PlayerAnimBone parent, String name, Vec3 pivot) {
-		this.parent = parent;
 		this.name = name;
-		this.pivot = pivot;
+	}
+
+	public PlayerAnimBone(PlayerAnimBone parent, String name) {
+		this.name = name;
+		this.parent = parent;
 	}
 
 	public String getName() {
@@ -62,8 +55,6 @@ public class PlayerAnimBone {
 	public PlayerAnimBone getParent() {
 		return this.parent;
 	}
-
-	public Vec3 getPivot() {return this.pivot;}
 
 	public float getRotX() {
 		return this.rotX;
@@ -272,81 +263,92 @@ public class PlayerAnimBone {
 		this.bend = bone.bend;
 	}
 
-	public void copyOtherBoneSafe(PlayerAnimBone bone) {
-		if (!Float.isNaN(bone.positionX))
-			this.positionX = bone.positionX;
-		if (!Float.isNaN(bone.positionY))
-			this.positionY = bone.positionY;
-		if (!Float.isNaN(bone.positionZ))
-			this.positionZ = bone.positionZ;
+	public void copyOtherBoneIfNotDisabled(PlayerAnimBone bone) {
+		if (bone instanceof IBoneEnabled advancedBone) {
+			if (advancedBone.isPositionXEnabled())
+				this.positionX = bone.positionX;
+			if (advancedBone.isPositionYEnabled())
+				this.positionY = bone.positionY;
+			if (advancedBone.isPositionZEnabled())
+				this.positionZ = bone.positionZ;
 
-		if (!Float.isNaN(bone.rotX))
-			this.rotX = bone.rotX;
-		if (!Float.isNaN(bone.rotY))
-			this.rotY = bone.rotY;
-		if (!Float.isNaN(bone.rotZ))
-			this.rotZ = bone.rotZ;
+			if (advancedBone.isRotXEnabled())
+				this.rotX = bone.rotX;
+			if (advancedBone.isRotYEnabled())
+				this.rotY = bone.rotY;
+			if (advancedBone.isRotZEnabled())
+				this.rotZ = bone.rotZ;
 
-		if (!Float.isNaN(bone.scaleX))
-			this.scaleX = bone.scaleX;
-		if (!Float.isNaN(bone.scaleY))
-			this.scaleY = bone.scaleY;
-		if (!Float.isNaN(bone.scaleZ))
-			this.scaleZ = bone.scaleZ;
+			if (advancedBone.isScaleXEnabled())
+				this.scaleX = bone.scaleX;
+			if (advancedBone.isScaleYEnabled())
+				this.scaleY = bone.scaleY;
+			if (advancedBone.isScaleZEnabled())
+				this.scaleZ = bone.scaleZ;
 
-		if (!Float.isNaN(bone.bendAxis))
-			this.bendAxis = bone.bendAxis;
-		if (!Float.isNaN(bone.bend))
-			this.bend = bone.bend;
+			if (advancedBone.isBendAxisEnabled())
+				this.bendAxis = bone.bendAxis;
+			if (advancedBone.isBendEnabled())
+				this.bend = bone.bend;
+		}
+		else copyOtherBone(bone);
 	}
 
 	@ApiStatus.Internal
 	public void beginOrEndTickLerp(AdvancedPlayerAnimBone bone, float animTime, Animation animation) {
-		this.positionX = beginOrEndTickLerp(positionX, bone.positionX, bone.positionXTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.X);
-		this.positionY = beginOrEndTickLerp(positionY, bone.positionY, bone.positionYTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.Y);
-		this.positionZ = beginOrEndTickLerp(positionZ, bone.positionZ, bone.positionZTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.Z);
+		if (bone.positionXEnabled)
+			this.positionX = beginOrEndTickLerp(positionX, bone.positionX, bone.positionXTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.X);
+		if (bone.positionYEnabled)
+			this.positionY = beginOrEndTickLerp(positionY, bone.positionY, bone.positionYTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.Y);
+		if (bone.positionZEnabled)
+			this.positionZ = beginOrEndTickLerp(positionZ, bone.positionZ, bone.positionZTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.Z);
 
-		this.rotX = beginOrEndTickLerp(rotX, bone.rotX, bone.rotXTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.X);
-		this.rotY = beginOrEndTickLerp(rotY, bone.rotY, bone.rotYTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.Y);
-		this.rotZ = beginOrEndTickLerp(rotZ, bone.rotZ, bone.rotZTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.Z);
+		if (bone.rotXEnabled)
+			this.rotX = beginOrEndTickLerp(rotX, bone.rotX, bone.rotXTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.X);
+		if (bone.rotYEnabled)
+			this.rotY = beginOrEndTickLerp(rotY, bone.rotY, bone.rotYTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.Y);
+		if (bone.rotZEnabled)
+			this.rotZ = beginOrEndTickLerp(rotZ, bone.rotZ, bone.rotZTransitionLength, animTime, animation, TransformType.ROTATION, Direction.Axis.Z);
 
-		this.scaleX = beginOrEndTickLerp(scaleX, bone.scaleX, bone.scaleXTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.X);
-		this.scaleY = beginOrEndTickLerp(scaleY, bone.scaleY, bone.scaleYTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.Y);
-		this.scaleZ = beginOrEndTickLerp(scaleZ, bone.scaleZ, bone.scaleZTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.Z);
+		if (bone.scaleXEnabled)
+			this.scaleX = beginOrEndTickLerp(scaleX, bone.scaleX, bone.scaleXTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.X);
+		if (bone.scaleYEnabled)
+			this.scaleY = beginOrEndTickLerp(scaleY, bone.scaleY, bone.scaleYTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.Y);
+		if (bone.scaleZEnabled)
+			this.scaleZ = beginOrEndTickLerp(scaleZ, bone.scaleZ, bone.scaleZTransitionLength, animTime, animation, TransformType.SCALE, Direction.Axis.Z);
 
-		this.bendAxis = beginOrEndTickLerp(bendAxis, bone.bendAxis, bone.bendAxisTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.X);
-		this.bend = beginOrEndTickLerp(bend, bone.bend, bone.bendTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.Y);
+		if (bone.bendAxisEnabled)
+			this.bendAxis = beginOrEndTickLerp(bendAxis, bone.bendAxis, bone.bendAxisTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.X);
+		if (bone.bendEnabled)
+			this.bend = beginOrEndTickLerp(bend, bone.bend, bone.bendTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.Y);
 	}
 	
 	private float beginOrEndTickLerp(float startValue, float endValue, Float transitionLength, float animTime, Animation animation, TransformType type, Direction.Axis axis) {
-		if (!Float.isNaN(endValue)) {
-			if (animation != null) {
-				float temp = startValue;
-				startValue = endValue;
-				endValue = temp;
-			}
-			if (transitionLength != null) {
-				EasingType easingType = EasingType.EASE_IN_OUT_SINE;
-				if (animation != null && animation.data().has("easeBeforeKeyframe") && !(boolean)animation.data().get("easeBeforeKeyframe")) {
-					BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
-					KeyframeStack<Keyframe> keyframeStack;
-					switch (type) {
-						case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
-						case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
-						case SCALE -> keyframeStack = boneAnimation.scaleKeyFrames();
-						default -> keyframeStack = boneAnimation.positionKeyFrames();
-					}
-					switch (axis) {
-						case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
-						case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
-						default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
-					}
-				}
-				return easingType.apply(startValue, endValue, animTime / transitionLength);
-			}
-			return endValue;
+		if (animation != null) {
+			float temp = startValue;
+			startValue = endValue;
+			endValue = temp;
 		}
-		return startValue;
+		if (transitionLength != null) {
+			EasingType easingType = EasingType.EASE_IN_OUT_SINE;
+			if (animation != null && animation.data().has("easeBeforeKeyframe") && !(boolean)animation.data().get("easeBeforeKeyframe")) {
+				BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
+				KeyframeStack<Keyframe> keyframeStack;
+				switch (type) {
+					case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
+					case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
+					case SCALE -> keyframeStack = boneAnimation.scaleKeyFrames();
+					default -> keyframeStack = boneAnimation.positionKeyFrames();
+				}
+				switch (axis) {
+					case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
+					case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
+					default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
+				}
+			}
+			return easingType.apply(startValue, endValue, animTime / transitionLength);
+		}
+		return endValue;
 	}
 
 	public void copySnapshot(BoneSnapshot snapshot) {
@@ -365,33 +367,33 @@ public class PlayerAnimBone {
 		this.bend = snapshot.getBend();
 		this.bendAxis = snapshot.getBendAxis();
 	}
-
-	public void copySnapshotSafe(BoneSnapshot snapshot) {
-		if (!Float.isNaN(snapshot.getOffsetX()))
+	
+	public void copySnapshotSafe(AdvancedBoneSnapshot snapshot) {
+		if (snapshot.positionXEnabled)
 			this.positionX = snapshot.getOffsetX();
-		if (!Float.isNaN(snapshot.getOffsetY()))
+		if (snapshot.positionYEnabled)
 			this.positionY = snapshot.getOffsetY();
-		if (!Float.isNaN(snapshot.getOffsetZ()))
+		if (snapshot.positionZEnabled)
 			this.positionZ = snapshot.getOffsetZ();
 
-		if (!Float.isNaN(snapshot.getRotX()))
+		if (snapshot.rotXEnabled)
 			this.rotX = snapshot.getRotX();
-		if (!Float.isNaN(snapshot.getRotY()))
+		if (snapshot.rotYEnabled)
 			this.rotY = snapshot.getRotY();
-		if (!Float.isNaN(snapshot.getRotZ()))
+		if (snapshot.rotZEnabled)
 			this.rotZ = snapshot.getRotZ();
 
-		if (!Float.isNaN(snapshot.getScaleX()))
+		if (snapshot.scaleXEnabled)
 			this.scaleX = snapshot.getScaleX();
-		if (!Float.isNaN(snapshot.getScaleY()))
+		if (snapshot.scaleYEnabled)
 			this.scaleY = snapshot.getScaleY();
-		if (!Float.isNaN(snapshot.getScaleZ()))
+		if (snapshot.scaleZEnabled)
 			this.scaleZ = snapshot.getScaleZ();
 
-		if (!Float.isNaN(snapshot.getBend()))
-			this.bend = snapshot.getBend();
-		if (!Float.isNaN(snapshot.getBendAxis()))
+		if (snapshot.bendAxisEnabled)
 			this.bendAxis = snapshot.getBendAxis();
+		if (snapshot.bendEnabled)
+			this.bend = snapshot.getBend();
 	}
 
 	public void copyVanillaPart(ModelPart part) {

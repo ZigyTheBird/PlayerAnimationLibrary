@@ -25,7 +25,6 @@
 package com.zigythebird.playeranim.animation.layered;
 
 import com.zigythebird.playeranim.animation.AnimationData;
-import com.zigythebird.playeranim.bones.BoneSnapshot;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,8 +34,11 @@ import java.util.Map;
 /**
  * It is a representation of your pose on the frame.
  * Override {@link IAnimation#setupAnim} and set the pose there.
+ * Must set the isActive variable to true in the tick method for this to work!
+ * But remember to set it to false when inactive.
  */
 public abstract class PlayerAnimationFrame implements IAnimation {
+    protected boolean isActive = false;
 
     protected PlayerBone head = new PlayerBone();
     protected PlayerBone body = new PlayerBone();
@@ -67,11 +69,7 @@ public abstract class PlayerAnimationFrame implements IAnimation {
 
     @Override
     public boolean isActive() {
-        for (Map.Entry<String, PlayerBone> entry: parts.entrySet()) {
-            PlayerBone part = entry.getValue();
-            if (part.isScaleAnimInProgress() || part.isRotAnimInProgress() || part.isPosAnimInProgress() || part.isBendAnimInProgress()) return true;
-        }
-        return false;
+        return isActive;
     }
 
     /**
@@ -83,70 +81,109 @@ public abstract class PlayerAnimationFrame implements IAnimation {
             entry.getValue().setToInitialPose();
         }
     }
+
+    /**
+     * Sets all parts to their default values so no vanilla animations or animations from mother mods are applied.
+     */
+    public void enableAll() {
+        for (Map.Entry<String, PlayerBone> entry: parts.entrySet()) {
+            entry.getValue().enableAll();
+        }
+    }
     
     @Override
     public void get3DTransform(@NotNull PlayerAnimBone bone) {
-        BoneSnapshot part = parts.get(bone.getName());
-        if (part != null) bone.copySnapshot(part);
+        PlayerBone part = parts.get(bone.getName());
+        if (part != null) part.applyToBone(bone);
     }
     
-    public static class PlayerBone extends BoneSnapshot {
-        protected boolean rotAnimInProgress;
-        protected boolean posAnimInProgress;
-        protected boolean scaleAnimInProgress;
-        protected boolean bendAnimInProgress;
+    public static class PlayerBone {
+        public Float offsetPosX = null;
+        public Float offsetPosY = null;
+        public Float offsetPosZ = null;
 
+        public Float rotX = null;
+        public Float rotY = null;
+        public Float rotZ = null;
+
+        public Float scaleX = null;
+        public Float scaleY = null;
+        public Float scaleZ = null;
+
+        public Float bendAxis = null;
+        public Float bend = null;
+        
         public PlayerBone() {
             super();
-            this.posAnimInProgress = false;
-            this.rotAnimInProgress = false;
-            this.scaleAnimInProgress = false;
-            this.bendAnimInProgress = false;
         }
-        
-        @Override
+
+        /**
+         * Makes part no longer influence the animation in any way.
+         * Other animations will be free to influence this bone unless you change some values.
+         */
         public void setToInitialPose() {
-            this.posAnimInProgress = false;
-            this.rotAnimInProgress = false;
-            this.scaleAnimInProgress = false;
-            this.bendAnimInProgress = false;
-            super.setToInitialPose();
-        }
-        
-        public void updateScale(float scaleX, float scaleY, float scaleZ) {
-            super.updateScale(scaleX, scaleY, scaleZ);
-            this.scaleAnimInProgress = scaleX != 1 || scaleY != 1 || scaleZ != 1;
-        }
-        
-        public void updateOffset(float offsetX, float offsetY, float offsetZ) {
-            super.updateOffset(offsetX, offsetY, offsetZ);
-            this.posAnimInProgress = offsetX != 0 || offsetY != 0 || offsetZ != 0;
-        }
-        
-        public void updateRotation(float rotX, float rotY, float rotZ) {
-            super.updateRotation(rotX, rotY, rotZ);
-            this.rotAnimInProgress = rotX != 0 || rotY != 0 || rotZ != 0;
+            this.rotX = null;
+            this.rotY = null;
+            this.rotZ = null;
+
+            this.offsetPosX = null;
+            this.offsetPosY = null;
+            this.offsetPosZ = null;
+
+            this.scaleX = null;
+            this.scaleY = null;
+            this.scaleZ = null;
+
+            this.bendAxis = null;
+            this.bend = null;
         }
 
-        public void updateBend(float bendAxis, float bend) {
-            super.updateBend(bendAxis, bend);
-            this.bendAnimInProgress = bend != 0;
+        /**
+         * Sets all parts to their default values so no vanilla animations or animations from mother mods are applied.
+         */
+        public void enableAll() {
+            this.rotX = 0F;
+            this.rotY = 0F;
+            this.rotZ = 0F;
+
+            this.offsetPosX = 0F;
+            this.offsetPosY = 0F;
+            this.offsetPosZ = 0F;
+
+            this.scaleX = 1F;
+            this.scaleY = 1F;
+            this.scaleZ = 1F;
+
+            this.bendAxis = 0F;
+            this.bend = 0F;
         }
 
-        public boolean isRotAnimInProgress() {
-            return this.rotAnimInProgress;
-        }
+        public void applyToBone(PlayerAnimBone bone) {
+            if (offsetPosX != null)
+                bone.setPosX(offsetPosX);
+            if (offsetPosY != null)
+                bone.setPosY(offsetPosY);
+            if (offsetPosZ != null)
+                bone.setPosZ(offsetPosZ);
 
-        public boolean isPosAnimInProgress() {
-            return this.posAnimInProgress;
-        }
+            if (rotX != null)
+                bone.setRotX(rotX);
+            if (rotY != null)
+                bone.setRotY(rotY);
+            if (rotZ != null)
+                bone.setRotZ(rotZ);
 
-        public boolean isScaleAnimInProgress() {
-            return this.scaleAnimInProgress;
-        }
+            if (scaleX != null)
+                bone.setScaleX(scaleX);
+            if (scaleY != null)
+                bone.setScaleY(scaleY);
+            if (scaleZ != null)
+                bone.setScaleZ(scaleZ);
 
-        public boolean isBendAnimInProgress() {
-            return this.bendAnimInProgress;
+            if (bendAxis != null)
+                bone.setBendAxis(bendAxis);
+            if (bend != null)
+                bone.setBend(bend);
         }
     }
 }

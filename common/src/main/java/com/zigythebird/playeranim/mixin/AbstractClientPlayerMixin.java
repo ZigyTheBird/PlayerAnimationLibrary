@@ -69,9 +69,9 @@ public abstract class AbstractClientPlayerMixin implements IAnimatedPlayer {
         return null;
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("TAIL"))
     private void tick(CallbackInfo ci) {
-        this.playerAnimLib$animationProcessor.handleAnimations(1, true);
+        this.playerAnimLib$animationProcessor.handleAnimations(0, true);
     }
 
     @Override

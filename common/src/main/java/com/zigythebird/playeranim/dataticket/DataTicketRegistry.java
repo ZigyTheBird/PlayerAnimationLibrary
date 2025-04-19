@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.dataticket;
 
 import com.zigythebird.playeranim.ModInit;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;

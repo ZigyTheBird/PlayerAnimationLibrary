@@ -27,9 +27,7 @@ public class AnimationStack implements IAnimation {
     @Override
     public void tick(AnimationData state) {
         for (Pair<Integer, IAnimation> layer : layers) {
-            if (layer.getRight().isActive()) {
-                layer.getRight().tick(state);
-            }
+            layer.getRight().tick(state);
         }
     }
 
@@ -45,7 +43,8 @@ public class AnimationStack implements IAnimation {
     @Override
     public void setupAnim(AnimationData state) {
         for (Pair<Integer, IAnimation> layer : layers) {
-            layer.getRight().setupAnim(state);
+            if (layer.getRight().isActive())
+                layer.getRight().setupAnim(state);
         }
     }
 

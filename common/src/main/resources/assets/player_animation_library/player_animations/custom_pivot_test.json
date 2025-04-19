@@ -6,8 +6,8 @@
 	  }
   },
   "parents": {
-    "rightArm": "hip",
-    "leftArm": "hip",
+    "right_arm": "hip",
+    "left_arm": "hip",
     "torso": "hip",
     "head": "hip"
   },

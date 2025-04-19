@@ -32,11 +32,13 @@ public abstract class ElytraLayerMixin_noBend<S extends HumanoidRenderState, M e
                 PlayerAnimBone torso = processor.getBone("torso");
                 PlayerAnimBone cape = processor.getBone("cape");
                 PlayerAnimBone elytra = processor.getBone("elytra");
+                torso.setToInitialPose();
+                cape.setToInitialPose();
+                elytra.setToInitialPose();
                 emote.get3DTransform(torso);
-                cape.copyOtherBoneSafe(torso);
+                cape.copyOtherBone(torso);
                 emote.get3DTransform(cape);
-                elytra.copyOtherBoneSafe(cape);
-                elytra.updateScale(1, 1, 1);
+                elytra.copyOtherBone(cape);
                 emote.get3DTransform(elytra);
                 poseStack.translate(elytra.getPosX() / 16, elytra.getPosY() / 16, elytra.getPosZ() / 16);
                 poseStack.mulPose((new Quaternionf()).rotateXYZ(elytra.getRotX(), elytra.getRotY(), elytra.getRotZ()));

@@ -1,8 +1,6 @@
 package com.zigythebird.playeranim.bones;
 
-import net.minecraft.world.phys.Vec3;
-
-public class AdvancedPlayerAnimBone extends PlayerAnimBone {
+public class AdvancedPlayerAnimBone extends PlayerAnimBone implements IBoneEnabled {
     public Float scaleXTransitionLength = null;
     public Float scaleYTransitionLength = null;
     public Float scaleZTransitionLength = null;
@@ -18,16 +16,44 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone {
     public Float bendAxisTransitionLength = null;
     public Float bendTransitionLength = null;
 
+    public boolean scaleXEnabled = true;
+    public boolean scaleYEnabled = true;
+    public boolean scaleZEnabled = true;
+
+    public boolean positionXEnabled = true;
+    public boolean positionYEnabled = true;
+    public boolean positionZEnabled = true;
+
+    public boolean rotXEnabled = true;
+    public boolean rotYEnabled = true;
+    public boolean rotZEnabled = true;
+
+    public boolean bendAxisEnabled = true;
+    public boolean bendEnabled = true;
+
     public AdvancedPlayerAnimBone(String name) {
         super(name);
     }
 
-    public AdvancedPlayerAnimBone(String name, Vec3 pivot) {
-        super(name, pivot);
+    public AdvancedPlayerAnimBone(PlayerAnimBone parent, String name) {
+        super(parent, name);
     }
 
-    public AdvancedPlayerAnimBone(PlayerAnimBone parent, String name, Vec3 pivot) {
-        super(parent, name, pivot);
+    public void setEnabled(boolean enabled) {
+        scaleXEnabled = enabled;
+        scaleYEnabled = enabled;
+        scaleZEnabled = enabled;
+
+        positionXEnabled = enabled;
+        positionYEnabled = enabled;
+        positionZEnabled = enabled;
+
+        rotXEnabled = enabled;
+        rotYEnabled = enabled;
+        rotZEnabled = enabled;
+
+        bendAxisEnabled = enabled;
+        bendEnabled = enabled;
     }
 
     public void setBendTransitionLength(Float bendTransitionLength) {
@@ -72,5 +98,60 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone {
 
     public void setScaleXTransitionLength(Float scaleXTransitionLength) {
         this.scaleXTransitionLength = scaleXTransitionLength;
+    }
+
+    @Override
+    public boolean isScaleXEnabled() {
+        return scaleXEnabled;
+    }
+
+    @Override
+    public boolean isScaleYEnabled() {
+        return scaleYEnabled;
+    }
+
+    @Override
+    public boolean isScaleZEnabled() {
+        return scaleZEnabled;
+    }
+
+    @Override
+    public boolean isPositionXEnabled() {
+        return positionXEnabled;
+    }
+
+    @Override
+    public boolean isPositionYEnabled() {
+        return positionYEnabled;
+    }
+
+    @Override
+    public boolean isPositionZEnabled() {
+        return positionZEnabled;
+    }
+
+    @Override
+    public boolean isRotXEnabled() {
+        return rotXEnabled;
+    }
+
+    @Override
+    public boolean isRotYEnabled() {
+        return rotYEnabled;
+    }
+
+    @Override
+    public boolean isRotZEnabled() {
+        return rotZEnabled;
+    }
+
+    @Override
+    public boolean isBendAxisEnabled() {
+        return bendAxisEnabled;
+    }
+
+    @Override
+    public boolean isBendEnabled() {
+        return bendEnabled;
     }
 }
