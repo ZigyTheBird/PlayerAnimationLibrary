@@ -331,7 +331,7 @@ public class PlayerAnimBone {
 		}
 		if (transitionLength != null) {
 			EasingType easingType = EasingType.EASE_IN_OUT_SINE;
-			if (animation != null && animation.data().has("easeBeforeKeyframe") && !(boolean)animation.data().get("easeBeforeKeyframe")) {
+			if (animation != null && animation.data().has("easeBeforeKeyframe") && !(boolean)animation.data().getRaw("easeBeforeKeyframe")) {
 				BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
 				KeyframeStack<Keyframe> keyframeStack;
 				switch (type) {

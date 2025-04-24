@@ -5,7 +5,7 @@
 
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.resources.ResourceLocation;
 
@@ -149,7 +149,7 @@ public final class RawAnimation {
 	 * This is an entry object representing a single animation stage of the final compiled animation.
 	 */
 	public record Stage(ResourceLocation animationID, Animation.LoopType loopType, int additionalTicks) {
-		static final ResourceLocation WAIT = ModInit.id("internal.wait");
+		static final ResourceLocation WAIT = PlayerAnimLibMod.id("internal.wait");
 
 		public Stage(ResourceLocation animationID, Animation.LoopType loopType) {
 			this(animationID, loopType, 0);

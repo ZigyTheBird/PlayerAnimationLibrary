@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.AnimationController;
 import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.animation.EasingType;
@@ -130,7 +130,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
         if (getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
             return controller.getCurrentAnimation().animation().length();
         }
-        ModInit.LOGGER.debug("The fade out modifier doesn't work on animations that aren't AnimationController instances! Please override the getEndTime method.");
+        PlayerAnimLibMod.LOGGER.debug("The fade out modifier doesn't work on animations that aren't AnimationController instances! Please override the getEndTime method.");
         return 0;
     }
 

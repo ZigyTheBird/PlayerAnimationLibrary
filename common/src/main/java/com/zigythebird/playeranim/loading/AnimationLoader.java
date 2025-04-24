@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.loading;
 
 import com.google.gson.*;
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.ExtraAnimationData;
@@ -34,7 +34,7 @@ public class AnimationLoader {
 			try {
 				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), bones, parents));
 			} catch (Exception ex) {
-				ModInit.LOGGER.error("Unable to parse animation: {}", entry.getKey(), ex);
+				PlayerAnimLibMod.LOGGER.error("Unable to parse animation: {}", entry.getKey(), ex);
 			}
 		}
 
@@ -51,8 +51,8 @@ public class AnimationLoader {
 			length = calculateAnimationLength(boneAnimations);
 
 		ExtraAnimationData extraData = new ExtraAnimationData();
-		if (animationObj.has(ModInit.MOD_ID)) {
-			extraData.fromJson(animationObj.getAsJsonObject(ModInit.MOD_ID));
+		if (animationObj.has(PlayerAnimLibMod.MOD_ID)) {
+			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLibMod.MOD_ID));
 		}
 
 		if (extraData.data().isEmpty()) { // Fallback to name

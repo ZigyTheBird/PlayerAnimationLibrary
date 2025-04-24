@@ -34,8 +34,20 @@ public record ExtraAnimationData(Map<String, Object> data) {
         return data().containsKey(name);
     }
 
-    public Object get(String name) {
+    public Object getRaw(String name) {
         return data().get(name);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> get(String key) {
+        Object obj = getRaw(key);
+        if (obj == null) return Optional.empty();
+
+        try {
+            return Optional.of((T) obj);
+        } catch (Throwable ignored) {}
+
+        return Optional.empty();
     }
 
     public void put(String name, Object object) {

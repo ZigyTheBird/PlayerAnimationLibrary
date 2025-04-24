@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.keyframe.*;
 import com.zigythebird.playeranim.animation.keyframe.event.CustomInstructionKeyframeEvent;
 import com.zigythebird.playeranim.animation.keyframe.event.ParticleKeyframeEvent;
@@ -594,7 +594,7 @@ public class AnimationController implements IAnimation {
 		for (SoundKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().sounds()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.soundKeyframeHandler == null) {
-                    ModInit.LOGGER.warn("Sound Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
+					PlayerAnimLibMod.LOGGER.warn("Sound Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
 
 					break;
 				}
@@ -606,7 +606,7 @@ public class AnimationController implements IAnimation {
 		for (ParticleKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().particles()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.particleKeyframeHandler == null) {
-                    ModInit.LOGGER.warn("Particle Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
+					PlayerAnimLibMod.LOGGER.warn("Particle Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
 
 					break;
 				}
@@ -618,7 +618,7 @@ public class AnimationController implements IAnimation {
 		for (CustomInstructionKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().customInstructions()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.customKeyframeHandler == null) {
-                    ModInit.LOGGER.warn("Custom Instruction Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
+					PlayerAnimLibMod.LOGGER.warn("Custom Instruction Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
 
 					break;
 				}
@@ -677,7 +677,7 @@ public class AnimationController implements IAnimation {
 	}
 
 	public boolean isAnimationPlayerAnimatorFormat() {
-		return this.currentAnimation != null && this.currentAnimation.animation().data().has("format") && this.currentAnimation.animation().data().get("format") == AnimationFormat.PLAYER_ANIMATOR;
+		return this.currentAnimation != null && this.currentAnimation.animation().data().<AnimationFormat>get("format").orElse(null) == AnimationFormat.PLAYER_ANIMATOR;
 	}
 
 	public void checkBonesEnabled() {
@@ -729,14 +729,15 @@ public class AnimationController implements IAnimation {
 		}
 
 		if (transitionLengthSetter != null) {
+			ExtraAnimationData extraData = this.currentAnimation.animation().data();
 			if (hasBeginTick() && !frames.isEmpty() && currentFrame == frames.getFirst() && tick < currentFrame.length()
-					&& (float) this.currentAnimation.animation().data().get("beginTick") > tick) {
+					&& extraData.<Float>get("beginTick").orElse(0F) > tick) {
 				startValue = endValue;
 				transitionLengthSetter.accept(currentFrame.length());
 			} else if (hasEndTick() && !frames.isEmpty() && currentFrame == frames.getLast() && tick >= location.tick()
-					&& (float) this.currentAnimation.animation().data().get("endTick") <= tick) {
+					&& extraData.<Float>get("endTick").orElse(0F) <= tick) {
 
-				transitionLengthSetter.accept(this.currentAnimation.animation().length() - (float) this.currentAnimation.animation().data().get("endTick"));
+				transitionLengthSetter.accept(this.currentAnimation.animation().length() - extraData.<Float>get("endTick").orElse(0F));
 			} else transitionLengthSetter.accept(null);
 		}
 
@@ -784,12 +785,13 @@ public class AnimationController implements IAnimation {
 				pivotBone.child = getChildBone(parents, this.currentAnimation.animation().bones(), pivotBone);
 			}
 			if (bone1 instanceof AdvancedPlayerAnimBone advancedBone) {
-				if (hasBeginTick() && (float) this.currentAnimation.animation().data().get("beginTick") > this.getAnimationTicks()) {
+				ExtraAnimationData extraData = this.currentAnimation.animation().data();
+				if (hasBeginTick() && extraData.<Float>get("beginTick").orElse(0F) > this.getAnimationTicks()) {
 					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks(), null);
 					return;
 				}
-				else if (hasEndTick() && (float) this.currentAnimation.animation().data().get("endTick") <= this.getAnimationTicks()) {
-					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - (float) this.currentAnimation.animation().data().get("endTick"), this.currentAnimation.animation());
+				else if (hasEndTick() && extraData.<Float>get("endTick").orElse(0F) <= this.getAnimationTicks()) {
+					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get("endTick").orElse(0F), this.currentAnimation.animation());
 					return;
 				}
 			}

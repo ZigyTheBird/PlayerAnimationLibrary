@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.molang;
 
 import com.google.gson.JsonElement;
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.AnimationController;
 import com.zigythebird.playeranim.event.MolangEvent;
 import team.unnamed.mocha.MochaEngine;
@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 public class MolangLoader {
-    private static final Consumer<ParseException> HANDLER = e -> ModInit.LOGGER.warn("Failed to parse!", e);
+    private static final Consumer<ParseException> HANDLER = e -> PlayerAnimLibMod.LOGGER.warn("Failed to parse!", e);
 
     public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
         List<Expression> expressions;
@@ -39,7 +39,7 @@ public class MolangLoader {
                 expressions = expressions1;
             }
         } catch (IOException e) {
-            ModInit.LOGGER.error("Failed to compile molang!", e);
+            PlayerAnimLibMod.LOGGER.error("Failed to compile molang!", e);
             if (defaultValue == null) return null;
             return Collections.singletonList(defaultValue);
         }
