@@ -107,7 +107,7 @@ public class AnimationProcessor {
 					animation = PlayerAnimResources.getAnimation(stage.animationID());
 				}
 				catch (RuntimeException ex) {
-                    PlayerAnimLibMod.LOGGER.error("Unable to find animation: {} for {}", stage.animationID(), player.getClass().getSimpleName(), ex);
+					PlayerAnimLibMod.LOGGER.error("Unable to find animation: {} for {}", stage.animationID(), player.getClass().getSimpleName(), ex);
 
 					error = true;
 				}
