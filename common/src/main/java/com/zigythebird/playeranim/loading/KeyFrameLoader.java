@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.loading;
 
 import com.google.gson.*;
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
@@ -61,7 +61,7 @@ public class KeyFrameLoader {
 			String instructions = "";
 
 			if (entry.getValue() instanceof JsonArray array) {
-				instructions = ModInit.GSON.fromJson(array, ObjectArrayList.class).toString();
+				instructions = PlayerAnimLibMod.GSON.fromJson(array, ObjectArrayList.class).toString();
 			}
 			else if (entry.getValue() instanceof JsonPrimitive primitive) {
 				instructions = primitive.getAsString();

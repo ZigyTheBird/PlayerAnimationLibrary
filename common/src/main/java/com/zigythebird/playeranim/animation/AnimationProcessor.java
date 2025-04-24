@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.math.Pair;
@@ -107,7 +107,7 @@ public class AnimationProcessor {
 					animation = PlayerAnimResources.getAnimation(stage.animationID());
 				}
 				catch (RuntimeException ex) {
-                    ModInit.LOGGER.error("Unable to find animation: {} for {}", stage.animationID(), player.getClass().getSimpleName(), ex);
+                    PlayerAnimLibMod.LOGGER.error("Unable to find animation: {} for {}", stage.animationID(), player.getClass().getSimpleName(), ex);
 
 					error = true;
 				}

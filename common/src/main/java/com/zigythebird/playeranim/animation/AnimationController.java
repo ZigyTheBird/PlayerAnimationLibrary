@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.keyframe.*;
 import com.zigythebird.playeranim.animation.keyframe.event.CustomInstructionKeyframeEvent;
 import com.zigythebird.playeranim.animation.keyframe.event.ParticleKeyframeEvent;
@@ -594,7 +594,7 @@ public class AnimationController implements IAnimation {
 		for (SoundKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().sounds()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.soundKeyframeHandler == null) {
-                    ModInit.LOGGER.warn("Sound Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
+                    PlayerAnimLibMod.LOGGER.warn("Sound Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
 
 					break;
 				}
@@ -606,7 +606,7 @@ public class AnimationController implements IAnimation {
 		for (ParticleKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().particles()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.particleKeyframeHandler == null) {
-                    ModInit.LOGGER.warn("Particle Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
+                    PlayerAnimLibMod.LOGGER.warn("Particle Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
 
 					break;
 				}
@@ -618,7 +618,7 @@ public class AnimationController implements IAnimation {
 		for (CustomInstructionKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().customInstructions()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.customKeyframeHandler == null) {
-                    ModInit.LOGGER.warn("Custom Instruction Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
+                    PlayerAnimLibMod.LOGGER.warn("Custom Instruction Keyframe found for {} -> {}, but no keyframe handler registered", this.player.getClass().getSimpleName(), getId());
 
 					break;
 				}

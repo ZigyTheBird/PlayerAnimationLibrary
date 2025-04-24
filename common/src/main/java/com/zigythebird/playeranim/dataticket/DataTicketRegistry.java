@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.dataticket;
 
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -31,7 +31,7 @@ public final class DataTicketRegistry {
 		SerializableDataTicket<?> existingTicket = SERIALIZABLE_TICKETS.putIfAbsent(ticket.id(), ticket);
 
 		if (existingTicket != null)
-			ModInit.LOGGER.error("Duplicate SerializableDataTicket registered! This will cause issues. Existing: {} , New: {}", existingTicket.id(), ticket.id());
+			PlayerAnimLibMod.LOGGER.error("Duplicate SerializableDataTicket registered! This will cause issues. Existing: {} , New: {}", existingTicket.id(), ticket.id());
 
 		return ticket;
 	}

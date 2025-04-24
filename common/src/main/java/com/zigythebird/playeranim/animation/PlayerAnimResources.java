@@ -3,7 +3,7 @@ package com.zigythebird.playeranim.animation;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.zigythebird.playeranim.ModInit;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
@@ -13,9 +13,9 @@ import com.zigythebird.playeranim.loading.PlayerAnimatorLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,8 @@ import java.util.Optional;
 /**
  * Cache class for holding loaded {@link Animation Animations}
  */
-public final class PlayerAnimResources {
+public class PlayerAnimResources implements ResourceManagerReloadListener {
+	public static final ResourceLocation KEY = PlayerAnimLibMod.id("animation");
 	public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[]{}, new ParticleKeyframeData[]{}, new CustomInstructionKeyframeData[]{});
 	private static final Map<ResourceLocation, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
 
@@ -86,8 +87,8 @@ public final class PlayerAnimResources {
 	 * Load animations using ResourceManager
 	 * Internal use only!
 	 */
-	@ApiStatus.Internal
-	public static void resourceLoaderCallback(@NotNull ResourceManager manager) {
+	@Override
+	public void onResourceManagerReload(ResourceManager manager) {
 		ANIMATIONS.clear();
 
 		for (var resource: manager.listResources("player_animations", resourceLocation -> resourceLocation.getPath().endsWith(".json")).entrySet()) {
@@ -97,14 +98,14 @@ public final class PlayerAnimResources {
 				loadPlayerAnim(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), splitPath[splitPath.length-1]), resource.getValue().open());
 			}
 			catch (Exception e) {
-				ModInit.LOGGER.error("Player Animation Library failed to load animation {} because:", resource.getKey(), e);
+				PlayerAnimLibMod.LOGGER.error("Player Animation Library failed to load animation {} because:", resource.getKey(), e);
 			}
 		}
 	}
 
-	public static void loadPlayerAnim(ResourceLocation id, InputStream resource) {
+	private void loadPlayerAnim(ResourceLocation id, InputStream resource) {
 		try {
-			JsonObject json = ModInit.GSON.fromJson(new InputStreamReader(resource), JsonObject.class);
+			JsonObject json = PlayerAnimLibMod.GSON.fromJson(new InputStreamReader(resource), JsonObject.class);
 			if (json.has("animations")) {
 				JsonObject model = GsonHelper.getAsJsonObject(json, "model", new JsonObject());
 				Map<String, PivotBone> bones = new HashMap<>();
@@ -142,7 +143,7 @@ public final class PlayerAnimResources {
 			}
 		}
 		catch (Exception e) {
-			ModInit.LOGGER.error("Player Animation Library failed to load animation {}:", id, e);
+			PlayerAnimLibMod.LOGGER.error("Player Animation Library failed to load animation {}:", id, e);
 		}
 	}
 
