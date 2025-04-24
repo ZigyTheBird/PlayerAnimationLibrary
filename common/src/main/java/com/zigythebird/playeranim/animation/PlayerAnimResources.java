@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -56,7 +57,7 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	 * @return an unmodifiable map of all the animations
 	 */
 	public static Map<ResourceLocation, Animation> getAnimations() {
-		return Map.copyOf(ANIMATIONS);
+		return Collections.unmodifiableMap(ANIMATIONS);
 	}
 
 	/**

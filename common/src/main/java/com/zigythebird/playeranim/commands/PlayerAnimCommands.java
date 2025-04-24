@@ -18,8 +18,6 @@ import net.minecraft.resources.ResourceLocation;
 public class PlayerAnimCommands {
     public static <T> void register(CommandDispatcher<T> dispatcher, CommandBuildContext registryAccess) {
         dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("playPlayerAnimation")
-                .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
-
                 .then(Commands.argument("animationID", ResourceLocationArgument.id())
                         .suggests(new AnimationArgumentProvider())
                         .executes(PlayerAnimCommands::execute)));
