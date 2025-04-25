@@ -21,8 +21,6 @@ public final class DataTicketRegistry {
 
 	/**
 	 * Register a {@link SerializableDataTicket} with GeckoLib for handling custom data transmission
-	 * <p>
-	 * It is recommended you don't call this directly, and instead call it via {@link GeckoLibUtil#addDataTicket}
 	 *
 	 * @param ticket The SerializableDataTicket instance to register
 	 * @return The registered instance
