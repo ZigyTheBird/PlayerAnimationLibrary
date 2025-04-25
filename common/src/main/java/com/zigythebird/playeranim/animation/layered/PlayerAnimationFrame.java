@@ -92,9 +92,10 @@ public abstract class PlayerAnimationFrame implements IAnimation {
     }
     
     @Override
-    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
         PlayerBone part = parts.get(bone.getName());
-        if (part != null) part.applyToBone(bone);
+        if (part != null) return part.applyToBone(bone);
+        return bone;
     }
     
     public static class PlayerBone {
@@ -158,7 +159,7 @@ public abstract class PlayerAnimationFrame implements IAnimation {
             this.bend = 0F;
         }
 
-        public void applyToBone(PlayerAnimBone bone) {
+        public PlayerAnimBone applyToBone(PlayerAnimBone bone) {
             if (offsetPosX != null)
                 bone.setPosX(offsetPosX);
             if (offsetPosY != null)
@@ -184,6 +185,8 @@ public abstract class PlayerAnimationFrame implements IAnimation {
                 bone.setBendAxis(bendAxis);
             if (bend != null)
                 bone.setBend(bend);
+
+            return bone;
         }
     }
 }

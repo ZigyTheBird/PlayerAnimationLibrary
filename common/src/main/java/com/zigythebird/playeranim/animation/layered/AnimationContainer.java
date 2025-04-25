@@ -28,6 +28,7 @@ import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import net.minecraft.client.Camera;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,8 +70,15 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void get3DTransform(@NotNull PlayerAnimBone bone) {
-        if (anim != null) anim.get3DTransform(bone);
+    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
+        if (anim != null) return anim.get3DTransform(bone);
+        return bone;
+    }
+
+    @Override
+    public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
+        if (anim != null) return anim.get3DCameraTransform(camera, bone);
+        return bone;
     }
 
     @Override

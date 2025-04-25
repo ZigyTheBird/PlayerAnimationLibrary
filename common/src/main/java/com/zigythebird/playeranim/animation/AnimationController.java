@@ -27,6 +27,7 @@ import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.molang.MolangLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.client.Camera;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -72,6 +73,7 @@ public class AnimationController implements IAnimation {
 	protected float animTime;
 	protected State animationState = State.STOPPED;
 	protected float tickOffset;
+	protected float startAnimFrom;
 	protected float lastPollTime = -1;
 	protected Function<AnimationController, Boolean> shouldTransitionFunction = controller -> true;
 	protected Function<AnimationController, Float> animationSpeedModifier = controller -> 1F;
@@ -326,7 +328,7 @@ public class AnimationController implements IAnimation {
 	 * <p>
 	 * If {@link #forceAnimationReset()} has been called prior to this, the controller will reload the animation regardless of whether it matches the currently loaded one or not
 	 */
-	protected void setAnimation(RawAnimation rawAnimation) {
+	protected void setAnimation(RawAnimation rawAnimation, float startAnimFrom) {
 		if (rawAnimation == null || rawAnimation.getAnimationStages().isEmpty()) {
 			stop();
 
@@ -340,6 +342,7 @@ public class AnimationController implements IAnimation {
 				if (animations != null) {
 					this.animationQueue = animations;
 					this.currentRawAnimation = rawAnimation;
+					this.startAnimFrom = startAnimFrom;
 					this.shouldResetTick = true;
 					this.animationState = State.TRANSITIONING;
 					this.justStartedTransition = true;
@@ -351,6 +354,10 @@ public class AnimationController implements IAnimation {
 
 			stop();
 		}
+	}
+
+	protected void setAnimation(RawAnimation rawAnimation) {
+		setAnimation(rawAnimation, 0);
 	}
 
 	/**
@@ -643,10 +650,10 @@ public class AnimationController implements IAnimation {
 	 */
 	protected float adjustTick(float tick) {
 		if (!this.shouldResetTick)
-			return this.animationSpeedModifier.apply(this) * Math.max(tick - this.tickOffset, 0);
+			return (this.animationSpeedModifier.apply(this) * Math.max(tick - this.tickOffset, 0)) + startAnimFrom;
 
 		if (getAnimationState() != State.STOPPED)
-			this.tickOffset = tick;
+			this.tickOffset = tick - startAnimFrom;
 
 		this.shouldResetTick = false;
 
@@ -774,7 +781,7 @@ public class AnimationController implements IAnimation {
 		this.executedKeyFrames.clear();
 	}
 
-	public void get3DTransformRaw(@NotNull PlayerAnimBone bone) {
+	public PlayerAnimBone get3DTransformRaw(@NotNull PlayerAnimBone bone) {
 		Map<String, String> parents = this.currentAnimation.animation().parents();
 		if (parents.containsKey(bone.getName()))
 			bone.parent = this.currentAnimation.animation().bones().get(parents.get(bone.getName()));
@@ -787,16 +794,15 @@ public class AnimationController implements IAnimation {
 			if (bone1 instanceof AdvancedPlayerAnimBone advancedBone) {
 				ExtraAnimationData extraData = this.currentAnimation.animation().data();
 				if (hasBeginTick() && extraData.<Float>get("beginTick").orElse(0F) > this.getAnimationTicks()) {
-					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks(), null);
-					return;
+					return bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks(), null);
 				}
 				else if (hasEndTick() && extraData.<Float>get("endTick").orElse(0F) <= this.getAnimationTicks()) {
-					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get("endTick").orElse(0F), this.currentAnimation.animation());
-					return;
+					return bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get("endTick").orElse(0F), this.currentAnimation.animation());
 				}
 			}
-			bone.copyOtherBoneIfNotDisabled(bone1);
+			return bone.copyOtherBoneIfNotDisabled(bone1);
 		}
+		return bone;
 	}
 
 	public AdvancedPlayerAnimBone getChildBone(Map<String, String> parents, Map<String, PivotBone> animationSpecificBones, PivotBone bone) {
@@ -813,11 +819,19 @@ public class AnimationController implements IAnimation {
 	}
 
 	@Override
-	public void get3DTransform(@NotNull PlayerAnimBone bone) {
+	public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
 		if (!modifiers.isEmpty()) {
-			modifiers.getFirst().get3DTransform(bone);
+			return modifiers.getFirst().get3DTransform(bone);
 		}
-		else get3DTransformRaw(bone);
+		return get3DTransformRaw(bone);
+	}
+
+	@Override
+	public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
+		if (!modifiers.isEmpty()) {
+			return modifiers.getFirst().get3DCameraTransform(camera, bone);
+		}
+		return bone;
 	}
 
 	@Override
@@ -925,27 +939,32 @@ public class AnimationController implements IAnimation {
 		}
 	}
 
-	public void addModifier(@NotNull AbstractModifier modifier, int idx) {
+	public AnimationController addModifier(@NotNull AbstractModifier modifier, int idx) {
 		modifier.setHost(this);
 		modifiers.add(idx, modifier);
 		linkModifiers();
+		return this;
 	}
 
-	public void addModifierBefore(@NotNull AbstractModifier modifier) {
+	public AnimationController addModifierBefore(@NotNull AbstractModifier modifier) {
 		this.addModifier(modifier, 0);
+		return this;
 	}
 
-	public void addModifierLast(@NotNull AbstractModifier modifier) {
+	public AnimationController addModifierLast(@NotNull AbstractModifier modifier) {
 		this.addModifier(modifier, modifiers.size());
+		return this;
 	}
 
-	public void removeModifier(int idx) {
+	public AnimationController removeModifier(int idx) {
 		modifiers.remove(idx);
 		linkModifiers();
+		return this;
 	}
 
-	public void removeAllModifiers() {
+	public AnimationController removeAllModifiers() {
 		modifiers.clear();
+		return this;
 	}
 
 	public int getModifierCount() {
@@ -1067,8 +1086,13 @@ public class AnimationController implements IAnimation {
 		}
 
 		@Override
-		public void get3DTransform(@NotNull PlayerAnimBone bone) {
-			this.anim.get3DTransformRaw(bone);
+		public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
+			return this.anim.get3DTransformRaw(bone);
+		}
+
+		@Override
+		public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
+			return bone;
 		}
 	}
 }

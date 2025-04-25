@@ -27,20 +27,20 @@ package com.zigythebird.playeranim.animation.layered.modifier;
 import com.zigythebird.playeranim.animation.AnimationController;
 import com.zigythebird.playeranim.animation.layered.AnimationContainer;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
-import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractModifier extends AnimationContainer<IAnimation> {
-    @Setter
     protected IAnimation host;
+
+    public void setHost(IAnimation host) {
+        this.host = host;
+    }
 
     /**
      * Could return null if someone makes their own custom way of playing animations.
      */
     @Nullable
     protected AnimationController getController() {
-        if (host instanceof AnimationContainer<?> container && container.getAnim() instanceof AnimationController controller)
-            return controller;
         if (host instanceof AnimationController controller) return controller;
         return null;
     }

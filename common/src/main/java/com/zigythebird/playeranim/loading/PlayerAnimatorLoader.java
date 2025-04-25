@@ -25,6 +25,9 @@ import static com.zigythebird.playeranim.animation.PlayerAnimResources.NO_KEYFRA
 public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     private final static int modVersion = 3;
 
+    public static final List<Expression> ZERO = Collections.singletonList(new DoubleExpression(0));
+    public static final List<Expression> ONE = Collections.singletonList(new DoubleExpression(1));
+
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(Animation.class, new PlayerAnimatorLoader())
@@ -162,9 +165,27 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                         new BoneAnimation(boneName, new KeyframeStack<>(), new KeyframeStack<>(), new KeyframeStack<>(), new KeyframeStack<>())
                 );
                 addBodyPartIfExists(bone, collection, entry.getValue(), degrees, tick, easing, turn);
+                resolveMissingKeyframes(bone.positionKeyFrames(), false);
+                resolveMissingKeyframes(bone.rotationKeyFrames(), false);
+                resolveMissingKeyframes(bone.bendKeyFrames(), false);
+                resolveMissingKeyframes(bone.scaleKeyFrames(), true);
             }
         }
         return bones.values().toArray(BoneAnimation[]::new);
+    }
+
+    private void resolveMissingKeyframes(KeyframeStack<Keyframe> stack, boolean isScale) {
+        if (!stack.xKeyframes().isEmpty() || !stack.yKeyframes().isEmpty() || !stack.zKeyframes().isEmpty()) {
+            resolveMissingKeyframes(stack.xKeyframes(), isScale);
+            resolveMissingKeyframes(stack.yKeyframes(), isScale);
+            resolveMissingKeyframes(stack.zKeyframes(), isScale);
+        }
+    }
+
+    private void resolveMissingKeyframes(List<Keyframe> keyframes, boolean isScale) {
+        if (keyframes.isEmpty()) {
+            keyframes.add(new Keyframe(0, isScale ? ONE : ZERO, isScale ? ONE : ZERO, EasingType.LINEAR, Collections.singletonList(new ObjectArrayList<>(0))));
+        }
     }
 
     private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {

@@ -9,10 +9,10 @@ import com.zigythebird.playeranim.neoforge.event.PlayerAnimationRegisterEvent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.jetbrains.annotations.NotNull;
 
 @Mod(value = PlayerAnimLibModNeo.MOD_ID, dist = Dist.CLIENT)
@@ -36,6 +36,7 @@ public final class PlayerAnimLibModNeo extends PlayerAnimLibMod {
     }
 
     public void onRegisterCommands(RegisterClientCommandsEvent event) {
-        PlayerAnimCommands.register(event.getDispatcher(), event.getBuildContext());
+        if (!FMLLoader.isProduction())
+            PlayerAnimCommands.register(event.getDispatcher(), event.getBuildContext());
     }
 }

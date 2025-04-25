@@ -66,7 +66,7 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
                 body.setToInitialPose();
 
                 //These are additive properties
-                animationPlayer.get3DTransform(body);
+                body = animationPlayer.get3DTransform(body);
 
                 poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
                 poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);

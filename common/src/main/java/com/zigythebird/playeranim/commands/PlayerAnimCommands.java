@@ -17,7 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 @SuppressWarnings("unchecked")
 public class PlayerAnimCommands {
     public static <T> void register(CommandDispatcher<T> dispatcher, CommandBuildContext registryAccess) {
-        dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("playPlayerAnimation")
+        dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testPlayerAnimation")
                 .then(Commands.argument("animationID", ResourceLocationArgument.id())
                         .suggests(new AnimationArgumentProvider())
                         .executes(PlayerAnimCommands::execute)));

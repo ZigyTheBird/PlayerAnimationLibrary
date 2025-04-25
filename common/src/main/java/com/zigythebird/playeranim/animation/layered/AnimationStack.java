@@ -5,6 +5,7 @@ import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.math.Pair;
+import net.minecraft.client.Camera;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -32,12 +33,23 @@ public class AnimationStack implements IAnimation {
     }
 
     @Override
-    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
         for (Pair<Integer, IAnimation> layer : layers) {
             if (layer.getRight().isActive() && (!FirstPersonMode.isFirstPersonPass() || layer.getRight().getFirstPersonMode().isEnabled())) {
-                layer.getRight().get3DTransform(bone);
+                bone = layer.getRight().get3DTransform(bone);
             }
         }
+        return bone;
+    }
+
+    @Override
+    public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
+        for (Pair<Integer, IAnimation> layer : layers) {
+            if (layer.getRight().isActive() && (!FirstPersonMode.isFirstPersonPass() || layer.getRight().getFirstPersonMode().isEnabled())) {
+                bone = layer.getRight().get3DCameraTransform(camera, bone);
+            }
+        }
+        return bone;
     }
 
     @Override

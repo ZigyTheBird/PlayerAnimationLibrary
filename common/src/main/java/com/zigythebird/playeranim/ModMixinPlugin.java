@@ -14,7 +14,7 @@ import java.util.Set;
 public class ModMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (targetClassName.endsWith("_noBend") && hasClass("io.github.kosmx.bendylib.impl.BendableCuboid")) return false;
+        if (targetClassName.endsWith("_noBend") && hasClass("com.zigythebird.bendable_cuboids.impl.BendableCuboid")) return false;
         return true;
     }
 

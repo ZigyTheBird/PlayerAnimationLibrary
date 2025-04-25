@@ -45,6 +45,8 @@ processResources {
 }
 
 shadowJar {
+    exclude "architectury.common.json"
+
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
     relocate 'gg.moonflower.molangcompiler', 'com.zigythebird.playeranim.molangcompiler'
@@ -68,7 +70,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = "com.zigythebird.playeranim"
-            artifactId = "playeranim-fabric-$minecraft_version"
+            artifactId = "player_animation_library-fabric-$minecraft_version"
             version = rootProject.mod_version
             from components.java
         }

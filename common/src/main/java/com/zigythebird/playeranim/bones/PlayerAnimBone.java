@@ -246,7 +246,109 @@ public class PlayerAnimBone {
 		return this;
 	}
 
-	public void copyOtherBone(PlayerAnimBone bone) {
+	public PlayerAnimBone addPos(float value) {
+		return addPos(value, value, value);
+	}
+
+	public PlayerAnimBone mulPos(float value) {
+		return mulPos(value, value, value);
+	}
+
+	public PlayerAnimBone divPos(float value) {
+		return divPos(value, value, value);
+	}
+
+	public PlayerAnimBone addRot(float value) {
+		return addRot(value, value, value);
+	}
+
+	public PlayerAnimBone mulRot(float value) {
+		return mulRot(value, value, value);
+	}
+
+	public PlayerAnimBone divRot(float value) {
+		return divRot(value, value, value);
+	}
+
+	public PlayerAnimBone addScale(float value) {
+		return addScale(value, value, value);
+	}
+
+	public PlayerAnimBone mulScale(float value) {
+		return mulScale(value, value, value);
+	}
+
+	public PlayerAnimBone divScale(float value) {
+		return divScale(value, value, value);
+	}
+
+	public PlayerAnimBone addPos(float x, float y, float z) {
+		this.positionX += x;
+		this.positionY += x;
+		this.positionZ += x;
+
+		return this;
+	}
+
+	public PlayerAnimBone addRot(float x, float y, float z) {
+		this.rotX += x;
+		this.rotY += y;
+		this.rotZ += z;
+
+		return this;
+	}
+
+	public PlayerAnimBone addScale(float x, float y, float z) {
+		this.scaleX += x;
+		this.scaleY += y;
+		this.scaleZ += z;
+
+		return this;
+	}
+
+	public PlayerAnimBone mulPos(float x, float y, float z) {
+		this.positionX *= x;
+		this.positionY *= y;
+		this.positionZ *= z;
+		return this;
+	}
+
+	public PlayerAnimBone mulRot(float x, float y, float z) {
+		this.rotX *= x;
+		this.rotY *= y;
+		this.rotZ *= z;
+		return this;
+	}
+
+	public PlayerAnimBone mulScale(float x, float y, float z) {
+		this.scaleX *= x;
+		this.scaleY *= y;
+		this.scaleZ *= z;
+		return this;
+	}
+
+	public PlayerAnimBone divPos(float x, float y, float z) {
+		this.positionX /= x;
+		this.positionY /= y;
+		this.positionZ /= z;
+		return this;
+	}
+
+	public PlayerAnimBone divRot(float x, float y, float z) {
+		this.rotX /= x;
+		this.rotY /= y;
+		this.rotZ /= z;
+		return this;
+	}
+
+	public PlayerAnimBone divScale(float x, float y, float z) {
+		this.scaleX /= x;
+		this.scaleY /= y;
+		this.scaleZ /= z;
+		return this;
+	}
+
+	public PlayerAnimBone copyOtherBone(PlayerAnimBone bone) {
 		this.positionX = bone.positionX;
 		this.positionY = bone.positionY;
 		this.positionZ = bone.positionZ;
@@ -261,9 +363,10 @@ public class PlayerAnimBone {
 
 		this.bendAxis = bone.bendAxis;
 		this.bend = bone.bend;
+		return this;
 	}
 
-	public void copyOtherBoneIfNotDisabled(PlayerAnimBone bone) {
+	public PlayerAnimBone copyOtherBoneIfNotDisabled(PlayerAnimBone bone) {
 		if (bone instanceof IBoneEnabled advancedBone) {
 			if (advancedBone.isPositionXEnabled())
 				this.positionX = bone.positionX;
@@ -291,11 +394,11 @@ public class PlayerAnimBone {
 			if (advancedBone.isBendEnabled())
 				this.bend = bone.bend;
 		}
-		else copyOtherBone(bone);
+		return copyOtherBone(bone);
 	}
 
 	@ApiStatus.Internal
-	public void beginOrEndTickLerp(AdvancedPlayerAnimBone bone, float animTime, Animation animation) {
+	public PlayerAnimBone beginOrEndTickLerp(AdvancedPlayerAnimBone bone, float animTime, Animation animation) {
 		if (bone.positionXEnabled)
 			this.positionX = beginOrEndTickLerp(positionX, bone.positionX, bone.positionXTransitionLength, animTime, animation, TransformType.POSITION, Direction.Axis.X);
 		if (bone.positionYEnabled)
@@ -321,6 +424,8 @@ public class PlayerAnimBone {
 			this.bendAxis = beginOrEndTickLerp(bendAxis, bone.bendAxis, bone.bendAxisTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.X);
 		if (bone.bendEnabled)
 			this.bend = beginOrEndTickLerp(bend, bone.bend, bone.bendTransitionLength, animTime, animation, TransformType.BEND, Direction.Axis.Y);
+
+		return this;
 	}
 	
 	private float beginOrEndTickLerp(float startValue, float endValue, Float transitionLength, float animTime, Animation animation, TransformType type, Direction.Axis axis) {
@@ -368,7 +473,7 @@ public class PlayerAnimBone {
 		this.bendAxis = snapshot.getBendAxis();
 	}
 	
-	public void copySnapshotSafe(AdvancedBoneSnapshot snapshot) {
+	public PlayerAnimBone copySnapshotSafe(AdvancedBoneSnapshot snapshot) {
 		if (snapshot.positionXEnabled)
 			this.positionX = snapshot.getOffsetX();
 		if (snapshot.positionYEnabled)
@@ -394,6 +499,8 @@ public class PlayerAnimBone {
 			this.bendAxis = snapshot.getBendAxis();
 		if (snapshot.bendEnabled)
 			this.bend = snapshot.getBend();
+
+		return this;
 	}
 
 	public void copyVanillaPart(ModelPart part) {

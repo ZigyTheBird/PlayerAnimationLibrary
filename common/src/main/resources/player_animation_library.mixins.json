@@ -6,6 +6,7 @@
   "minVersion": "0.8",
   "client": [
     "AbstractClientPlayerMixin",
+    "CameraMixin",
     "CapeLayerAccessor",
     "CapeLayerMixin_noBend",
     "ElytraLayerMixin_noBend",

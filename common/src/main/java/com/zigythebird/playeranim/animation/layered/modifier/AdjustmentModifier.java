@@ -200,10 +200,9 @@ public class AdjustmentModifier extends AbstractModifier {
     }
 
     @Override
-    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
         if (!enabled) {
-            super.get3DTransform(bone);
-            return;
+            return super.get3DTransform(bone);
         }
 
         Optional<PartModifier> partModifier = source.apply(bone.getName());
@@ -212,9 +211,9 @@ public class AdjustmentModifier extends AbstractModifier {
         if (partModifier.isPresent()) {
             super.get3DTransform(bone);
             transformBone(bone, partModifier.get(), fade);
-        } else {
-            super.get3DTransform(bone);
+            return bone;
         }
+        return super.get3DTransform(bone);
     }
 
     protected void transformBone(PlayerAnimBone bone, PartModifier partModifier, float fade) {

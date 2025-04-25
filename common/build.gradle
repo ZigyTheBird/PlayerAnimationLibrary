@@ -17,24 +17,3 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     compileOnly 'org.jetbrains:annotations:23.0.0'
 }
-
-publishing {
-    repositories {
-        maven {
-            name = "zigythebirdmods"
-            url = "https://maven.zigythebird.com/mods"
-            credentials(PasswordCredentials)
-            authentication {
-                basic(BasicAuthentication)
-            }
-        }
-    }
-    publications {
-        maven(MavenPublication) {
-            groupId = "com.zigythebird.playeranim"
-            artifactId = "playeranim-common-$minecraft_version"
-            version = rootProject.mod_version
-            from components.java
-        }
-    }
-}

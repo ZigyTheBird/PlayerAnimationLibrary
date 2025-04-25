@@ -36,7 +36,7 @@ public class MirrorModifier extends AbstractModifier {
     public static final Map<String, String> mirrorMap;
 
     @Override
-    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
         String modelName = bone.getName();
         if (mirrorMap.containsKey(modelName)) modelName = mirrorMap.get(modelName);
         transformBone(bone);
@@ -46,6 +46,7 @@ public class MirrorModifier extends AbstractModifier {
         super.get3DTransform(newBone);
         transformBone(newBone);
         bone.copyOtherBone(newBone);
+        return bone;
     }
 
     // Override candidate
@@ -68,7 +69,7 @@ public class MirrorModifier extends AbstractModifier {
     static {
         HashMap<String, String> partMap = new HashMap<>();
         partMap.put("left_arm", "right_arm");
-        partMap.put("left_eg", "right_leg");
+        partMap.put("left_leg", "right_leg");
         partMap.put("left_item", "right_item");
         partMap.put("right_arm", "left_arm");
         partMap.put("right_leg", "left_leg");

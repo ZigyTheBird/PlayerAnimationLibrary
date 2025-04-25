@@ -28,6 +28,7 @@ import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import net.minecraft.client.Camera;
 import org.jetbrains.annotations.NotNull;
 
 public interface IAnimation {
@@ -56,8 +57,18 @@ public interface IAnimation {
      * Transform a bone to match the current animation.
      * Only called when the animation is active.
      * @param bone the bone being currently animated.
+     * KEEP IN MIND THAT THE BONE RETURNED ISN'T ALWAYS THE SAME AS THE INPUT BONE!
      */
-    default void get3DTransform(@NotNull PlayerAnimBone bone) {}
+    default PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
+        return bone;
+    }
+
+    /**
+     * Can be used to move the camera during an animation.
+     */
+    default PlayerAnimBone get3DCameraTransform(Camera camera, PlayerAnimBone bone) {
+        return bone;
+    }
 
     /**
      * Keep in mind that modifiers can't affect the first-person mode, at least not by default.

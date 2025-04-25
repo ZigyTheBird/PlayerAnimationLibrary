@@ -3,6 +3,8 @@ package com.zigythebird.playeranim;
 import com.google.gson.Gson;
 import com.mojang.logging.LogUtils;
 import com.zigythebird.playeranim.animation.AnimationController;
+import com.zigythebird.playeranim.animation.layered.modifier.HeadPosBoundCamera;
+import com.zigythebird.playeranim.animation.layered.modifier.HeadRotBoundCamera;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
 import com.zigythebird.playeranim.enums.PlayState;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +24,7 @@ public abstract class PlayerAnimLibMod {
         PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(ANIMATION_LAYER_ID, 1000,
                 player -> new AnimationController(player, ANIMATION_LAYER_ID,
                         (controller, state, animSetter) -> PlayState.STOP
-                )
+                ).addModifierBefore(new HeadPosBoundCamera()).addModifierBefore(new HeadRotBoundCamera())
         );
     }
 }

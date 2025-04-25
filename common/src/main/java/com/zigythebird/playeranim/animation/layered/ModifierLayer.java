@@ -8,6 +8,7 @@ import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import lombok.Getter;
+import net.minecraft.client.Camera;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -146,10 +147,19 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
         if (!modifiers.isEmpty()) {
-            modifiers.get(0).get3DTransform(bone);
-        } else if (animation != null) animation.get3DTransform(bone);
+            return modifiers.get(0).get3DTransform(bone);
+        } else if (animation != null) return animation.get3DTransform(bone);
+        return bone;
+    }
+
+    @Override
+    public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
+        if (!modifiers.isEmpty()) {
+            return modifiers.get(0).get3DCameraTransform(camera, bone);
+        } else if (animation != null) return animation.get3DCameraTransform(camera, bone);
+        return bone;
     }
 
     @Override

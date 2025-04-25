@@ -177,7 +177,7 @@ public class AnimationLoader {
 			float curTime = entry.leftFloat();
 			float timeDelta = curTime - prevTime;
 
-			boolean isForRotation = type == TransformType.ROTATION;
+			boolean isForRotation = type == TransformType.ROTATION || type == TransformType.BEND;
 			Expression defaultValue = new DoubleExpression(type == TransformType.SCALE ? 1 : 0);
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
