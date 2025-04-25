@@ -9,7 +9,7 @@ version = "${version}"
 displayName = "Player Animation Library"
 authors = "Zigy, dima_dencep"
 description = '''
-A library that allows mods and data packs to animate the player, in a way that doesn't conflict with other mods. (and much more!)
+A library that allows mods to animate the player, in a way that doesn't conflict with other mods. (and much more!)
 '''
 displayURL = "https://pal-docs.zigythebird.com"
 logoFile = "assets/player_animation_library/icon.png"

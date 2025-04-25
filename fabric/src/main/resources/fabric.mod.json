@@ -3,7 +3,7 @@
   "id": "player_animation_library",
   "version": "${version}",
   "name": "Player Animation Library",
-  "description": "A library that allows mods and data packs to animate the player, in a way that doesn't conflict with other mods. (and much more!)",
+  "description": "A library that allows mods to animate the player, in a way that doesn't conflict with other mods. (and much more!)",
   "authors": [
     "Zigy",
     "dima_dencep"
