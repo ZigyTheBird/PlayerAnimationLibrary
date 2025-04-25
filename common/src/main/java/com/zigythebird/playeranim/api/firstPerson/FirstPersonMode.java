@@ -1,6 +1,5 @@
 package com.zigythebird.playeranim.api.firstPerson;
 
-import lombok.Getter;
 import org.jetbrains.annotations.ApiStatus;
 
 public enum FirstPersonMode {
@@ -23,10 +22,13 @@ public enum FirstPersonMode {
     /**
      * First person animation is DISABLED, vanilla idle will be active.
      */
-    DISABLED(false),
+    DISABLED(false);
 
-    ;
-    @Getter
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     private final boolean enabled;
 
 

@@ -25,7 +25,6 @@
 package com.zigythebird.playeranim.animation.layered.modifier;
 
 import com.zigythebird.playeranim.animation.AnimationData;
-import lombok.NoArgsConstructor;
 
 /**
  * Modifies the animation speed.
@@ -33,9 +32,8 @@ import lombok.NoArgsConstructor;
  * speed = 2 means twice the speed, the animation will take half as long
  * <code>length = 1/speed</code>
  */
-@NoArgsConstructor
 public class SpeedModifier extends AbstractModifier {
-    public float speed = 1;
+    public float speed;
 
     private float delta = 0;
 

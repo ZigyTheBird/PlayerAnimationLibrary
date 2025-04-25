@@ -7,7 +7,6 @@ import com.zigythebird.playeranim.animation.layered.modifier.AbstractModifier;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
-import lombok.Getter;
 import net.minecraft.client.Camera;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,10 +25,9 @@ import java.util.function.Predicate;
  */
 public class ModifierLayer<T extends IAnimation> implements IAnimation {
     private final List<AbstractModifier> modifiers = new ArrayList<>();
-    @Nullable
-    @Getter
-    T animation;
 
+    @Nullable
+    T animation;
 
     public ModifierLayer(@Nullable T animation, AbstractModifier... modifiers) {
         this.animation = animation;
@@ -38,6 +36,10 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
 
     public ModifierLayer() {
         this(null);
+    }
+
+    public @Nullable T getAnimation() {
+        return animation;
     }
 
     @Override

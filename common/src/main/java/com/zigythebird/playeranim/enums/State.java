@@ -1,14 +1,15 @@
 package com.zigythebird.playeranim.enums;
 
-import lombok.Getter;
-
 public enum State {
     RUNNING(true),
     TRANSITIONING(false),
     PAUSED(true),
     STOPPED(false);
 
-    @Getter
+    public boolean isActive() {
+        return isActive;
+    }
+
     private final boolean isActive;
 
     State(boolean isActive) {

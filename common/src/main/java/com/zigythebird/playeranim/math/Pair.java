@@ -24,7 +24,6 @@
 
 package com.zigythebird.playeranim.math;
 
-import lombok.Getter;
 import oshi.annotation.concurrent.Immutable;
 
 import java.util.Objects;
@@ -34,7 +33,6 @@ import java.util.Objects;
  * @param <L> Left object
  * @param <R> Right object
  */
-@Getter
 @Immutable
 public class Pair<L, R> {
     final L left;
@@ -48,6 +46,14 @@ public class Pair<L, R> {
     public Pair(L left, R right){
         this.left = left;
         this.right = right;
+    }
+
+    public L getLeft() {
+        return left;
+    }
+
+    public R getRight() {
+        return right;
     }
 
     @Override
