@@ -30,9 +30,15 @@ public class AnimationLoader {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
 
+		ExtraAnimationData extraData = new ExtraAnimationData();
+
+		if (obj.has(PlayerAnimLibMod.MOD_ID)) {
+			extraData.fromJson(obj.getAsJsonObject(PlayerAnimLibMod.MOD_ID));
+		}
+
 		for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
 			try {
-				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), bones, parents));
+				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), bones, parents, extraData.copy()));
 			} catch (Exception ex) {
 				PlayerAnimLibMod.LOGGER.error("Unable to parse animation: {}", entry.getKey(), ex);
 			}
@@ -41,7 +47,7 @@ public class AnimationLoader {
 		return animations;
 	}
 
-	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PivotBone> bones, Map<String, String> parents) throws CompoundException {
+	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PivotBone> bones, Map<String, String> parents, ExtraAnimationData extraData) throws CompoundException {
 		float length = animationObj.has("animation_length") ? GsonHelper.getAsFloat(animationObj, "animation_length") * 20f : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
 		BoneAnimation[] boneAnimations = bakeBoneAnimations(GsonHelper.getAsJsonObject(animationObj, "bones", new JsonObject()));
@@ -50,7 +56,6 @@ public class AnimationLoader {
 		if (length == -1)
 			length = calculateAnimationLength(boneAnimations);
 
-		ExtraAnimationData extraData = new ExtraAnimationData();
 		if (animationObj.has(PlayerAnimLibMod.MOD_ID)) {
 			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLibMod.MOD_ID));
 		}

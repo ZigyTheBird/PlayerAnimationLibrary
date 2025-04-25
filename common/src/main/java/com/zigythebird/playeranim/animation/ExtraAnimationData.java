@@ -92,4 +92,8 @@ public record ExtraAnimationData(Map<String, Object> data) {
         }
         return element;
     }
+
+    public ExtraAnimationData copy() {
+        return new ExtraAnimationData(new HashMap<>(){{putAll(data());}});
+    }
 }
