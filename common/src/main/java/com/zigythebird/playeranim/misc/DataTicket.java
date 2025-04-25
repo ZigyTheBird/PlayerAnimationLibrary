@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.dataticket;
+package com.zigythebird.playeranim.misc;
 
 import java.util.Map;
 import java.util.Objects;

@@ -5,7 +5,7 @@ import com.zigythebird.playeranim.animation.layered.AnimationStack;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.bones.BoneSnapshot;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
-import com.zigythebird.playeranim.dataticket.DataTicket;
+import com.zigythebird.playeranim.misc.DataTicket;
 import com.zigythebird.playeranim.math.Pair;
 import com.zigythebird.playeranim.util.RenderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
