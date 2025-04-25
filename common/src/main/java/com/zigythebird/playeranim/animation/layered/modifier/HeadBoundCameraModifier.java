@@ -7,12 +7,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 
-public class HeadRotBoundCamera extends AbstractModifier {
+public class HeadBoundCameraModifier extends AbstractModifier {
     float tickDelta;
 
-    public HeadRotBoundCamera() {
-        super();
-    }
+    public HeadBoundCameraModifier() {}
 
     @Override
     public void setupAnim(AnimationData state) {

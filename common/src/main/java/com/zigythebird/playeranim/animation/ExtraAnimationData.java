@@ -1,5 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -63,20 +64,32 @@ public record ExtraAnimationData(Map<String, Object> data) {
 
     public void fromJson(JsonObject node) {
         for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
-            String string = entry.getKey();
-            JsonElement value = entry.getValue();
-            if (value.isJsonPrimitive()) {
-                JsonPrimitive p = value.getAsJsonPrimitive();
-                if (p.isBoolean()) {
-                    data().put(string, p.getAsBoolean());
-                } else if (p.isString()) {
-                    data().put(string, p.getAsString());
-                } else if (p.isNumber()) {
-                    data().put(string, p.getAsDouble());
-                } else {
-                    data().put(string, p.toString());
-                }
+            data().put(entry.getKey(), getValue(entry.getValue()));
+        }
+    }
+    
+    public Object getValue(JsonElement element) {
+        if (element instanceof JsonPrimitive p) {
+            if (p.isBoolean()) {
+                return p.getAsBoolean();
+            } else if (p.isString()) {
+                return p.getAsString();
+            } else if (p.isNumber()) {
+                return p.getAsFloat();
             }
         }
+        if (element instanceof JsonArray array) {
+            List<Object> list = new ArrayList<>();
+            for (JsonElement element1 : array) {
+                list.add(getValue(element1));
+            }
+        }
+        if (element instanceof JsonObject object) {
+            Map<String, Object> map = new HashMap<>();
+            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                map.put(entry.getKey(), getValue(entry.getValue()));
+            }
+        }
+        return element;
     }
 }
