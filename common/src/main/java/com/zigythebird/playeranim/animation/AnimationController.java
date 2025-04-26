@@ -327,6 +327,8 @@ public class AnimationController implements IAnimation {
 	 * Pass null to this method to tell the controller to stop
 	 * <p>
 	 * If {@link #forceAnimationReset()} has been called prior to this, the controller will reload the animation regardless of whether it matches the currently loaded one or not
+	 *
+	 * @param startAnimFrom Where to start the animation from in ticks
 	 */
 	protected void setAnimation(RawAnimation rawAnimation, float startAnimFrom) {
 		if (rawAnimation == null || rawAnimation.getAnimationStages().isEmpty()) {
@@ -363,8 +365,9 @@ public class AnimationController implements IAnimation {
 	/**
 	 * Main method used to set the currently playing animation.
 	 * @param newAnimation The animation you want to play.
+	 * @param startAnimFrom Where to start the animation from in ticks.
 	 */
-	public void triggerAnimation(RawAnimation newAnimation) {
+	public void triggerAnimation(RawAnimation newAnimation, float startAnimFrom) {
 		if (newAnimation == null)
 			return;
 
@@ -375,8 +378,13 @@ public class AnimationController implements IAnimation {
 			this.needsAnimationReload = true;
 			this.animationState = State.TRANSITIONING;
 			this.shouldResetTick = true;
+			this.startAnimFrom = startAnimFrom;
 			this.justStartedTransition = true;
 		}
+	}
+
+	public void triggerAnimation(RawAnimation newAnimation) {
+		triggerAnimation(newAnimation, 0);
 	}
 
 	/**

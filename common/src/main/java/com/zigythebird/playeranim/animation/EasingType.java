@@ -381,9 +381,7 @@ public interface EasingType {
 
 		@Override
 		public Float2FloatFunction buildTransformer(Float value) {
-			return easeInOut((n) -> 0.5f * (2f * (n + 1f) + 2f
-                    + (2f * n - 5f * (n + 1f) + 4f * (n + 2f) - (n + 3f))
-                    + (3f * (n + 1f) - n - 3f * (n + 2f) + (n + 3f))));
+			return easeIn(EasingType::linear);
 		}
 
 		@Override
