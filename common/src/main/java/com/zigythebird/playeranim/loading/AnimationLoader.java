@@ -60,7 +60,7 @@ public class AnimationLoader {
 			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLibMod.MOD_ID));
 		}
 
-		if (extraData.data().isEmpty()) { // Fallback to name
+		if (!extraData.data().containsKey(ExtraAnimationData.NAME_KEY)) { // Fallback to name
 			extraData.data().put(ExtraAnimationData.NAME_KEY, name);
 		}
 
