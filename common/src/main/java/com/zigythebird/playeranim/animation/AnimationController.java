@@ -442,7 +442,7 @@ public class AnimationController implements IAnimation {
 			if (this.currentRawAnimation != this.triggeredAnimation)
 				this.currentAnimation = null;
 
-			setAnimation(this.triggeredAnimation);
+			setAnimation(this.triggeredAnimation, startAnimFrom);
 
 			if (!hasAnimationFinished() && !this.handlingTriggeredAnimations)
 				return PlayState.CONTINUE;
@@ -451,8 +451,8 @@ public class AnimationController implements IAnimation {
 			this.needsAnimationReload = true;
 		}
 
-		return this.stateHandler.handle(this, state, animation -> {
-			this.setAnimation(animation);
+		return this.stateHandler.handle(this, state, (animation, startTick) -> {
+			this.setAnimation(animation, startTick);
 			return PlayState.CONTINUE;
 		});
 	}
@@ -507,7 +507,7 @@ public class AnimationController implements IAnimation {
 			processCurrentAnimation(adjustedTick, seekTime, crashWhenCantFindBone, state);
 		}
 		else if (this.animationState == State.TRANSITIONING) {
-			if (this.lastPollTime != seekTime && (adjustedTick == 0 || this.isJustStarting)) {
+			if (this.lastPollTime != seekTime && (adjustedTick == startAnimFrom || this.isJustStarting)) {
 				this.justStartedTransition = false;
 				this.lastPollTime = seekTime;
 				this.currentAnimation = this.animationQueue.poll();
@@ -658,14 +658,14 @@ public class AnimationController implements IAnimation {
 	 */
 	protected float adjustTick(float tick) {
 		if (!this.shouldResetTick)
-			return (this.animationSpeedModifier.apply(this) * Math.max(tick - this.tickOffset, 0)) + startAnimFrom;
+			return this.animationSpeedModifier.apply(this) * Math.max(tick - this.tickOffset, 0) + startAnimFrom;
 
 		if (getAnimationState() != State.STOPPED)
-			this.tickOffset = tick - startAnimFrom;
+			this.tickOffset = tick;
 
 		this.shouldResetTick = false;
 
-		return 0;
+		return startAnimFrom;
 	}
 
 	/**
@@ -1041,7 +1041,15 @@ public class AnimationController implements IAnimation {
 		 * Return {@link PlayState#CONTINUE} to tell the controller to continue animating,
 		 * or return {@link PlayState#STOP} to tell it to stop playing all animations and wait for the next {@link PlayState#CONTINUE} return.
 		 */
-		PlayState handle(AnimationController controller, AnimationData state, Function<RawAnimation, PlayState> animationSetter);
+		PlayState handle(AnimationController controller, AnimationData state, AnimationSetter animationSetter);
+	}
+
+	@FunctionalInterface
+	public interface AnimationSetter {
+		default PlayState setAnimation(RawAnimation animation) {
+			return setAnimation(animation, 0);
+		}
+		PlayState setAnimation(RawAnimation animation, int startFromTick);
 	}
 
 	/**
