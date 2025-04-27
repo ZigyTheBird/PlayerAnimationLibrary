@@ -35,6 +35,7 @@ public class AnimationLoader {
 		if (obj.has(PlayerAnimLibMod.MOD_ID)) {
 			extraData.fromJson(obj.getAsJsonObject(PlayerAnimLibMod.MOD_ID));
 		}
+		if (extraData.has(ExtraAnimationData.NAME_KEY)) extraData.data().remove(ExtraAnimationData.NAME_KEY);
 
 		for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
 			try {
