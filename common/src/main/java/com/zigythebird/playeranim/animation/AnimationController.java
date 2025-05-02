@@ -688,7 +688,9 @@ public class AnimationController implements IAnimation {
 	}
 
 	public boolean hasEndTick() {
-		return this.currentAnimation != null && this.currentAnimation.animation().data().has("endTick");
+		if (this.currentAnimation == null) return false;
+		Animation animation = this.currentAnimation.animation();
+		return animation.data().has("endTick") && animation.loopType() == Animation.LoopType.DEFAULT;
 	}
 
 	public boolean isAnimationPlayerAnimatorFormat() {
