@@ -1,0 +1,20 @@
+{
+	"version": 3,
+	"name": "cape_elytra_testing",
+	"emote": {
+		"endTick": 1,
+		"isLoop": true,
+		"returnTick": 0,
+		"degrees": true,
+		"moves": [
+			{
+				"tick": 0,
+				"cape": {
+					"pitch": -30,
+					"roll": -30,
+					"yaw": -30
+				}
+			}
+		]
+	}
+}
