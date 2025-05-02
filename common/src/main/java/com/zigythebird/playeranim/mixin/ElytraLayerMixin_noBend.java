@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WingsLayer.class)
 public abstract class ElytraLayerMixin_noBend<S extends HumanoidRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
-    private ElytraLayerMixin_noBend(RenderLayerParent<S, M> renderLayerParent, Void v) {
+    private ElytraLayerMixin_noBend(RenderLayerParent<S, M> renderLayerParent) {
         super(renderLayerParent);
     }
 
@@ -41,7 +41,7 @@ public abstract class ElytraLayerMixin_noBend<S extends HumanoidRenderState, M e
                 elytra.copyOtherBone(cape);
                 emote.get3DTransform(elytra);
                 poseStack.translate(elytra.getPosX() / 16, elytra.getPosY() / 16, elytra.getPosZ() / 16);
-                poseStack.mulPose((new Quaternionf()).rotateXYZ(elytra.getRotX(), elytra.getRotY(), elytra.getRotZ()));
+                poseStack.mulPose((new Quaternionf()).rotateXYZ(-elytra.getRotX(), elytra.getRotY(), -elytra.getRotZ()));
                 poseStack.scale(elytra.getScaleX(), elytra.getScaleY(), elytra.getScaleZ());
             }
         }
