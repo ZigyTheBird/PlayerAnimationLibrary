@@ -28,7 +28,6 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.accessors.IPlayerModel;
 import com.zigythebird.playeranim.accessors.IUpperPartHelper;
 import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
@@ -49,10 +48,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Function;
 
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
-public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implements IPlayerModel {
-    @Unique
-    private boolean playerAnimLib$firstPersonNext = false;
-
+public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
     public PlayerModelMixin(ModelPart modelPart, Function<ResourceLocation, RenderType> function) {
         super(modelPart, function);
     }
@@ -82,7 +78,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "RETURN"))
     private void setupPlayerAnimation(PlayerRenderState playerRenderState, CallbackInfo ci) {
-        if (!playerAnimLib$firstPersonNext && playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
+        if (playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
             AnimationProcessor processor = state.playerAnimLib$getAnimProcessor();
             processor.handleAnimations(emote.getTickDelta(), false);
@@ -103,7 +99,6 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
             emote.updatePart("torso", this.body, processor);
         }
         else {
-            playerAnimLib$firstPersonNext = false;
             ((IMutableModel)this).playerAnimLib$setAnimation(null);
         }
 
@@ -153,15 +148,5 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> implement
             return false;
         }
         return true;
-    }
-
-    @Override
-    public void playerAnimLib$prepForFirstPersonRender() {
-        playerAnimLib$firstPersonNext = true;
-    }
-
-    @Override
-    public boolean playerAnimLib$isFirstPersonRender() {
-        return this.playerAnimLib$firstPersonNext;
     }
 }
