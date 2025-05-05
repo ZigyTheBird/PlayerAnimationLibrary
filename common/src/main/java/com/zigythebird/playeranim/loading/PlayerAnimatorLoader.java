@@ -14,8 +14,8 @@ import com.zigythebird.playeranim.math.MathHelper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-import team.unnamed.mocha.parser.ast.DoubleExpression;
 import team.unnamed.mocha.parser.ast.Expression;
+import team.unnamed.mocha.parser.ast.FloatExpression;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -25,8 +25,8 @@ import static com.zigythebird.playeranim.animation.PlayerAnimResources.NO_KEYFRA
 public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     private final static int modVersion = 3;
 
-    public static final List<Expression> ZERO = Collections.singletonList(new DoubleExpression(0));
-    public static final List<Expression> ONE = Collections.singletonList(new DoubleExpression(1));
+    public static final List<Expression> ZERO = Collections.singletonList(FloatExpression.ZERO);
+    public static final List<Expression> ONE = Collections.singletonList(FloatExpression.ONE);
 
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -207,10 +207,10 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         float prevTime = lastFrame != null ? lastTick : 0;
         if (node.has(name)) {
             float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees);
-            List<Expression> expressions = Collections.singletonList(new DoubleExpression(value));
+            List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
             part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, Collections.singletonList(new ObjectArrayList<>(0))));
             if (transformType == TransformType.ROTATION && rotate != 0) {
-                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(new DoubleExpression(value + MathHelper.PI * 2f * rotate)), easing, Collections.singletonList(new ObjectArrayList<>(0))));
+                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(FloatExpression.of(value + MathHelper.PI * 2f * rotate)), easing, Collections.singletonList(new ObjectArrayList<>(0))));
             }
         }
     }
