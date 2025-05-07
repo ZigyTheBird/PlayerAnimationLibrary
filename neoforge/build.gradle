@@ -37,7 +37,10 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 
-    implementation forgeRuntimeLibrary(shadowBundle("team.unnamed:mocha:$rootProject.molang_version"))
+    implementation forgeRuntimeLibrary(shadowBundle("com.zigythebird:mochafloats:$rootProject.molang_version")) {
+        transitive = false
+    }
+    forgeRuntimeLibrary include("org.javassist:javassist:$rootProject.javassist_version")
 }
 
 processResources {
@@ -54,7 +57,7 @@ shadowJar {
 
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
-    relocate 'gg.moonflower.molangcompiler', 'com.zigythebird.playeranim.lib.molangcompiler'
+    relocate 'team.unnamed.mocha', 'com.zigythebird.playeranim.lib.mochafloats'
 }
 
 remapJar {
