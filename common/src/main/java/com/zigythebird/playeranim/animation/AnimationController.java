@@ -693,6 +693,14 @@ public class AnimationController implements IAnimation {
 		return animation.data().has("endTick") && animation.loopType() == Animation.LoopType.DEFAULT;
 	}
 
+	public boolean isDisableAxisIfNotModified() {
+		if (this.currentAnimation != null) {
+			Optional<Boolean> result = this.currentAnimation.animation().data().get("disableAxisIfNotModified");
+            return result.orElseGet(this::isAnimationPlayerAnimatorFormat);
+        }
+		return false;
+	}
+
 	public boolean isAnimationPlayerAnimatorFormat() {
 		return this.currentAnimation != null && this.currentAnimation.animation().data().<AnimationFormat>get("format").orElse(null) == AnimationFormat.PLAYER_ANIMATOR;
 	}
@@ -706,7 +714,7 @@ public class AnimationController implements IAnimation {
 		for (BoneAnimation boneAnimation : animations) {
 			if (bones.containsKey(boneAnimation.boneName())) {
 				AdvancedPlayerAnimBone bone = bones.get(boneAnimation.boneName());
-				if (isAnimationPlayerAnimatorFormat()) {
+				if (isDisableAxisIfNotModified()) {
 					bone.positionXEnabled = !boneAnimation.positionKeyFrames().xKeyframes().isEmpty();
 					bone.positionYEnabled = !boneAnimation.positionKeyFrames().yKeyframes().isEmpty();
 					bone.positionZEnabled = !boneAnimation.positionKeyFrames().zKeyframes().isEmpty();
@@ -745,8 +753,10 @@ public class AnimationController implements IAnimation {
 			}
 		}
 
+		Animation animation = this.currentAnimation.animation();
+
 		if (transitionLengthSetter != null) {
-			ExtraAnimationData extraData = this.currentAnimation.animation().data();
+			ExtraAnimationData extraData = animation.data();
 			if (hasBeginTick() && !frames.isEmpty() && currentFrame == frames.getFirst() && tick < currentFrame.length()
 					&& extraData.<Float>get("beginTick").orElse(0F) > tick) {
 				startValue = endValue;
@@ -754,8 +764,21 @@ public class AnimationController implements IAnimation {
 			} else if (hasEndTick() && !frames.isEmpty() && currentFrame == frames.getLast() && tick >= location.tick()
 					&& extraData.<Float>get("endTick").orElse(0F) <= tick) {
 
-				transitionLengthSetter.accept(this.currentAnimation.animation().length() - extraData.<Float>get("endTick").orElse(0F));
+				transitionLengthSetter.accept(animation.length() - extraData.<Float>get("endTick").orElse(0F));
 			} else transitionLengthSetter.accept(null);
+		}
+
+		Animation.LoopType loopType = animation.loopType();
+		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(player, this, animation) && currentFrame == frames.getLast() && tick >= location.tick()) {
+			KeyframeLocation<Keyframe> returnTolocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(player, this, animation)-1);
+			Keyframe returnToFrame = returnTolocation.keyframe();
+			float returnToValue = (float) this.molangRuntime.eval(returnToFrame.endValue());
+			if (type == TransformType.ROTATION || type == TransformType.BEND) {
+				if (!(MolangLoader.isConstant(returnToFrame.endValue()))) {
+					returnToValue = (float) Math.toRadians(returnToValue);
+				}
+			}
+			return new AnimationPoint(returnToFrame.easingType(), returnToFrame.easingArgs(), tick - location.tick(), returnTolocation.tick() + animation.length() - location.tick(), endValue, returnToValue);
 		}
 
 		return new AnimationPoint(currentFrame.easingType(), currentFrame.easingArgs(), location.startTick(), currentFrame.length(), startValue, endValue);
@@ -781,7 +804,7 @@ public class AnimationController implements IAnimation {
 				return new KeyframeLocation<>(frame, (ageInTicks - (totalFrameTime - frame.length())), totalFrameTime);
 		}
 
-		return new KeyframeLocation<>(frames.getLast(), ageInTicks, ageInTicks);
+		return new KeyframeLocation<>(frames.getLast(), ageInTicks, totalFrameTime);
 	}
 
 	/**

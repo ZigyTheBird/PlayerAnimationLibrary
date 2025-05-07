@@ -393,6 +393,8 @@ public class PlayerAnimBone {
 				this.bendAxis = bone.bendAxis;
 			if (advancedBone.isBendEnabled())
 				this.bend = bone.bend;
+
+			return this;
 		}
 		return copyOtherBone(bone);
 	}
