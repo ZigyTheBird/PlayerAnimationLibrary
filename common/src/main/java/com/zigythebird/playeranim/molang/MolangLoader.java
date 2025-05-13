@@ -7,8 +7,8 @@ import com.zigythebird.playeranim.event.MolangEvent;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.MolangParser;
 import team.unnamed.mocha.parser.ParseException;
-import team.unnamed.mocha.parser.ast.DoubleExpression;
 import team.unnamed.mocha.parser.ast.Expression;
+import team.unnamed.mocha.parser.ast.FloatExpression;
 import team.unnamed.mocha.runtime.IsConstantExpression;
 import team.unnamed.mocha.runtime.value.MutableObjectBinding;
 import team.unnamed.mocha.runtime.value.NumberValue;
@@ -32,7 +32,7 @@ public class MolangLoader {
             List<Expression> expressions1 = parser.parseAll();
             if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
                 expressions = new ArrayList<>(){{
-                    add(new DoubleExpression(Math.toRadians(((DoubleExpression) expressions1.getFirst()).value())));
+                    add(FloatExpression.of(Math.toRadians(((FloatExpression) expressions1.getFirst()).value())));
                 }};
             }
             else {

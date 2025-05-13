@@ -33,7 +33,10 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 
-    implementation shadowBundle("team.unnamed:mocha:$rootProject.molang_version")
+    implementation shadowBundle("com.zigythebird:mochafloats:$rootProject.molang_version") {
+        transitive = false
+    }
+    include("org.javassist:javassist:$rootProject.javassist_version")
 }
 
 processResources {
@@ -49,7 +52,7 @@ shadowJar {
 
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
-    relocate 'gg.moonflower.molangcompiler', 'com.zigythebird.playeranim.molangcompiler'
+    relocate 'team.unnamed.mocha', 'com.zigythebird.playeranim.lib.mochafloats'
 }
 
 remapJar {
