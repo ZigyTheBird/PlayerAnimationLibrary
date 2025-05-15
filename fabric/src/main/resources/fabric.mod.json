@@ -14,7 +14,7 @@
     "issues": "https://github.com/ZigyTheBird/PlayerAnimationLibrary/issues"
   },
   "license": "MIT License",
-  "icon": "assets/player_animation_library/icon.png",
+  "icon": "icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [

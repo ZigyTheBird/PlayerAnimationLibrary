@@ -12,7 +12,7 @@ description = '''
 A library that allows mods to animate the player, in a way that doesn't conflict with other mods. (and much more!)
 '''
 displayURL = "https://pal-docs.zigythebird.com"
-logoFile = "assets/player_animation_library/icon.png"
+logoFile = "icon.png"
 
 [[dependencies.player_animation_library]]
 modId = "neoforge"
