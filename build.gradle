@@ -24,7 +24,10 @@ subprojects {
     }
 
     repositories {
-        maven { url 'https://jitpack.io' }
+        maven {
+            name "zigythebirdMods"
+            url "https://maven.zigythebird.com/mods"
+        }
     }
 
     loom {
