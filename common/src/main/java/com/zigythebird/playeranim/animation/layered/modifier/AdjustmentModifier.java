@@ -134,6 +134,13 @@ public class AdjustmentModifier extends AbstractModifier {
         }
     }
 
+    /// Whether the adjustment should be increasingly applied
+    /// between animation start and animation beginTick
+    public boolean fadeIn = true;
+    /// Whether the adjustment should be decreasingly applied
+    /// between animation endTick and animation stop
+    public boolean fadeOut = true;
+    /// Whether the adjustment should be applied at all
     public boolean enabled = true;
     private float tickDelta;
 
@@ -176,7 +183,7 @@ public class AdjustmentModifier extends AbstractModifier {
             fadeOut = Math.min(fadeOut, 1F);
             return fadeOut;
         }
-        if (getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
+        if (this.fadeOut && getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
             float stopTick = controller.getCurrentAnimation().animation().length();
             float endTick = controller.getCurrentAnimation().animation().data().<Float>get("endTick").orElse(stopTick);
             float position = (-1F) * (controller.getAnimationTicks() - stopTick);
@@ -189,9 +196,9 @@ public class AdjustmentModifier extends AbstractModifier {
         return fadeOut;
     }
 
-    protected float getFadeIn(float delta) {
+    protected float getFadeIn() {
         float fadeIn = 1;
-        if (getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
+        if (this.fadeIn && getController() instanceof AnimationController controller && controller.getCurrentAnimation() != null) {
             float beginTick = controller.getCurrentAnimation().animation().data().<Float>get("beginTick").orElse(0F);
             fadeIn = beginTick > 0 ? controller.getAnimationTicks() / beginTick : 1F;
             fadeIn = Math.min(fadeIn, 1F);
@@ -207,7 +214,7 @@ public class AdjustmentModifier extends AbstractModifier {
 
         Optional<PartModifier> partModifier = source.apply(bone.getName());
 
-        float fade = getFadeIn(tickDelta) * getFadeOut(tickDelta);
+        float fade = getFadeIn() * getFadeOut(tickDelta);
         if (partModifier.isPresent()) {
             super.get3DTransform(bone);
             transformBone(bone, partModifier.get(), fade);
