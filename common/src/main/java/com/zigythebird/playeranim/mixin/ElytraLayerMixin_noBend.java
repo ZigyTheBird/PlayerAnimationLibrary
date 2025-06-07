@@ -23,7 +23,7 @@ public abstract class ElytraLayerMixin_noBend<S extends HumanoidRenderState, M e
         super(renderLayerParent);
     }
 
-    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
+    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer;renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/resources/ResourceLocation;)V"))
     private void inject(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, S humanoidRenderState, float f, float g, CallbackInfo ci) {
         if (humanoidRenderState instanceof IPlayerAnimationState animationState) {
             PlayerAnimManager emote = animationState.playerAnimLib$getAnimManager();
@@ -41,7 +41,7 @@ public abstract class ElytraLayerMixin_noBend<S extends HumanoidRenderState, M e
                 elytra.copyOtherBone(cape);
                 emote.get3DTransform(elytra);
                 poseStack.translate(elytra.getPosX() / 16, elytra.getPosY() / 16, elytra.getPosZ() / 16);
-                poseStack.mulPose((new Quaternionf()).rotateXYZ(-elytra.getRotX(), elytra.getRotY(), -elytra.getRotZ()));
+                poseStack.mulPose(new Quaternionf().rotateZYX(-elytra.getRotX(), elytra.getRotY(), -elytra.getRotZ()));
                 poseStack.scale(elytra.getScaleX(), elytra.getScaleY(), elytra.getScaleZ());
             }
         }
