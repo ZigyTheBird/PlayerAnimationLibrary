@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -22,12 +23,20 @@ public record ExtraAnimationData(Map<String, Object> data) {
 
     @Nullable
     public String displayName() {
-        return (String) data().get(NAME_KEY);
+        Object name = data().get(NAME_KEY);
+        if (name instanceof JsonObject jsonObject) {
+            return Component.translatableWithFallback(jsonObject.get("translate").getAsString(), jsonObject.get("fallback").getAsString()).toString();
+        }
+        return (String) name;
     }
 
     @Nullable
     public String name() {
-        String name = displayName();
+        Object data = data().get(NAME_KEY);
+        String name;
+        if (data instanceof JsonObject jsonObject) {
+            name = jsonObject.get("fallback").getAsString();
+        } else name = (String) data;
         return name != null ? name.toLowerCase(Locale.ROOT).replace("\"", "").replace(" ", "_") : null;
     }
 
