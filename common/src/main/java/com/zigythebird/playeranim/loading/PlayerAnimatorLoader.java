@@ -194,7 +194,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn);
         fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn);
         fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn);
-        fillKeyframeStack(bone.bendKeyFrames(), MathHelper.ZERO, TransformType.BEND, "bend", "axis", null, partNode, degrees, tick, easing, turn);
+        fillKeyframeStack(bone.bendKeyFrames(), MathHelper.ZERO, TransformType.BEND, "axis", "bend", null, partNode, degrees, tick, easing, turn);
     }
 
     private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vector3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn) {
