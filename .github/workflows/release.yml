@@ -1,0 +1,160 @@
+name: Publish on Modrinth & CurseForge
+
+on:
+  workflow_dispatch:
+    secrets:
+      CURSEFORGE_TOKEN:
+        required: true
+      MODRINTH_TOKEN:
+        required: true
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v3
+
+      - name: Get Artifact Id
+        uses: actions/github-script@v5
+        env:
+          branch: ${{ github.head_ref || github.ref_name }}   
+        id: artifact_id
+        with:
+          result-encoding: string
+          script: |
+            // use env branch replace / with _
+            return process.env.branch.replace(/\//g, '_')
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: 21
+
+      - name: Grant Execute Permission
+        run: chmod +x gradlew
+
+      - name: Build
+        run: |
+          ./gradlew build
+
+      - name: Upload To Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact_id.outputs.result }}
+          path: |
+            ./dist/**/*
+            ./fabric/build/libs
+            ./neoforge/build/libs
+            ./gradle.properties
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v3
+          
+      - name: Get Artifact Id
+        uses: actions/github-script@v5
+        env:
+          branch: ${{ github.head_ref || github.ref_name }}   
+        id: artifact_id
+        with:
+          result-encoding: string
+          script: |
+            // use env branch replace / with _
+            return process.env.branch.replace(/\//g, '_')
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.artifact_id.outputs.result }}
+
+      - name: Load Gradle Properties
+        uses: christian-draeger/read-properties@1.1.1
+        id: gradle_properties
+        with:
+          path: './gradle.properties'
+          properties: 'java_version minecraft_version mod_version'
+
+      - name: Check For Fabric Jar
+        uses: actions/github-script@v5
+        id: fabric_release
+        with:
+          result-encoding: string
+          script: |
+            const fs = require("fs")
+            return fs.readdirSync("./fabric/build/libs")[0] || false;
+
+      - name: Check For Forge Jar
+        uses: actions/github-script@v5
+        id: forge_release
+        with:
+          result-encoding: string
+          script: |
+            const fs = require("fs")
+            return fs.readdirSync("./neoforge/build/libs")[0] || false;
+
+      - name: Run Publish Fabric
+        if: ${{ steps.fabric_release.outputs.result != 'false' }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ha1mEyJS
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: false
+          modrinth-unfeature-mode: any
+
+          curseforge-id: 1283899
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          name: ${{ steps.gradle_properties.outputs.mod_version }}+${{ steps.gradle_properties.outputs.minecraft_version }}-Fabric
+          version: ${{ steps.gradle_properties.outputs.mod_version }}
+
+          files: |
+            ./fabric/build/libs/!(*-@(dev|sources|javadoc|all)).jar
+            ./fabric/build/libs/*-@(dev|sources|javadoc|all).jar
+          version-type: release
+
+          loaders: fabric
+          game-versions: ${{ steps.gradle_properties.outputs.minecraft_version }}
+
+          changelog-file: CHANGELOG.md
+
+          java: ${{ steps.gradle_properties.outputs.java_version }}
+          retry-attempts: 5
+          retry-delay: 60000
+          fail-mode: skip
+
+      - name: Run Publish Forge
+        if: ${{ steps.forge_release.outputs.result != 'false' }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ha1mEyJS
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: false
+          modrinth-unfeature-mode: any
+
+          curseforge-id: 1283899
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          name: ${{ steps.gradle_properties.outputs.mod_version }}+${{ steps.gradle_properties.outputs.minecraft_version }}-NeoForge
+          version: ${{ steps.gradle_properties.outputs.mod_version }}
+
+          files: |
+            ./neoforge/build/libs/!(*-@(dev|sources|javadoc|all)).jar
+            ./neoforge/build/libs/*-@(dev|sources|javadoc|all).jar
+          version-type: release
+
+          loaders: neoforge
+          game-versions: ${{ steps.gradle_properties.outputs.minecraft_version }}
+
+          changelog-file: CHANGELOG.md
+
+          java: ${{ steps.gradle_properties.outputs.java_version }}
+          retry-attempts: 5
+          retry-delay: 60000
+          fail-mode: skip

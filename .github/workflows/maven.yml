@@ -1,0 +1,33 @@
+name: Publish to maven repository.
+
+on:
+  workflow_dispatch
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Branch
+              uses: actions/checkout@v4
+
+            - name: Restore gradle.properties
+              shell: bash
+              env:
+                  MAVEN_TOKEN: ${{ secrets.MAVEN_TOKEN }}
+              run: |
+                  mkdir -p ~/.gradle/
+                  echo "GRADLE_USER_HOME=${HOME}/.gradle" >> $GITHUB_ENV
+                  echo "${MAVEN_TOKEN}" > ~/.gradle/gradle.properties
+
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: 'adopt'
+                  java-version: 17
+
+            - name: Grant Execute Permission
+              run: chmod +x gradlew
+
+            - name: Build
+              run: |
+                  ./gradlew publishMavenPublicationToZigythebirdmodsRepository
