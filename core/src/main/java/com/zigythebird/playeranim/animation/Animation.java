@@ -15,7 +15,9 @@ import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.enums.AnimationStage;
 import com.zigythebird.playeranim.enums.State;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,11 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-    public record Animation(ExtraAnimationData data, float length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames, Map<String, PivotBone> bones, Map<String, String> parents) {
+    public record Animation(ExtraAnimationData data, float length, LoopType loopType, List<BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, PivotBone> bones, Map<String, String> parents) {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 
     static Animation generateWaitAnimation(float length) {
-        return new Animation(new ExtraAnimationData(ExtraAnimationData.NAME_KEY, AnimationStage.WAIT.name()), length, LoopType.PLAY_ONCE, new BoneAnimation[0],
+        return new Animation(new ExtraAnimationData(ExtraAnimationData.NAME_KEY, AnimationStage.WAIT.name()), length, LoopType.PLAY_ONCE, new ArrayList<>(),
                 new Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]), new HashMap<>(), new HashMap<>());
     }
 

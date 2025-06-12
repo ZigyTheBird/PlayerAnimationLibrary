@@ -17,8 +17,8 @@ package com.zigythebird.playeranim.animation.keyframe;
  * @param bendKeyFrames The deserialized bend {@code Keyframe} stack
  */
 public record BoneAnimation(String boneName,
-							KeyframeStack<Keyframe> rotationKeyFrames,
-							KeyframeStack<Keyframe> positionKeyFrames,
-							KeyframeStack<Keyframe> scaleKeyFrames,
-							KeyframeStack<Keyframe> bendKeyFrames) {
+							KeyframeStack rotationKeyFrames,
+							KeyframeStack positionKeyFrames,
+							KeyframeStack scaleKeyFrames,
+							KeyframeStack bendKeyFrames) {
 }

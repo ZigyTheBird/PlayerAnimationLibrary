@@ -3,7 +3,6 @@ package com.zigythebird.playeranim.bones;
 import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.EasingType;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
-import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranim.enums.Axis;
 import com.zigythebird.playeranim.enums.TransformType;
@@ -11,7 +10,6 @@ import it.unimi.dsi.fastutil.Pair;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3d;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -437,8 +435,8 @@ public class PlayerAnimBone {
 		if (transitionLength != null) {
 			EasingType easingType = EasingType.EASE_IN_OUT_SINE;
 			if (animation != null && animation.data().has("easeBeforeKeyframe") && !(boolean)animation.data().getRaw("easeBeforeKeyframe")) {
-				BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
-				KeyframeStack<Keyframe> keyframeStack;
+				BoneAnimation boneAnimation = animation.boneAnimations().stream().filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
+				KeyframeStack keyframeStack;
 				switch (type) {
 					case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
 					case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();

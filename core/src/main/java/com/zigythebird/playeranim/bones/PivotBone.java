@@ -6,7 +6,6 @@ public class PivotBone extends PlayerAnimBone implements IBoneEnabled {
     private final Vector3d pivot;
     public IBoneEnabled child;
 
-
     public PivotBone(String name, Vector3d pivot) {
         super(name);
         this.pivot = pivot;
