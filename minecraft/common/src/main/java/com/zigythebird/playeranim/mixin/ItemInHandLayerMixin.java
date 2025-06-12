@@ -29,6 +29,7 @@ import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
@@ -52,19 +53,19 @@ public class ItemInHandLayerMixin {
         if(renderState instanceof IPlayerAnimationState state) {
             if (state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
                 PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
+                if (anim == null) return;
                 PlayerAnimBone bone;
 
                 if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
                 else bone = playerAnimLib$rightItem;
 
+                bone.setToInitialPose();
                 anim.get3DTransform(bone);
 
                 matrices.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
                 matrices.translate(bone.getPosX()/16, bone.getPosY()/16, bone.getPosZ()/16);
 
-                matrices.mulPose(Axis.ZP.rotation(bone.getRotZ()));    //roll
-                matrices.mulPose(Axis.YP.rotation(bone.getRotY()));    //pitch
-                matrices.mulPose(Axis.XP.rotation(bone.getRotX()));    //yaw
+                RenderUtil.rotateMatrixAroundBone(matrices, bone);
             }
         }
     }

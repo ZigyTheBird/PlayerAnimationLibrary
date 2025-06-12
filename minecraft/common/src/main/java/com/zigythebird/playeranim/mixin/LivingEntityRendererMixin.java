@@ -29,6 +29,7 @@ import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -71,9 +72,7 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
                 poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
                 poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);
 
-                poseStack.mulPose(Axis.ZP.rotation(body.getRotZ()));    //roll
-                poseStack.mulPose(Axis.YP.rotation(body.getRotY()));    //pitch
-                poseStack.mulPose(Axis.XP.rotation(body.getRotX()));    //yaw
+                RenderUtil.rotateMatrixAroundBone(poseStack, body);
 
                 poseStack.translate(0, -0.75, 0);
 

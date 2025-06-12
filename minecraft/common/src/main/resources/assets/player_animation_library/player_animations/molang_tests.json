@@ -40,6 +40,16 @@
 					}
 				}
 			}
+		},
+		"molang_test5": {
+			"animation_length": 5,
+			"bones": {
+				"right_arm": {
+					"position": {
+						"vector": [0, "v.cowcow = 5; return v.cowcow;", 0]
+					}
+				}
+			}
 		}
 	},
 	"geckolib_format_version": 2
