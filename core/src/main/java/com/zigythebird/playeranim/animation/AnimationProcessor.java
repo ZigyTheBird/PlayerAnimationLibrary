@@ -87,8 +87,6 @@ public abstract class AnimationProcessor {
 			if (animation.isActive())
 				animation.setupAnim(state.copy());
 		}
-
-		// TODO playerAnimManager.finishFirstTick();
 	}
 
 	/**

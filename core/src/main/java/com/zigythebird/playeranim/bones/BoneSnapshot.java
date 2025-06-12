@@ -1,7 +1,9 @@
 package com.zigythebird.playeranim.bones;
 
 import com.zigythebird.playeranim.animation.AnimationProcessor;
+import com.zigythebird.playeranim.enums.TransformType;
 import it.unimi.dsi.fastutil.Pair;
+import org.joml.Vector3f;
 
 /**
  * Transformations applied to the bone are monitored by the {@link AnimationProcessor}
@@ -171,23 +173,23 @@ public class BoneSnapshot {
 		updateBend(bend.left(), bend.right());
 	}
 
-	/* TODO public Vec3f getTransformFromType(TransformType type) {
+	public Vector3f getTransformFromType(TransformType type) {
 		switch (type) {
 			case POSITION -> {
-				return new Vec3f(offsetPosX, offsetPosY, offsetPosZ);
+				return new Vector3f(offsetPosX, offsetPosY, offsetPosZ);
 			}
 			case ROTATION -> {
-				return new Vec3f(rotX, rotY, rotZ);
+				return new Vector3f(rotX, rotY, rotZ);
 			}
             case SCALE -> {
-				return new Vec3f(scaleX, scaleY, scaleZ);
+				return new Vector3f(scaleX, scaleY, scaleZ);
 			}
 			case BEND -> {
-				return new Vec3f(bendAxis, bend, 0);
+				return new Vector3f(bendAxis, bend, 0);
 			}
 		}
 		return null;
-	}*/
+	}
 
 	public void setToInitialPose() {
 		this.rotX = 0;

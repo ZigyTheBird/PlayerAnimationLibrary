@@ -874,10 +874,6 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	protected void internalSetupAnim(AnimationData state) {
-		/* TODO this.isJustStarting = state.getPlayerAnimManager().isFirstTick();
-
-		this.process(state, state.getPlayer().playerAnimLib$getAnimProcessor().animTime, false);*/
-
 		this.activeBones.clear();
 		for (BoneAnimationQueue boneAnimation : this.getBoneAnimationQueues().values()) {
 			PlayerAnimBone bone = boneAnimation.bone();

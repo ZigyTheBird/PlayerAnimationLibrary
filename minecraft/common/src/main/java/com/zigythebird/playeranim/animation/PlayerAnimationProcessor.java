@@ -1,5 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
+import com.zigythebird.playeranim.animation.layered.AnimationStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.phys.Vec3;
@@ -15,6 +16,15 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
     public PlayerAnimationProcessor(AbstractClientPlayer player) {
         super();
         this.player = player;
+    }
+
+    @Override
+    public void tickAnimation(AnimationStack stack, AnimationData state) {
+        super.tickAnimation(stack, state);
+
+        if (stack instanceof PlayerAnimManager playerAnimManager) {
+            playerAnimManager.finishFirstTick();
+        }
     }
 
     @Override

@@ -53,7 +53,6 @@ public class MolangLoader {
         MutableObjectBinding queryBinding = new QueryBinding<>(controller);
         setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimationTime);
         setDoubleQuery(queryBinding, "controller_speed", AnimationController::getAnimationSpeed);
-        // TODO MolangQueries.setDefaultQueryValues(queryBinding);
 
         MolangEvent.MOLANG_EVENT.invoker().registerMolangQueries(controller, engine, queryBinding);
         queryBinding.block(); // make immutable

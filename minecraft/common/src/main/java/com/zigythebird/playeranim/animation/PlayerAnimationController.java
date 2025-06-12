@@ -2,29 +2,21 @@ package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.enums.State;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.Queue;
 
 public class PlayerAnimationController extends AnimationController {
     protected final AbstractClientPlayer player;
-    protected final ResourceLocation id;
 
     /**
      * Instantiates a new {@code AnimationController}
      *
      * @param player           The object that will be animated by this controller
-     * @param id               The name of the controller - should represent what animations it handles
      * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
      */
-    public PlayerAnimationController(AbstractClientPlayer player, ResourceLocation id, AnimationStateHandler animationHandler) {
+    public PlayerAnimationController(AbstractClientPlayer player, AnimationStateHandler animationHandler) {
         super(animationHandler);
         this.player = player;
-        this.id = id;
-    }
-
-    public ResourceLocation getId() {
-        return this.id;
     }
 
     public AbstractClientPlayer getPlayer() {
@@ -58,5 +50,14 @@ public class PlayerAnimationController extends AnimationController {
 
             stop();
         }
+    }
+
+    @Override
+    protected void internalSetupAnim(AnimationData state) {
+        if (state instanceof PlayerAnimationData playerAnimationData) {
+            this.isJustStarting = playerAnimationData.getPlayerAnimManager().isFirstTick();
+            this.process(state, playerAnimationData.getPlayer().playerAnimLib$getAnimProcessor().animTime, false);
+        }
+        super.internalSetupAnim(state);
     }
 }

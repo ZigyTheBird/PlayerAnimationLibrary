@@ -3,6 +3,8 @@ package com.zigythebird.playeranim;
 import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
 import com.zigythebird.playeranim.enums.PlayState;
+import com.zigythebird.playeranim.event.MolangEvent;
+import com.zigythebird.playeranim.molang.MolangQueries;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class PlayerAnimLibMod extends PlayerAnimLib {
@@ -14,9 +16,12 @@ public abstract class PlayerAnimLibMod extends PlayerAnimLib {
 
     protected void init() {
         PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(ANIMATION_LAYER_ID, 1000,
-                player -> new PlayerAnimationController(player, ANIMATION_LAYER_ID,
+                player -> new PlayerAnimationController(player,
                         (controller, state, animSetter) -> PlayState.STOP
                 )
+        );
+        MolangEvent.MOLANG_EVENT.register((controller, engine, queryBinding) ->
+                MolangQueries.setDefaultQueryValues(queryBinding)
         );
     }
 }
