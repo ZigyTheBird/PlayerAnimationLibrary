@@ -698,8 +698,8 @@ public abstract class AnimationController implements IAnimation {
 	private AnimationPoint getAnimationPointAtTick(List<Keyframe> frames, float tick, TransformType type, Consumer<Float> transitionLengthSetter) {
 		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick);
 		Keyframe currentFrame = location.keyframe();
-		float startValue = (float) this.molangRuntime.eval(currentFrame.startValue());
-		float endValue = (float) this.molangRuntime.eval(currentFrame.endValue());
+		float startValue = this.molangRuntime.eval(currentFrame.startValue());
+		float endValue = this.molangRuntime.eval(currentFrame.endValue());
 
 		if (type == TransformType.ROTATION || type == TransformType.BEND) {
 			if (!(MolangLoader.isConstant(currentFrame.startValue()))) {
