@@ -42,6 +42,13 @@ allprojects {
     group = rootProject.maven_group
 
     repositories {
+        // Fix issue with lwjgl-freetype not being found on macOS
+        maven {
+            url "https://libraries.minecraft.net"
+            content {
+                includeModule("org.lwjgl", "lwjgl-freetype")
+            }
+        }
         maven {
             name = "NeoForged"
             url = "https://maven.neoforged.net/releases"
