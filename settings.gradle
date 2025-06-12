@@ -1,14 +1,14 @@
 pluginManagement {
     repositories {
-        maven { url "https://maven.fabricmc.net/" }
-        maven { url "https://maven.architectury.dev/" }
-        maven { url "https://files.minecraftforge.net/maven/" }
+        maven { url = "https://maven.fabricmc.net/" }
+        maven { url = "https://maven.architectury.dev/" }
+        maven { url = "https://maven.neoforged.net/releases" }
         gradlePluginPortal()
     }
 }
 
-rootProject.name = 'player_animation_library'
+rootProject.name = "player_animation_library"
 
-include 'common'
-include 'fabric'
-include 'neoforge'
+include("common")
+include("fabric")
+include("forge")
