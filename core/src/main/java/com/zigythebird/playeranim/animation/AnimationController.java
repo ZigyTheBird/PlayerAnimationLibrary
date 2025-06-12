@@ -47,6 +47,7 @@ public abstract class AnimationController implements IAnimation {
 	protected final Map<String, BoneAnimationQueue> boneAnimationQueues = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PlayerAnimBone> activeBones = new Object2ObjectOpenHashMap<>();
+	protected final Map<String, PivotBone> pivotBones = new Object2ObjectOpenHashMap<>();
 	protected Queue<AnimationProcessor.QueuedAnimation> animationQueue = new LinkedList<>();
 	protected final MochaEngine<AnimationController> molangRuntime;
 
@@ -484,7 +485,7 @@ public abstract class AnimationController implements IAnimation {
 	 */
 	private void processCurrentAnimation(float adjustedTick, float seekTime, boolean crashWhenCantFindBone, AnimationData animationData) {
 		if (adjustedTick >= this.currentAnimation.animation().length()) {
-			if (this.currentAnimation.loopType().shouldPlayAgain(this, this.currentAnimation.animation())) {
+			if (this.currentAnimation.loopType().shouldPlayAgain(this.currentAnimation.animation())) {
 				if (this.animationState != State.PAUSED) {
 					this.shouldResetTick = true;
 
@@ -520,7 +521,7 @@ public abstract class AnimationController implements IAnimation {
 		this.animTime = finalAdjustedTick / 20f;
 
 		for (BoneAnimation boneAnimation : this.currentAnimation.animation().boneAnimations()) {
-			BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.computeIfAbsent(boneAnimation.boneName(), (name) -> new BoneAnimationQueue(bones.containsKey(name) ? bones.get(name) : this.currentAnimation.animation().bones().get(name)));
+			BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.computeIfAbsent(boneAnimation.boneName(), (name) -> new BoneAnimationQueue(bones.containsKey(name) ? bones.get(name) : this.pivotBones.get(name)));
 			AdvancedPlayerAnimBone bone = this.bones.get(boneAnimation.boneName());
 
 			if (boneAnimationQueue == null) {
@@ -726,8 +727,8 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		Animation.LoopType loopType = animation.loopType();
-		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(this, animation) && currentFrame == frames.getLast() && tick >= location.tick()) {
-			KeyframeLocation<Keyframe> returnTolocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(this, animation)-1);
+		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(animation) && currentFrame == frames.getLast() && tick >= location.tick()) {
+			KeyframeLocation<Keyframe> returnTolocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(animation)-1);
 			Keyframe returnToFrame = returnTolocation.keyframe();
 			float returnToValue = this.molangRuntime.eval(returnToFrame.endValue());
 			if (type == TransformType.ROTATION || type == TransformType.BEND) {
@@ -918,7 +919,7 @@ public abstract class AnimationController implements IAnimation {
 
 			if (bone instanceof PivotBone) {
 				if (this.currentAnimation != null && this.currentAnimation.animation().bones().containsKey(bone.getName())) {
-					PivotBone bone1 = this.currentAnimation.animation().bones().get(bone.getName());
+					PivotBone bone1 = this.pivotBones.get(bone.getName());
 					get3DTransform(bone1);
 				}
 			}
