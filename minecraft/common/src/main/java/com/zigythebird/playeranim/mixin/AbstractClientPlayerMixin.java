@@ -27,6 +27,7 @@ package com.zigythebird.playeranim.mixin;
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranim.animation.PlayerAnimationProcessor;
 import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
@@ -48,7 +49,7 @@ public abstract class AbstractClientPlayerMixin implements IAnimatedPlayer {
     @Unique
     private final PlayerAnimManager playerAnimLib$animationManager = playerAnimLib$createAnimationStack();
     @Unique
-    private final AnimationProcessor playerAnimLib$animationProcessor = new AnimationProcessor((AbstractClientPlayer) (Object) this);
+    private final AnimationProcessor playerAnimLib$animationProcessor = new PlayerAnimationProcessor((AbstractClientPlayer) (Object) this);
 
     @Unique
     private PlayerAnimManager playerAnimLib$createAnimationStack() {

@@ -6,7 +6,7 @@ import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 
 /**
  * Helper class for various methods and functions useful while rendering
@@ -32,12 +32,12 @@ public final class RenderUtil {
 	}
 
 	public static void translateToPivotPoint(PoseStack poseStack, PivotBone bone) {
-		Vec3 pivot = bone.getPivot();
+		Vector3d pivot = bone.getPivot();
 		poseStack.translate(pivot.x()/16, pivot.y()/16, pivot.z()/16);
 	}
 
 	public static void translateAwayFromPivotPoint(PoseStack poseStack, PivotBone bone) {
-		Vec3 pivot = bone.getPivot();
+		Vector3d pivot = bone.getPivot();
 		poseStack.translate(-pivot.x()/16, -pivot.y()/16, -pivot.z()/16);
 	}
 
@@ -82,4 +82,22 @@ public final class RenderUtil {
         part.yScale = bone.getScaleY();
         part.zScale = bone.getScaleZ();
     }
+
+	public static void copyVanillaPart(PlayerAnimBone bone, ModelPart part) {
+		PartPose initialPose = part.getInitialPose();
+
+		bone.setPosX(part.x - initialPose.x());
+		bone.setPosY(part.y - initialPose.y());
+		bone.setPosZ(part.z - initialPose.z());
+
+		bone.setRotX(part.xRot);
+		bone.setRotY(part.yRot);
+		bone.setRotZ(part.zRot);
+
+		bone.setScaleX(part.xScale);
+		bone.setScaleY(part.yScale);
+		bone.setScaleZ(part.zScale);
+
+		bone.updateBend(0, 0);
+	}
 }

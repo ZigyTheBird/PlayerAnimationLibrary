@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.AnimationController;
+import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import com.zigythebird.playeranim.animation.RawAnimation;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import net.minecraft.client.Minecraft;
@@ -30,8 +31,7 @@ public class PlayerAnimCommands {
                 Minecraft.getInstance().player, PlayerAnimLibMod.ANIMATION_LAYER_ID
         );
         if (controller == null) return 0;
-
-        controller.triggerAnimation(RawAnimation.begin().thenPlay(animation));
+        controller.triggerAnimation(RawAnimation.begin().thenPlay(PlayerAnimResources.getAnimation(animation)));
         return 1;
     }
 }

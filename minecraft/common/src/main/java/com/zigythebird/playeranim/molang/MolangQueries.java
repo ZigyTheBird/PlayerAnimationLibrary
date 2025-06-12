@@ -82,7 +82,7 @@ public final class MolangQueries {
     public static final String YAW_SPEED = "yaw_speed";
 
     static void setDefaultQueryValues(ObjectValue binding) {
-        MolangLoader.setDoubleQuery(binding, CARDINAL_PLAYER_FACING, actor -> actor.getPlayer().getDirection().ordinal());
+        /*MolangLoader.setDoubleQuery(binding, CARDINAL_PLAYER_FACING, controller -> actor.getPlayer().getDirection().ordinal());
         MolangLoader.setDoubleQuery(binding, DAY, actor -> actor.getPlayer().level().getGameTime() / 24000d);
         MolangLoader.setDoubleQuery(binding, FRAME_ALPHA, actor -> actor.getAnimationData().getPartialTick());
         MolangLoader.setBoolQuery(binding, HAS_CAPE, actor -> actor.getPlayer().getSkin().capeTexture() != null);
@@ -94,10 +94,10 @@ public final class MolangQueries {
         MolangLoader.setDoubleQuery(binding, TIME_OF_DAY, actor -> actor.getPlayer().level().getDayTime() / 24000f);
         MolangLoader.setDoubleQuery(binding, TIME_STAMP, actor -> actor.getPlayer().level().getGameTime());
 
-        setDefaultPlayerQueryValues(binding);
+        setDefaultPlayerQueryValues(binding);*/
     }
 
-    private static void setDefaultPlayerQueryValues(ObjectValue binding) {
+    /*private static void setDefaultPlayerQueryValues(ObjectValue binding) {
         MolangLoader.setDoubleQuery(binding, BODY_X_ROTATION, actor -> actor.getPlayer().getViewXRot(actor.getAnimationData().getPartialTick()));
         MolangLoader.setDoubleQuery(binding, BODY_Y_ROTATION, actor -> actor.getPlayer() instanceof LivingEntity living ? Mth.lerp(actor.getAnimationData().getPartialTick(), living.yBodyRotO, living.yBodyRot) : actor.getPlayer().getViewYRot(actor.getAnimationData().getPartialTick()));
         MolangLoader.setDoubleQuery(binding, CARDINAL_FACING, actor -> actor.getPlayer().getDirection().get3DDataValue());
@@ -158,5 +158,5 @@ public final class MolangQueries {
         MolangLoader.setDoubleQuery(binding, MAX_HEALTH, actor -> actor.getPlayer().getMaxHealth());
         MolangLoader.setDoubleQuery(binding, SCALE, actor -> actor.getPlayer().getScale());
         MolangLoader.setDoubleQuery(binding, SLEEP_ROTATION, actor -> Optional.ofNullable(actor.getPlayer().getBedOrientation()).map(Direction::toYRot).orElse(0f));
-    }
+    }*/
 }

@@ -32,6 +32,7 @@ import com.zigythebird.playeranim.accessors.IUpperPartHelper;
 import com.zigythebird.playeranim.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -84,12 +85,12 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
             processor.handleAnimations(emote.getTickDelta(), false);
             ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
-            processor.getBone("head").copyVanillaPart(this.head);
-            processor.getBone("torso").copyVanillaPart(this.body);
-            processor.getBone("right_arm").copyVanillaPart(this.rightArm);
-            processor.getBone("left_arm").copyVanillaPart(this.leftArm);
-            processor.getBone("right_leg").copyVanillaPart(this.rightLeg);
-            processor.getBone("left_leg").copyVanillaPart(this.leftLeg);
+            RenderUtil.copyVanillaPart(processor.getBone("head"), this.head);
+            RenderUtil.copyVanillaPart(processor.getBone("torso"), this.body);
+            RenderUtil.copyVanillaPart(processor.getBone("right_arm"), this.rightArm);
+            RenderUtil.copyVanillaPart(processor.getBone("left_arm"), this.leftArm);
+            RenderUtil.copyVanillaPart(processor.getBone("right_leg"), this.rightLeg);
+            RenderUtil.copyVanillaPart(processor.getBone("left_leg"), this.leftLeg);
 
             emote.updatePart("head", this.head, processor);
             emote.updatePart("right_arm", this.rightArm, processor);

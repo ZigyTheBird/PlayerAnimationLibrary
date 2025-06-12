@@ -1,6 +1,7 @@
 package com.zigythebird.playeranim.animation.keyframe.event.builtin;
 
 import com.zigythebird.playeranim.animation.AnimationController;
+import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranim.animation.keyframe.event.SoundKeyframeEvent;
 import com.zigythebird.playeranim.util.ClientUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,7 +26,7 @@ public class AutoPlayingSoundKeyframeHandler implements AnimationController.Soun
         String[] segments = event.getKeyframeData().getSound().split("\\|");
 
         BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.read(segments[0]).getOrThrow()).ifPresent(sound -> {
-            Vec3 position = event.getAnimatable().position();
+            Vec3 position = event.getController() instanceof PlayerAnimationController controller ? controller.getPlayer().position() : null;
 
             if (position != null) {
                 float volume = segments.length > 1 ? Float.parseFloat(segments[1]) : 1;

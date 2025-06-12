@@ -15,7 +15,7 @@ public class CameraUtils {
             bone.setToInitialPose();
             bone.setRotX(camera.getXRot() * 0.017453292F);
             bone.setRotY(camera.getYRot() * 0.017453292F);
-            manager.get3DCameraTransform(camera, bone);
+            // manager.get3DCameraTransform(camera, bone); TODO
             bone.divPos(16);
             return bone;
         }

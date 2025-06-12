@@ -2,20 +2,15 @@ package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.accessors.IModelPart;
 import com.zigythebird.playeranim.animation.layered.AnimationStack;
-import com.zigythebird.playeranim.animation.layered.IAnimation;
 import com.zigythebird.playeranim.bones.BoneSnapshot;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
-import com.zigythebird.playeranim.math.Pair;
-import com.zigythebird.playeranim.misc.DataTicket;
 import com.zigythebird.playeranim.util.RenderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -25,7 +20,6 @@ import java.util.Map;
  */
 public class PlayerAnimManager extends AnimationStack {
 	private final Map<String, BoneSnapshot> boneSnapshotCollection = new Object2ObjectOpenHashMap<>();
-	private Map<DataTicket<?>, Object> extraData;
 	private final AbstractClientPlayer player;
 
 	private float lastUpdateTime;
@@ -35,10 +29,6 @@ public class PlayerAnimManager extends AnimationStack {
 
 	public PlayerAnimManager(AbstractClientPlayer player) {
 		this.player = player;
-	}
-
-	protected ArrayList<Pair<Integer, IAnimation>> getLayers() {
-		return this.layers;
 	}
 
 	public Map<String, BoneSnapshot> getBoneSnapshotCollection() {
@@ -83,26 +73,6 @@ public class PlayerAnimManager extends AnimationStack {
 	@ApiStatus.Internal
 	public void setTickDelta(float tickDelta) {
 		this.tickDelta = tickDelta;
-	}
-
-	/**
-	 * Set a custom data point to be used later
-	 *
-	 * @param dataTicket The DataTicket for the data point
-	 * @param data The piece of data to store
-	 */
-	public <D> void setData(DataTicket<D> dataTicket, D data) {
-		if (this.extraData == null)
-			this.extraData = new Object2ObjectOpenHashMap<>();
-
-		this.extraData.put(dataTicket, data);
-	}
-
-	/**
-	 * Retrieve a custom data point that was stored earlier, or null if it hasn't been stored
-	 */
-	public @Nullable <D> D getData(DataTicket<D> dataTicket) {
-		return this.extraData != null ? dataTicket.getData(this.extraData) : null;
 	}
 
 	public AbstractClientPlayer getPlayer() {
