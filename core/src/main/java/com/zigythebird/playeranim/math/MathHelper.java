@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.math;
 
 import org.joml.Vector3f;
-
 /**
  * Some casts to {@link float} to make my life easier.
  */
@@ -23,5 +22,9 @@ public class MathHelper {
 
     public static float toRadians(float value) {
         return value * 0.01745329251f;
+    }
+
+    public static float lerp(float delta, float start, float end) {
+        return start + delta * (end - start);
     }
 }

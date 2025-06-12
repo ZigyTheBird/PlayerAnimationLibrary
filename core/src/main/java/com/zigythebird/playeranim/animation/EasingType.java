@@ -93,7 +93,7 @@ public interface EasingType {
 	}
 
 	default float apply(float startValue, float endValue, @Nullable Float easingValue, float lerpValue) {
-		return org.joml.Math.lerp(buildTransformer(easingValue).apply(lerpValue), startValue, endValue);
+		return MathHelper.lerp(buildTransformer(easingValue).apply(lerpValue), startValue, endValue);
 	}
 
 	/**
@@ -391,7 +391,7 @@ public interface EasingType {
 			List<List<Expression>> easingArgs = animationPoint.easingArgs();
 
 			if (easingArgs.size() < 2)
-				return org.joml.Math.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
+				return MathHelper.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
 
 			return getPointOnSpline(lerpValue, env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), (float) env.eval(easingArgs.get(1)));
 		}
