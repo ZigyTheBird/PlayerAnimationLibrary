@@ -1,0 +1,3 @@
+dependencies {
+    implementation "com.zigythebird:mochafloats:$rootProject.molang_version"
+}

@@ -3,7 +3,7 @@ plugins {
 }
 
 loom {
-    accessWidenerPath = project(":common").loom.accessWidenerPath
+    accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
 }
 
 architectury {
@@ -28,8 +28,8 @@ dependencies {
     }
     include("org.javassist:javassist:$rootProject.javassist_version")
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive = false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive = false }
+    common(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":minecraft:common", configuration: "transformProductionFabric")) { transitive = false }
 }
 
 shadowJar {
@@ -52,7 +52,7 @@ jar {
 }
 
 sourcesJar {
-    def commonSources = project(":common").sourcesJar
+    def commonSources = project(":minecraft:common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
 }
