@@ -207,7 +207,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         Keyframe lastFrame = part.isEmpty() ? null : part.getLast();
         float prevTime = lastFrame != null ? lastTick : 0;
         if (node.has(name)) {
-            float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees);
+            float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees, name.equals("y") && transformType == null);
             List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
             part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, Collections.singletonList(new ObjectArrayList<>(0))));
             if (transformType == TransformType.ROTATION && rotate != 0) {
@@ -216,8 +216,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         }
     }
 
-    private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees) {
+    private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees, boolean shouldNegate) {
         if (transformType != TransformType.ROTATION) value -= def;
+        if (shouldNegate) value *= -1;
         if (degrees && transformType == TransformType.ROTATION) value = MathHelper.toRadians(value);
         if (transformType == TransformType.POSITION) value *= 16;
 

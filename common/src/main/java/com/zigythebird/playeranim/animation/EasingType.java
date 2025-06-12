@@ -77,13 +77,13 @@ public interface EasingType {
 		Float easingVariable = null;
 
 		if (animationPoint.easingArgs() != null && !animationPoint.easingArgs().isEmpty())
-			easingVariable = (float) env.eval(animationPoint.easingArgs().getFirst());
+			easingVariable = env.eval(animationPoint.easingArgs().getFirst());
 
 		return apply(env, animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
 	}
 
 	default float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue) {
-		if (lerpValue >= 1)
+		if (lerpValue >= 1 || Float.isNaN(lerpValue))
 			return animationPoint.animationEndValue();
 
 		return apply(animationPoint.animationStartValue(), animationPoint.animationEndValue(), easingValue, lerpValue);
@@ -394,7 +394,7 @@ public interface EasingType {
 			if (easingArgs.size() < 2)
 				return Mth.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
 
-			return getPointOnSpline(lerpValue, (float) env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), (float) env.eval(easingArgs.get(1)));
+			return getPointOnSpline(lerpValue, env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), (float) env.eval(easingArgs.get(1)));
 		}
 	}
 }

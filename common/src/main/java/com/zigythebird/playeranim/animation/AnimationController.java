@@ -772,7 +772,7 @@ public class AnimationController implements IAnimation {
 		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(player, this, animation) && currentFrame == frames.getLast() && tick >= location.tick()) {
 			KeyframeLocation<Keyframe> returnTolocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(player, this, animation)-1);
 			Keyframe returnToFrame = returnTolocation.keyframe();
-			float returnToValue = (float) this.molangRuntime.eval(returnToFrame.endValue());
+			float returnToValue = this.molangRuntime.eval(returnToFrame.endValue());
 			if (type == TransformType.ROTATION || type == TransformType.BEND) {
 				if (!(MolangLoader.isConstant(returnToFrame.endValue()))) {
 					returnToValue = (float) Math.toRadians(returnToValue);

@@ -179,7 +179,7 @@ public class AdjustmentModifier extends AbstractModifier {
         float fadeOut = 1;
         if(remainingFadeout > 0 && instructedFadeout > 0) {
             float current = Math.max(remainingFadeout - delta , 0);
-            fadeOut = current / ((float)instructedFadeout);
+            fadeOut = current / instructedFadeout;
             fadeOut = Math.min(fadeOut, 1F);
             return fadeOut;
         }
