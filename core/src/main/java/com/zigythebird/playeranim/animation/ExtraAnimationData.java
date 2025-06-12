@@ -20,15 +20,6 @@ public record ExtraAnimationData(Map<String, Object> data) {
         this(new HashMap<>(1)); // Mutable, 1 for name
     }
 
-    /*@Nullable
-    public String displayName() { TODO
-        Object name = data().get(NAME_KEY);
-        if (name instanceof JsonObject jsonObject) {
-            return Component.translatableWithFallback(jsonObject.get("translate").getAsString(), jsonObject.get("fallback").getAsString()).toString();
-        }
-        return (String) name;
-    }*/
-
     @Nullable
     public String name() {
         Object data = data().get(NAME_KEY);

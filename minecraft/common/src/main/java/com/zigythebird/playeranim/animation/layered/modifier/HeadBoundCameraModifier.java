@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.animation.layered.modifier;
+/*package com.zigythebird.playeranim.animation.layered.modifier;
 
 import com.zigythebird.playeranim.animation.AnimationData;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
@@ -18,6 +18,7 @@ public class HeadBoundCameraModifier extends AbstractModifier {
         super.setupAnim(state);
     }
 
+    @Override
     public PlayerAnimBone get3DCameraTransform(Camera camera, PlayerAnimBone bone) {
         if (Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
             AbstractClientPlayer player = Minecraft.getInstance().player;
@@ -26,4 +27,4 @@ public class HeadBoundCameraModifier extends AbstractModifier {
         }
         return bone;
     }
-}
+}*/
