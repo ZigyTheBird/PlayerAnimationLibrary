@@ -25,10 +25,13 @@ import com.zigythebird.playeranim.enums.PlayState;
 import com.zigythebird.playeranim.enums.State;
 import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.molang.MolangLoader;
+import com.zigythebird.playeranim.util.MatrixUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import team.unnamed.mocha.MochaEngine;
 
 import java.util.*;
@@ -314,11 +317,37 @@ public abstract class AnimationController implements IAnimation {
 	 *
 	 * @param startAnimFrom Where to start the animation from in ticks
 	 */
-	protected abstract void setAnimation(RawAnimation rawAnimation, float startAnimFrom);
+	protected void setAnimation(RawAnimation rawAnimation, float startAnimFrom) {
+		if (rawAnimation == null || rawAnimation.getAnimationStages().isEmpty()) {
+			stop();
+
+			return;
+		}
+
+		if (this.needsAnimationReload || !rawAnimation.equals(this.currentRawAnimation)) {
+			Queue<AnimationProcessor.QueuedAnimation> animations = getQueuedAnimations(rawAnimation);
+
+			if (animations != null) {
+				this.animationQueue = animations;
+				this.currentRawAnimation = rawAnimation;
+				this.startAnimFrom = startAnimFrom;
+				this.shouldResetTick = true;
+				this.animationState = State.TRANSITIONING;
+				this.justStartedTransition = true;
+				this.needsAnimationReload = false;
+
+				return;
+			}
+
+			stop();
+		}
+	}
 
 	protected void setAnimation(RawAnimation rawAnimation) {
 		setAnimation(rawAnimation, 0);
 	}
+
+	protected abstract Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation);
 
 	/**
 	 * Main method used to set the currently playing animation.
@@ -332,13 +361,11 @@ public abstract class AnimationController implements IAnimation {
 		stop();
 		this.triggeredAnimation = newAnimation;
 
-		if (this.animationState == State.STOPPED) {
-			this.needsAnimationReload = true;
-			this.animationState = State.TRANSITIONING;
-			this.shouldResetTick = true;
-			this.startAnimFrom = startAnimFrom;
-			this.justStartedTransition = true;
-		}
+		this.needsAnimationReload = true;
+		this.animationState = State.TRANSITIONING;
+		this.shouldResetTick = true;
+		this.startAnimFrom = startAnimFrom;
+		this.justStartedTransition = true;
 	}
 
 	public void triggerAnimation(RawAnimation newAnimation) {
@@ -421,7 +448,7 @@ public abstract class AnimationController implements IAnimation {
 	 *
 	 * @param state                 The animation test state
 	 * @param seekTime              The current tick + partial tick
-	 * @param crashWhenCantFindBone Whether to hard-fail when a bone can't be found, or to continue with the remaining bones
+	 * @param crashWhenCantFindBone Whether to hard-fail when a bone can't be found, or to continue with the remaining pivotBones
 	 */
 	public void process(AnimationData state, final float seekTime, boolean crashWhenCantFindBone) {
 		float adjustedTick = adjustTick(seekTime);
@@ -470,7 +497,7 @@ public abstract class AnimationController implements IAnimation {
 				this.lastPollTime = seekTime;
 				this.currentAnimation = this.animationQueue.poll();
 
-				checkBonesEnabled();
+				setupNewAnimation();
 				resetEventKeyFrames();
 			}
 		}
@@ -481,7 +508,7 @@ public abstract class AnimationController implements IAnimation {
 	 *
 	 * @param adjustedTick The controller-adjusted tick for animation purposes
 	 * @param seekTime The lerped tick (current tick + partial tick)
-	 * @param crashWhenCantFindBone Whether the controller should throw an exception when unable to find the required bone, or continue with the remaining bones
+	 * @param crashWhenCantFindBone Whether the controller should throw an exception when unable to find the required bone, or continue with the remaining pivotBones
 	 */
 	private void processCurrentAnimation(float adjustedTick, float seekTime, boolean crashWhenCantFindBone, AnimationData animationData) {
 		if (adjustedTick >= this.currentAnimation.animation().length()) {
@@ -512,7 +539,7 @@ public abstract class AnimationController implements IAnimation {
 					this.shouldResetTick = true;
 					adjustedTick = adjustTick(seekTime);
 					this.currentAnimation = this.animationQueue.poll();
-					checkBonesEnabled();
+					setupNewAnimation();
 				}
 			}
 		}
@@ -602,7 +629,7 @@ public abstract class AnimationController implements IAnimation {
 
 		if (this.shouldResetTick && this.animationState == State.TRANSITIONING) {
 			this.currentAnimation = this.animationQueue.poll();
-			checkBonesEnabled();
+			setupNewAnimation();
 		}
 	}
 
@@ -648,7 +675,7 @@ public abstract class AnimationController implements IAnimation {
 	public boolean hasEndTick() {
 		if (this.currentAnimation == null) return false;
 		Animation animation = this.currentAnimation.animation();
-		return animation.data().has("endTick") && animation.loopType() == Animation.LoopType.DEFAULT;
+		return animation.data().has("endTick") && !animation.loopType().shouldPlayAgain(animation);
 	}
 
 	public boolean isDisableAxisIfNotModified() {
@@ -663,11 +690,11 @@ public abstract class AnimationController implements IAnimation {
 		return this.currentAnimation != null && this.currentAnimation.animation().data().<AnimationFormat>get("format").orElse(null) == AnimationFormat.PLAYER_ANIMATOR;
 	}
 
-	public void checkBonesEnabled() {
+	protected void setupNewAnimation() {
 		if (currentAnimation == null) return;
 		List<BoneAnimation> animations = currentAnimation.animation().boneAnimations();
 		for (AdvancedPlayerAnimBone bone : bones.values()) {
-			if (animations.stream().noneMatch(boneAnim -> boneAnim.boneName().equals(bone.getName()))) bone.setEnabled(false);
+			bone.setEnabled(!animations.stream().noneMatch(boneAnim -> boneAnim.boneName().equals(bone.getName())));
 		}
 		for (BoneAnimation boneAnimation : animations) {
 			if (bones.containsKey(boneAnimation.boneName())) {
@@ -689,6 +716,11 @@ public abstract class AnimationController implements IAnimation {
 					bone.bendEnabled = !boneAnimation.bendKeyFrames().yKeyframes().isEmpty();
 				} else bone.setEnabled(true);
 			}
+		}
+
+		this.pivotBones.clear();
+		for (Map.Entry<String, Vector3f> entry : currentAnimation.animation().pivotBones().entrySet()) {
+			this.pivotBones.put(entry.getKey(), new PivotBone(entry.getKey(), entry.getValue()));
 		}
 	}
 
@@ -773,40 +805,21 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	public PlayerAnimBone get3DTransformRaw(@NotNull PlayerAnimBone bone) {
-		Map<String, String> parents = this.currentAnimation.animation().parents();
-		if (parents.containsKey(bone.getName()))
-			bone.parent = this.currentAnimation.animation().bones().get(parents.get(bone.getName()));
-		else bone.parent = null;
 		if (activeBones.containsKey(bone.getName())) {
 			PlayerAnimBone bone1 = activeBones.get(bone.getName());
-			if (bone1 instanceof PivotBone pivotBone) {
-				pivotBone.child = getChildBone(parents, this.currentAnimation.animation().bones(), pivotBone);
-			}
 			if (bone1 instanceof AdvancedPlayerAnimBone advancedBone) {
 				ExtraAnimationData extraData = this.currentAnimation.animation().data();
 				if (hasBeginTick() && extraData.<Float>get("beginTick").orElse(0F) > this.getAnimationTicks()) {
-					return bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks(), null);
+					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks(), null);
 				}
 				else if (hasEndTick() && extraData.<Float>get("endTick").orElse(0F) <= this.getAnimationTicks()) {
-					return bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get("endTick").orElse(0F), this.currentAnimation.animation());
+					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get("endTick").orElse(0F), this.currentAnimation.animation());
 				}
+				else bone.copyOtherBoneIfNotDisabled(bone1);
 			}
-			return bone.copyOtherBoneIfNotDisabled(bone1);
+			else bone.copyOtherBoneIfNotDisabled(bone1);
 		}
 		return bone;
-	}
-
-	public AdvancedPlayerAnimBone getChildBone(Map<String, String> parents, Map<String, PivotBone> animationSpecificBones, PivotBone bone) {
-		for (Map.Entry<String, String> entry : parents.entrySet()) {
-			if (entry.getValue().equals(bone.getName())) {
-				if (bones.containsKey(entry.getKey())) return bones.get(entry.getKey());
-				else {
-					if (animationSpecificBones.containsKey(entry.getKey())) return getChildBone(parents, animationSpecificBones, animationSpecificBones.get(entry.getKey()));
-					return null;
-				}
-			}
-		}
-		return null;
 	}
 
 	@Override
@@ -816,14 +829,6 @@ public abstract class AnimationController implements IAnimation {
 		}
 		return get3DTransformRaw(bone);
 	}
-
-	/*@Override
-	public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
-		if (!modifiers.isEmpty()) {
-			return modifiers.getFirst().get3DCameraTransform(camera, bone);
-		}
-		return bone;
-	}*/
 
 	@Override
 	public @NotNull FirstPersonMode getFirstPersonMode() {
@@ -918,7 +923,7 @@ public abstract class AnimationController implements IAnimation {
 			}
 
 			if (bone instanceof PivotBone) {
-				if (this.currentAnimation != null && this.currentAnimation.animation().bones().containsKey(bone.getName())) {
+				if (this.currentAnimation != null && this.currentAnimation.animation().pivotBones().containsKey(bone.getName())) {
 					PivotBone bone1 = this.pivotBones.get(bone.getName());
 					get3DTransform(bone1);
 				}
@@ -990,7 +995,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * Adds the given bone to the bones list for this controller
+	 * Adds the given bone to the pivotBones list for this controller
 	 * <p>
 	 * This is normally handled automatically by the mod
 	 */
@@ -1084,10 +1089,5 @@ public abstract class AnimationController implements IAnimation {
 		public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
 			return this.anim.get3DTransformRaw(bone);
 		}
-
-		/*@Override
-		public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
-			return bone;
-		}*/
 	}
 }

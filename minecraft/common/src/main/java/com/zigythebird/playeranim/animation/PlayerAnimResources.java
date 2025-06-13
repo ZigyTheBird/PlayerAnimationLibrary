@@ -24,7 +24,7 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	private static final Map<ResourceLocation, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
 
 	/**
-	 * Get an animation from the registry, using Identifier(MODID, animation_name) as the key.
+	 * Get an animation from the registry, using Identifier(mod_id, animation_name) as the key.
 	 * @return animation, <code>null</code> if no animation
 	 */
 	public static @Nullable Animation getAnimation(ResourceLocation id) {

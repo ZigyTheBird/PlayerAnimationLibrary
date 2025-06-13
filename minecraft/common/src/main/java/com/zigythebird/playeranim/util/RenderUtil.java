@@ -6,7 +6,7 @@ import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 /**
  * Helper class for various methods and functions useful while rendering
@@ -32,12 +32,12 @@ public final class RenderUtil {
 	}
 
 	public static void translateToPivotPoint(PoseStack poseStack, PivotBone bone) {
-		Vector3d pivot = bone.getPivot();
+		Vector3f pivot = bone.getPivot();
 		poseStack.translate(pivot.x()/16, pivot.y()/16, pivot.z()/16);
 	}
 
 	public static void translateAwayFromPivotPoint(PoseStack poseStack, PivotBone bone) {
-		Vector3d pivot = bone.getPivot();
+		Vector3f pivot = bone.getPivot();
 		poseStack.translate(-pivot.x()/16, -pivot.y()/16, -pivot.z()/16);
 	}
 

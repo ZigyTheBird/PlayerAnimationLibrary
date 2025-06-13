@@ -89,7 +89,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         );
 
         float stopTick = node.has("stopTick") ? node.get("stopTick").getAsFloat() : 0;
-        if (loopType == Animation.LoopType.DEFAULT)
+        if (loopType == Animation.LoopType.PLAY_ONCE)
             endTick = stopTick <= endTick ? endTick + 3 : stopTick; // https://github.com/KosmX/minecraftPlayerAnimator/blob/1.21/coreLib/src/main/java/dev/kosmx/playerAnim/core/data/KeyframeAnimation.java#L80
 
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();

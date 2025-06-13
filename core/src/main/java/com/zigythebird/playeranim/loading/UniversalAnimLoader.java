@@ -8,9 +8,8 @@ import com.zigythebird.playeranim.animation.Animation;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.bones.PivotBone;
-import com.zigythebird.playeranim.misc.JsonUtil;
-import org.joml.Vector3d;
+import com.zigythebird.playeranim.util.JsonUtil;
+import org.joml.Vector3f;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,11 +24,11 @@ public class UniversalAnimLoader {
         JsonObject json = PlayerAnimLib.GSON.fromJson(new InputStreamReader(resource), JsonObject.class);
         if (json.has("animations")) {
             JsonObject model = JsonUtil.getAsJsonObject(json, "model", new JsonObject());
-            Map<String, PivotBone> bones = new HashMap<>();
+            Map<String, Vector3f> bones = new HashMap<>();
             for (Map.Entry<String, JsonElement> entry : model.entrySet()) {
                 JsonObject object = entry.getValue().getAsJsonObject();
                 JsonArray pivot = object.get("pivot").getAsJsonArray();
-                PivotBone bone = new PivotBone(entry.getKey(), new Vector3d(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat()));
+                Vector3f bone = new Vector3f(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat());
                 bones.put(entry.getKey(), bone);
             }
 

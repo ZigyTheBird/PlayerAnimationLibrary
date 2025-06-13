@@ -8,15 +8,15 @@ import com.zigythebird.playeranim.animation.ExtraAnimationData;
 import com.zigythebird.playeranim.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranim.animation.keyframe.Keyframe;
 import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranim.bones.PivotBone;
 import com.zigythebird.playeranim.enums.TransformType;
 import com.zigythebird.playeranim.misc.CompoundException;
 import com.zigythebird.playeranim.molang.MolangLoader;
-import com.zigythebird.playeranim.misc.JsonUtil;
+import com.zigythebird.playeranim.util.JsonUtil;
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.joml.Vector3f;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AnimationLoader {
-	public static Map<String, Animation> deserialize(JsonElement json, Map<String, PivotBone> bones, Map<String, String> parents) throws RuntimeException {
+	public static Map<String, Animation> deserialize(JsonElement json, Map<String, Vector3f> bones, Map<String, String> parents) throws RuntimeException {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
 
@@ -48,10 +48,10 @@ public class AnimationLoader {
 		return animations;
 	}
 
-	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PivotBone> bones, Map<String, String> parents, ExtraAnimationData extraData) throws CompoundException {
+	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, Vector3f> bones, Map<String, String> parents, ExtraAnimationData extraData) throws CompoundException {
 		float length = animationObj.has("animation_length") ? JsonUtil.getAsFloat(animationObj, "animation_length") * 20f : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
-		List<BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
+		List<BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "pivotBones", new JsonObject()));
 		Animation.Keyframes keyframes = KeyFrameLoader.deserialize(animationObj);
 
 		if (length == -1)

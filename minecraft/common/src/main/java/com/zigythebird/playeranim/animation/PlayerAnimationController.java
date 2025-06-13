@@ -24,32 +24,9 @@ public class PlayerAnimationController extends AnimationController {
     }
 
     @Override
-    protected void setAnimation(RawAnimation rawAnimation, float startAnimFrom) {
-        if (rawAnimation == null || rawAnimation.getAnimationStages().isEmpty()) {
-            stop();
-
-            return;
-        }
-
-        if (this.needsAnimationReload || !rawAnimation.equals(this.currentRawAnimation)) {
-            if (this.player != null) {
-                Queue<AnimationProcessor.QueuedAnimation> animations = this.player.playerAnimLib$getAnimProcessor().buildAnimationQueue(rawAnimation);
-
-                if (animations != null) {
-                    this.animationQueue = animations;
-                    this.currentRawAnimation = rawAnimation;
-                    this.startAnimFrom = startAnimFrom;
-                    this.shouldResetTick = true;
-                    this.animationState = State.TRANSITIONING;
-                    this.justStartedTransition = true;
-                    this.needsAnimationReload = false;
-
-                    return;
-                }
-            }
-
-            stop();
-        }
+    protected Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
+        if (player == null) return null;
+        return this.player.playerAnimLib$getAnimProcessor().buildAnimationQueue(rawAnimation);
     }
 
     @Override

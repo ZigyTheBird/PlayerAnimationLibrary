@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.misc;
+package com.zigythebird.playeranim.util;
 
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;

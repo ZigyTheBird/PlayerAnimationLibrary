@@ -10,9 +10,7 @@ import com.zigythebird.playeranim.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranim.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranim.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranim.bones.PivotBone;
 import io.netty.buffer.ByteBuf;
-import org.joml.Vector3d;
 import org.joml.Vector3f;
 import team.unnamed.mocha.parser.MolangParser;
 import team.unnamed.mocha.parser.ast.Expression;
@@ -41,23 +39,23 @@ public class AnimationBinary {
         buf.writeInt(animation.keyFrames().sounds().length);
         for (SoundKeyframeData soundKeyframe : animation.keyFrames().sounds()) {
             buf.writeFloat(soundKeyframe.getStartTick());
-            NetworkUtils.writeString(buf, soundKeyframe.getSound(), 100);
+            ProtocolUtils.writeString(buf, soundKeyframe.getSound());
         }
         buf.writeInt(animation.keyFrames().particles().length);
         for (ParticleKeyframeData particleKeyframe : animation.keyFrames().particles()) {
             buf.writeFloat(particleKeyframe.getStartTick());
-            NetworkUtils.writeString(buf, particleKeyframe.getEffect(), 100);
-            NetworkUtils.writeString(buf, particleKeyframe.getLocator(), 100);
-            NetworkUtils.writeString(buf, particleKeyframe.script(), 100);
+            ProtocolUtils.writeString(buf, particleKeyframe.getEffect());
+            ProtocolUtils.writeString(buf, particleKeyframe.getLocator());
+            ProtocolUtils.writeString(buf, particleKeyframe.script());
         }
         buf.writeInt(animation.keyFrames().customInstructions().length);
         for (CustomInstructionKeyframeData instructionKeyframe : animation.keyFrames().customInstructions()) {
             buf.writeFloat(instructionKeyframe.getStartTick());
-            NetworkUtils.writeString(buf, instructionKeyframe.getInstructions(), 32767);
+            ProtocolUtils.writeString(buf, instructionKeyframe.getInstructions());
         }
-        buf.writeInt(animation.bones().size());
-        for (Map.Entry<String, Vector3f> entry : animation.bones().entrySet()) {
-            NetworkUtils.writeString(buf, entry.getKey(), 100);
+        buf.writeInt(animation.pivotBones().size());
+        for (Map.Entry<String, Vector3f> entry : animation.pivotBones().entrySet()) {
+            ProtocolUtils.writeString(buf, entry.getKey());
             buf.writeFloat(entry.getValue().x);
             buf.writeFloat(entry.getValue().y);
             buf.writeFloat(entry.getValue().z);
@@ -83,7 +81,7 @@ public class AnimationBinary {
         buf.writeFloat(keyframe.length());
         writeExpressions(buf, keyframe.startValue());
         writeExpressions(buf, keyframe.endValue());
-        NetworkUtils.writeString(buf, keyframe.easingType().toString(), 20);
+        ProtocolUtils.writeString(buf, keyframe.easingType().toString());
         NetworkUtils.writeList(buf, keyframe.easingArgs(), AnimationBinary::writeExpressions);
     }
 
@@ -104,17 +102,17 @@ public class AnimationBinary {
         List<BoneAnimation> boneAnimations = NetworkUtils.readList(buf, AnimationBinary::readBoneAnimation);
         Animation.Keyframes keyFrames = new Animation.Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]);
         for (int i = 0; i < buf.readInt(); i++) {
-            keyFrames.sounds()[i] = new SoundKeyframeData(buf.readFloat(), NetworkUtils.readString(buf, 100));
+            keyFrames.sounds()[i] = new SoundKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
         }
         for (int i = 0; i < buf.readInt(); i++) {
-            keyFrames.particles()[i] = new ParticleKeyframeData(buf.readFloat(), NetworkUtils.readString(buf, 100), NetworkUtils.readString(buf, 100), NetworkUtils.readString(buf, 100));
+            keyFrames.particles()[i] = new ParticleKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf));
         }
         for (int i = 0; i < buf.readInt(); i++) {
-            keyFrames.customInstructions()[i] = new CustomInstructionKeyframeData(buf.readFloat(), NetworkUtils.readString(buf, 32767));
+            keyFrames.customInstructions()[i] = new CustomInstructionKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
         }
         Map<String, Vector3f> bones = new HashMap<>();
         for (int i = 0; i < buf.readInt(); i++) {
-            bones.put(NetworkUtils.readString(buf, 100), new Vector3f(buf.readFloat(), buf.readFloat(), buf.readFloat()));
+            bones.put(ProtocolUtils.readString(buf), new Vector3f(buf.readFloat(), buf.readFloat(), buf.readFloat()));
         }
         Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
 
@@ -145,7 +143,7 @@ public class AnimationBinary {
 
         List<Expression> startValue = readExpression(buf);
         List<Expression> endValue = readExpression(buf);
-        EasingType easingType = EasingType.fromString(NetworkUtils.readString(buf, 20));
+        EasingType easingType = EasingType.fromString(ProtocolUtils.readString(buf));
         List<List<Expression>> easingArgs = NetworkUtils.readList(buf, AnimationBinary::readExpression);
 
         return new Keyframe(length, startValue, endValue, easingType, easingArgs);
