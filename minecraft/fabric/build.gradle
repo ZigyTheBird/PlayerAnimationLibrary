@@ -30,6 +30,7 @@ dependencies {
 
     common(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":minecraft:common", configuration: "transformProductionFabric")) { transitive = false }
+    common shadowCommon(project(path: ":core")) { transitive = false }
 }
 
 shadowJar {
@@ -37,6 +38,7 @@ shadowJar {
     archiveClassifier = 'dev-shadow'
 
     relocate 'team.unnamed.mocha', 'com.zigythebird.playeranim.lib.mochafloats'
+    mergeServiceFiles()
 }
 
 remapJar {

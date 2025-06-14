@@ -25,10 +25,9 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;

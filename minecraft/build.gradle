@@ -7,6 +7,7 @@ architectury {
 }
 
 subprojects {
+    apply plugin: "architectury-plugin"
     apply plugin: "dev.architectury.loom"
 
     loom {
@@ -29,8 +30,4 @@ subprojects {
             expand version: project.version
         }
     }
-}
-
-allprojects {
-    apply plugin: "architectury-plugin"
 }

@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.mixin;
 
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.util.CameraUtils;
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;

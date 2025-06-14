@@ -4,7 +4,7 @@ import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.commands.PlayerAnimCommands;
-import com.zigythebird.playeranim.event.MolangEvent;
+import com.zigythebird.playeranimcore.event.MolangEvent;
 import com.zigythebird.playeranim.neoforge.event.PlayerAnimationRegisterEvent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
