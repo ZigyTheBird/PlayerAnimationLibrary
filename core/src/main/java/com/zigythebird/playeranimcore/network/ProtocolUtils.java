@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.zigythebird.playeranim.network;
+package com.zigythebird.playeranimcore.network;
 
-import com.zigythebird.playeranim.misc.EmptyException;
+import com.zigythebird.playeranimcore.misc.EmptyException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 

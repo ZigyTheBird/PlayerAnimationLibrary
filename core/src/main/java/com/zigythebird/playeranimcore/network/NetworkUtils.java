@@ -1,4 +1,4 @@
-package com.zigythebird.playeranim.network;
+package com.zigythebird.playeranimcore.network;
 
 import io.netty.buffer.ByteBuf;
 
