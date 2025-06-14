@@ -1,9 +1,10 @@
 package com.zigythebird.playeranim.animation;
 
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranim.accessors.IModelPart;
-import com.zigythebird.playeranim.animation.layered.AnimationStack;
-import com.zigythebird.playeranim.bones.BoneSnapshot;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
+import com.zigythebird.playeranimcore.bones.BoneSnapshot;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.util.RenderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;

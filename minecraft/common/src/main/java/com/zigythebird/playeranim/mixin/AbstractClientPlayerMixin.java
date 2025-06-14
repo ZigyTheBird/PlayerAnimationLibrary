@@ -25,10 +25,10 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
-import com.zigythebird.playeranim.animation.AnimationProcessor;
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.animation.PlayerAnimationProcessor;
-import com.zigythebird.playeranim.animation.layered.IAnimation;
+import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
 import net.minecraft.client.player.AbstractClientPlayer;

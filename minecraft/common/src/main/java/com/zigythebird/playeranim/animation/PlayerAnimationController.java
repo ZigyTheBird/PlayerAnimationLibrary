@@ -1,6 +1,10 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranim.enums.State;
+import com.zigythebird.playeranimcore.animation.AnimationController;
+import com.zigythebird.playeranimcore.animation.AnimationData;
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
+import com.zigythebird.playeranimcore.animation.RawAnimation;
+import com.zigythebird.playeranimcore.enums.State;
 import net.minecraft.client.player.AbstractClientPlayer;
 
 import java.util.Queue;

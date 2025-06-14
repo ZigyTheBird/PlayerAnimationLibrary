@@ -1,6 +1,8 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranim.animation.layered.AnimationStack;
+import com.zigythebird.playeranimcore.animation.AnimationData;
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
+import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.phys.Vec3;

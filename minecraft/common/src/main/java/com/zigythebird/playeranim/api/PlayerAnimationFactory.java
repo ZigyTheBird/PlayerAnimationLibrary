@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.api;
 
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranim.animation.layered.IAnimation;
+import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;

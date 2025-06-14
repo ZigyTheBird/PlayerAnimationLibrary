@@ -1,9 +1,10 @@
 package com.zigythebird.playeranim.api;
 
+import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranim.animation.layered.IAnimation;
-import com.zigythebird.playeranim.event.Event;
+import com.zigythebird.playeranimcore.animation.layered.IAnimation;
+import com.zigythebird.playeranimcore.event.Event;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -26,7 +27,7 @@ public final class PlayerAnimationAccess {
     }
 
     /**
-     * Get the player animator (usually a {@link com.zigythebird.playeranim.animation.AnimationController}) associated with an id.
+     * Get the player animator (usually a {@link AnimationController}) associated with an id.
      * @param player player entity
      * @throws IllegalArgumentException if the given argument is not a player, or api mixins have failed (normally never)
      * @implNote data is stored in the player object (using mixins), using it is more efficient than any objectMap as objectMap solution does not know when to delete the data.

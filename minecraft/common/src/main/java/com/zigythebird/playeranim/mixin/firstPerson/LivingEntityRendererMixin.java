@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.mixin.firstPerson;
 
-import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;

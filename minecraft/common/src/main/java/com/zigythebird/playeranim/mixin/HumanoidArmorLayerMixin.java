@@ -27,7 +27,7 @@ package com.zigythebird.playeranim.mixin;
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.accessors.IUpperPartHelper;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranim.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
