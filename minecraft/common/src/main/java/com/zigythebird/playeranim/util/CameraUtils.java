@@ -2,7 +2,7 @@ package com.zigythebird.playeranim.util;
 
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;

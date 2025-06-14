@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2020.
+ * Author: Bernie G. (Gecko)
+ */
+
+package com.zigythebird.playeranimcore.animation.keyframe.event;
+
+import com.zigythebird.playeranimcore.animation.AnimationController;
+import com.zigythebird.playeranimcore.animation.AnimationData;
+import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
+
+/**
+ * The {@link KeyFrameEvent} specific to the {@link AnimationController#setSoundKeyframeHandler(AnimationController.SoundKeyframeHandler)}
+ * <p>
+ * Called when a sound instruction keyframe is encountered
+ */
+public class SoundKeyframeEvent extends KeyFrameEvent<SoundKeyframeData> {
+	public SoundKeyframeEvent(float animationTick, AnimationController controller,
+							  SoundKeyframeData keyFrameData, AnimationData animationData) {
+		super(animationTick, controller, keyFrameData, animationData);
+	}
+
+	@Override
+	public SoundKeyframeData getKeyframeData() {
+		return super.getKeyframeData();
+	}
+}
