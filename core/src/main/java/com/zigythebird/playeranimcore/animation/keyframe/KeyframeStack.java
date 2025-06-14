@@ -12,13 +12,13 @@ import java.util.List;
 /**
  * Stores a triplet of {@link Keyframe Keyframes} in an ordered stack
  */
-public record KeyframeStack<T extends Keyframe>(List<T> xKeyframes, List<T> yKeyframes, List<T> zKeyframes) {
+public record KeyframeStack(List<Keyframe> xKeyframes, List<Keyframe> yKeyframes, List<Keyframe> zKeyframes) {
 	public KeyframeStack() {
 		this(new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>());
 	}
 
-	public static <F extends Keyframe> KeyframeStack<F> from(KeyframeStack<F> otherStack) {
-		return new KeyframeStack<>(otherStack.xKeyframes, otherStack.yKeyframes, otherStack.zKeyframes);
+	public static KeyframeStack from(KeyframeStack otherStack) {
+		return new KeyframeStack(otherStack.xKeyframes, otherStack.yKeyframes, otherStack.zKeyframes);
 	}
 
 	public float getLastKeyframeTime() {
@@ -29,7 +29,7 @@ public record KeyframeStack<T extends Keyframe>(List<T> xKeyframes, List<T> yKey
 	public float getLastXAxisKeyframeTime() {
 		float xTime = 0;
 
-		for (T frame : xKeyframes()) {
+		for (Keyframe frame : xKeyframes()) {
 			xTime += frame.length();
 		}
 
@@ -39,7 +39,7 @@ public record KeyframeStack<T extends Keyframe>(List<T> xKeyframes, List<T> yKey
 	public float getLastYAxisKeyframeTime() {
 		float yTime = 0;
 
-		for (T frame : yKeyframes()) {
+		for (Keyframe frame : yKeyframes()) {
 			yTime += frame.length();
 		}
 
@@ -49,7 +49,7 @@ public record KeyframeStack<T extends Keyframe>(List<T> xKeyframes, List<T> yKey
 	public float getLastZAxisKeyframeTime() {
 		float zTime = 0;
 
-		for (T frame : zKeyframes()) {
+		for (Keyframe frame : zKeyframes()) {
 			zTime += frame.length();
 		}
 
