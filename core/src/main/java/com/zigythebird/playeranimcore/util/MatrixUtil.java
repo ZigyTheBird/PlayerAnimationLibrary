@@ -1,7 +1,7 @@
-package com.zigythebird.playeranim.util;
+package com.zigythebird.playeranimcore.util;
 
-import com.zigythebird.playeranim.bones.PivotBone;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.bones.PivotBone;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

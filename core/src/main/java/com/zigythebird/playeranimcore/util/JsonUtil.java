@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:core/src/main/java/com/zigythebird/playeranim/util/JsonUtil.java
-package com.zigythebird.playeranim.util;
-========
-package com.zigythebird.playeranimcore.misc;
->>>>>>>> a49b82d696fb59320e1c8de536bbce2098088bf0:core/src/main/java/com/zigythebird/playeranimcore/misc/JsonUtil.java
+package com.zigythebird.playeranimcore.util;
 
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
