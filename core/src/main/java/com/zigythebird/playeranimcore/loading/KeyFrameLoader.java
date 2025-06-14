@@ -6,7 +6,7 @@ import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranimcore.misc.JsonUtil;
+import com.zigythebird.playeranimcore.util.JsonUtil;
 
 import java.util.List;
 import java.util.Map;

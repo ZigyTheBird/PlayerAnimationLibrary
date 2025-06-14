@@ -46,16 +46,6 @@ public class AnimationStack implements IAnimation {
         return bone;
     }
 
-    /*@Override
-    public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
-        for (Pair<Integer, IAnimation> layer : layers) {
-            if (layer.right().isActive() && (!FirstPersonMode.isFirstPersonPass() || layer.right().getFirstPersonMode().isEnabled())) {
-                bone = layer.right().get3DCameraTransform(camera, bone);
-            }
-        }
-        return bone;
-    }*/
-
     @Override
     public void setupAnim(AnimationData state) {
         for (Pair<Integer, IAnimation> layer : layers) {

@@ -74,12 +74,6 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
         return bone;
     }
 
-    /*@Override
-    public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
-        if (anim != null) return anim.get3DCameraTransform(camera, bone);
-        return bone;
-    }*/
-
     @Override
     public void setupAnim(AnimationData state) {
         if (this.anim != null) this.anim.setupAnim(state);

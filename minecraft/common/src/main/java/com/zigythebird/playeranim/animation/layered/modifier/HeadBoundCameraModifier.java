@@ -1,12 +1,13 @@
 /*package com.zigythebird.playeranim.animation.layered.modifier;
 
 import com.zigythebird.playeranim.animation.AnimationData;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.pivotBones.PlayerAnimBone;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 
+//TODO
 public class HeadBoundCameraModifier extends AbstractModifier {
     float tickDelta;
 

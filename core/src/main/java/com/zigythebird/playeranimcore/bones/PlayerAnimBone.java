@@ -18,8 +18,6 @@ import java.util.Objects;
 public class PlayerAnimBone {
 	private final String name;
 
-	public PlayerAnimBone parent;
-
 	protected float scaleX = 1;
 	protected float scaleY = 1;
 	protected float scaleZ = 1;
@@ -39,17 +37,8 @@ public class PlayerAnimBone {
 		this.name = name;
 	}
 
-	public PlayerAnimBone(PlayerAnimBone parent, String name) {
-		this.name = name;
-		this.parent = parent;
-	}
-
 	public String getName() {
 		return this.name;
-	}
-
-	public PlayerAnimBone getParent() {
-		return this.parent;
 	}
 
 	public float getRotX() {
@@ -516,6 +505,6 @@ public class PlayerAnimBone {
 	}
 
 	public int hashCode() {
-		return Objects.hash(getName(), (getParent() != null ? getParent().getName() : 0));
+		return getName().hashCode();
 	}
 }
