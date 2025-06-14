@@ -9,6 +9,9 @@ pluginManagement {
 
 rootProject.name = "player_animation_library"
 
-include("common")
-include("fabric")
-include("neoforge")
+include("core")
+include("minecraft")
+
+include("minecraft:common")
+include("minecraft:fabric")
+include("minecraft:neoforge")
