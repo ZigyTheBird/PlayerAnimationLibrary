@@ -109,13 +109,13 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
-    private void correctEasings(KeyframeStack keyframeStack, boolean easeBefore) {
+    public static void correctEasings(KeyframeStack keyframeStack, boolean easeBefore) {
         correctEasings(keyframeStack.xKeyframes(), easeBefore);
         correctEasings(keyframeStack.yKeyframes(), easeBefore);
         correctEasings(keyframeStack.zKeyframes(), easeBefore);
     }
 
-    private void correctEasings(List<Keyframe> list, boolean easeBefore) {
+    private static void correctEasings(List<Keyframe> list, boolean easeBefore) {
         if (!easeBefore) {
             EasingType previousEasing = EasingType.EASE_IN_SINE;
             for (int i=0;i<list.size();i++) {

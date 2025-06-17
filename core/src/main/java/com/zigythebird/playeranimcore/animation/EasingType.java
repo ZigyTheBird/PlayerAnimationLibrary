@@ -367,8 +367,6 @@ public interface EasingType {
 		 * Per standard implementation, this generates a spline curve over control points p1-p2, with p0 and p3
 		 * acting as curve anchors.<br>
 		 * We then apply the delta to determine the point on the generated spline to return.
-		 * <p>
-		 * Functionally equivalent to {@link Mth#catmullrom(float, float, float, float, float)}
 		 *
 		 * @see <a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Wikipedia</a>
 		 */
@@ -494,5 +492,72 @@ public interface EasingType {
 			}
 		}
 		return null;
+	}
+
+	static byte getIDForEasingType(EasingType easingType) {
+		if (easingType == EasingType.LINEAR) {
+			return 0;
+		} else if (easingType == EasingType.EASE_IN_SINE) {
+			return 6;
+		} else if (easingType == EasingType.EASE_OUT_SINE) {
+			return 7;
+		} else if (easingType == EasingType.EASE_IN_OUT_SINE) {
+			return 8;
+		} else if (easingType == EasingType.EASE_IN_CUBIC) {
+			return 9;
+		} else if (easingType == EasingType.EASE_OUT_CUBIC) {
+			return 10;
+		} else if (easingType == EasingType.EASE_IN_OUT_CUBIC) {
+			return 11;
+		} else if (easingType == EasingType.EASE_IN_QUAD) {
+			return 12;
+		} else if (easingType == EasingType.EASE_OUT_QUAD) {
+			return 13;
+		} else if (easingType == EasingType.EASE_IN_OUT_QUAD) {
+			return 14;
+		} else if (easingType == EasingType.EASE_IN_QUART) {
+			return 15;
+		} else if (easingType == EasingType.EASE_OUT_QUART) {
+			return 16;
+		} else if (easingType == EasingType.EASE_IN_OUT_QUART) {
+			return 17;
+		} else if (easingType == EasingType.EASE_IN_QUINT) {
+			return 18;
+		} else if (easingType == EasingType.EASE_OUT_QUINT) {
+			return 19;
+		} else if (easingType == EasingType.EASE_IN_OUT_QUINT) {
+			return 20;
+		} else if (easingType == EasingType.EASE_IN_EXPO) {
+			return 21;
+		} else if (easingType == EasingType.EASE_OUT_EXPO) {
+			return 22;
+		} else if (easingType == EasingType.EASE_IN_OUT_EXPO) {
+			return 23;
+		} else if (easingType == EasingType.EASE_IN_CIRC) {
+			return 24;
+		} else if (easingType == EasingType.EASE_OUT_CIRC) {
+			return 25;
+		} else if (easingType == EasingType.EASE_IN_OUT_CIRC) {
+			return 26;
+		} else if (easingType == EasingType.EASE_IN_BACK) {
+			return 27;
+		} else if (easingType == EasingType.EASE_OUT_BACK) {
+			return 28;
+		} else if (easingType == EasingType.EASE_IN_OUT_BACK) {
+			return 29;
+		} else if (easingType == EasingType.EASE_IN_ELASTIC) {
+			return 30;
+		} else if (easingType == EasingType.EASE_OUT_ELASTIC) {
+			return 31;
+		} else if (easingType == EasingType.EASE_IN_OUT_ELASTIC) {
+			return 32;
+		} else if (easingType == EasingType.EASE_IN_BOUNCE) {
+			return 33;
+		} else if (easingType == EasingType.EASE_OUT_BOUNCE) {
+			return 34;
+		} else if (easingType == EasingType.EASE_IN_OUT_BOUNCE) {
+			return 35;
+		}
+		return -1;
 	}
 }
