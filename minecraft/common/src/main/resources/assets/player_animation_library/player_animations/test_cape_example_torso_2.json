@@ -1,0 +1,62 @@
+{
+    "version": 3,
+    "name": "cape example torso 2",
+    "author": "MineEmotes",
+    "description": "",
+    "comment": "Comission",
+    "bages": [
+        {
+            "translate": "mineemotes.emote.badge.bendless",
+            "fallback": "Bendless",
+            "color": "#34c415"
+        }
+    ],
+    "emote": {
+        "endTick": 15,
+        "isLoop": true,
+        "returnTick": 0,
+        "degrees": false,
+        "easeBeforeKeyframe": false,
+        "nsfw": false,
+        "moves": [
+            {
+                "tick": 0,
+                "torso": {
+                    "x": -6.2867,
+                    "z": -8.5077,
+                    "y": 6.3348,
+                    "pitch": 1.0231,
+                    "roll": -0.0973,
+                    "yaw": 0.5908
+                },
+                "cape": {
+                    "x": 0.4247,
+                    "z": -9.1153,
+                    "y": 8.1072,
+                    "pitch": 0.9833,
+                    "roll": -0.5514,
+                    "yaw": -0.244
+                }
+            },
+            {
+                "tick": 13,
+                "torso": {
+                    "x": -6.2867,
+                    "z": -8.5077,
+                    "y": 6.3348,
+                    "pitch": 1.0231,
+                    "roll": -0.0973,
+                    "yaw": 0.5908
+                },
+                "cape": {
+                    "x": 0.4247,
+                    "z": -9.1153,
+                    "y": 8.1072,
+                    "pitch": 0.9833,
+                    "roll": -0.5514,
+                    "yaw": -0.244
+                }
+            }
+        ]
+    }
+}

@@ -396,4 +396,103 @@ public interface EasingType {
 			return getPointOnSpline(lerpValue, env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), env.eval(easingArgs.get(1)));
 		}
 	}
+
+	static EasingType getEasingTypeForID(int id) {
+		switch (id) {
+			case 0 -> {
+				return EasingType.LINEAR;
+			}
+			case 6 -> {
+				return EasingType.EASE_IN_SINE;
+			}
+			case 7 -> {
+				return EasingType.EASE_OUT_SINE;
+			}
+			case 8 -> {
+				return EasingType.EASE_IN_OUT_SINE;
+			}
+			case 9 -> {
+				return EasingType.EASE_IN_CUBIC;
+			}
+			case 10 -> {
+				return EasingType.EASE_OUT_CUBIC;
+			}
+			case 11 -> {
+				return EasingType.EASE_IN_OUT_CUBIC;
+			}
+			case 12 -> {
+				return EasingType.EASE_IN_QUAD;
+			}
+			case 13 -> {
+				return EasingType.EASE_OUT_QUAD;
+			}
+			case 14 -> {
+				return EasingType.EASE_IN_OUT_QUAD;
+			}
+			case 15 -> {
+				return EasingType.EASE_IN_QUART;
+			}
+			case 16 -> {
+				return EasingType.EASE_OUT_QUART;
+			}
+			case 17 -> {
+				return EasingType.EASE_IN_OUT_QUART;
+			}
+			case 18 -> {
+				return EasingType.EASE_IN_QUINT;
+			}
+			case 19 -> {
+				return EasingType.EASE_OUT_QUINT;
+			}
+			case 20 -> {
+				return EasingType.EASE_IN_OUT_QUINT;
+			}
+			case 21 -> {
+				return EasingType.EASE_IN_EXPO;
+			}
+			case 22 -> {
+				return EasingType.EASE_OUT_EXPO;
+			}
+			case 23 -> {
+				return EasingType.EASE_IN_OUT_EXPO;
+			}
+			case 24 -> {
+				return EasingType.EASE_IN_CIRC;
+			}
+			case 25 -> {
+				return EasingType.EASE_OUT_CIRC;
+			}
+			case 26 -> {
+				return EasingType.EASE_IN_OUT_CIRC;
+			}
+			case 27 -> {
+				return EasingType.EASE_IN_BACK;
+			}
+			case 28 -> {
+				return EasingType.EASE_OUT_BACK;
+			}
+			case 29 -> {
+				return EasingType.EASE_IN_OUT_BACK;
+			}
+			case 30 -> {
+				return EasingType.EASE_IN_ELASTIC;
+			}
+			case 31 -> {
+				return EasingType.EASE_OUT_ELASTIC;
+			}
+			case 32 -> {
+				return EasingType.EASE_IN_OUT_ELASTIC;
+			}
+			case 33 -> {
+				return EasingType.EASE_IN_BOUNCE;
+			}
+			case 34 -> {
+				return EasingType.EASE_OUT_BOUNCE;
+			}
+			case 35 -> {
+				return EasingType.EASE_IN_OUT_BOUNCE;
+			}
+		}
+		return null;
+	}
 }

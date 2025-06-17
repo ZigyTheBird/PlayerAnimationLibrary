@@ -216,7 +216,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees, boolean shouldNegate) {
-        if (transformType != TransformType.ROTATION) value -= def;
+        if (transformType != TransformType.ROTATION && transformType != TransformType.SCALE) value -= def;
         if (shouldNegate) value *= -1;
         if (degrees && transformType == TransformType.ROTATION) value = MathHelper.toRadians(value);
         if (transformType == TransformType.POSITION) value *= 16;

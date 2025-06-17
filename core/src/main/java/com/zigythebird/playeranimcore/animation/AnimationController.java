@@ -24,14 +24,17 @@ import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
+import com.zigythebird.playeranimcore.util.MatrixUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
+import org.joml.*;
 import team.unnamed.mocha.MochaEngine;
 
+import java.lang.Math;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -45,7 +48,7 @@ import java.util.function.Predicate;
  */
 public abstract class AnimationController implements IAnimation {
 	protected final AnimationStateHandler stateHandler;
-	protected final Map<String, BoneAnimationQueue> boneAnimationQueues = new Object2ObjectOpenHashMap<>();
+	protected final LinkedHashMap<String, BoneAnimationQueue> boneAnimationQueues = new LinkedHashMap<>();
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PlayerAnimBone> activeBones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PivotBone> pivotBones = new Object2ObjectOpenHashMap<>();
@@ -446,7 +449,7 @@ public abstract class AnimationController implements IAnimation {
 	 *
 	 * @param state                 The animation test state
 	 * @param seekTime              The current tick + partial tick
-	 * @param crashWhenCantFindBone Whether to hard-fail when a bone can't be found, or to continue with the remaining pivotBones
+	 * @param crashWhenCantFindBone Whether to hard-fail when a bone can't be found, or to continue with the remaining bones
 	 */
 	public void process(AnimationData state, final float seekTime, boolean crashWhenCantFindBone) {
 		float adjustedTick = adjustTick(seekTime);
@@ -506,7 +509,7 @@ public abstract class AnimationController implements IAnimation {
 	 *
 	 * @param adjustedTick The controller-adjusted tick for animation purposes
 	 * @param seekTime The lerped tick (current tick + partial tick)
-	 * @param crashWhenCantFindBone Whether the controller should throw an exception when unable to find the required bone, or continue with the remaining pivotBones
+	 * @param crashWhenCantFindBone Whether the controller should throw an exception when unable to find the required bone, or continue with the remaining bones
 	 */
 	private void processCurrentAnimation(float adjustedTick, float seekTime, boolean crashWhenCantFindBone, AnimationData animationData) {
 		if (adjustedTick >= this.currentAnimation.animation().length()) {
@@ -588,6 +591,14 @@ public abstract class AnimationController implements IAnimation {
 						getAnimationPointAtTick(bendKeyFrames.yKeyframes(), adjustedTick, TransformType.BEND, bone != null ? bone::setBendTransitionLength : null));
 			}
 		}
+
+		this.boneAnimationQueues.entrySet().stream().sorted((o1, o2) -> {
+			boolean isMainBone1 = this.bones.containsKey(o1.getKey());
+			boolean isMainBone2 = this.bones.containsKey(o2.getKey());
+			if (isMainBone1 == isMainBone2) return 0;
+			if (isMainBone1) return 1;
+			return -1;
+		}).forEach(entry -> this.boneAnimationQueues.putLast(entry.getKey(), entry.getValue()));
 
 		for (SoundKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().sounds()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
@@ -692,7 +703,7 @@ public abstract class AnimationController implements IAnimation {
 		if (currentAnimation == null) return;
 		List<BoneAnimation> animations = currentAnimation.animation().boneAnimations();
 		for (AdvancedPlayerAnimBone bone : bones.values()) {
-			bone.setEnabled(!animations.stream().noneMatch(boneAnim -> boneAnim.boneName().equals(bone.getName())));
+			bone.setEnabled(animations.stream().anyMatch(boneAnim -> boneAnim.boneName().equals(bone.getName())));
 		}
 		for (BoneAnimation boneAnimation : animations) {
 			if (bones.containsKey(boneAnimation.boneName())) {
@@ -716,8 +727,12 @@ public abstract class AnimationController implements IAnimation {
 			}
 		}
 
+		for (String entry : currentAnimation.animation().parents().keySet()) {
+			if (this.bones.containsKey(entry)) this.bones.get(entry).setEnabled(true);
+		}
+
 		this.pivotBones.clear();
-		for (Map.Entry<String, Vector3f> entry : currentAnimation.animation().pivotBones().entrySet()) {
+		for (Map.Entry<String, Vec3f> entry : currentAnimation.animation().pivotBones().entrySet()) {
 			this.pivotBones.put(entry.getKey(), new PivotBone(entry.getKey(), entry.getValue()));
 		}
 	}
@@ -919,12 +934,37 @@ public abstract class AnimationController implements IAnimation {
 				bone.setBendAxis(EasingType.lerpWithOverride(this.molangRuntime, bendAxisPoint, easingType));
 				bone.setBend(EasingType.lerpWithOverride(this.molangRuntime, bendPoint, easingType));
 			}
+		}
 
-			if (bone instanceof PivotBone) {
-				if (this.currentAnimation != null && this.currentAnimation.animation().pivotBones().containsKey(bone.getName())) {
-					PivotBone bone1 = this.pivotBones.get(bone.getName());
-					get3DTransform(bone1);
+		if (this.currentAnimation == null) return;
+		Map<String, String> parentsMap = this.currentAnimation.animation().parents();
+
+		for (PlayerAnimBone bone : this.bones.values()) {
+			if (parentsMap.containsKey(bone.getName())) {
+				this.activeBones.put(bone.getName(), bone);
+				if (!this.boneAnimationQueues.containsKey(bone.getName())) bone.setToInitialPose();
+				Matrix4f matrix = new Matrix4f();
+				List<PivotBone> parents = new ArrayList<>();
+				PivotBone currentParent = this.pivotBones.get(parentsMap.get(bone.getName()));
+				parents.add(currentParent);
+				while (parentsMap.containsKey(currentParent.getName())) {
+					currentParent = this.pivotBones.get(parentsMap.get(currentParent.getName()));
+					parents.addFirst(currentParent);
 				}
+
+				for (PivotBone pivotBone : parents) {
+					MatrixUtil.prepMatrixForBone(matrix, pivotBone, pivotBone.getPivot());
+				}
+
+				Vector4f pos = new Vector4f(bone.getPosX(), bone.getPosY(), bone.getPosZ(), 1).mul(matrix);
+				bone.setPosX(pos.x);
+				bone.setPosY(pos.y);
+				bone.setPosZ(pos.z);
+
+				Vector3f rotation = matrix.getNormalizedRotation(new Quaternionf()).getEulerAnglesZYX(new Vector3f());
+				bone.addRot(rotation.x, rotation.y, rotation.z);
+
+				bone.mulScale(matrix.getColumn(0, new Vector4f()).length(), matrix.getColumn(1, new Vector4f()).length(), matrix.getColumn(2, new Vector4f()).length());
 			}
 		}
 	}
@@ -993,7 +1033,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * Adds the given bone to the pivotBones list for this controller
+	 * Adds the given bone to the bones list for this controller
 	 * <p>
 	 * This is normally handled automatically by the mod
 	 */

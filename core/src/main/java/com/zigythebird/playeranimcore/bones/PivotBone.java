@@ -1,16 +1,16 @@
 package com.zigythebird.playeranimcore.bones;
 
-import org.joml.Vector3f;
+import com.zigythebird.playeranimcore.math.Vec3f;
 
 public class PivotBone extends PlayerAnimBone {
-    private final Vector3f pivot;
+    private final Vec3f pivot;
 
-    public PivotBone(String name, Vector3f pivot) {
+    public PivotBone(String name, Vec3f pivot) {
         super(name);
         this.pivot = pivot;
     }
 
-    public Vector3f getPivot() {
+    public Vec3f getPivot() {
         return this.pivot;
     }
 }

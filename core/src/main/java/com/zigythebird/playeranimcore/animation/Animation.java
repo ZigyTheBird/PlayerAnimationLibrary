@@ -12,6 +12,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstru
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranimcore.enums.AnimationStage;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-    public record Animation(ExtraAnimationData data, float length, LoopType loopType, List<BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, Vector3f> pivotBones, Map<String, String> parents) {
+    public record Animation(ExtraAnimationData data, float length, LoopType loopType, List<BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, Vec3f> pivotBones, Map<String, String> parents) {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 
     static Animation generateWaitAnimation(float length) {

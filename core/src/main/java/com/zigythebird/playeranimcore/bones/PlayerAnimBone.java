@@ -18,20 +18,20 @@ import java.util.Objects;
 public class PlayerAnimBone {
 	private final String name;
 
-	protected float scaleX = 1;
-	protected float scaleY = 1;
-	protected float scaleZ = 1;
+	public float scaleX = 1;
+	public float scaleY = 1;
+	public float scaleZ = 1;
 
-	protected float positionX;
-	protected float positionY;
-	protected float positionZ;
+	public float positionX;
+	public float positionY;
+	public float positionZ;
 
-	protected float rotX;
-	protected float rotY;
-	protected float rotZ;
+	public float rotX;
+	public float rotY;
+	public float rotZ;
 
-	protected float bendAxis;
-	protected float bend;
+	public float bendAxis;
+	public float bend;
 
 	public PlayerAnimBone(String name) {
 		this.name = name;

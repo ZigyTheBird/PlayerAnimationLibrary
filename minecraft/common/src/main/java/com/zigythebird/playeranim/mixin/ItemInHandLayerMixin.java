@@ -61,10 +61,9 @@ public class ItemInHandLayerMixin {
                 bone.setToInitialPose();
                 anim.get3DTransform(bone);
 
-                matrices.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
-                matrices.translate(bone.getPosX()/16, bone.getPosY()/16, bone.getPosZ()/16);
-
+                matrices.translate(bone.getPosX()/16, -bone.getPosY()/16, bone.getPosZ()/16);
                 RenderUtil.rotateMatrixAroundBone(matrices, bone);
+                matrices.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
             }
         }
     }

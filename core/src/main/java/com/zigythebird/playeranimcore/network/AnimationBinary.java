@@ -10,8 +10,8 @@ import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
-import org.joml.Vector3f;
 import team.unnamed.mocha.parser.MolangParser;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.util.ExpressionListUtils;
@@ -54,7 +54,7 @@ public class AnimationBinary {
             ProtocolUtils.writeString(buf, instructionKeyframe.getInstructions());
         }
         buf.writeInt(animation.pivotBones().size());
-        for (Map.Entry<String, Vector3f> entry : animation.pivotBones().entrySet()) {
+        for (Map.Entry<String, Vec3f> entry : animation.pivotBones().entrySet()) {
             ProtocolUtils.writeString(buf, entry.getKey());
             buf.writeFloat(entry.getValue().x);
             buf.writeFloat(entry.getValue().y);
@@ -110,9 +110,9 @@ public class AnimationBinary {
         for (int i = 0; i < buf.readInt(); i++) {
             keyFrames.customInstructions()[i] = new CustomInstructionKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
         }
-        Map<String, Vector3f> bones = new HashMap<>();
+        Map<String, Vec3f> bones = new HashMap<>();
         for (int i = 0; i < buf.readInt(); i++) {
-            bones.put(ProtocolUtils.readString(buf), new Vector3f(buf.readFloat(), buf.readFloat(), buf.readFloat()));
+            bones.put(ProtocolUtils.readString(buf), new Vec3f(buf.readFloat(), buf.readFloat(), buf.readFloat()));
         }
         Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
 

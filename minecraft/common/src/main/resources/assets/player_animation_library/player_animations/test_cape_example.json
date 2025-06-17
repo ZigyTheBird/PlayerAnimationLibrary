@@ -1,0 +1,54 @@
+{
+    "version": 3,
+    "name": "cape example",
+    "author": "MineEmotes",
+    "description": "",
+    "comment": "Comission",
+    "bages": [
+        {
+            "translate": "mineemotes.emote.badge.bendless",
+            "fallback": "Bendless",
+            "color": "#34c415"
+        }
+    ],
+    "emote": {
+        "endTick": 15,
+        "isLoop": true,
+        "returnTick": 0,
+        "degrees": false,
+        "easeBeforeKeyframe": false,
+        "nsfw": false,
+        "moves": [
+            {
+                "tick": 0,
+                "cape": {
+                    "scaleX": 1.0,
+                    "scaleZ": 1.0,
+                    "scaleY": 1.0,
+                    "x": 0.0,
+                    "z": 0.0,
+                    "y": 0.0,
+                    "pitch": -0.0,
+                    "roll": 0.0,
+                    "yaw": -0.0,
+                    "bend": 0.0
+                }
+            },
+            {
+                "tick": 13,
+                "cape": {
+                    "scaleX": 1.0,
+                    "scaleZ": 1.0,
+                    "scaleY": 1.0,
+                    "x": 0.0,
+                    "z": 0.0,
+                    "y": 0.0,
+                    "pitch": -0.0,
+                    "roll": 0.0,
+                    "yaw": -0.0,
+                    "bend": 0.0
+                }
+            }
+        ]
+    }
+}
