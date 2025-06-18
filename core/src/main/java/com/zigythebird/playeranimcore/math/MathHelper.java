@@ -1,11 +1,9 @@
 package com.zigythebird.playeranimcore.math;
 
-import org.joml.Vector3f;
 /**
  * Some casts to {@link float} to make my life easier.
  */
 public class MathHelper {
-    public static final Vector3f ZERO = new Vector3f();
     public static final float PI = (float) Math.PI;
 
     public static float pow(float a, float b) {
