@@ -3,7 +3,6 @@ package com.zigythebird.playeranimcore.misc;
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -298,7 +297,7 @@ public final class JsonUtil {
     }
 
     public static String getType(@Nullable JsonElement json) {
-        String string = StringUtils.abbreviateMiddle(String.valueOf(json), "...", 10);
+        String string = String.valueOf(json);
         if (json == null) {
             return "null (missing)";
         } else if (json.isJsonNull()) {

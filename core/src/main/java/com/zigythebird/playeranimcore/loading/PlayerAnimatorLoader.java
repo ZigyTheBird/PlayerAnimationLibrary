@@ -10,9 +10,9 @@ import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.MathHelper;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -193,13 +193,13 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn);
         fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn);
         fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn);
-        fillKeyframeStack(bone.bendKeyFrames(), MathHelper.ZERO, TransformType.BEND, "axis", "bend", null, partNode, degrees, tick, easing, turn);
+        fillKeyframeStack(bone.bendKeyFrames(), Vec3f.ZERO, TransformType.BEND, "axis", "bend", null, partNode, degrees, tick, easing, turn);
     }
 
-    private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vector3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn) {
-        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn);
-        addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, turn);
-        if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn);
+    private void fillKeyframeStack(KeyframeStack<Keyframe> stack, Vec3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn) {
+        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x, transformType, x, node, degrees, tick, easing, turn);
+        addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y, transformType, y, node, degrees, tick, easing, turn);
+        if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z, transformType, z, node, degrees, tick, easing, turn);
     }
 
     private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, int rotate) {
@@ -233,16 +233,16 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return easingType;
     }
 
-    public static final StateCollection EMPTY = new StateCollection(MathHelper.ZERO, MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F));
+    public static final StateCollection EMPTY = new StateCollection(Vec3f.ZERO, Vec3f.ZERO, Vec3f.ONE);
 
     private static final Map<String, StateCollection> DEFAULT_VALUES = Map.of(
-            "rightArm", new StateCollection(new Vector3f(-5, 2, 0), MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
-            "leftArm", new StateCollection(new Vector3f(5, 2, 0), MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
-            "leftLeg", new StateCollection(new Vector3f(1.9f, 12, 0.1f), MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F)),
-            "rightLeg", new StateCollection(new Vector3f(-1.9f, 12, 0.1f), MathHelper.ZERO, new Vector3f(1.0F, 1.0F, 1.0F))
+            "rightArm", new StateCollection(new Vec3f(-5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
+            "leftArm", new StateCollection(new Vec3f(5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
+            "leftLeg", new StateCollection(new Vec3f(1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE),
+            "rightLeg", new StateCollection(new Vec3f(-1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE)
     );
 
-    public record StateCollection(Vector3f pos, Vector3f rot, Vector3f scale) {}
+    public record StateCollection(Vec3f pos, Vec3f rot, Vec3f scale) {}
 
     public static StateCollection getDefaultValues(String bone) {
         return DEFAULT_VALUES.getOrDefault(bone, EMPTY);

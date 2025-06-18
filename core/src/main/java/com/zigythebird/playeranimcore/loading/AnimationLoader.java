@@ -16,7 +16,6 @@ import com.zigythebird.playeranimcore.misc.JsonUtil;
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apache.commons.lang3.math.NumberUtils;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -247,6 +246,10 @@ public class AnimationLoader {
 	}
 
 	private static float readTimestamp(String timestamp) {
-		return NumberUtils.isCreatable(timestamp) ? Float.parseFloat(timestamp) : 0;
+		try {
+			return Float.parseFloat(timestamp);
+		} catch (Throwable th) {
+			return 0;
+		}
 	}
 }
