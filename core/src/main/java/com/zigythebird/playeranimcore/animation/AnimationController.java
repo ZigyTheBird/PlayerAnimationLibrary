@@ -530,10 +530,10 @@ public abstract class AnimationController implements IAnimation {
 				continue;
 			}
 
-			KeyframeStack<Keyframe> rotationKeyFrames = boneAnimation.rotationKeyFrames();
-			KeyframeStack<Keyframe> positionKeyFrames = boneAnimation.positionKeyFrames();
-			KeyframeStack<Keyframe> scaleKeyFrames = boneAnimation.scaleKeyFrames();
-			KeyframeStack<Keyframe> bendKeyFrames = boneAnimation.bendKeyFrames();
+			KeyframeStack rotationKeyFrames = boneAnimation.rotationKeyFrames();
+			KeyframeStack positionKeyFrames = boneAnimation.positionKeyFrames();
+			KeyframeStack scaleKeyFrames = boneAnimation.scaleKeyFrames();
+			KeyframeStack bendKeyFrames = boneAnimation.bendKeyFrames();
 
 			if (rotationKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addRotations(
@@ -664,9 +664,9 @@ public abstract class AnimationController implements IAnimation {
 
 	public void checkBonesEnabled() {
 		if (currentAnimation == null) return;
-		BoneAnimation[] animations = currentAnimation.animation().boneAnimations();
+		List<BoneAnimation> animations = currentAnimation.animation().boneAnimations();
 		for (AdvancedPlayerAnimBone bone : bones.values()) {
-			if (Arrays.stream(animations).noneMatch(boneAnim -> boneAnim.boneName().equals(bone.getName()))) bone.setEnabled(false);
+			if (animations.stream().noneMatch(boneAnim -> boneAnim.boneName().equals(bone.getName()))) bone.setEnabled(false);
 		}
 		for (BoneAnimation boneAnimation : animations) {
 			if (bones.containsKey(boneAnimation.boneName())) {
