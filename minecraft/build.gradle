@@ -1,0 +1,33 @@
+plugins {
+    id "architectury-plugin"
+}
+
+architectury {
+    minecraft = rootProject.minecraft_version
+}
+
+subprojects {
+    apply plugin: "architectury-plugin"
+    apply plugin: "dev.architectury.loom"
+
+    loom {
+        silentMojangMappingsLicense()
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        mappings loom.layered() {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-${rootProject.minecraft_version}:${rootProject.parchment_version}@zip")
+        }
+        implementation project(":core")
+    }
+
+    processResources {
+        inputs.property "version", project.version
+
+        filesMatching(["META-INF/neoforge.mods.toml", "fabric.mod.json"]) {
+            expand version: project.version
+        }
+    }
+}
