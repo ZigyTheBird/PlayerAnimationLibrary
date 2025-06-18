@@ -9,8 +9,8 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstru
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranimcore.bones.PivotBone;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.misc.JsonUtil;
-import org.joml.Vector3d;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,7 +29,7 @@ public class UniversalAnimLoader {
             for (Map.Entry<String, JsonElement> entry : model.entrySet()) {
                 JsonObject object = entry.getValue().getAsJsonObject();
                 JsonArray pivot = object.get("pivot").getAsJsonArray();
-                PivotBone bone = new PivotBone(entry.getKey(), new Vector3d(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat()));
+                PivotBone bone = new PivotBone(entry.getKey(), new Vec3f(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat()));
                 bones.put(entry.getKey(), bone);
             }
 

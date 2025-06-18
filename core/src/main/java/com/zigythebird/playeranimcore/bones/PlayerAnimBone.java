@@ -6,9 +6,9 @@ import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.enums.Axis;
 import com.zigythebird.playeranimcore.enums.TransformType;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import it.unimi.dsi.fastutil.Pair;
 import org.jetbrains.annotations.ApiStatus;
-import org.joml.Vector3d;
 
 import java.util.Objects;
 
@@ -186,16 +186,16 @@ public class PlayerAnimBone {
 		this.bend = 0;
 	}
 
-	public Vector3d getPositionVector() {
-		return new Vector3d(getPosX(), getPosY(), getPosZ());
+	public Vec3f getPositionVector() {
+		return new Vec3f(getPosX(), getPosY(), getPosZ());
 	}
 
-	public Vector3d getRotationVector() {
-		return new Vector3d(getRotX(), getRotY(), getRotZ());
+	public Vec3f getRotationVector() {
+		return new Vec3f(getRotX(), getRotY(), getRotZ());
 	}
 
-	public Vector3d getScaleVector() {
-		return new Vector3d(getScaleX(), getScaleY(), getScaleZ());
+	public Vec3f getScaleVector() {
+		return new Vec3f(getScaleX(), getScaleY(), getScaleZ());
 	}
 
 	public void addRotationOffsetFromBone(PlayerAnimBone source) {

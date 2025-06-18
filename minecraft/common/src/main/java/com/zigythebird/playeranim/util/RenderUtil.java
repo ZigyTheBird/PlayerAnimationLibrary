@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import org.joml.Vector3d;
@@ -32,13 +33,13 @@ public final class RenderUtil {
 	}
 
 	public static void translateToPivotPoint(PoseStack poseStack, PivotBone bone) {
-		Vector3d pivot = bone.getPivot();
-		poseStack.translate(pivot.x()/16, pivot.y()/16, pivot.z()/16);
+		Vec3f pivot = bone.getPivot();
+		poseStack.translate(pivot.x/16, pivot.y/16, pivot.z/16);
 	}
 
 	public static void translateAwayFromPivotPoint(PoseStack poseStack, PivotBone bone) {
-		Vector3d pivot = bone.getPivot();
-		poseStack.translate(-pivot.x()/16, -pivot.y()/16, -pivot.z()/16);
+		Vec3f pivot = bone.getPivot();
+		poseStack.translate(-pivot.x/16, -pivot.y/16, -pivot.z/16);
 	}
 
 	public static void translateAndRotateMatrixForBone(PoseStack poseStack, PivotBone bone) {

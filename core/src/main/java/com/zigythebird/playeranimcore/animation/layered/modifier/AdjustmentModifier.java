@@ -27,8 +27,8 @@ package com.zigythebird.playeranimcore.animation.layered.modifier;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.AnimationData;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -77,36 +77,29 @@ import java.util.function.Function;
  */
 public class AdjustmentModifier extends AbstractModifier {
     public static final class PartModifier {
-        private final Vector3f rotation;
-        private final Vector3f scale;
-        private final Vector3f offset;
+        private final Vec3f rotation;
+        private final Vec3f scale;
+        private final Vec3f offset;
 
-        public PartModifier(
-                Vector3f rotation,
-                Vector3f offset
-        ) {
-            this(rotation, new Vector3f(), offset);
+        public PartModifier(Vec3f rotation, Vec3f offset) {
+            this(rotation, Vec3f.ZERO, offset);
         }
 
-        public PartModifier(
-                Vector3f rotation,
-                Vector3f scale,
-                Vector3f offset
-        ) {
+        public PartModifier(Vec3f rotation, Vec3f scale, Vec3f offset) {
             this.rotation = rotation;
             this.scale = scale;
             this.offset = offset;
         }
 
-        public Vector3f rotation() {
+        public Vec3f rotation() {
             return rotation;
         }
 
-        public Vector3f scale() {
+        public Vec3f scale() {
             return scale;
         }
 
-        public Vector3f offset() {
+        public Vec3f offset() {
             return offset;
         }
 
@@ -224,11 +217,11 @@ public class AdjustmentModifier extends AbstractModifier {
     }
 
     protected void transformBone(PlayerAnimBone bone, PartModifier partModifier, float fade) {
-        Vector3f pos = partModifier.offset().mul(fade);
-        Vector3f rot = partModifier.rotation().mul(fade);
-        Vector3f scale = partModifier.scale().mul(fade);
-        bone.updatePosition(pos.x() + bone.getPosX(), pos.y() + bone.getPosY(), pos.z() + bone.getPosZ());
-        bone.updateRotation(rot.x() + bone.getRotX(), rot.y() + bone.getRotY(), rot.z() + bone.getRotZ());
-        bone.updateScale(scale.x() + bone.getScaleX(), scale.y() + bone.getScaleY(), scale.z() + bone.getScaleZ());
+        Vec3f pos = partModifier.offset().mul(fade);
+        Vec3f rot = partModifier.rotation().mul(fade);
+        Vec3f scale = partModifier.scale().mul(fade);
+        bone.updatePosition(pos.x + bone.getPosX(), pos.y + bone.getPosY(), pos.z + bone.getPosZ());
+        bone.updateRotation(rot.x + bone.getRotX(), rot.y + bone.getRotY(), rot.z + bone.getRotZ());
+        bone.updateScale(scale.x + bone.getScaleX(), scale.y + bone.getScaleY(), scale.z + bone.getScaleZ());
     }
 }
