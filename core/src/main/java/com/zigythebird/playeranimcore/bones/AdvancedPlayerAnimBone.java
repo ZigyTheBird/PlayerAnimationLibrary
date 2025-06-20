@@ -35,10 +35,6 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone implements IBoneEnabl
         super(name);
     }
 
-    public AdvancedPlayerAnimBone(PlayerAnimBone parent, String name) {
-        super(parent, name);
-    }
-
     public void setEnabled(boolean enabled) {
         scaleXEnabled = enabled;
         scaleYEnabled = enabled;

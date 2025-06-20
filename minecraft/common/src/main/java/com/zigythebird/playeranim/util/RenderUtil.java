@@ -2,21 +2,14 @@ package com.zigythebird.playeranim.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
-import com.zigythebird.playeranimcore.math.Vec3f;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import org.joml.Vector3d;
 
 /**
  * Helper class for various methods and functions useful while rendering
  */
 public final class RenderUtil {
-	public static void translateMatrixToBone(PoseStack poseStack, PlayerAnimBone bone) {
-		poseStack.translate(bone.getPosX() / 16f, bone.getPosY() / 16f, bone.getPosZ() / 16f);
-	}
-
 	public static void rotateMatrixAroundBone(PoseStack poseStack, PlayerAnimBone bone) {
 		if (bone.getRotZ() != 0)
 			poseStack.mulPose(Axis.ZP.rotation(bone.getRotZ()));
@@ -26,33 +19,6 @@ public final class RenderUtil {
 
 		if (bone.getRotX() != 0)
 			poseStack.mulPose(Axis.XP.rotation(bone.getRotX()));
-	}
-
-	public static void scaleMatrixForBone(PoseStack poseStack, PlayerAnimBone bone) {
-		poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
-	}
-
-	public static void translateToPivotPoint(PoseStack poseStack, PivotBone bone) {
-		Vec3f pivot = bone.getPivot();
-		poseStack.translate(pivot.x/16, pivot.y/16, pivot.z/16);
-	}
-
-	public static void translateAwayFromPivotPoint(PoseStack poseStack, PivotBone bone) {
-		Vec3f pivot = bone.getPivot();
-		poseStack.translate(-pivot.x/16, -pivot.y/16, -pivot.z/16);
-	}
-
-	public static void translateAndRotateMatrixForBone(PoseStack poseStack, PivotBone bone) {
-		translateToPivotPoint(poseStack, bone);
-		rotateMatrixAroundBone(poseStack, bone);
-	}
-
-	public static void prepMatrixForBone(PoseStack poseStack, PivotBone bone) {
-		translateMatrixToBone(poseStack, bone);
-		translateToPivotPoint(poseStack, bone);
-		rotateMatrixAroundBone(poseStack, bone);
-		scaleMatrixForBone(poseStack, bone);
-		translateAwayFromPivotPoint(poseStack, bone);
 	}
 
 	public static void translatePartToBone(ModelPart part, PlayerAnimBone bone) {

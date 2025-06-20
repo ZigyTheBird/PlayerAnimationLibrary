@@ -2,8 +2,8 @@ package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -41,7 +41,7 @@ public abstract class ElytraLayerMixin_noBend<S extends HumanoidRenderState, M e
                 elytra.copyOtherBone(cape);
                 emote.get3DTransform(elytra);
                 poseStack.translate(elytra.getPosX() / 16, elytra.getPosY() / 16, elytra.getPosZ() / 16);
-                poseStack.mulPose(new Quaternionf().rotateZYX(-elytra.getRotX(), elytra.getRotY(), -elytra.getRotZ()));
+                poseStack.mulPose(new Quaternionf().rotateZYX(elytra.getRotZ(), elytra.getRotY(), elytra.getRotX()));
                 poseStack.scale(elytra.getScaleX(), elytra.getScaleY(), elytra.getScaleZ());
             }
         }

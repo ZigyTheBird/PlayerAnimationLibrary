@@ -155,14 +155,6 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
         return bone;
     }
 
-    /*@Override
-    public PlayerAnimBone get3DCameraTransform(Camera camera, @NotNull PlayerAnimBone bone) {
-        if (!modifiers.isEmpty()) {
-            return modifiers.get(0).get3DCameraTransform(camera, bone);
-        } else if (animation != null) return animation.get3DCameraTransform(camera, bone);
-        return bone;
-    }*/
-
     @Override
     public void setupAnim(AnimationData state) {
         if (!modifiers.isEmpty()) {

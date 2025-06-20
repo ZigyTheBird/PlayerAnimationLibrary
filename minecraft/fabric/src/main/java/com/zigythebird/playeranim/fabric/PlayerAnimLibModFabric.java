@@ -13,7 +13,7 @@ public final class PlayerAnimLibModFabric extends PlayerAnimLibMod implements Cl
     @Override
     public void onInitializeClient() {
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiablePlayerAnimResources());
-        if (FabricLoader.getInstance().isDevelopmentEnvironment())
+        if (FabricLoader.getInstance().isDevelopmentEnvironment() || FabricLoader.getInstance().getModContainer(PlayerAnimLibMod.MOD_ID).get().getMetadata().getVersion().getFriendlyString().contains("dev"))
             ClientCommandRegistrationCallback.EVENT.register(PlayerAnimCommands::register);
 
         super.init();

@@ -25,10 +25,10 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
-import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
@@ -47,25 +47,43 @@ public class ItemInHandLayerMixin {
     @Unique
     private final PlayerAnimBone playerAnimLib$leftItem = new PlayerAnimBone("left_item");
 
-    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"))
+    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", ordinal = 0))
     private void changeItemLocation(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, HumanoidArm arm, PoseStack matrices, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
-        if(renderState instanceof IPlayerAnimationState state) {
-            if (state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-                PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
-                if (anim == null) return;
-                PlayerAnimBone bone;
+        if (renderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
+            PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
+            if (anim == null) return;
+            PlayerAnimBone bone;
 
-                if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
-                else bone = playerAnimLib$rightItem;
+            if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
+            else bone = playerAnimLib$rightItem;
 
-                bone.setToInitialPose();
-                anim.get3DTransform(bone);
+            bone.setToInitialPose();
+            anim.get3DTransform(bone);
 
-                matrices.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
-                matrices.translate(bone.getPosX()/16, bone.getPosY()/16, bone.getPosZ()/16);
+            matrices.translate(bone.getPosX()/16, bone.getPosY()/16, bone.getPosZ()/16);
+        }
+    }
 
-                RenderUtil.rotateMatrixAroundBone(matrices, bone);
-            }
+    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"))
+    private void changeItemRotation(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, HumanoidArm arm, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
+        if (renderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
+            PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
+            if (anim == null) return;
+            PlayerAnimBone bone;
+
+            if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
+            else bone = playerAnimLib$rightItem;
+
+            if (bone.getRotY() != 0)
+                poseStack.mulPose(Axis.ZP.rotation(-bone.getRotY()));
+
+            if (bone.getRotZ() != 0)
+                poseStack.mulPose(Axis.YP.rotation(-bone.getRotZ()));
+
+            if (bone.getRotX() != 0)
+                poseStack.mulPose(Axis.XP.rotation(-bone.getRotX()));
+
+            poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
         }
     }
 }

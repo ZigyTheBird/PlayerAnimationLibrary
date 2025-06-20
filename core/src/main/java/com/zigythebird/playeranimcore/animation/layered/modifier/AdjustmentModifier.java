@@ -220,8 +220,8 @@ public class AdjustmentModifier extends AbstractModifier {
         Vec3f pos = partModifier.offset().mul(fade);
         Vec3f rot = partModifier.rotation().mul(fade);
         Vec3f scale = partModifier.scale().mul(fade);
-        bone.updatePosition(pos.x + bone.getPosX(), pos.y + bone.getPosY(), pos.z + bone.getPosZ());
-        bone.updateRotation(rot.x + bone.getRotX(), rot.y + bone.getRotY(), rot.z + bone.getRotZ());
-        bone.updateScale(scale.x + bone.getScaleX(), scale.y + bone.getScaleY(), scale.z + bone.getScaleZ());
+        bone.updatePosition(pos.x() + bone.getPosX(), pos.y() + bone.getPosY(), pos.z() + bone.getPosZ());
+        bone.updateRotation(rot.x() + bone.getRotX(), rot.y() + bone.getRotY(), rot.z() + bone.getRotZ());
+        bone.updateScale(scale.x() + bone.getScaleX(), scale.y() + bone.getScaleY(), scale.z() + bone.getScaleZ());
     }
 }

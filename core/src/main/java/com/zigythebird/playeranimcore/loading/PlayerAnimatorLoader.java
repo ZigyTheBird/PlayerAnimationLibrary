@@ -89,7 +89,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         );
 
         float stopTick = node.has("stopTick") ? node.get("stopTick").getAsFloat() : 0;
-        if (loopType == Animation.LoopType.DEFAULT)
+        if (loopType == Animation.LoopType.PLAY_ONCE)
             endTick = stopTick <= endTick ? endTick + 3 : stopTick; // https://github.com/KosmX/minecraftPlayerAnimator/blob/1.21/coreLib/src/main/java/dev/kosmx/playerAnim/core/data/KeyframeAnimation.java#L80
 
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();
@@ -109,13 +109,13 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
-    private void correctEasings(KeyframeStack keyframeStack, boolean easeBefore) {
+    public static void correctEasings(KeyframeStack keyframeStack, boolean easeBefore) {
         correctEasings(keyframeStack.xKeyframes(), easeBefore);
         correctEasings(keyframeStack.yKeyframes(), easeBefore);
         correctEasings(keyframeStack.zKeyframes(), easeBefore);
     }
 
-    private void correctEasings(List<Keyframe> list, boolean easeBefore) {
+    private static void correctEasings(List<Keyframe> list, boolean easeBefore) {
         if (!easeBefore) {
             EasingType previousEasing = EasingType.EASE_IN_SINE;
             for (int i=0;i<list.size();i++) {
@@ -197,9 +197,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private void fillKeyframeStack(KeyframeStack stack, Vec3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn) {
-        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x, transformType, x, node, degrees, tick, easing, turn);
-        addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y, transformType, y, node, degrees, tick, easing, turn);
-        if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z, transformType, z, node, degrees, tick, easing, turn);
+        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn);
+        addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, turn);
+        if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn);
     }
 
     private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, int rotate) {
@@ -216,7 +216,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees, boolean shouldNegate) {
-        if (transformType != TransformType.ROTATION) value -= def;
+        if (transformType != TransformType.ROTATION && transformType != TransformType.SCALE) value -= def;
         if (shouldNegate) value *= -1;
         if (degrees && transformType == TransformType.ROTATION) value = MathHelper.toRadians(value);
         if (transformType == TransformType.POSITION) value *= 16;

@@ -6,8 +6,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.util.RenderUtil;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -41,7 +41,7 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
                 ModelPart torso = this.getParentModel().body;
 
                 poseStack.translate(torso.x / 16, torso.y / 16, torso.z / 16);
-                poseStack.mulPose((new Quaternionf()).rotateZYX(torso.xRot, torso.yRot, torso.zRot));
+                poseStack.mulPose((new Quaternionf()).rotateZYX(torso.zRot, torso.yRot, torso.xRot));
 
                 poseStack.translate(0.0F, 0.0F, 0.125F);
                 poseStack.mulPose(Axis.YP.rotationDegrees(180));
