@@ -1,39 +1,36 @@
 package com.zigythebird.playeranimcore.util;
 
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.math.ModMatrix4f;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 /**
- * DOES NOT DIVIDE POS BY 16!
+ * Does NOT divide pos 16.
  * Used for applying custom pivot bones to player bones
  */
 public class MatrixUtil {
-    public static void translateMatrixToBone(Matrix4f matrix, PlayerAnimBone bone) {
+    public static void translateMatrixToBone(ModMatrix4f matrix, PlayerAnimBone bone) {
         matrix.translate(bone.getPosX(), bone.getPosY(), bone.getPosZ());
     }
 
-    public static void rotateMatrixAroundBone(Matrix4f matrix, PlayerAnimBone bone) {
+    public static void rotateMatrixAroundBone(ModMatrix4f matrix, PlayerAnimBone bone) {
         if (bone.getRotZ() != 0 || bone.getRotY() != 0 || bone.getRotX() != 0)
-            matrix.rotate(new Quaternionf().rotateZYX(bone.getRotZ(), bone.getRotY(), bone.getRotX()));
+            matrix.rotateZ(bone.getRotZ()).rotateY(bone.getRotY()).rotateX(bone.getRotX());
     }
 
-    public static void scaleMatrixForBone(Matrix4f matrix, PlayerAnimBone bone) {
+    public static void scaleMatrixForBone(ModMatrix4f matrix, PlayerAnimBone bone) {
         matrix.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
     }
 
-    public static void translateToPivotPoint(Matrix4f matrix, Vec3f pivot) {
-        matrix.translate(pivot.x, pivot.y, pivot.z);
+    public static void translateToPivotPoint(ModMatrix4f matrix, Vec3f pivot) {
+        matrix.translate(pivot.x(), pivot.y(), pivot.z());
     }
 
-    public static void translateAwayFromPivotPoint(Matrix4f matrix, Vec3f pivot) {
-        matrix.translate(-pivot.x, -pivot.y, -pivot.z);
+    public static void translateAwayFromPivotPoint(ModMatrix4f matrix, Vec3f pivot) {
+        matrix.translate(-pivot.x(), -pivot.y(), -pivot.z());
     }
 
-    public static void prepMatrixForBone(Matrix4f matrix, PlayerAnimBone bone, Vec3f pivot) {
+    public static void prepMatrixForBone(ModMatrix4f matrix, PlayerAnimBone bone, Vec3f pivot) {
         translateMatrixToBone(matrix, bone);
         translateToPivotPoint(matrix, pivot);
         rotateMatrixAroundBone(matrix, bone);

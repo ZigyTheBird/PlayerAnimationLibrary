@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.animation;
 
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;

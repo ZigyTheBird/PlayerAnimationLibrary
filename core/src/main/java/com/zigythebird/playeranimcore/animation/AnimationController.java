@@ -24,6 +24,8 @@ import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
+import com.zigythebird.playeranimcore.math.ModMatrix4f;
+import com.zigythebird.playeranimcore.math.ModVector4f;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
@@ -31,10 +33,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.*;
 import team.unnamed.mocha.MochaEngine;
 
-import java.lang.Math;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -43,10 +43,21 @@ import java.util.function.Predicate;
 /**
  * The actual controller that handles the playing and usage of animations, including their various keyframes and instruction markers
  * <p>
- * Each controller can only play a single animation at a time - for example you may have one controller to animate walking,
+ * Each controller can only play a single animation at a time - for example, you may have one controller to animate walking,
  * one to control attacks, one to control size, etc.
  */
 public abstract class AnimationController implements IAnimation {
+	//Bone pivot point positions used to apply custom pivot point translations.
+	public static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
+			"right_arm", new Vec3f(5, 22, 0),
+			"left_arm", new Vec3f(-5, 22, 0),
+			"left_leg", new Vec3f(-2f, 12, 0f),
+			"right_leg", new Vec3f(2f, 12, 0f),
+			"torso", new Vec3f(0, 24, 0),
+			"head", new Vec3f(0, 24, 0),
+			"body", new Vec3f(0, 12, 0)
+	);
+	
 	protected final AnimationStateHandler stateHandler;
 	protected final LinkedHashMap<String, BoneAnimationQueue> boneAnimationQueues = new LinkedHashMap<>();
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
@@ -898,6 +909,7 @@ public abstract class AnimationController implements IAnimation {
 			PlayerAnimBone bone = boneAnimation.bone();
 			if (bone == null) continue;
 			this.activeBones.put(bone.getName(), bone);
+			bone.setToInitialPose();
 
 			AnimationPoint rotXPoint = boneAnimation.rotationXQueue().poll();
 			AnimationPoint rotYPoint = boneAnimation.rotationYQueue().poll();
@@ -943,7 +955,7 @@ public abstract class AnimationController implements IAnimation {
 			if (parentsMap.containsKey(bone.getName())) {
 				this.activeBones.put(bone.getName(), bone);
 				if (!this.boneAnimationQueues.containsKey(bone.getName())) bone.setToInitialPose();
-				Matrix4f matrix = new Matrix4f();
+				ModMatrix4f matrix = new ModMatrix4f();
 				List<PivotBone> parents = new ArrayList<>();
 				PivotBone currentParent = this.pivotBones.get(parentsMap.get(bone.getName()));
 				parents.add(currentParent);
@@ -956,15 +968,16 @@ public abstract class AnimationController implements IAnimation {
 					MatrixUtil.prepMatrixForBone(matrix, pivotBone, pivotBone.getPivot());
 				}
 
-				Vector4f pos = new Vector4f(bone.getPosX(), bone.getPosY(), bone.getPosZ(), 1).mul(matrix);
-				bone.setPosX(pos.x);
-				bone.setPosY(pos.y);
-				bone.setPosZ(pos.z);
+				Vec3f defaultPos = BONE_POSITIONS.getOrDefault(bone.getName(), Vec3f.ZERO);
+				ModVector4f pos = new ModVector4f(defaultPos.x(), defaultPos.y(), defaultPos.z(), 1).mul(matrix);
+				bone.setPosX(pos.x - defaultPos.x() + bone.getPosX());
+				bone.setPosY(pos.y - defaultPos.y() + bone.getPosY());
+				bone.setPosZ(-pos.z + defaultPos.z() + bone.getPosZ());
 
-				Vector3f rotation = matrix.getNormalizedRotation(new Quaternionf()).getEulerAnglesZYX(new Vector3f());
-				bone.addRot(rotation.x, rotation.y, rotation.z);
+				Vec3f rotation = matrix.getEulerRotation();
+				bone.addRot(rotation.x(), rotation.y(), rotation.z());
 
-				bone.mulScale(matrix.getColumn(0, new Vector4f()).length(), matrix.getColumn(1, new Vector4f()).length(), matrix.getColumn(2, new Vector4f()).length());
+				bone.mulScale(matrix.getColumnScale(0), matrix.getColumnScale(1), matrix.getColumnScale(2));
 			}
 		}
 	}

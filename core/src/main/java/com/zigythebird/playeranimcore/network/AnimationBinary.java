@@ -56,9 +56,9 @@ public class AnimationBinary {
         buf.writeInt(animation.pivotBones().size());
         for (Map.Entry<String, Vec3f> entry : animation.pivotBones().entrySet()) {
             ProtocolUtils.writeString(buf, entry.getKey());
-            buf.writeFloat(entry.getValue().x);
-            buf.writeFloat(entry.getValue().y);
-            buf.writeFloat(entry.getValue().z);
+            buf.writeFloat(entry.getValue().x());
+            buf.writeFloat(entry.getValue().y());
+            buf.writeFloat(entry.getValue().z());
         }
         NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }

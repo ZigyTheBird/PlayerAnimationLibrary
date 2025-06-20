@@ -56,7 +56,7 @@ public class AnimationStack implements IAnimation {
 
     /**
      * Add an animation layer.
-     * If there are multiple layers with the same priority, the one added first will have more priority
+     * If there are multiple layers with the same priority, the one added first will have higher priority
      * @param priority priority
      * @param layer    animation layer
      */

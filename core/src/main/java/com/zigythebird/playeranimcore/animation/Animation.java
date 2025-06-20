@@ -13,7 +13,6 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyf
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
