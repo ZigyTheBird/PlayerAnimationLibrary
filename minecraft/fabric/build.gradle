@@ -1,0 +1,77 @@
+plugins {
+    id "com.gradleup.shadow"
+}
+
+loom {
+    accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
+}
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+
+configurations {
+    common
+    shadowCommon
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+
+    implementation shadowCommon("com.zigythebird:mochafloats:$rootProject.molang_version") {
+        transitive = false
+    }
+    include("org.javassist:javassist:$rootProject.javassist_version")
+
+    common(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":minecraft:common", configuration: "transformProductionFabric")) { transitive = false }
+    common shadowCommon(project(path: ":core")) { transitive = false }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = 'dev-shadow'
+
+    relocate 'team.unnamed.mocha', 'com.zigythebird.playeranim.lib.mochafloats'
+    mergeServiceFiles()
+}
+
+remapJar {
+    injectAccessWidener = true
+
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set null
+}
+
+jar {
+    archiveClassifier.set "dev"
+}
+
+sourcesJar {
+    def commonSources = project(":minecraft:common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = "com.zigythebird.playeranim"
+            artifactId = "player_animation_library-fabric-$minecraft_version"
+            version = rootProject.mod_version
+            from components.java
+        }
+    }
+}
