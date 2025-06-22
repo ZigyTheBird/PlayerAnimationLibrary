@@ -8,23 +8,24 @@ import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
-import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.enums.TransformType;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.misc.CompoundException;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
-import com.zigythebird.playeranimcore.misc.JsonUtil;
+import com.zigythebird.playeranimcore.util.JsonUtil;
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class AnimationLoader {
-	public static Map<String, Animation> deserialize(JsonElement json, Map<String, PivotBone> bones, Map<String, String> parents) throws RuntimeException {
+	public static Map<String, Animation> deserialize(JsonElement json, Map<String, Vec3f> bones, Map<String, String> parents) throws RuntimeException {
 		JsonObject obj = json.getAsJsonObject();
 		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
 
@@ -46,10 +47,10 @@ public class AnimationLoader {
 		return animations;
 	}
 
-	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, PivotBone> bones, Map<String, String> parents, ExtraAnimationData extraData) throws CompoundException {
+	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, Vec3f> bones, Map<String, String> parents, ExtraAnimationData extraData) throws CompoundException {
 		float length = animationObj.has("animation_length") ? JsonUtil.getAsFloat(animationObj, "animation_length") * 20f : -1;
 		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
-		BoneAnimation[] boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
+		List<BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
 		Animation.Keyframes keyframes = KeyFrameLoader.deserialize(animationObj);
 
 		if (length == -1)
@@ -66,19 +67,16 @@ public class AnimationLoader {
 		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);
 	}
 
-	private static BoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
-		BoneAnimation[] animations = new BoneAnimation[bonesObj.size()];
-		int index = 0;
+	private static List<BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
+		List<BoneAnimation> animations = new ArrayList<>(bonesObj.size());
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
-			KeyframeStack<Keyframe> scaleFrames = buildKeyframeStack(getKeyframes(entryObj.get("scale")), TransformType.SCALE);
-			KeyframeStack<Keyframe> positionFrames = buildKeyframeStack(getKeyframes(entryObj.get("position")), TransformType.POSITION);
-			KeyframeStack<Keyframe> rotationFrames = buildKeyframeStack(getKeyframes(entryObj.get("rotation")), TransformType.ROTATION);
-			KeyframeStack<Keyframe> bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND);
-
-			animations[index] = new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames, bendFrames);
-			index++;
+			KeyframeStack scaleFrames = buildKeyframeStack(getKeyframes(entryObj.get("scale")), TransformType.SCALE);
+			KeyframeStack positionFrames = buildKeyframeStack(getKeyframes(entryObj.get("position")), TransformType.POSITION);
+			KeyframeStack rotationFrames = buildKeyframeStack(getKeyframes(entryObj.get("rotation")), TransformType.ROTATION);
+			KeyframeStack bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND);
+			animations.add(new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames, bendFrames));
 		}
 
 		return animations;
@@ -161,9 +159,8 @@ public class AnimationLoader {
 			throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
 	}
 
-	private static KeyframeStack<Keyframe> buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type) throws CompoundException {
-		if (entries.isEmpty())
-			return new KeyframeStack<>();
+	private static KeyframeStack buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type) throws CompoundException {
+		if (entries.isEmpty()) return new KeyframeStack();
 
 		List<Keyframe> xFrames = new ObjectArrayList<>();
 		List<Keyframe> yFrames = new ObjectArrayList<>();
@@ -205,7 +202,7 @@ public class AnimationLoader {
 			prevEntry = entry;
 		}
 
-		return new KeyframeStack<>(addSplineArgs(xFrames), addSplineArgs(yFrames), addSplineArgs(zFrames));
+		return new KeyframeStack(addSplineArgs(xFrames), addSplineArgs(yFrames), addSplineArgs(zFrames));
 	}
 
 	private static List<Keyframe> addSplineArgs(List<Keyframe> frames) {
@@ -233,7 +230,7 @@ public class AnimationLoader {
 		return frames;
 	}
 
-	public static float calculateAnimationLength(BoneAnimation[] boneAnimations) {
+	public static float calculateAnimationLength(List<BoneAnimation> boneAnimations) {
 		float length = 0;
 
 		for (BoneAnimation animation : boneAnimations) {

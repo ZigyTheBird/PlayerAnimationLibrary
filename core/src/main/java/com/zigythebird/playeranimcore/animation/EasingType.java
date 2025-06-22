@@ -28,6 +28,7 @@ public interface EasingType {
 	Map<String, EasingType> EASING_TYPES = new ConcurrentHashMap<>(64);
 
 	EasingType LINEAR = register("linear", register("none", value -> easeIn(EasingType::linear)));
+	EasingType CONSTANT = register("constant", value -> (value1 -> value1 < 1 ? 0 : 1));
 	EasingType STEP = register("step", value -> easeIn(step(value)));
 	EasingType EASE_IN_SINE = register("easeinsine", value -> easeIn(EasingType::sine));
 	EasingType EASE_OUT_SINE = register("easeoutsine", value -> easeOut(EasingType::sine));
@@ -367,8 +368,6 @@ public interface EasingType {
 		 * Per standard implementation, this generates a spline curve over control points p1-p2, with p0 and p3
 		 * acting as curve anchors.<br>
 		 * We then apply the delta to determine the point on the generated spline to return.
-		 * <p>
-		 * Functionally equivalent to {@link Mth#catmullrom(float, float, float, float, float)}
 		 *
 		 * @see <a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Wikipedia</a>
 		 */
@@ -393,7 +392,173 @@ public interface EasingType {
 			if (easingArgs.size() < 2)
 				return MathHelper.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
 
-			return getPointOnSpline(lerpValue, env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), (float) env.eval(easingArgs.get(1)));
+			return getPointOnSpline(lerpValue, env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), env.eval(easingArgs.get(1)));
 		}
+	}
+
+	static EasingType getEasingTypeForID(int id) {
+		switch (id) {
+			case 0 -> {
+				return EasingType.LINEAR;
+			}
+			case 6 -> {
+				return EasingType.EASE_IN_SINE;
+			}
+			case 7 -> {
+				return EasingType.EASE_OUT_SINE;
+			}
+			case 8 -> {
+				return EasingType.EASE_IN_OUT_SINE;
+			}
+			case 9 -> {
+				return EasingType.EASE_IN_CUBIC;
+			}
+			case 10 -> {
+				return EasingType.EASE_OUT_CUBIC;
+			}
+			case 11 -> {
+				return EasingType.EASE_IN_OUT_CUBIC;
+			}
+			case 12 -> {
+				return EasingType.EASE_IN_QUAD;
+			}
+			case 13 -> {
+				return EasingType.EASE_OUT_QUAD;
+			}
+			case 14 -> {
+				return EasingType.EASE_IN_OUT_QUAD;
+			}
+			case 15 -> {
+				return EasingType.EASE_IN_QUART;
+			}
+			case 16 -> {
+				return EasingType.EASE_OUT_QUART;
+			}
+			case 17 -> {
+				return EasingType.EASE_IN_OUT_QUART;
+			}
+			case 18 -> {
+				return EasingType.EASE_IN_QUINT;
+			}
+			case 19 -> {
+				return EasingType.EASE_OUT_QUINT;
+			}
+			case 20 -> {
+				return EasingType.EASE_IN_OUT_QUINT;
+			}
+			case 21 -> {
+				return EasingType.EASE_IN_EXPO;
+			}
+			case 22 -> {
+				return EasingType.EASE_OUT_EXPO;
+			}
+			case 23 -> {
+				return EasingType.EASE_IN_OUT_EXPO;
+			}
+			case 24 -> {
+				return EasingType.EASE_IN_CIRC;
+			}
+			case 25 -> {
+				return EasingType.EASE_OUT_CIRC;
+			}
+			case 26 -> {
+				return EasingType.EASE_IN_OUT_CIRC;
+			}
+			case 27 -> {
+				return EasingType.EASE_IN_BACK;
+			}
+			case 28 -> {
+				return EasingType.EASE_OUT_BACK;
+			}
+			case 29 -> {
+				return EasingType.EASE_IN_OUT_BACK;
+			}
+			case 30 -> {
+				return EasingType.EASE_IN_ELASTIC;
+			}
+			case 31 -> {
+				return EasingType.EASE_OUT_ELASTIC;
+			}
+			case 32 -> {
+				return EasingType.EASE_IN_OUT_ELASTIC;
+			}
+			case 33 -> {
+				return EasingType.EASE_IN_BOUNCE;
+			}
+			case 34 -> {
+				return EasingType.EASE_OUT_BOUNCE;
+			}
+			case 35 -> {
+				return EasingType.EASE_IN_OUT_BOUNCE;
+			}
+		}
+		return null;
+	}
+
+	static byte getIDForEasingType(EasingType easingType) {
+		if (easingType == EasingType.LINEAR) {
+			return 0;
+		} else if (easingType == EasingType.EASE_IN_SINE) {
+			return 6;
+		} else if (easingType == EasingType.EASE_OUT_SINE) {
+			return 7;
+		} else if (easingType == EasingType.EASE_IN_OUT_SINE) {
+			return 8;
+		} else if (easingType == EasingType.EASE_IN_CUBIC) {
+			return 9;
+		} else if (easingType == EasingType.EASE_OUT_CUBIC) {
+			return 10;
+		} else if (easingType == EasingType.EASE_IN_OUT_CUBIC) {
+			return 11;
+		} else if (easingType == EasingType.EASE_IN_QUAD) {
+			return 12;
+		} else if (easingType == EasingType.EASE_OUT_QUAD) {
+			return 13;
+		} else if (easingType == EasingType.EASE_IN_OUT_QUAD) {
+			return 14;
+		} else if (easingType == EasingType.EASE_IN_QUART) {
+			return 15;
+		} else if (easingType == EasingType.EASE_OUT_QUART) {
+			return 16;
+		} else if (easingType == EasingType.EASE_IN_OUT_QUART) {
+			return 17;
+		} else if (easingType == EasingType.EASE_IN_QUINT) {
+			return 18;
+		} else if (easingType == EasingType.EASE_OUT_QUINT) {
+			return 19;
+		} else if (easingType == EasingType.EASE_IN_OUT_QUINT) {
+			return 20;
+		} else if (easingType == EasingType.EASE_IN_EXPO) {
+			return 21;
+		} else if (easingType == EasingType.EASE_OUT_EXPO) {
+			return 22;
+		} else if (easingType == EasingType.EASE_IN_OUT_EXPO) {
+			return 23;
+		} else if (easingType == EasingType.EASE_IN_CIRC) {
+			return 24;
+		} else if (easingType == EasingType.EASE_OUT_CIRC) {
+			return 25;
+		} else if (easingType == EasingType.EASE_IN_OUT_CIRC) {
+			return 26;
+		} else if (easingType == EasingType.EASE_IN_BACK) {
+			return 27;
+		} else if (easingType == EasingType.EASE_OUT_BACK) {
+			return 28;
+		} else if (easingType == EasingType.EASE_IN_OUT_BACK) {
+			return 29;
+		} else if (easingType == EasingType.EASE_IN_ELASTIC) {
+			return 30;
+		} else if (easingType == EasingType.EASE_OUT_ELASTIC) {
+			return 31;
+		} else if (easingType == EasingType.EASE_IN_OUT_ELASTIC) {
+			return 32;
+		} else if (easingType == EasingType.EASE_IN_BOUNCE) {
+			return 33;
+		} else if (easingType == EasingType.EASE_OUT_BOUNCE) {
+			return 34;
+		} else if (easingType == EasingType.EASE_IN_OUT_BOUNCE) {
+			return 35;
+		}
+		return -1;
 	}
 }

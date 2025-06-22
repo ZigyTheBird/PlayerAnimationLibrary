@@ -3,7 +3,6 @@ package com.zigythebird.playeranimcore.bones;
 import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.EasingType;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
-import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.enums.Axis;
 import com.zigythebird.playeranimcore.enums.TransformType;
@@ -11,7 +10,6 @@ import com.zigythebird.playeranimcore.math.Vec3f;
 import it.unimi.dsi.fastutil.Pair;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -20,38 +18,27 @@ import java.util.Objects;
 public class PlayerAnimBone {
 	private final String name;
 
-	public PlayerAnimBone parent;
+	public float scaleX = 1;
+	public float scaleY = 1;
+	public float scaleZ = 1;
 
-	protected float scaleX = 1;
-	protected float scaleY = 1;
-	protected float scaleZ = 1;
+	public float positionX;
+	public float positionY;
+	public float positionZ;
 
-	protected float positionX;
-	protected float positionY;
-	protected float positionZ;
+	public float rotX;
+	public float rotY;
+	public float rotZ;
 
-	protected float rotX;
-	protected float rotY;
-	protected float rotZ;
-
-	protected float bendAxis;
-	protected float bend;
+	public float bendAxis;
+	public float bend;
 
 	public PlayerAnimBone(String name) {
 		this.name = name;
 	}
 
-	public PlayerAnimBone(PlayerAnimBone parent, String name) {
-		this.name = name;
-		this.parent = parent;
-	}
-
 	public String getName() {
 		return this.name;
-	}
-
-	public PlayerAnimBone getParent() {
-		return this.parent;
 	}
 
 	public float getRotX() {
@@ -437,8 +424,8 @@ public class PlayerAnimBone {
 		if (transitionLength != null) {
 			EasingType easingType = EasingType.EASE_IN_OUT_SINE;
 			if (animation != null && animation.data().has("easeBeforeKeyframe") && !(boolean)animation.data().getRaw("easeBeforeKeyframe")) {
-				BoneAnimation boneAnimation = Arrays.stream(animation.boneAnimations()).filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
-				KeyframeStack<Keyframe> keyframeStack;
+				BoneAnimation boneAnimation = animation.boneAnimations().stream().filter(bone -> Objects.equals(bone.boneName(), this.getName())).findFirst().get();
+				KeyframeStack keyframeStack;
 				switch (type) {
 					case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
 					case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
@@ -518,6 +505,6 @@ public class PlayerAnimBone {
 	}
 
 	public int hashCode() {
-		return Objects.hash(getName(), (getParent() != null ? getParent().getName() : 0));
+		return getName().hashCode();
 	}
 }

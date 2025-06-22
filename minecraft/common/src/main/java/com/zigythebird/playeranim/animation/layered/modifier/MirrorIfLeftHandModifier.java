@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranimcore.animation.layered.modifier.MirrorModifier;
 import com.zigythebird.playeranim.animation.PlayerAnimationController;
+import com.zigythebird.playeranimcore.animation.layered.modifier.MirrorModifier;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;

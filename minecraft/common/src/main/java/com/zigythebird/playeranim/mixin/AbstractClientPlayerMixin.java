@@ -25,12 +25,12 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.animation.PlayerAnimationProcessor;
-import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
+import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;

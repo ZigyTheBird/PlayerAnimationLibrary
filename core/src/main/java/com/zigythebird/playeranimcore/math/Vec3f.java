@@ -2,22 +2,13 @@ package com.zigythebird.playeranimcore.math;
 
 import java.util.Objects;
 
-public class Vec3f {
+public record Vec3f(float x, float y, float z) {
     public static final Vec3f ZERO = new Vec3f(0f, 0f, 0f);
     public static final Vec3f ONE = new Vec3f(1f, 1f, 1f);
 
-    public final float x;
-    public final float y;
-    public final float z;
-
-    public Vec3f(float x, float y, float z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
     /**
      * Scale the vector
+     *
      * @param scalar scalar
      * @return scaled vector
      */
@@ -27,6 +18,7 @@ public class Vec3f {
 
     /**
      * Add two vectors
+     *
      * @param other other vector
      * @return sum vector
      */
@@ -36,6 +28,7 @@ public class Vec3f {
 
     /**
      * Dot product with other vector
+     *
      * @param other rhs operand
      * @return v
      */
@@ -45,6 +38,7 @@ public class Vec3f {
 
     /**
      * Cross product
+     *
      * @param other rhs operand
      * @return v
      */
@@ -58,6 +52,7 @@ public class Vec3f {
 
     /**
      * Subtract a vector from this
+     *
      * @param other rhs operand
      * @return v
      */
@@ -70,11 +65,6 @@ public class Vec3f {
         if (this == o) return true;
         if (!(o instanceof Vec3f vec)) return false;
         return Objects.equals(x, vec.x) && Objects.equals(y, vec.y) && Objects.equals(z, vec.z);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y, z);
     }
 
     @Override

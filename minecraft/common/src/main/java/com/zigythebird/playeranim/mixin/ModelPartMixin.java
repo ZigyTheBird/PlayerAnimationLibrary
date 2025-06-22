@@ -24,30 +24,15 @@
 
 package com.zigythebird.playeranim.mixin;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.zigythebird.playeranim.accessors.IModelPart;
 import com.zigythebird.playeranim.accessors.IUpperPartHelper;
-import com.zigythebird.playeranimcore.bones.PivotBone;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
-import com.zigythebird.playeranim.util.RenderUtil;
 import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Mixin(ModelPart.class)
-public class ModelPartMixin implements IUpperPartHelper, IModelPart {
+public class ModelPartMixin implements IUpperPartHelper {
     @Unique
     private boolean playerAnimLib$isUpper = false;
-
-    @Unique
-    private PlayerAnimBone playerAnimLib$parent = null;
 
     @Override
     public boolean playerAnimLib$isUpperPart() {
@@ -57,28 +42,5 @@ public class ModelPartMixin implements IUpperPartHelper, IModelPart {
     @Override
     public void playerAnimLib$setUpperPart(boolean bl) {
         playerAnimLib$isUpper = bl;
-    }
-
-    @Override
-    public void playerAnimLib$setParent(PlayerAnimBone parent) {
-        this.playerAnimLib$parent = parent;
-    }
-
-    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
-    private void translateToParent(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int j, int k, CallbackInfo ci) {
-        if (playerAnimLib$parent != null) {
-            List<PlayerAnimBone> parents = new ArrayList<>();
-            PlayerAnimBone currentParent = playerAnimLib$parent;
-            parents.add(playerAnimLib$parent);
-            while (currentParent.getParent() != null && currentParent.getParent() != currentParent) {
-                currentParent = currentParent.getParent();
-                parents.addFirst(currentParent.getParent());
-            }
-
-            for (PlayerAnimBone bone : parents) {
-                if (bone instanceof PivotBone pivotBone)
-                    RenderUtil.prepMatrixForBone(poseStack, pivotBone);
-            }
-        }
     }
 }

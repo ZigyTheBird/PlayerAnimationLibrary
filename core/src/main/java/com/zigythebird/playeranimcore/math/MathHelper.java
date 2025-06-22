@@ -25,4 +25,27 @@ public class MathHelper {
     public static float lerp(float delta, float start, float end) {
         return start + delta * (end - start);
     }
+
+    public static float cosFromSin(float sin, float angle) {
+        float cos = sqrt(1.0F - sin * sin);
+        float a = angle + ((float)java.lang.Math.PI / 2F);
+        float b = a - (float)((int)(a / ((float)java.lang.Math.PI * 2F))) * ((float)java.lang.Math.PI * 2F);
+        if ((double)b < (double)0.0F) {
+            b += ((float)java.lang.Math.PI * 2F);
+        }
+
+        return b >= (float)java.lang.Math.PI ? -cos : cos;
+    }
+
+    public static boolean absEqualsOne(float r) {
+        return (Float.floatToRawIntBits(r) & Integer.MAX_VALUE) == 1065353216;
+    }
+
+    public static float safeAsin(float r) {
+        return r <= -1.0F ? (-(float) Math.PI / 2F) : (float) (r >= 1.0F ? ((float) Math.PI / 2F) : Math.asin(r));
+    }
+    
+    public static float length(float x, float y, float z, float w) {
+        return (float) Math.sqrt(Math.fma(x, x, Math.fma(y, y, Math.fma(z, z, w * w))));
+    }
 }

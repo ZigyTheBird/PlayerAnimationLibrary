@@ -1,18 +1,13 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import com.zigythebird.playeranim.accessors.IModelPart;
-import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
-import com.zigythebird.playeranimcore.bones.BoneSnapshot;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.util.RenderUtil;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
+import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Map;
 
 /**
  * The animation data collection for a given player instance
@@ -20,7 +15,6 @@ import java.util.Map;
  * Generally speaking, a single working-instance of a player will have a single instance of {@code PlayerAnimManager} associated with it
  */
 public class PlayerAnimManager extends AnimationStack {
-	private final Map<String, BoneSnapshot> boneSnapshotCollection = new Object2ObjectOpenHashMap<>();
 	private final AbstractClientPlayer player;
 
 	private float lastUpdateTime;
@@ -30,14 +24,6 @@ public class PlayerAnimManager extends AnimationStack {
 
 	public PlayerAnimManager(AbstractClientPlayer player) {
 		this.player = player;
-	}
-
-	public Map<String, BoneSnapshot> getBoneSnapshotCollection() {
-		return this.boneSnapshotCollection;
-	}
-
-	public void clearSnapshotCache() {
-		getBoneSnapshotCollection().clear();
 	}
 
 	public float getLastUpdateTime() {
@@ -85,9 +71,5 @@ public class PlayerAnimManager extends AnimationStack {
 		PartPose initialPose = part.getInitialPose();
 		bone = this.get3DTransform(bone);
 		RenderUtil.translatePartToBone(part, bone, initialPose);
-
-		if (bone.getParent() != null && bone.getParent() != bone)
-			((IModelPart)part).playerAnimLib$setParent(bone.getParent());
-		else ((IModelPart)part).playerAnimLib$setParent(null);
 	}
 }

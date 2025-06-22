@@ -63,13 +63,6 @@ public interface IAnimation {
     }
 
     /**
-     * Can be used to move the camera during an animation. but not for now...
-     */
-    /*default PlayerAnimBone get3DCameraTransform(Camera camera, PlayerAnimBone bone) {
-        return bone;
-    }*/
-
-    /**
      * Keep in mind that modifiers can't affect the first-person mode, at least not by default.
      */
     @NotNull

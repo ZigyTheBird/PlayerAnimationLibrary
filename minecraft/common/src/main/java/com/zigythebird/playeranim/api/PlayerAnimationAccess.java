@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.api;
 
-import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import com.zigythebird.playeranimcore.event.Event;
 import net.fabricmc.api.EnvType;

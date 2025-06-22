@@ -1,9 +1,9 @@
 package com.zigythebird.playeranim.animation.keyframe.event.builtin;
 
-import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranim.animation.PlayerAnimationController;
-import com.zigythebird.playeranimcore.animation.keyframe.event.SoundKeyframeEvent;
 import com.zigythebird.playeranim.util.ClientUtil;
+import com.zigythebird.playeranimcore.animation.AnimationController;
+import com.zigythebird.playeranimcore.animation.keyframe.event.SoundKeyframeEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
