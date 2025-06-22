@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;

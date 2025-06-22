@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.animation;
 
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
@@ -25,7 +25,7 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	private static final Map<ResourceLocation, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
 
 	/**
-	 * Get an animation from the registry, using Identifier(MODID, animation_name) as the key.
+	 * Get an animation from the registry, using Identifier(mod_id, animation_name) as the key.
 	 * @return animation, <code>null</code> if no animation
 	 */
 	public static @Nullable Animation getAnimation(ResourceLocation id) {

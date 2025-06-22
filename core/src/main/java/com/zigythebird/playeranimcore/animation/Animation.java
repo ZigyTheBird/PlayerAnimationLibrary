@@ -11,9 +11,8 @@ import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.enums.AnimationStage;
-import com.zigythebird.playeranimcore.enums.State;
+import com.zigythebird.playeranimcore.math.Vec3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-    public record Animation(ExtraAnimationData data, float length, LoopType loopType, List<BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, PivotBone> bones, Map<String, String> parents) {
+    public record Animation(ExtraAnimationData data, float length, LoopType loopType, List<BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, Vec3f> pivotBones, Map<String, String> parents) {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 
     static Animation generateWaitAnimation(float length) {
@@ -43,44 +42,38 @@ import java.util.concurrent.ConcurrentHashMap;
     public interface LoopType {
         Map<String, LoopType> LOOP_TYPES = new ConcurrentHashMap<>(4);
 
-        LoopType DEFAULT = (controller, currentAnimation) -> currentAnimation.loopType().shouldPlayAgain(controller, currentAnimation);
-        LoopType PLAY_ONCE = register("play_once", register("false", (controller, currentAnimation) -> false));
-        LoopType HOLD_ON_LAST_FRAME = register("hold_on_last_frame", (controller, currentAnimation) -> {
-            controller.animationState = State.PAUSED;
-
-            return true;
-        });
-        LoopType LOOP = register("loop", register("true", (controller, currentAnimation) -> true));
+        LoopType DEFAULT = (currentAnimation) -> currentAnimation.loopType().shouldPlayAgain(currentAnimation);
+        LoopType PLAY_ONCE = register("play_once", register("false", (currentAnimation) -> false));
+        LoopType HOLD_ON_LAST_FRAME = register("hold_on_last_frame", (currentAnimation) -> true);
+        LoopType LOOP = register("loop", register("true", (currentAnimation) -> true));
 
         /**
          * Override in a custom instance to dynamically decide whether an animation should repeat or stop
          *
-         * @param controller The {@link AnimationController} playing the current animation
          * @param currentAnimation The current animation that just played
          * @return Whether the animation should play again, or stop
          */
-        boolean shouldPlayAgain(AnimationController controller, Animation currentAnimation);
+        boolean shouldPlayAgain(Animation currentAnimation);
 
         /**
          * Override in a custom instance to dynamically decide where an animation should start after looping.
          *
-         * @param controller The {@link AnimationController} playing the current animation
          * @param currentAnimation The current animation that just played
          * @return The tick the animation starts from after looping.
          */
-        default float restartFromTick(AnimationController controller, Animation currentAnimation) {
+        default float restartFromTick(Animation currentAnimation) {
             return 0;
         }
 
         static LoopType returnToTickLoop(float tick) {
             return new LoopType() {
                 @Override
-                public boolean shouldPlayAgain(AnimationController controller, Animation currentAnimation) {
+                public boolean shouldPlayAgain(Animation currentAnimation) {
                     return true;
                 }
 
                 @Override
-                public float restartFromTick(AnimationController controller, Animation currentAnimation) {
+                public float restartFromTick(Animation currentAnimation) {
                     return tick;
                 }
             };

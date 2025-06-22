@@ -21,4 +21,13 @@ public record BoneAnimation(String boneName,
 							KeyframeStack positionKeyFrames,
 							KeyframeStack scaleKeyFrames,
 							KeyframeStack bendKeyFrames) {
+
+	public BoneAnimation(String boneName) {
+		this(boneName, new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new KeyframeStack());
+	}
+
+	public boolean hasKeyframes() {
+		return rotationKeyFrames().hasKeyframes() || positionKeyFrames().hasKeyframes() ||
+				scaleKeyFrames().hasKeyframes() || bendKeyFrames().hasKeyframes();
+	}
 }

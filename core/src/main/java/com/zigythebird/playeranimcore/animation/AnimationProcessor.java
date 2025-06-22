@@ -76,10 +76,6 @@ public abstract class AnimationProcessor {
 	 * @param state                 An {@link AnimationData} instance applied to this render frame
 	 */
 	public void tickAnimation(AnimationStack playerAnimManager, AnimationData state) {
-		for (PlayerAnimBone entry : this.bones.values()) {
-			entry.parent = null;
-		}
-
 		playerAnimManager.getLayers().removeIf(pair -> pair.right() == null || pair.right().canRemove());
 		for (Pair<Integer, IAnimation> pair : playerAnimManager.getLayers()) {
 			IAnimation animation = pair.right();
@@ -106,7 +102,7 @@ public abstract class AnimationProcessor {
 	/**
 	 * Adds the given bone to the bones list for this processor
 	 * <p>
-	 * This is normally handled automatically by the mod
+	 * The mod normally handles this automatically
 	 * <p>
 	 * Failure to properly register a bone will break things.
 	 */

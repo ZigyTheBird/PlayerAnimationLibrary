@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.mixin;
 
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranim.util.CameraUtils;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
