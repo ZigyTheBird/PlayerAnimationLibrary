@@ -250,10 +250,10 @@ public final class LegacyAnimationBinary {
             readKeyframes(buf, part.scaleKeyFrames().yKeyframes(), version, keyframeSize);
             readKeyframes(buf, part.scaleKeyFrames().zKeyframes(), version, keyframeSize);
         }
-        PlayerAnimatorLoader.correctEasings(part.positionKeyFrames(), easeBefore);
-        PlayerAnimatorLoader.correctEasings(part.rotationKeyFrames(), easeBefore);
-        PlayerAnimatorLoader.correctEasings(part.scaleKeyFrames(), easeBefore);
-        PlayerAnimatorLoader.correctEasings(part.bendKeyFrames(), easeBefore);
+        PlayerAnimatorLoader.correctEasings(part.positionKeyFrames());
+        PlayerAnimatorLoader.correctEasings(part.rotationKeyFrames());
+        PlayerAnimatorLoader.correctEasings(part.scaleKeyFrames());
+        PlayerAnimatorLoader.correctEasings(part.bendKeyFrames());
         return part;
     }
 
