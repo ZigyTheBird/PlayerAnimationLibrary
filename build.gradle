@@ -25,8 +25,8 @@ allprojects {
             url = "https://maven.neoforged.net/releases"
         }
         maven {
-            name = "zigythebirdMods"
-            url = "https://maven.zigythebird.com/mods"
+            name = "RedlanceMinecraft"
+            url = "https://repo.redlance.org/public"
         }
     }
 
