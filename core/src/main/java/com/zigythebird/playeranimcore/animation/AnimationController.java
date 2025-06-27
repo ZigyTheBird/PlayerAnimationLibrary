@@ -573,7 +573,7 @@ public abstract class AnimationController implements IAnimation {
 			KeyframeStack rotationKeyFrames = boneAnimation.rotationKeyFrames();
 			KeyframeStack positionKeyFrames = boneAnimation.positionKeyFrames();
 			KeyframeStack scaleKeyFrames = boneAnimation.scaleKeyFrames();
-			KeyframeStack bendKeyFrames = boneAnimation.bendKeyFrames();
+			List<Keyframe> bendKeyFrames = boneAnimation.bendKeyFrames();
 
 			if (rotationKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addRotations(
@@ -596,10 +596,8 @@ public abstract class AnimationController implements IAnimation {
 						getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), adjustedTick, TransformType.SCALE, bone != null ? bone::setScaleZTransitionLength : null));
 			}
 
-			if (bendKeyFrames.hasKeyframes()) {
-				boneAnimationQueue.addBends(
-						getAnimationPointAtTick(bendKeyFrames.xKeyframes(), adjustedTick, TransformType.BEND, bone != null ? bone::setBendAxisTransitionLength : null),
-						getAnimationPointAtTick(bendKeyFrames.yKeyframes(), adjustedTick, TransformType.BEND, bone != null ? bone::setBendTransitionLength : null));
+			if (!bendKeyFrames.isEmpty()) {
+				boneAnimationQueue.addBend(getAnimationPointAtTick(bendKeyFrames, adjustedTick, TransformType.BEND, bone != null ? bone::setBendTransitionLength : null));
 			}
 		}
 
@@ -732,8 +730,7 @@ public abstract class AnimationController implements IAnimation {
 					bone.scaleYEnabled = !boneAnimation.scaleKeyFrames().yKeyframes().isEmpty();
 					bone.scaleZEnabled = !boneAnimation.scaleKeyFrames().zKeyframes().isEmpty();
 
-					bone.bendAxisEnabled = !boneAnimation.bendKeyFrames().xKeyframes().isEmpty();
-					bone.bendEnabled = !boneAnimation.bendKeyFrames().yKeyframes().isEmpty();
+					bone.bendEnabled = !boneAnimation.bendKeyFrames().isEmpty();
 				} else bone.setEnabled(true);
 			}
 		}
@@ -920,7 +917,6 @@ public abstract class AnimationController implements IAnimation {
 			AnimationPoint scaleXPoint = boneAnimation.scaleXQueue().poll();
 			AnimationPoint scaleYPoint = boneAnimation.scaleYQueue().poll();
 			AnimationPoint scaleZPoint = boneAnimation.scaleZQueue().poll();
-			AnimationPoint bendAxisPoint = boneAnimation.bendAxisQueue().poll();
 			AnimationPoint bendPoint = boneAnimation.bendQueue().poll();
 			EasingType easingType = this.overrideEasingTypeFunction.apply(this);
 
@@ -942,8 +938,7 @@ public abstract class AnimationController implements IAnimation {
 				bone.setScaleZ(EasingType.lerpWithOverride(this.molangRuntime, scaleZPoint, easingType));
 			}
 
-			if (bendAxisPoint != null) {
-				bone.setBendAxis(EasingType.lerpWithOverride(this.molangRuntime, bendAxisPoint, easingType));
+			if (bendPoint != null) {
 				bone.setBend(EasingType.lerpWithOverride(this.molangRuntime, bendPoint, easingType));
 			}
 		}

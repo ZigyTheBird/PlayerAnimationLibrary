@@ -65,6 +65,6 @@ public final class RenderUtil {
 		bone.setScaleY(part.yScale);
 		bone.setScaleZ(part.zScale);
 
-		bone.updateBend(0, 0);
+		bone.setBend(0);
 	}
 }

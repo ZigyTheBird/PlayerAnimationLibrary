@@ -144,8 +144,7 @@ public final class LegacyAnimationBinary {
         writeKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version);
         writeKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version);
         if (!part.boneName().equals("head")) {
-            writeKeyframes(buf, part.bendKeyFrames().xKeyframes(), version);
-            writeKeyframes(buf, part.bendKeyFrames().yKeyframes(), version);
+            writeKeyframes(buf, part.bendKeyFrames(), version);
         }
         if (version >= 3) {
             writeKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version);
@@ -217,12 +216,10 @@ public final class LegacyAnimationBinary {
             boneAnimations.add(readPart(buf, new BoneAnimation("left_leg"), version, keyframeSize, easeBefore));
 
             BoneAnimation body = boneAnimations.get(1);
-            if (body.bendKeyFrames().hasKeyframes()) {
+            if (!body.bendKeyFrames().isEmpty()) {
                 BoneAnimation torso = new BoneAnimation("torso");
-                torso.bendKeyFrames().xKeyframes().addAll(body.bendKeyFrames().xKeyframes());
-                torso.bendKeyFrames().yKeyframes().addAll(body.bendKeyFrames().yKeyframes());
-                body.bendKeyFrames().xKeyframes().clear();
-                body.bendKeyFrames().yKeyframes().clear();
+                torso.bendKeyFrames().addAll(body.bendKeyFrames());
+                body.bendKeyFrames().clear();
                 boneAnimations.add(torso);
             }
         }
@@ -242,8 +239,7 @@ public final class LegacyAnimationBinary {
         readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize);
         String partName = part.boneName();
         if (!partName.equals("head")) {
-            readKeyframes(buf, part.bendKeyFrames().xKeyframes(), version, keyframeSize);
-            readKeyframes(buf, part.bendKeyFrames().yKeyframes(), version, keyframeSize);
+            readKeyframes(buf, part.bendKeyFrames(), version, keyframeSize);
         }
         if (version >= 3) {
             readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, keyframeSize);
@@ -332,8 +328,7 @@ public final class LegacyAnimationBinary {
         size += axisSize(part.rotationKeyFrames().zKeyframes(), version);
         String partName = part.boneName();
         if (!partName.equals("head")) {
-            size += axisSize(part.bendKeyFrames().xKeyframes(), version);
-            size += axisSize(part.bendKeyFrames().yKeyframes(), version);
+            size += axisSize(part.bendKeyFrames(), version);
         }
         if (version >= 3) {
             size += axisSize(part.scaleKeyFrames().xKeyframes(), version);

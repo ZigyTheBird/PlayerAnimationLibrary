@@ -27,33 +27,15 @@ public record KeyframeStack(List<Keyframe> xKeyframes, List<Keyframe> yKeyframes
 	}
 
 	public float getLastXAxisKeyframeTime() {
-		float xTime = 0;
-
-		for (Keyframe frame : xKeyframes()) {
-			xTime += frame.length();
-		}
-
-		return xTime;
+		return Keyframe.getLastKeyframeTime(xKeyframes);
 	}
 
 	public float getLastYAxisKeyframeTime() {
-		float yTime = 0;
-
-		for (Keyframe frame : yKeyframes()) {
-			yTime += frame.length();
-		}
-
-		return yTime;
+		return Keyframe.getLastKeyframeTime(yKeyframes);
 	}
 
 	public float getLastZAxisKeyframeTime() {
-		float zTime = 0;
-
-		for (Keyframe frame : zKeyframes()) {
-			zTime += frame.length();
-		}
-
-		return zTime;
+		return Keyframe.getLastKeyframeTime(zKeyframes);
 	}
 
 	public boolean hasKeyframes() {

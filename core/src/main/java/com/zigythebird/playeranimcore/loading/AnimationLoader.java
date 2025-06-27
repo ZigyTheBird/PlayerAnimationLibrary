@@ -76,7 +76,7 @@ public class AnimationLoader {
 			KeyframeStack positionFrames = buildKeyframeStack(getKeyframes(entryObj.get("position")), TransformType.POSITION);
 			KeyframeStack rotationFrames = buildKeyframeStack(getKeyframes(entryObj.get("rotation")), TransformType.ROTATION);
 			KeyframeStack bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND);
-			animations.add(new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames, bendFrames));
+			animations.add(new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames, bendFrames.xKeyframes()));
 		}
 
 		return animations;

@@ -13,7 +13,6 @@ public class AdvancedBoneSnapshot extends BoneSnapshot {
     public boolean rotYEnabled;
     public boolean rotZEnabled;
 
-    public boolean bendAxisEnabled;
     public boolean bendEnabled;
 
     public AdvancedBoneSnapshot(PlayerAnimBone bone) {
@@ -32,7 +31,6 @@ public class AdvancedBoneSnapshot extends BoneSnapshot {
             rotYEnabled = boneEnabled.isRotYEnabled();
             rotZEnabled = boneEnabled.isRotZEnabled();
 
-            bendAxisEnabled = boneEnabled.isBendAxisEnabled();
             bendEnabled = boneEnabled.isBendEnabled();
         }
     }

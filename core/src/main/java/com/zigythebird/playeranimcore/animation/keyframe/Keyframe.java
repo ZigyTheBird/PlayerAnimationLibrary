@@ -35,6 +35,16 @@ public record Keyframe(float length, List<Expression> startValue, List<Expressio
 		this(length, Collections.emptyList(), Collections.emptyList());
 	}
 
+	public static float getLastKeyframeTime(List<Keyframe> list) {
+		float time = 0;
+
+		for (Keyframe frame : list) {
+			time += frame.length();
+		}
+
+		return time;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.length, this.startValue, this.endValue, this.easingType, this.easingArgs);

@@ -105,8 +105,10 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 correctEasings(boneAnimation.rotationKeyFrames());
                 correctEasings(boneAnimation.scaleKeyFrames());
                 correctEasings(boneAnimation.bendKeyFrames());
-                if (boneAnimation.boneName().equals("right_item") || boneAnimation.boneName().equals("left_item"))
+                if (boneAnimation.boneName().equals("right_item") || boneAnimation.boneName().equals("left_item")) {
+                    swapTheZYAxisOfRotation(boneAnimation.positionKeyFrames());
                     swapTheZYAxisOfRotation(boneAnimation.rotationKeyFrames());
+                }
             }
         }
 
@@ -127,7 +129,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         correctEasings(keyframeStack.zKeyframes());
     }
 
-    private static void correctEasings(List<Keyframe> list) {
+    public static void correctEasings(List<Keyframe> list) {
         EasingType previousEasing = EasingType.EASE_IN_SINE;
         for (int i=0;i<list.size();i++) {
             Keyframe keyframe = list.get(i);
@@ -154,17 +156,21 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 }
 
                 String boneKey = entry.getKey();
-                if(version < 3 && boneKey.equals("torso")) boneKey = "body";// rename part
+                if (version < 3 && boneKey.equals("torso")) boneKey = "body";// rename part
 
                 StateCollection collection = getDefaultValues(boneKey);
                 BoneAnimation bone = bones.computeIfAbsent(UniversalAnimLoader.getCorrectPlayerBoneName(boneKey), boneName ->
-                        new BoneAnimation(boneName, new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new KeyframeStack())
+                        new BoneAnimation(boneName, new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new ArrayList<>())
                 );
                 addBodyPartIfExists(bone, collection, entry.getValue(), degrees, tick, easing, turn);
                 resolveMissingKeyframes(bone.positionKeyFrames(), false);
                 resolveMissingKeyframes(bone.rotationKeyFrames(), false);
                 resolveMissingKeyframes(bone.bendKeyFrames(), false);
                 resolveMissingKeyframes(bone.scaleKeyFrames(), true);
+
+                if (version < 3 && boneKey.equals("body")) {
+                    bones.put("torso", new BoneAnimation("torso", new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), bone.bendKeyFrames()));
+                }
             }
         }
         return new ArrayList<>(bones.values());
@@ -186,16 +192,17 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
     private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
         JsonObject partNode = node.getAsJsonObject();
-        fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, false);
-        fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, bone.boneName().equals("right_item") || bone.boneName().equals("left_item"));
+        boolean isItem = bone.boneName().equals("right_item") || bone.boneName().equals("left_item");
+        fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, isItem);
+        fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, isItem);
         fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false);
-        fillKeyframeStack(bone.bendKeyFrames(), Vec3f.ZERO, TransformType.BEND, "axis", "bend", null, partNode, degrees, tick, easing, turn, false);
+        addPartIfExists(Keyframe.getLastKeyframeTime(bone.bendKeyFrames()), bone.bendKeyFrames(), 0, TransformType.BEND, "bend", partNode, degrees, tick, easing, turn, false);
     }
 
     private void fillKeyframeStack(KeyframeStack stack, Vec3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn, boolean shouldNegate) {
         addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn, shouldNegate);
         addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, turn, shouldNegate || transformType == null);
-        if (z != null) addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn, shouldNegate);
+        addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn, shouldNegate);
     }
 
     private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, int rotate, boolean shouldNegate) {
@@ -205,9 +212,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees, shouldNegate);
             List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
             part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, Collections.singletonList(new ObjectArrayList<>(0))));
-            if (transformType == TransformType.ROTATION && rotate != 0) {
-                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(FloatExpression.of(value + MathHelper.PI * 2f * rotate)), easing, Collections.singletonList(new ObjectArrayList<>(0))));
-            }
+//            if (transformType == TransformType.ROTATION && rotate != 0) {
+//                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(FloatExpression.of(value + MathHelper.PI * 2f * rotate)), easing, Collections.singletonList(new ObjectArrayList<>(0))));
+//            }
         }
     }
 

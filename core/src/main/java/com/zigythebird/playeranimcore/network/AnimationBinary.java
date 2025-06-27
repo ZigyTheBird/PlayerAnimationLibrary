@@ -68,7 +68,7 @@ public class AnimationBinary {
         writeKeyframeStack(buf, bone.rotationKeyFrames());
         writeKeyframeStack(buf, bone.positionKeyFrames());
         writeKeyframeStack(buf, bone.scaleKeyFrames());
-        writeKeyframeStack(buf, bone.bendKeyFrames());
+        NetworkUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
     }
 
     public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack) {
@@ -125,7 +125,7 @@ public class AnimationBinary {
         KeyframeStack rotationKeyFrames = readKeyframeStack(buf);
         KeyframeStack positionKeyFrames = readKeyframeStack(buf);
         KeyframeStack scaleKeyFrames = readKeyframeStack(buf);
-        KeyframeStack bendKeyFrames = readKeyframeStack(buf);
+        List<Keyframe> bendKeyFrames = NetworkUtils.readList(buf, AnimationBinary::readKeyframe);
 
         return new BoneAnimation(boneName, rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
