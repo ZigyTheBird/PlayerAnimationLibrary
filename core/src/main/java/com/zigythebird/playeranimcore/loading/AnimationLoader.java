@@ -49,12 +49,12 @@ public class AnimationLoader {
 
 	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, Vec3f> bones, Map<String, String> parents, ExtraAnimationData extraData) throws CompoundException {
 		float length = animationObj.has("animation_length") ? JsonUtil.getAsFloat(animationObj, "animation_length") * 20f : -1;
-		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
-		List<BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
-		Animation.Keyframes keyframes = KeyFrameLoader.deserialize(animationObj);
 
-		if (length == -1)
-			length = calculateAnimationLength(boneAnimations);
+		List<BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
+		if (length == -1) length = calculateAnimationLength(boneAnimations);
+
+		Animation.LoopType loopType = readLoopType(animationObj, length);
+		Animation.Keyframes keyframes = KeyFrameLoader.deserialize(animationObj);
 
 		if (animationObj.has(PlayerAnimLib.MOD_ID)) {
 			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID));
@@ -65,6 +65,17 @@ public class AnimationLoader {
 		}
 
 		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);
+	}
+
+	private static Animation.LoopType readLoopType(JsonObject animationObj, float length) throws JsonParseException {
+		if (animationObj.has("loopTick")) {
+			float returnTick = JsonUtil.getAsFloat(animationObj, "loopTick") * 20f;
+			if (returnTick > length || returnTick < 0) {
+				throw new JsonParseException("The returnTick has to be a non-negative value smaller than the endTick value");
+			}
+			return Animation.LoopType.returnToTickLoop(returnTick);
+		}
+		return Animation.LoopType.fromJson(animationObj.get("loop"));
 	}
 
 	private static List<BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
