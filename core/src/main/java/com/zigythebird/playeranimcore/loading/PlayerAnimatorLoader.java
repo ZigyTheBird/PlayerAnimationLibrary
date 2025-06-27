@@ -199,15 +199,21 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, int rotate, boolean shouldNegate) {
+        if (!node.has(name)) return;
+
         Keyframe lastFrame = part.isEmpty() ? null : part.getLast();
         float prevTime = lastFrame != null ? lastTick : 0;
-        if (node.has(name)) {
-            float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees, shouldNegate);
-            List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
-            part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, Collections.singletonList(new ObjectArrayList<>(0))));
-            if (transformType == TransformType.ROTATION && rotate != 0) {
-                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(FloatExpression.of(value + MathHelper.PI * 2f * rotate)), easing, Collections.singletonList(new ObjectArrayList<>(0))));
-            }
+        float delta = tick - prevTime;
+
+        float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees, shouldNegate);
+        List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
+        List<List<Expression>> emptyList = Collections.singletonList(new ObjectArrayList<>(0));
+
+        part.add(new Keyframe(delta, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, emptyList));
+
+        if (transformType == TransformType.ROTATION && rotate != 0) {
+            List<Expression> rotatedExpr = Collections.singletonList(FloatExpression.of(value + MathHelper.PI * 2f * rotate));
+            part.add(new Keyframe(delta + 0.001f, expressions, rotatedExpr, easing, emptyList));
         }
     }
 

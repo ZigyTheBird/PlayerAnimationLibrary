@@ -22,38 +22,19 @@ public record KeyframeStack(List<Keyframe> xKeyframes, List<Keyframe> yKeyframes
 	}
 
 	public float getLastKeyframeTime() {
-		return Math.max(getLastXAxisKeyframeTime(),
-				Math.max(getLastYAxisKeyframeTime(), getLastZAxisKeyframeTime()));
+		return Math.max(getLastXAxisKeyframeTime(), Math.max(getLastYAxisKeyframeTime(), getLastZAxisKeyframeTime()));
 	}
 
 	public float getLastXAxisKeyframeTime() {
-		float xTime = 0;
-
-		for (Keyframe frame : xKeyframes()) {
-			xTime += frame.length();
-		}
-
-		return xTime;
+		return (float) xKeyframes().stream().mapToDouble(Keyframe::length).sum();
 	}
 
 	public float getLastYAxisKeyframeTime() {
-		float yTime = 0;
-
-		for (Keyframe frame : yKeyframes()) {
-			yTime += frame.length();
-		}
-
-		return yTime;
+		return (float) yKeyframes().stream().mapToDouble(Keyframe::length).sum();
 	}
 
 	public float getLastZAxisKeyframeTime() {
-		float zTime = 0;
-
-		for (Keyframe frame : zKeyframes()) {
-			zTime += frame.length();
-		}
-
-		return zTime;
+		return (float) zKeyframes().stream().mapToDouble(Keyframe::length).sum();
 	}
 
 	public boolean hasKeyframes() {

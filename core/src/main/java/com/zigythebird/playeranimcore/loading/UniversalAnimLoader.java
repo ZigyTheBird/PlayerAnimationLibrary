@@ -1,62 +1,61 @@
 package com.zigythebird.playeranimcore.loading;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
+import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranimcore.math.Vec3f;
-import com.zigythebird.playeranimcore.util.JsonUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Type;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
-public class UniversalAnimLoader {
+public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animation>> {
     public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[]{}, new ParticleKeyframeData[]{}, new CustomInstructionKeyframeData[]{});
 
-    public static Map<String, Animation> loadPlayerAnim(String namespace, InputStream resource) {
-        JsonObject json = PlayerAnimLib.GSON.fromJson(new InputStreamReader(resource), JsonObject.class);
-        if (json.has("animations")) {
-            JsonObject model = JsonUtil.getAsJsonObject(json, "model", new JsonObject());
-            Map<String, Vec3f> bones = new HashMap<>();
-            for (Map.Entry<String, JsonElement> entry : model.entrySet()) {
-                JsonObject object = entry.getValue().getAsJsonObject();
-                JsonArray pivot = object.get("pivot").getAsJsonArray();
-                Vec3f bone = new Vec3f(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat());
-                bones.put(entry.getKey(), bone);
-            }
+    public static Map<String, Animation> loadPlayerAnim(InputStream resource) throws IOException {
+        try (Reader reader = new InputStreamReader(resource)) {
+            JsonObject json = PlayerAnimLib.GSON.fromJson(reader, JsonObject.class);
 
-            JsonObject parentsObj = JsonUtil.getAsJsonObject(json, "parents", new JsonObject());
-            Map<String, String> parents = new HashMap<>();
-            for (Map.Entry<String, JsonElement> entry : parentsObj.entrySet()) {
-                parents.put(getCorrectPlayerBoneName(entry.getKey()), entry.getValue().getAsString());
+            if (json.has("animations")) {
+                return PlayerAnimLib.GSON.fromJson(json.get("animations"), PlayerAnimLib.ANIMATIONS_MAP_TYPE);
+            } else {
+                Animation animation = PlayerAnimatorLoader.GSON.fromJson(json, Animation.class);
+                return Collections.singletonMap(animation.data().name(), animation);
             }
-
-            json = json.get("animations").getAsJsonObject();
-            JsonObject modifiedJson = new JsonObject();
-            for (Map.Entry<String, JsonElement> entry : json.asMap().entrySet()) {
-                JsonObject modifiedBones = new JsonObject();
-                for (Map.Entry<String, JsonElement> entry1 : entry.getValue().getAsJsonObject().get("bones").getAsJsonObject().asMap().entrySet()) {
-                    modifiedBones.add(getCorrectPlayerBoneName(entry1.getKey()), entry1.getValue());
-                }
-                JsonObject entryJson = entry.getValue().getAsJsonObject();
-                entryJson.add("bones", modifiedBones);
-                modifiedJson.add(namespace + ":" + entry.getKey(), entryJson);
-            }
-            return AnimationLoader.deserialize(modifiedJson, bones, parents);
-        } else {
-            Animation animation = PlayerAnimatorLoader.GSON.fromJson(json, Animation.class);
-            return Collections.singletonMap(namespace + ":" + animation.data().name(), animation);
         }
     }
 
+    private static final Pattern UPPERCASE_PATTERN = Pattern.compile("([A-Z])");
     public static String getCorrectPlayerBoneName(String name) {
-        return name.replaceAll("([A-Z])", "_$1").toLowerCase();
+        return UPPERCASE_PATTERN.matcher(name).replaceAll("_$1").toLowerCase();
+    }
+
+    @Override
+    public Map<String, Animation> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        JsonObject obj = json.getAsJsonObject();
+        Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
+
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            try {
+                Animation animation = context.deserialize(entry.getValue().getAsJsonObject(), Animation.class);
+                if (!animation.data().has(ExtraAnimationData.NAME_KEY)) { // Fallback to name only
+                    animation.data().put(ExtraAnimationData.NAME_KEY, entry.getKey());
+                }
+                animations.put(entry.getKey(), animation);
+            } catch (Exception ex) {
+                PlayerAnimLib.LOGGER.error("Unable to parse animation: {}", entry.getKey(), ex);
+            }
+        }
+
+        return animations;
     }
 }
