@@ -31,9 +31,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,17 +39,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HumanoidModel.class)
 public abstract class HumanoidModelMixin<T extends HumanoidRenderState> extends EntityModel<T> implements IMutableModel {
-    @Final
-    @Shadow
-    public ModelPart rightArm;
-    @Final
-    @Shadow
-    public ModelPart leftArm;
-
     @Unique
     private PlayerAnimManager playerAnimLib$animation = null;
 
-    private HumanoidModelMixin(Void v, ModelPart modelPart) {
+    private HumanoidModelMixin(ModelPart modelPart) {
         super(modelPart);
     }
 
@@ -69,10 +60,4 @@ public abstract class HumanoidModelMixin<T extends HumanoidRenderState> extends 
     private void copyMutatedAttributes(HumanoidModel<T> bipedEntityModel, CallbackInfo ci){
         ((IMutableModel) bipedEntityModel).playerAnimLib$setAnimation(playerAnimLib$animation);
     }
-
-    @Final
-    @Shadow public ModelPart body;
-
-    @Shadow @Final public ModelPart head;
-
 }
