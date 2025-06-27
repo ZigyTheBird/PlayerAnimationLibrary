@@ -33,22 +33,8 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		Animation.LoopType loopType = readLoopType(animationObj, length);
 		Animation.Keyframes keyframes = context.deserialize(animationObj, Animation.Keyframes.class);
 
-		// Parents
-		JsonObject parentsObj = JsonUtil.getAsJsonObject(animationObj, "parents", new JsonObject());
-		Map<String, String> parents = new HashMap<>(parentsObj.size());
-		for (Map.Entry<String, JsonElement> entry : parentsObj.entrySet()) {
-			parents.put(UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey()), entry.getValue().getAsString());
-		}
-
-		// Model bones
-		JsonObject model = JsonUtil.getAsJsonObject(animationObj, "model", new JsonObject());
-		Map<String, Vec3f> bones = new HashMap<>(model.size());
-		for (Map.Entry<String, JsonElement> entry : model.entrySet()) {
-			JsonObject object = entry.getValue().getAsJsonObject();
-			JsonArray pivot = object.get("pivot").getAsJsonArray();
-			Vec3f bone = new Vec3f(pivot.get(0).getAsFloat(), pivot.get(1).getAsFloat(), pivot.get(2).getAsFloat());
-			bones.put(entry.getKey(), bone);
-		}
+		Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(animationObj, "parents", new JsonObject()));
+		Map<String, Vec3f> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(animationObj, "model", new JsonObject()));
 
 		// Extra data
 		ExtraAnimationData extraData = new ExtraAnimationData();
