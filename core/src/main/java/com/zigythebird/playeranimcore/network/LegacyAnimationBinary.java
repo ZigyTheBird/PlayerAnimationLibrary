@@ -145,6 +145,13 @@ public final class LegacyAnimationBinary {
         writeKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version);
         if (!part.boneName().equals("head")) {
             writeKeyframes(buf, part.bendKeyFrames(), version);
+            //Marking the no longer supported Y axis bend keyframes as non-existent
+            if (version >= 2) {
+                putBoolean(buf, true);
+                buf.putInt(0);
+            } else {
+                buf.putInt(0);
+            }
         }
         if (version >= 3) {
             writeKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version);
@@ -240,6 +247,8 @@ public final class LegacyAnimationBinary {
         String partName = part.boneName();
         if (!partName.equals("head")) {
             readKeyframes(buf, part.bendKeyFrames(), version, keyframeSize);
+            //Discarded since no Y axis bend support
+            readKeyframes(buf, new ArrayList<>(), version, keyframeSize);
         }
         if (version >= 3) {
             readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, keyframeSize);
@@ -329,6 +338,7 @@ public final class LegacyAnimationBinary {
         String partName = part.boneName();
         if (!partName.equals("head")) {
             size += axisSize(part.bendKeyFrames(), version);
+            size += version >= 2 ? 5 : 4;
         }
         if (version >= 3) {
             size += axisSize(part.scaleKeyFrames().xKeyframes(), version);
