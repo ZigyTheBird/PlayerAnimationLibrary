@@ -36,13 +36,7 @@ public record Keyframe(float length, List<Expression> startValue, List<Expressio
 	}
 
 	public static float getLastKeyframeTime(List<Keyframe> list) {
-		float time = 0;
-
-		for (Keyframe frame : list) {
-			time += frame.length();
-		}
-
-		return time;
+		return (float) list.stream().mapToDouble(Keyframe::length).sum();
 	}
 
 	@Override
