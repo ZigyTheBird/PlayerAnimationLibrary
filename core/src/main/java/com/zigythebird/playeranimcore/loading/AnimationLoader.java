@@ -69,7 +69,7 @@ public class AnimationLoader {
 
 	private static Animation.LoopType readLoopType(JsonObject animationObj, float length) throws JsonParseException {
 		if (animationObj.has("loopTick")) {
-			float returnTick = JsonUtil.getAsFloat(animationObj, "loopTick");
+			float returnTick = JsonUtil.getAsFloat(animationObj, "loopTick") * 20f;
 			if (returnTick > length || returnTick < 0) {
 				throw new JsonParseException("The returnTick has to be a non-negative value smaller than the endTick value");
 			}
