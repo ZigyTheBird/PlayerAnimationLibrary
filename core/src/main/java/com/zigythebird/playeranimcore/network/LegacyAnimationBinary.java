@@ -106,8 +106,8 @@ public final class LegacyAnimationBinary {
                     .filter(boneAnimation -> boneAnimation.boneName().equals("left_leg"))
                     .findFirst().orElse(null), version);
         }
-        buf.putLong(animation.data().uuid().getMostSignificantBits());
-        buf.putLong(animation.data().uuid().getLeastSignificantBits());
+        buf.putLong(animation.uuid().getMostSignificantBits());
+        buf.putLong(animation.uuid().getLeastSignificantBits());
 
         return buf;
     }

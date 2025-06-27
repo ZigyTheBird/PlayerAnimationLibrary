@@ -12,25 +12,28 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstru
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranimcore.enums.AnimationStage;
+import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * A compiled animation instance for use by the {@link AnimationController}
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-    public record Animation(ExtraAnimationData data, float length, LoopType loopType, List<BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, Vec3f> pivotBones, Map<String, String> parents) {
+public record Animation(ExtraAnimationData data, float length, LoopType loopType, List<BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, Vec3f> pivotBones, Map<String, String> parents) implements Supplier<UUID> {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 
     static Animation generateWaitAnimation(float length) {
-        return new Animation(new ExtraAnimationData(ExtraAnimationData.NAME_KEY, AnimationStage.WAIT.name()), length, LoopType.PLAY_ONCE, new ArrayList<>(),
-                new Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]), new HashMap<>(), new HashMap<>());
+        return new Animation(new ExtraAnimationData(ExtraAnimationData.NAME_KEY, AnimationStage.WAIT.name()), length, LoopType.PLAY_ONCE,
+                new ArrayList<>(), UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+    }
+
+    public boolean isPlayingAt(float tick) {
+        return loopType.shouldPlayAgain(this) || tick < length() && tick > 0;
     }
 
     /**
@@ -122,5 +125,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
             return loopType;
         }
+    }
+
+    private UUID generateUuid() {
+        long h = Integer.toUnsignedLong(hashCode());
+        return new UUID(h << 32, h);
+    }
+
+    public UUID uuid() {
+        if (!data().has(ExtraAnimationData.UUID_KEY)) {
+            data().put(ExtraAnimationData.UUID_KEY, generateUuid());
+        } else if (data().getRaw(ExtraAnimationData.UUID_KEY) instanceof String str) {
+            data().put(ExtraAnimationData.UUID_KEY,  UUID.fromString(str));
+        }
+        return data().<UUID>get(ExtraAnimationData.UUID_KEY).orElseThrow();
+    }
+
+    @Override
+    public UUID get() {
+        return uuid();
     }
 }

@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animation>> {
-    public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[]{}, new ParticleKeyframeData[]{}, new CustomInstructionKeyframeData[]{});
+    public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]);
 
     public static Map<String, Animation> loadPlayerAnim(InputStream resource) throws IOException {
         try (Reader reader = new InputStreamReader(resource)) {
