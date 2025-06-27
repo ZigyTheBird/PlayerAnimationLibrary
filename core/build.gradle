@@ -9,3 +9,12 @@ dependencies {
     implementation api("it.unimi.dsi:fastutil:8.5.15")
     implementation api("io.netty:netty-buffer:4.1.115.Final")
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = "PlayerAnimationLibCore"
+            from components.java
+        }
+    }
+}
