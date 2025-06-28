@@ -43,7 +43,7 @@ public class AnimationBinary {
             }
         }
         Map<String, Object> data = animation.data().data();
-        buf.writeInt(((AnimationFormat)data.getOrDefault("format", AnimationFormat.GECKOLIB)).toInt());
+        buf.writeByte(((AnimationFormat)data.getOrDefault("format", AnimationFormat.GECKOLIB)).id);
         buf.writeFloat((float) data.getOrDefault("beginTick", Float.NaN));
         buf.writeFloat((float) data.getOrDefault("endTick", Float.NaN));
         NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
@@ -116,7 +116,7 @@ public class AnimationBinary {
             else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
         }
         ExtraAnimationData data = new ExtraAnimationData();
-        data.put("format", AnimationFormat.fromInt(buf.readInt()));
+        data.put("format", AnimationFormat.fromId(buf.readByte()));
         float beginTick = buf.readFloat();
         float endTick = buf.readFloat();
         if (!Float.isNaN(beginTick))
