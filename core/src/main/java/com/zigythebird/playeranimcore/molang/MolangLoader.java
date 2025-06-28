@@ -62,6 +62,12 @@ public class MolangLoader {
         return engine;
     }
 
+    public static MochaEngine<?> createNewEngine() {
+        MochaEngine<?> engine = MochaEngine.createStandard();
+        engine.handleParseExceptions(MolangLoader.HANDLER);;
+        return engine;
+    }
+
     public static boolean setDoubleQuery(ObjectValue binding, String name, ToDoubleFunction<AnimationController> value) {
         return setControllerQuery(binding, name, controller -> NumberValue.of(value.applyAsDouble(controller)));
     }

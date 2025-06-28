@@ -31,7 +31,8 @@ import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
-import com.zigythebird.playeranimcore.misc.UnsupportedKeyframeForLegacyBinaryException;
+import com.zigythebird.playeranimcore.molang.MolangLoader;
+import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -48,6 +49,8 @@ import java.util.*;
  */
 @SuppressWarnings("unused")
 public final class LegacyAnimationBinary {
+    private static final MochaEngine<?> MOCHA_ENGINE = MolangLoader.createNewEngine();
+
     /**
      * Write the animation into the ByteBuffer.
      * Versioning:
@@ -165,17 +168,14 @@ public final class LegacyAnimationBinary {
         for (Keyframe move : part) {
             buf.putInt(tick);
             tick += (int) move.length();
-            List<Expression> endValue = move.endValue();
-            if (endValue.size() == 1 && endValue.getFirst() instanceof FloatExpression expression) {
-                buf.putFloat(expression.value());
-                buf.put(EasingType.getIDForEasingType(move.easingType()));
-                if (version >= 4) {
-                    if (!move.easingArgs().isEmpty() && move.easingArgs().getFirst().getFirst() instanceof FloatExpression expression1) {
-                        buf.putFloat(expression1.value());
-                    } else buf.putFloat(Float.NaN);
-                }
+            buf.putFloat(MOCHA_ENGINE.eval(move.endValue()));
+            buf.put(EasingType.getIDForEasingType(move.easingType()));
+
+            if (version >= 4) {
+                if (!move.easingArgs().isEmpty()) {
+                    buf.putFloat(MOCHA_ENGINE.eval(move.easingArgs().getFirst()));
+                } else buf.putFloat(Float.NaN);
             }
-            else throw new UnsupportedKeyframeForLegacyBinaryException();
         }
     }
     
