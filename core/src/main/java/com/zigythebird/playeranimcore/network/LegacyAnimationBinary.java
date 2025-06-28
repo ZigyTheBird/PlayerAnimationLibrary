@@ -138,7 +138,7 @@ public final class LegacyAnimationBinary {
 
     private static void writeKeyframes(ByteBuffer buf, List<Keyframe> part, int version) {
         if (version >= 2) {
-            putBoolean(buf, true);
+            putBoolean(buf, !part.isEmpty());
             buf.putInt(part.size());
         } else {
             buf.putInt(part.size());
