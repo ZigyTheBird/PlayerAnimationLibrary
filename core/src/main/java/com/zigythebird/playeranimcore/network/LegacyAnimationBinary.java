@@ -248,6 +248,14 @@ public final class LegacyAnimationBinary {
             enabled = length >= 0;
         }
 
+        if (!enabled) {
+            if (length > 0) {
+                buf.position(buf.position() + length * keyframeSize);
+            }
+            part.clear();
+            return;
+        }
+
         int lastTick = 0;
         for (int i = 0; i < length; i++) {
             Keyframe prevKeyframe = part.isEmpty() ? null : part.getLast();
@@ -274,7 +282,6 @@ public final class LegacyAnimationBinary {
                             Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)))));
             buf.position(currentPos + keyframeSize);
         }
-        if (!enabled) part.clear();
     }
 
     /**
