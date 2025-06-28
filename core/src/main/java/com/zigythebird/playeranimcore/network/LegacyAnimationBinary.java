@@ -109,7 +109,7 @@ public final class LegacyAnimationBinary {
             int i = 6;
             if (bendable) i += 2;
             if (version >= 3) i += 3;
-            for (; i >= 0; i--) {
+            for (; i > 0; i--) {
                 if (version >= 2) {
                     putBoolean(buf, false);
                     buf.putInt(0);
@@ -245,11 +245,16 @@ public final class LegacyAnimationBinary {
             length = buf.getInt();
             enabled = length >= 0;
         }
+
+        int lastTick = 0;
         for (int i = 0; i < length; i++) {
             Keyframe prevKeyframe = part.isEmpty() ? null : part.getLast();
             int currentPos = buf.position();
 
             int tick = buf.getInt();
+            float keyframeLength = (float)tick - lastTick;
+            lastTick = tick;
+
             List<Expression> expression = Collections.singletonList(FloatExpression.of(buf.getFloat()));
             EasingType easingType = EasingType.getEasingTypeForID(buf.get());
             Float easingArg = null;
@@ -262,7 +267,7 @@ public final class LegacyAnimationBinary {
                 }
             }
 
-            part.add(new Keyframe(tick, prevKeyframe == null ? expression : prevKeyframe.endValue(), expression, easingType,
+            part.add(new Keyframe(keyframeLength, prevKeyframe == null ? expression : prevKeyframe.endValue(), expression, easingType,
                     easingArg == null ? Collections.singletonList(Collections.emptyList()) :
                             Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)))));
             buf.position(currentPos + keyframeSize);
