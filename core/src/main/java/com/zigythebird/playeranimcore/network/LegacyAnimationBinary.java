@@ -41,6 +41,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Utility class to convert animation data to a binary format.
@@ -50,6 +51,7 @@ import java.util.*;
 @SuppressWarnings("unused")
 public final class LegacyAnimationBinary {
     private static final MochaEngine<?> MOCHA_ENGINE = MolangLoader.createNewEngine();
+    public static final Predicate<String> BEND_BONE = name -> !name.equals("head") && !name.equals("left_item") && !name.equals("right_item");
 
     /**
      * Write the animation into the ByteBuffer.
@@ -76,8 +78,8 @@ public final class LegacyAnimationBinary {
         if (version >= 2) {
             buf.putInt(animation.boneAnimations().size());
             for (Map.Entry<String, BoneAnimation> part : animation.boneAnimations().entrySet()) {
-                putString(buf, part.getKey());
-                writePart(buf, !part.getKey().equals("head"), part.getValue(), version);
+                putString(buf, UniversalAnimLoader.restorePlayerBoneName(part.getKey()));
+                writePart(buf, BEND_BONE.test(part.getKey()), part.getValue(), version);
             }
         } else {
             writePart(buf, false, animation.getBone("head"), version);
@@ -182,8 +184,8 @@ public final class LegacyAnimationBinary {
         if (version >= 2) {
             int count = buf.getInt();
             for (int i = 0; i < count; i++) {
-                String name = getString(buf);
-                boneAnimations.put(name, readPart(buf, !name.equals("head"), new BoneAnimation(), version, keyframeSize, easeBefore));
+                String name = UniversalAnimLoader.getCorrectPlayerBoneName(getString(buf));
+                boneAnimations.put(name, readPart(buf, BEND_BONE.test(name), new BoneAnimation(), version, keyframeSize, easeBefore));
             }
         } else {
             boneAnimations.put("head", readPart(buf, false, new BoneAnimation(), version, keyframeSize, easeBefore));
@@ -296,7 +298,7 @@ public final class LegacyAnimationBinary {
         } else {
             size += 4;
             for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
-                size += stringSize(entry.getKey()) + partSize(entry.getValue(), !entry.getKey().equals("head"), version);
+                size += stringSize(entry.getKey()) + partSize(entry.getValue(), BEND_BONE.test(entry.getKey()), version);
             }
         }
         //The size of an empty emote is 230 bytes.

@@ -19,10 +19,14 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animation>> {
     public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]);
+
+    private static final Pattern UPPERCASE_PATTERN = Pattern.compile("([A-Z])");
+    private static final Pattern UNDERSCORE_PATTERN = Pattern.compile("_(.)");
 
     public static Map<String, Animation> loadPlayerAnim(InputStream resource) throws IOException {
         try (Reader reader = new InputStreamReader(resource)) {
@@ -46,11 +50,6 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
                 return Collections.singletonMap(animation.data().name(), animation);
             }
         }
-    }
-
-    private static final Pattern UPPERCASE_PATTERN = Pattern.compile("([A-Z])");
-    public static String getCorrectPlayerBoneName(String name) {
-        return UPPERCASE_PATTERN.matcher(name).replaceAll("_$1").toLowerCase();
     }
 
     @Override
@@ -90,5 +89,24 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
             bones.put(entry.getKey(), bone);
         }
         return bones;
+    }
+
+    public static String getCorrectPlayerBoneName(String name) {
+        return UPPERCASE_PATTERN.matcher(name).replaceAll("_$1").toLowerCase();
+    }
+
+    public static String restorePlayerBoneName(String name) {
+        StringBuilder result = new StringBuilder();
+        String lowerCase = name.toLowerCase();
+
+        Matcher matcher = UNDERSCORE_PATTERN.matcher(lowerCase);
+        int lastEnd = 0;
+        while (matcher.find()) {
+            result.append(lowerCase, lastEnd, matcher.start());
+            result.append(Character.toUpperCase(matcher.group(1).charAt(0)));
+            lastEnd = matcher.end();
+        }
+        result.append(lowerCase.substring(lastEnd));
+        return result.toString();
     }
 }
