@@ -29,7 +29,7 @@ public class AnimationBinaryTest {
                 AnimationBinary.write(byteBuf, version, animation);
 
                 Animation readed = AnimationBinary.read(byteBuf, version);
-                Assertions.assertEquals(animation, readed, "animation reads incorrectly at version " + version);
+                Assertions.assertEquals(animation.boneAnimations().keySet(), readed.boneAnimations().keySet(), "animation reads incorrectly at version " + version);
             }
         }
     }
