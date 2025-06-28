@@ -18,7 +18,6 @@ import team.unnamed.mocha.util.ExpressionListUtils;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,11 +42,15 @@ public class AnimationBinary {
             }
         }
         NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
+
+        // Sounds
         buf.writeInt(animation.keyFrames().sounds().length);
         for (SoundKeyframeData soundKeyframe : animation.keyFrames().sounds()) {
             buf.writeFloat(soundKeyframe.getStartTick());
             ProtocolUtils.writeString(buf, soundKeyframe.getSound());
         }
+
+        // Particles
         buf.writeInt(animation.keyFrames().particles().length);
         for (ParticleKeyframeData particleKeyframe : animation.keyFrames().particles()) {
             buf.writeFloat(particleKeyframe.getStartTick());
@@ -55,18 +58,19 @@ public class AnimationBinary {
             ProtocolUtils.writeString(buf, particleKeyframe.getLocator());
             ProtocolUtils.writeString(buf, particleKeyframe.script());
         }
+
+        // Instructions
         buf.writeInt(animation.keyFrames().customInstructions().length);
         for (CustomInstructionKeyframeData instructionKeyframe : animation.keyFrames().customInstructions()) {
             buf.writeFloat(instructionKeyframe.getStartTick());
             ProtocolUtils.writeString(buf, instructionKeyframe.getInstructions());
         }
-        buf.writeInt(animation.pivotBones().size());
-        for (Map.Entry<String, Vec3f> entry : animation.pivotBones().entrySet()) {
-            ProtocolUtils.writeString(buf, entry.getKey());
-            buf.writeFloat(entry.getValue().x());
-            buf.writeFloat(entry.getValue().y());
-            buf.writeFloat(entry.getValue().z());
-        }
+
+        NetworkUtils.writeMap(buf, animation.pivotBones(), ProtocolUtils::writeString, (buf1, vec3f) -> {
+            buf1.writeFloat(vec3f.x());
+            buf1.writeFloat(vec3f.y());
+            buf1.writeFloat(vec3f.z());
+        });
         NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }
 
@@ -107,29 +111,46 @@ public class AnimationBinary {
             else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
         }
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);
+
+        // Sounds
         int soundCount = buf.readInt();
         SoundKeyframeData[] sounds = new SoundKeyframeData[soundCount];
         for (int i = 0; i < soundCount; i++) {
-            sounds[i] = new SoundKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
+            float startTick = buf.readFloat();
+            String sound = ProtocolUtils.readString(buf);
+            sounds[i] = new SoundKeyframeData(startTick, sound);
         }
+
+        // Particles
         int particleCount = buf.readInt();
         ParticleKeyframeData[] particles = new ParticleKeyframeData[particleCount];
         for (int i = 0; i < particleCount; i++) {
-            particles[i] = new ParticleKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf));
+            float startTick = buf.readFloat();
+            String effect = ProtocolUtils.readString(buf);
+            String locator = ProtocolUtils.readString(buf);
+            String script = ProtocolUtils.readString(buf);
+            particles[i] = new ParticleKeyframeData(startTick, effect, locator, script);
         }
+
+        // Instructions
         int customInstructionCount = buf.readInt();
         CustomInstructionKeyframeData[] customInstructions = new CustomInstructionKeyframeData[customInstructionCount];
         for (int i = 0; i < customInstructionCount; i++) {
-            customInstructions[i] = new CustomInstructionKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
+            float startTick = buf.readFloat();
+            String instructions = ProtocolUtils.readString(buf);
+            customInstructions[i] = new CustomInstructionKeyframeData(startTick, instructions);
         }
         Animation.Keyframes keyFrames = new Animation.Keyframes(sounds, particles, customInstructions);
-        Map<String, Vec3f> bones = new HashMap<>();
-        for (int i = 0; i < buf.readInt(); i++) {
-            bones.put(ProtocolUtils.readString(buf), new Vec3f(buf.readFloat(), buf.readFloat(), buf.readFloat()));
-        }
+
+        Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> {
+            float x = buf1.readFloat();
+            float y = buf1.readFloat();
+            float z = buf1.readFloat();
+            return new Vec3f(x, y, z);
+        });
         Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
 
-        return new Animation(new ExtraAnimationData(), length, loopType, boneAnimations, keyFrames, bones, parents);
+        return new Animation(new ExtraAnimationData(), length, loopType, boneAnimations, keyFrames, pivotBones, parents);
     }
 
     public static BoneAnimation readBoneAnimation(ByteBuf buf) {
