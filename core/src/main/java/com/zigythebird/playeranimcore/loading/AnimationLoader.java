@@ -10,7 +10,6 @@ import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import com.zigythebird.playeranimcore.misc.CompoundException;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.JsonUtil;
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
@@ -56,7 +55,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		return Animation.LoopType.fromJson(animationObj.get("loop"));
 	}
 
-	private static Map<String, BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
+	private static Map<String, BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) {
 		Map<String, BoneAnimation> animations = new HashMap<>(bonesObj.size());
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
@@ -151,7 +150,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
 	}
 
-	private static KeyframeStack buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type) throws CompoundException {
+	private static KeyframeStack buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type) {
 		if (entries.isEmpty()) return new KeyframeStack();
 
 		List<Keyframe> xFrames = new ObjectArrayList<>();
