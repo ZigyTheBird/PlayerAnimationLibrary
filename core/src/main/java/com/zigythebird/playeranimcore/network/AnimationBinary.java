@@ -10,6 +10,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
+import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 import team.unnamed.mocha.parser.MolangParser;
@@ -41,6 +42,10 @@ public class AnimationBinary {
                 buf.writeFloat(animation.loopType().restartFromTick(animation));
             }
         }
+        Map<String, Object> data = animation.data().data();
+        buf.writeInt(((AnimationFormat)data.getOrDefault("format", AnimationFormat.GECKOLIB)).toInt());
+        buf.writeFloat((float) data.getOrDefault("beginTick", Float.NaN));
+        buf.writeFloat((float) data.getOrDefault("endTick", Float.NaN));
         NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
 
         // Sounds
@@ -110,6 +115,14 @@ public class AnimationBinary {
             if (buf.readBoolean()) loopType = Animation.LoopType.HOLD_ON_LAST_FRAME;
             else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
         }
+        ExtraAnimationData data = new ExtraAnimationData();
+        data.put("format", AnimationFormat.fromInt(buf.readInt()));
+        float beginTick = buf.readFloat();
+        float endTick = buf.readFloat();
+        if (!Float.isNaN(beginTick))
+            data.put("beginTick", beginTick);
+        if (!Float.isNaN(endTick))
+            data.put("endTick", endTick);
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);
 
         // Sounds
@@ -150,7 +163,7 @@ public class AnimationBinary {
         });
         Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
 
-        return new Animation(new ExtraAnimationData(), length, loopType, boneAnimations, keyFrames, pivotBones, parents);
+        return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents);
     }
 
     public static BoneAnimation readBoneAnimation(ByteBuf buf) {

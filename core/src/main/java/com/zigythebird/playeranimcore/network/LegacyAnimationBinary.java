@@ -29,6 +29,7 @@ import com.zigythebird.playeranimcore.animation.EasingType;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
+import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
@@ -208,6 +209,7 @@ public final class LegacyAnimationBinary {
         long msb = buf.getLong();
         long lsb = buf.getLong();
         data.put("uuid", new UUID(msb, lsb));
+        data.put("format", AnimationFormat.PLAYER_ANIMATOR);
 
         return new Animation(data, stopTick, loopType, boneAnimations, UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
