@@ -198,7 +198,7 @@ public class AnimationBinary {
         try (MolangParser parser = MolangParser.parser(molang)) {
             return parser.parseAll();
         } catch (IOException e) {
-            PlayerAnimLib.LOGGER.error("Failed to read molang: {}!", molang, e);
+            PlayerAnimLib.LOGGER.error("Failed to parse molang: '{}'!", molang, e);
             return Collections.emptyList();
         }
     }
