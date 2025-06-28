@@ -27,7 +27,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		JsonObject animationObj = json.getAsJsonObject();
 
 		float length = animationObj.has("animation_length") ? JsonUtil.getAsFloat(animationObj, "animation_length") * 20f : -1;
-		List<BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
+		Map<String, BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
 		if (length == -1) length = calculateAnimationLength(boneAnimations);
 
 		Animation.LoopType loopType = readLoopType(animationObj, length);
@@ -56,8 +56,8 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		return Animation.LoopType.fromJson(animationObj.get("loop"));
 	}
 
-	private static List<BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
-		List<BoneAnimation> animations = new ArrayList<>(bonesObj.size());
+	private static Map<String, BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
+		Map<String, BoneAnimation> animations = new HashMap<>(bonesObj.size());
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
@@ -65,7 +65,10 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			KeyframeStack positionFrames = buildKeyframeStack(getKeyframes(entryObj.get("position")), TransformType.POSITION);
 			KeyframeStack rotationFrames = buildKeyframeStack(getKeyframes(entryObj.get("rotation")), TransformType.ROTATION);
 			KeyframeStack bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND);
-			animations.add(new BoneAnimation(UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey()), rotationFrames, positionFrames, scaleFrames, bendFrames));
+			animations.put(
+					UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey()),
+					new BoneAnimation(rotationFrames, positionFrames, scaleFrames, bendFrames)
+			);
 		}
 
 		return animations;
@@ -219,10 +222,10 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		return frames;
 	}
 
-	public static float calculateAnimationLength(List<BoneAnimation> boneAnimations) {
+	public static float calculateAnimationLength(Map<String, BoneAnimation> boneAnimations) {
 		float length = 0;
 
-		for (BoneAnimation animation : boneAnimations) {
+		for (BoneAnimation animation : boneAnimations.values()) {
 			length = Math.max(length, animation.rotationKeyFrames().getLastKeyframeTime());
 			length = Math.max(length, animation.positionKeyFrames().getLastKeyframeTime());
 			length = Math.max(length, animation.scaleKeyFrames().getLastKeyframeTime());

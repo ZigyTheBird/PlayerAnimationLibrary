@@ -14,6 +14,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,16 +25,25 @@ import java.util.function.Supplier;
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-public record Animation(ExtraAnimationData data, float length, LoopType loopType, List<BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, Vec3f> pivotBones, Map<String, String> parents) implements Supplier<UUID> {
+public record Animation(ExtraAnimationData data, float length, LoopType loopType, Map<String, BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, Vec3f> pivotBones, Map<String, String> parents) implements Supplier<UUID> {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 
     static Animation generateWaitAnimation(float length) {
         return new Animation(new ExtraAnimationData(ExtraAnimationData.NAME_KEY, AnimationStage.WAIT.name()), length, LoopType.PLAY_ONCE,
-                new ArrayList<>(), UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+                Collections.emptyMap(), UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
     public boolean isPlayingAt(float tick) {
         return loopType.shouldPlayAgain(this) || tick < length() && tick > 0;
+    }
+
+    @Nullable
+    public BoneAnimation getBone(String id) {
+        return this.boneAnimations.get(id);
+    }
+
+    public Optional<BoneAnimation> getBoneOptional(String id) {
+        return Optional.ofNullable(getBone(id));
     }
 
     /**

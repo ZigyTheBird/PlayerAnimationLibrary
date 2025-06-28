@@ -24,13 +24,13 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public class AnimationBinary {
-    public static final byte CURRENT_VERSION = 0x0;
+    public static final int CURRENT_VERSION = 1;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
     }
 
-    public static void write(ByteBuf buf, byte version, Animation animation) {
+    public static void write(ByteBuf buf, int version, Animation animation) {
         buf.writeFloat(animation.length());
         buf.writeBoolean(animation.loopType().shouldPlayAgain(animation));
         if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) buf.writeBoolean(true);
@@ -38,7 +38,7 @@ public class AnimationBinary {
             buf.writeBoolean(false);
             buf.writeFloat(animation.loopType().restartFromTick(animation));
         }
-        NetworkUtils.writeList(buf, animation.boneAnimations(), AnimationBinary::writeBoneAnimation);
+        NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
         buf.writeInt(animation.keyFrames().sounds().length);
         for (SoundKeyframeData soundKeyframe : animation.keyFrames().sounds()) {
             buf.writeFloat(soundKeyframe.getStartTick());
@@ -67,7 +67,6 @@ public class AnimationBinary {
     }
 
     public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone) {
-        ProtocolUtils.writeString(buf, bone.boneName());
         writeKeyframeStack(buf, bone.rotationKeyFrames());
         writeKeyframeStack(buf, bone.positionKeyFrames());
         writeKeyframeStack(buf, bone.scaleKeyFrames());
@@ -104,7 +103,7 @@ public class AnimationBinary {
             else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
         }
         else loopType = Animation.LoopType.PLAY_ONCE;
-        List<BoneAnimation> boneAnimations = NetworkUtils.readList(buf, AnimationBinary::readBoneAnimation);
+        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);
         int soundCount = buf.readInt();
         SoundKeyframeData[] sounds = new SoundKeyframeData[soundCount];
         for (int i = 0; i < soundCount; i++) {
@@ -131,14 +130,11 @@ public class AnimationBinary {
     }
 
     public static BoneAnimation readBoneAnimation(ByteBuf buf) {
-        String boneName = ProtocolUtils.readString(buf);
-
         KeyframeStack rotationKeyFrames = readKeyframeStack(buf);
         KeyframeStack positionKeyFrames = readKeyframeStack(buf);
         KeyframeStack scaleKeyFrames = readKeyframeStack(buf);
         KeyframeStack bendKeyFrames = readKeyframeStack(buf);
-
-        return new BoneAnimation(boneName, rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
+        return new BoneAnimation(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
 
     public static KeyframeStack readKeyframeStack(ByteBuf buf) {

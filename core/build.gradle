@@ -8,6 +8,15 @@ dependencies {
     implementation api("org.slf4j:slf4j-api:2.0.16")
     implementation api("it.unimi.dsi:fastutil:8.5.15")
     implementation api("io.netty:netty-buffer:4.1.115.Final")
+
+    // Testing
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.13.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.13.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.13.2")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 publishing {
