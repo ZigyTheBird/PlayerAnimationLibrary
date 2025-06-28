@@ -68,7 +68,7 @@ components.java {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenNeoForge(MavenPublication) {
             artifactId = "PlayerAnimationLibNeo"
             from components.java
         }

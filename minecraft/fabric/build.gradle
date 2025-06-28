@@ -67,7 +67,7 @@ components.java {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenFabric(MavenPublication) {
             artifactId = "PlayerAnimationLibFabric"
             from components.java
         }
