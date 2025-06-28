@@ -1,7 +1,6 @@
 package io.github.kosmx.emotes.testing.common;
 
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.network.AnimationBinary;
 import com.zigythebird.playeranimcore.network.LegacyAnimationBinary;
 import io.netty.buffer.ByteBuf;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
@@ -21,35 +19,31 @@ public class AnimationBinaryTest {
     @Test
     @DisplayName("New binary format")
     public void newBinaryTest() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/waving.json")) {
-            Animation animation = UniversalAnimLoader.loadPlayerAnim(is).values().iterator().next();
+        Animation animation = EmoteDataHashingTest.loadAnimation();
 
-            for (int version = 1; version <= AnimationBinary.CURRENT_VERSION; version++) {
-                ByteBuf byteBuf = Unpooled.buffer();
-                AnimationBinary.write(byteBuf, version, animation);
+        for (int version = 1; version <= AnimationBinary.CURRENT_VERSION; version++) {
+            ByteBuf byteBuf = Unpooled.buffer();
+            AnimationBinary.write(byteBuf, version, animation);
 
-                Animation readed = AnimationBinary.read(byteBuf, version);
-                Assertions.assertEquals(animation.boneAnimations().keySet(), readed.boneAnimations().keySet(), "animation reads incorrectly at version " + version);
-            }
+            Animation readed = AnimationBinary.read(byteBuf, version);
+            Assertions.assertEquals(animation.boneAnimations().keySet(), readed.boneAnimations().keySet(), "animation reads incorrectly at version " + version);
         }
     }
 
     @Test
     @DisplayName("Legacy binary format")
     public void legacyBinaryTest() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/waving.json")) {
-            Animation animation = UniversalAnimLoader.loadPlayerAnim(is).values().iterator().next();
+        Animation animation = EmoteDataHashingTest.loadAnimation();
 
-            for (int version = 1; version <= LegacyAnimationBinary.getCurrentVersion(); version++) {
-                ByteBuffer byteBuf = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation, version));
-                LegacyAnimationBinary.write(animation, byteBuf, version);
-                byteBuf.flip();
+        for (int version = 1; version <= LegacyAnimationBinary.getCurrentVersion(); version++) {
+            ByteBuffer byteBuf = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation, version));
+            LegacyAnimationBinary.write(animation, byteBuf, version);
+            byteBuf.flip();
 
-                Assertions.assertTrue(byteBuf.hasRemaining(), "animation reads incorrectly at version " + version);
+            Assertions.assertTrue(byteBuf.hasRemaining(), "animation reads incorrectly at version " + version);
 
-                Animation readed = LegacyAnimationBinary.read(byteBuf, version);
-                Assertions.assertNotNull(readed, "animation reads incorrectly at version " + version);
-            }
+            Animation readed = LegacyAnimationBinary.read(byteBuf, version);
+            Assertions.assertNotNull(readed, "animation reads incorrectly at version " + version);
         }
     }
 }

@@ -1,7 +1,6 @@
 package io.github.kosmx.emotes.testing.common;
 
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.network.LegacyAnimationBinary;
 import dev.kosmx.playerAnim.core.data.AnimationBinary;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.ByteBuffer;
@@ -21,18 +19,16 @@ public class BinaryBackwardsTest {
     @Test
     @DisplayName("Binary backwards test (to playeranimator)")
     public void this2playeranimator() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/waving.json")) {
-            Animation animation = UniversalAnimLoader.loadPlayerAnim(is).values().iterator().next();
+        Animation animation = EmoteDataHashingTest.loadAnimation();
 
-            for (int version = 1; version <= LegacyAnimationBinary.getCurrentVersion(); version++) {
-                ByteBuffer byteBuf = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation, version));
-                LegacyAnimationBinary.write(animation, byteBuf, version);
-                byteBuf.flip();
+        for (int version = 1; version <= LegacyAnimationBinary.getCurrentVersion(); version++) {
+            ByteBuffer byteBuf = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation, version));
+            LegacyAnimationBinary.write(animation, byteBuf, version);
+            byteBuf.flip();
 
-                Assertions.assertTrue(byteBuf.hasRemaining(), "animation reads incorrectly at version " + version);
+            Assertions.assertTrue(byteBuf.hasRemaining(), "animation reads incorrectly at version " + version);
 
-                KeyframeAnimation keyframe = AnimationBinary.read(byteBuf, version);
-            }
+            KeyframeAnimation keyframe = AnimationBinary.read(byteBuf, version);
         }
     }
 
