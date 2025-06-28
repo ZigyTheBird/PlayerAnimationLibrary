@@ -32,11 +32,15 @@ public class AnimationBinary {
 
     public static void write(ByteBuf buf, int version, Animation animation) {
         buf.writeFloat(animation.length());
-        buf.writeBoolean(animation.loopType().shouldPlayAgain(animation));
-        if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) buf.writeBoolean(true);
-        else {
-            buf.writeBoolean(false);
-            buf.writeFloat(animation.loopType().restartFromTick(animation));
+        boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(animation);
+        buf.writeBoolean(shouldPlayAgain);
+        if (shouldPlayAgain) {
+            if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
+                buf.writeBoolean(true);
+            } else {
+                buf.writeBoolean(false);
+                buf.writeFloat(animation.loopType().restartFromTick(animation));
+            }
         }
         NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
         buf.writeInt(animation.keyFrames().sounds().length);
@@ -97,12 +101,11 @@ public class AnimationBinary {
 
     public static Animation read(ByteBuf buf, int version) {
         float length = buf.readFloat();
-        Animation.LoopType loopType;
+        Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if (buf.readBoolean()) {
             if (buf.readBoolean()) loopType = Animation.LoopType.HOLD_ON_LAST_FRAME;
             else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
         }
-        else loopType = Animation.LoopType.PLAY_ONCE;
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);
         int soundCount = buf.readInt();
         SoundKeyframeData[] sounds = new SoundKeyframeData[soundCount];
