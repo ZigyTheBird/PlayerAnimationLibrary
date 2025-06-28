@@ -146,7 +146,7 @@ public final class LegacyAnimationBinary {
             buf.putInt(tick);
             tick += (int) move.length();
             buf.putFloat(MOCHA_ENGINE.eval(move.endValue()));
-            buf.put(EasingType.getIDForEasingType(move.easingType()));
+            buf.put(move.easingType().id);
 
             if (version >= 4) {
                 if (!move.easingArgs().isEmpty()) {
@@ -256,7 +256,7 @@ public final class LegacyAnimationBinary {
             lastTick = tick;
 
             List<Expression> expression = Collections.singletonList(FloatExpression.of(buf.getFloat()));
-            EasingType easingType = EasingType.getEasingTypeForID(buf.get());
+            EasingType easingType = EasingType.fromId(buf.get());
             Float easingArg = null;
 
             if (version >= 4) {

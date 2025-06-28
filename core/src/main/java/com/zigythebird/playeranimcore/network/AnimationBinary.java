@@ -87,7 +87,7 @@ public class AnimationBinary {
         buf.writeFloat(keyframe.length());
         writeExpressions(buf, keyframe.startValue());
         writeExpressions(buf, keyframe.endValue());
-        ProtocolUtils.writeString(buf, keyframe.easingType().toString());
+        buf.writeByte(keyframe.easingType().id);
         NetworkUtils.writeList(buf, keyframe.easingArgs(), AnimationBinary::writeExpressions);
     }
 
@@ -153,7 +153,7 @@ public class AnimationBinary {
 
         List<Expression> startValue = readExpression(buf);
         List<Expression> endValue = readExpression(buf);
-        EasingType easingType = EasingType.fromString(ProtocolUtils.readString(buf));
+        EasingType easingType = EasingType.fromId(buf.readByte());
         List<List<Expression>> easingArgs = NetworkUtils.readList(buf, AnimationBinary::readExpression);
 
         return new Keyframe(length, startValue, endValue, easingType, easingArgs);
