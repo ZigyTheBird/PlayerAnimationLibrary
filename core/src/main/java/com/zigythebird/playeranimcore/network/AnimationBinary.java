@@ -27,7 +27,10 @@ public class AnimationBinary {
     public static final byte CURRENT_VERSION = 0x0;
 
     public static void write(ByteBuf buf, Animation animation) {
-        buf.writeByte(CURRENT_VERSION);
+        AnimationBinary.write(buf, CURRENT_VERSION, animation);
+    }
+
+    public static void write(ByteBuf buf, byte version, Animation animation) {
         buf.writeFloat(animation.length());
         buf.writeBoolean(animation.loopType().shouldPlayAgain(animation));
         if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) buf.writeBoolean(true);
@@ -90,8 +93,10 @@ public class AnimationBinary {
     }
 
     public static Animation read(ByteBuf buf) {
-        if (buf.readByte() > CURRENT_VERSION) throw new IllegalStateException();
+        return AnimationBinary.read(buf, CURRENT_VERSION);
+    }
 
+    public static Animation read(ByteBuf buf, int version) {
         float length = buf.readFloat();
         Animation.LoopType loopType;
         if (buf.readBoolean()) {
@@ -100,16 +105,22 @@ public class AnimationBinary {
         }
         else loopType = Animation.LoopType.PLAY_ONCE;
         List<BoneAnimation> boneAnimations = NetworkUtils.readList(buf, AnimationBinary::readBoneAnimation);
-        Animation.Keyframes keyFrames = new Animation.Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]);
-        for (int i = 0; i < buf.readInt(); i++) {
-            keyFrames.sounds()[i] = new SoundKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
+        int soundCount = buf.readInt();
+        SoundKeyframeData[] sounds = new SoundKeyframeData[soundCount];
+        for (int i = 0; i < soundCount; i++) {
+            sounds[i] = new SoundKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
         }
-        for (int i = 0; i < buf.readInt(); i++) {
-            keyFrames.particles()[i] = new ParticleKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf));
+        int particleCount = buf.readInt();
+        ParticleKeyframeData[] particles = new ParticleKeyframeData[particleCount];
+        for (int i = 0; i < particleCount; i++) {
+            particles[i] = new ParticleKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf));
         }
-        for (int i = 0; i < buf.readInt(); i++) {
-            keyFrames.customInstructions()[i] = new CustomInstructionKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
+        int customInstructionCount = buf.readInt();
+        CustomInstructionKeyframeData[] customInstructions = new CustomInstructionKeyframeData[customInstructionCount];
+        for (int i = 0; i < customInstructionCount; i++) {
+            customInstructions[i] = new CustomInstructionKeyframeData(buf.readFloat(), ProtocolUtils.readString(buf));
         }
+        Animation.Keyframes keyFrames = new Animation.Keyframes(sounds, particles, customInstructions);
         Map<String, Vec3f> bones = new HashMap<>();
         for (int i = 0; i < buf.readInt(); i++) {
             bones.put(ProtocolUtils.readString(buf), new Vec3f(buf.readFloat(), buf.readFloat(), buf.readFloat()));
