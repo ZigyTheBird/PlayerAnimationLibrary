@@ -130,15 +130,16 @@ public final class LegacyAnimationBinary {
     @SuppressWarnings("ConstantConditions")
     private static void writePart(ByteBuffer buf, BoneAnimation part, int version) {
         if (part == null) {
-            int i = 6;
-            if (!part.boneName().equals("head")) i += 2;
+            int i = 8;
+            if (!part.boneName().equals("head")) i -= 2;
             if (version >= 3) i += 3;
             for (; i >= 0; i--) {
                 if (version >= 2) {
                     putBoolean(buf, false);
                     buf.putInt(0);
-                } else buf.putInt(0);
+                } else buf.putInt(-1);
             }
+            return;
         }
         writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), version);
         writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), version);
@@ -190,11 +191,11 @@ public final class LegacyAnimationBinary {
      */
     public static Animation read(ByteBuffer buf, int version) throws IOException {
         ExtraAnimationData data = new ExtraAnimationData();
-        data.put("beginTick", buf.getInt());
-        data.put("endTick", buf.getInt());
-        float stopTick = buf.getInt();
+        data.put("beginTick", (float) buf.getInt());
+        data.put("endTick", (float) buf.getInt());
+        float stopTick = (float) buf.getInt();
         boolean shouldLoop = getBoolean(buf);
-        float returnTick = buf.getInt();
+        float returnTick = (float) buf.getInt();
         Animation.LoopType loopType = shouldLoop ? Animation.LoopType.returnToTickLoop(returnTick) : Animation.LoopType.PLAY_ONCE;
         boolean easeBefore = getBoolean(buf);
         data.put("isEasingBefore", easeBefore);
@@ -261,7 +262,14 @@ public final class LegacyAnimationBinary {
 
     private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, int version, int keyframeSize) {
         int length;
-        length = buf.getInt();
+        boolean enabled;
+        if (version >= 2) {
+            enabled = getBoolean(buf);
+            length = buf.getInt();
+        } else {
+            length = buf.getInt();
+            enabled = length >= 0;
+        }
         for (int i = 0; i < length; i++) {
             Keyframe prevKeyframe = part.isEmpty() ? null : part.getLast();
             int currentPos = buf.position();
@@ -284,6 +292,7 @@ public final class LegacyAnimationBinary {
                             Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)))));
             buf.position(currentPos + keyframeSize);
         }
+        if (!enabled) part.clear();
     }
 
     /**
