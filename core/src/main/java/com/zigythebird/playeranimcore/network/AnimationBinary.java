@@ -194,10 +194,11 @@ public class AnimationBinary {
     }
 
     public static List<Expression> readExpression(ByteBuf buf) {
-        try (MolangParser parser = MolangParser.parser(ProtocolUtils.readString(buf))) {
+        String molang = ProtocolUtils.readString(buf);
+        try (MolangParser parser = MolangParser.parser(molang)) {
             return parser.parseAll();
         } catch (IOException e) {
-            PlayerAnimLib.LOGGER.error("Failed to read molang!", e);
+            PlayerAnimLib.LOGGER.error("Failed to read molang: {}!", molang, e);
             return Collections.emptyList();
         }
     }

@@ -31,15 +31,13 @@ public class MolangLoader {
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
             List<Expression> expressions1 = parser.parseAll();
             if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
-                expressions = new ArrayList<>(){{
-                    add(FloatExpression.of(Math.toRadians(((FloatExpression) expressions1.getFirst()).value())));
-                }};
-            }
-            else {
+                expressions = new ArrayList<>();
+                expressions.add(FloatExpression.of(Math.toRadians(((FloatExpression) expressions1.getFirst()).value())));
+            } else {
                 expressions = expressions1;
             }
         } catch (IOException e) {
-            PlayerAnimLib.LOGGER.error("Failed to compile molang!", e);
+            PlayerAnimLib.LOGGER.error("Failed to compile molang '{}'!", element, e);
             if (defaultValue == null) return null;
             return Collections.singletonList(defaultValue);
         }
