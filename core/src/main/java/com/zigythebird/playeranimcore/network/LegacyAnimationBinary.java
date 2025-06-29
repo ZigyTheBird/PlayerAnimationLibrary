@@ -162,12 +162,12 @@ public final class LegacyAnimationBinary {
             Keyframe nextMove = easeBefore ? move : part.get(i + 1);
             buf.putInt(tick);
             tick += (int) move.length();
-            buf.putFloat(MOCHA_ENGINE.eval(move.endValue()));
+            buf.putFloat(MOCHA_ENGINE.eval(move.endValue()) + def);
             buf.put(nextMove.easingType().id);
 
             if (version >= 4) {
                 if (!move.easingArgs().isEmpty()) {
-                    buf.putFloat(MOCHA_ENGINE.eval(nextMove.easingArgs().getFirst()) + def);
+                    buf.putFloat(MOCHA_ENGINE.eval(nextMove.easingArgs().getFirst()));
                 } else buf.putFloat(Float.NaN);
             }
         }
@@ -314,17 +314,20 @@ public final class LegacyAnimationBinary {
     public static int calculateSize(Animation animation, int version) {
         //I will create less efficient loops, but these will be more easily fixable
         int size = 36;//The header makes xx bytes IIIBIBBBLL
+        boolean easeBefore = animation.data().<Boolean>get("isEasingBefore")
+                .orElse(animation.data().data().getOrDefault("format", AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
+
         if (version < 2) {
-            size += partSize(animation.getBone("head"), false, version);
-            size += partSize(animation.getBone("body"), true, version);
-            size += partSize(animation.getBone("right_arm"), true, version);
-            size += partSize(animation.getBone("left_arm"), true, version);
-            size += partSize(animation.getBone("right_leg"), true, version);
-            size += partSize(animation.getBone("left_leg"), true, version);
+            size += partSize(animation.getBone("head"), false, version, easeBefore);
+            size += partSize(animation.getBone("body"), true, version, easeBefore);
+            size += partSize(animation.getBone("right_arm"), true, version, easeBefore);
+            size += partSize(animation.getBone("left_arm"), true, version, easeBefore);
+            size += partSize(animation.getBone("right_leg"), true, version, easeBefore);
+            size += partSize(animation.getBone("left_leg"), true, version, easeBefore);
         } else {
             size += 4;
             for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
-                size += stringSize(UniversalAnimLoader.restorePlayerBoneName(entry.getKey())) + partSize(entry.getValue(), BEND_BONE.test(entry.getKey()), version);
+                size += stringSize(UniversalAnimLoader.restorePlayerBoneName(entry.getKey())) + partSize(entry.getValue(), BEND_BONE.test(entry.getKey()), version, easeBefore);
             }
         }
         //The size of an empty emote is 230 bytes.
@@ -338,34 +341,36 @@ public final class LegacyAnimationBinary {
         return bytes.length + 4;
     }
 
-    private static int partSize(BoneAnimation part, boolean bendable, int version) {
+    private static int partSize(BoneAnimation part, boolean bendable, int version, boolean easeBefore) {
         if (part == null) {
             int i = 6;
             if (bendable) i += 2;
             if (version >= 3) i += 3;
-            return i * keyframeSize(version) + (version >= 2 ? 5 : 4);
+            return i * (version >= 2 ? 5 : 4);
         }
         int size = 0;
-        size += axisSize(part.positionKeyFrames().xKeyframes(), version);
-        size += axisSize(part.positionKeyFrames().yKeyframes(), version);
-        size += axisSize(part.positionKeyFrames().zKeyframes(), version);
-        size += axisSize(part.rotationKeyFrames().xKeyframes(), version);
-        size += axisSize(part.rotationKeyFrames().yKeyframes(), version);
-        size += axisSize(part.rotationKeyFrames().zKeyframes(), version);
+        size += axisSize(part.positionKeyFrames().xKeyframes(), version, easeBefore);
+        size += axisSize(part.positionKeyFrames().yKeyframes(), version, easeBefore);
+        size += axisSize(part.positionKeyFrames().zKeyframes(), version, easeBefore);
+        size += axisSize(part.rotationKeyFrames().xKeyframes(), version, easeBefore);
+        size += axisSize(part.rotationKeyFrames().yKeyframes(), version, easeBefore);
+        size += axisSize(part.rotationKeyFrames().zKeyframes(), version, easeBefore);
         if (bendable) {
-            size += axisSize(part.bendKeyFrames(), version);
+            size += axisSize(part.bendKeyFrames(), version, easeBefore);
             size += version >= 2 ? 5 : 4;
         }
         if (version >= 3) {
-            size += axisSize(part.scaleKeyFrames().xKeyframes(), version);
-            size += axisSize(part.scaleKeyFrames().yKeyframes(), version);
-            size += axisSize(part.scaleKeyFrames().zKeyframes(), version);
+            size += axisSize(part.scaleKeyFrames().xKeyframes(), version, easeBefore);
+            size += axisSize(part.scaleKeyFrames().yKeyframes(), version, easeBefore);
+            size += axisSize(part.scaleKeyFrames().zKeyframes(), version, easeBefore);
         }
         return size;
     }
 
-    private static int axisSize(List<Keyframe> axis, int version){
-        return axis.size()*keyframeSize(version) + (version >= 2 ? 5 : 4);// count*IFB + I (for count)
+    private static int axisSize(List<Keyframe> axis, int version, boolean easeBefore){
+        int keyframeCount = easeBefore ? axis.size() : axis.size() - 1;
+        if (keyframeCount < 0) keyframeCount = 0;
+        return keyframeCount * keyframeSize(version) + (version >= 2 ? 5 : 4);// count*IFB + I (for count)
     }
 
     /**
