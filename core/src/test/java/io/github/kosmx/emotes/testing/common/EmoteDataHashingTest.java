@@ -30,7 +30,7 @@ public class EmoteDataHashingTest {
 
     public static Animation loadAnimation() throws IOException {
         try (InputStream is = EmoteDataHashingTest.class.getResourceAsStream("/bye-bye-bye.json")) {
-            return UniversalAnimLoader.loadPlayerAnim(is).values().iterator().next();
+            return UniversalAnimLoader.loadAnimations(is).values().iterator().next();
         }
     }
 }
