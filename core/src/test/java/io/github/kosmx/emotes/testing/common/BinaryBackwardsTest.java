@@ -38,7 +38,7 @@ public class BinaryBackwardsTest {
     @Test
     @DisplayName("Binary backwards test (from playeranimator)")
     public void playeranimator2this() throws IOException {
-        try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/waving.json"))) {
+        try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/bye-bye-bye.json"))) {
             List<KeyframeAnimation> keyframes = AnimationJson.GSON.fromJson(reader, AnimationJson.getListedTypeToken());
 
             for (int version = 1; version <= AnimationBinary.getCurrentVersion(); version++) {
