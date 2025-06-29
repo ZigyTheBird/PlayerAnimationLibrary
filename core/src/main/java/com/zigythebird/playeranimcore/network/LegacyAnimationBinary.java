@@ -154,12 +154,12 @@ public final class LegacyAnimationBinary {
             Keyframe nextMove = easeBefore ? move : part.get(i + 1);
             buf.putInt(tick);
             tick += (int) move.length();
-            buf.putFloat(MOCHA_ENGINE.eval(move.endValue()));
+            buf.putFloat(MOCHA_ENGINE.eval(move.endValue()) + def);
             buf.put(nextMove.easingType().id);
 
             if (version >= 4) {
                 if (!move.easingArgs().isEmpty()) {
-                    buf.putFloat(MOCHA_ENGINE.eval(nextMove.easingArgs().getFirst()) + def);
+                    buf.putFloat(MOCHA_ENGINE.eval(nextMove.easingArgs().getFirst()));
                 } else buf.putFloat(Float.NaN);
             }
         }
