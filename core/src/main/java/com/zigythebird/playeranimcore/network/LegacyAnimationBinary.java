@@ -200,6 +200,7 @@ public final class LegacyAnimationBinary {
             int count = buf.getInt();
             for (int i = 0; i < count; i++) {
                 String name = UniversalAnimLoader.getCorrectPlayerBoneName(getString(buf));
+                if (version < 3 && name.equals("torso")) name = "body";// rename part
                 boneAnimations.put(name, readPart(buf, name, new BoneAnimation(), version, keyframeSize, easeBefore));
             }
         } else {
@@ -209,13 +210,12 @@ public final class LegacyAnimationBinary {
             boneAnimations.put("left_arm", readPart(buf, "left_arm", new BoneAnimation(), version, keyframeSize, easeBefore));
             boneAnimations.put("right_leg", readPart(buf, "right_leg", new BoneAnimation(), version, keyframeSize, easeBefore));
             boneAnimations.put("left_leg", readPart(buf, "left_leg", new BoneAnimation(), version, keyframeSize, easeBefore));
-
-            BoneAnimation body = boneAnimations.get("body");
-            if (!body.bendKeyFrames().isEmpty()) {
-                BoneAnimation torso = boneAnimations.computeIfAbsent("torso", name -> new BoneAnimation());
-                torso.bendKeyFrames().addAll(body.bendKeyFrames());
-                body.bendKeyFrames().clear();
-            }
+        }
+        BoneAnimation body = boneAnimations.get("body");
+        if (body != null && !body.bendKeyFrames().isEmpty()) {
+            BoneAnimation torso = boneAnimations.computeIfAbsent("torso", name -> new BoneAnimation());
+            torso.bendKeyFrames().addAll(body.bendKeyFrames());
+            body.bendKeyFrames().clear();
         }
         long msb = buf.getLong();
         long lsb = buf.getLong();

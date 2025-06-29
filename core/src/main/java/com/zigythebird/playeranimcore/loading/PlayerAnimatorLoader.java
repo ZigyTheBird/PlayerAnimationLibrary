@@ -166,8 +166,11 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 );
                 addBodyPartIfExists(boneKey, bone, entry.getValue(), degrees, tick, easing, turn);
 
-                if (version < 3 && boneKey.equals("body")) {
-                    bones.put("torso", new BoneAnimation(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), bone.bendKeyFrames()));
+                BoneAnimation body = bones.get("body");
+                if (body != null && !body.bendKeyFrames().isEmpty()) {
+                    BoneAnimation torso = bones.computeIfAbsent("torso", name -> new BoneAnimation());
+                    torso.bendKeyFrames().addAll(body.bendKeyFrames());
+                    body.bendKeyFrames().clear();
                 }
             }
         }
