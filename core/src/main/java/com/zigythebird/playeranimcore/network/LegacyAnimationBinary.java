@@ -312,7 +312,7 @@ public final class LegacyAnimationBinary {
         } else {
             size += 4;
             for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
-                size += stringSize(entry.getKey()) + partSize(entry.getValue(), BEND_BONE.test(entry.getKey()), version);
+                size += stringSize(UniversalAnimLoader.restorePlayerBoneName(entry.getKey())) + partSize(entry.getValue(), BEND_BONE.test(entry.getKey()), version);
             }
         }
         //The size of an empty emote is 230 bytes.
