@@ -146,10 +146,8 @@ public final class LegacyAnimationBinary {
     private static void writeKeyframes(ByteBuffer buf, List<Keyframe> part, float def, int version, boolean easeBefore) {
         if (version >= 2) {
             putBoolean(buf, !part.isEmpty());
-            buf.putInt(part.size());
-        } else {
-            buf.putInt(part.size());
         }
+        buf.putInt(easeBefore ? part.size() : part.size()-1);
         int tick = 0;
         for (int i=0; i < (easeBefore ? part.size() : part.size()-1); i++) {
             Keyframe move = part.get(i);
