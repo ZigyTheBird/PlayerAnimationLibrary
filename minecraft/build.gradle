@@ -15,7 +15,7 @@ subprojects {
     }
 
     jar {
-        if (!rootProject.version.toString().contains("dev"))
+        if (!rootProject.version.toString().contains("dev") && !project.gradle.startParameter.taskNames.contains("runClient"))
             processResources.exclude('assets/player_animation_library/player_animations/*')
     }
 
