@@ -28,7 +28,7 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
     private static final Pattern UPPERCASE_PATTERN = Pattern.compile("([A-Z])");
     private static final Pattern UNDERSCORE_PATTERN = Pattern.compile("_(.)");
 
-    public static Map<String, Animation> loadPlayerAnim(InputStream resource) throws IOException {
+    public static Map<String, Animation> loadAnimations(InputStream resource) throws IOException {
         try (Reader reader = new InputStreamReader(resource)) {
             JsonObject json = PlayerAnimLib.GSON.fromJson(reader, JsonObject.class);
 
