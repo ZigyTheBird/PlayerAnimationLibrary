@@ -782,7 +782,7 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		Animation.LoopType loopType = animation.loopType();
-		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(animation) && currentFrame == frames.getLast() && tick >= location.tick()) {
+		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(animation) && !frames.isEmpty() && currentFrame == frames.getLast() && tick >= location.tick()) {
 			KeyframeLocation<Keyframe> returnTolocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(animation)-1);
 			Keyframe returnToFrame = returnTolocation.keyframe();
 			float returnToValue = this.molangRuntime.eval(returnToFrame.endValue());
