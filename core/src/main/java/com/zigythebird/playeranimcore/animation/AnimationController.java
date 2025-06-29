@@ -567,21 +567,15 @@ public abstract class AnimationController implements IAnimation {
 		final float finalAdjustedTick = adjustedTick;
 		this.animTime = finalAdjustedTick / 20f;
 
-		for (Map.Entry<String, BoneAnimation> boneAnimation : this.currentAnimation.animation().boneAnimations().entrySet()) {
-			BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.computeIfAbsent(boneAnimation.getKey(), (name) -> new BoneAnimationQueue(bones.containsKey(name) ? bones.get(name) : this.pivotBones.get(name)));
-			AdvancedPlayerAnimBone bone = this.bones.get(boneAnimation.getKey());
+		for (Map.Entry<String, BoneAnimation> entry : this.currentAnimation.animation().boneAnimations().entrySet()) {
+			BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.computeIfAbsent(entry.getKey(), (name) -> new BoneAnimationQueue(bones.containsKey(name) ? bones.get(name) : this.pivotBones.get(name)));
+			AdvancedPlayerAnimBone bone = this.bones.get(entry.getKey());
 
-			if (boneAnimationQueue == null) {
-				if (crashWhenCantFindBone)
-					throw new RuntimeException("Could not find bone: " + boneAnimation.getKey());
-
-				continue;
-			}
-
-			KeyframeStack rotationKeyFrames = boneAnimation.getValue().rotationKeyFrames();
-			KeyframeStack positionKeyFrames = boneAnimation.getValue().positionKeyFrames();
-			KeyframeStack scaleKeyFrames = boneAnimation.getValue().scaleKeyFrames();
-			List<Keyframe> bendKeyFrames = boneAnimation.getValue().bendKeyFrames();
+			BoneAnimation boneAnimation = entry.getValue();
+			KeyframeStack rotationKeyFrames = boneAnimation.rotationKeyFrames();
+			KeyframeStack positionKeyFrames = boneAnimation.positionKeyFrames();
+			KeyframeStack scaleKeyFrames = boneAnimation.scaleKeyFrames();
+			List<Keyframe> bendKeyFrames = boneAnimation.bendKeyFrames();
 
 			if (rotationKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addRotations(
@@ -721,23 +715,24 @@ public abstract class AnimationController implements IAnimation {
 		for (AdvancedPlayerAnimBone bone : bones.values()) {
 			bone.setEnabled(currentAnimation.animation().getBone(bone.getName()) != null);
 		}
-		for (Map.Entry<String, BoneAnimation> boneAnimation : currentAnimation.animation().boneAnimations().entrySet()) {
-			if (bones.containsKey(boneAnimation.getKey())) {
-				AdvancedPlayerAnimBone bone = bones.get(boneAnimation.getKey());
+		for (Map.Entry<String, BoneAnimation> entry : currentAnimation.animation().boneAnimations().entrySet()) {
+			if (bones.containsKey(entry.getKey())) {
+				AdvancedPlayerAnimBone bone = bones.get(entry.getKey());
 				if (isDisableAxisIfNotModified()) {
-					bone.positionXEnabled = !boneAnimation.getValue().positionKeyFrames().xKeyframes().isEmpty();
-					bone.positionYEnabled = !boneAnimation.getValue().positionKeyFrames().yKeyframes().isEmpty();
-					bone.positionZEnabled = !boneAnimation.getValue().positionKeyFrames().zKeyframes().isEmpty();
+					BoneAnimation boneAnimation = entry.getValue();
+					bone.positionXEnabled = !boneAnimation.positionKeyFrames().xKeyframes().isEmpty();
+					bone.positionYEnabled = !boneAnimation.positionKeyFrames().yKeyframes().isEmpty();
+					bone.positionZEnabled = !boneAnimation.positionKeyFrames().zKeyframes().isEmpty();
 
-					bone.rotXEnabled = !boneAnimation.getValue().rotationKeyFrames().xKeyframes().isEmpty();
-					bone.rotYEnabled = !boneAnimation.getValue().rotationKeyFrames().yKeyframes().isEmpty();
-					bone.rotZEnabled = !boneAnimation.getValue().rotationKeyFrames().zKeyframes().isEmpty();
+					bone.rotXEnabled = !boneAnimation.rotationKeyFrames().xKeyframes().isEmpty();
+					bone.rotYEnabled = !boneAnimation.rotationKeyFrames().yKeyframes().isEmpty();
+					bone.rotZEnabled = !boneAnimation.rotationKeyFrames().zKeyframes().isEmpty();
 
-					bone.scaleXEnabled = !boneAnimation.getValue().scaleKeyFrames().xKeyframes().isEmpty();
-					bone.scaleYEnabled = !boneAnimation.getValue().scaleKeyFrames().yKeyframes().isEmpty();
-					bone.scaleZEnabled = !boneAnimation.getValue().scaleKeyFrames().zKeyframes().isEmpty();
+					bone.scaleXEnabled = !boneAnimation.scaleKeyFrames().xKeyframes().isEmpty();
+					bone.scaleYEnabled = !boneAnimation.scaleKeyFrames().yKeyframes().isEmpty();
+					bone.scaleZEnabled = !boneAnimation.scaleKeyFrames().zKeyframes().isEmpty();
 
-					bone.bendEnabled = !boneAnimation.getValue().bendKeyFrames().isEmpty();
+					bone.bendEnabled = !boneAnimation.bendKeyFrames().isEmpty();
 				} else bone.setEnabled(true);
 			}
 		}
