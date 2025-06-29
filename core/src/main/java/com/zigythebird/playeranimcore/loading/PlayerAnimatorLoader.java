@@ -153,15 +153,14 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                     continue;
                 }
 
-                String boneKey = entry.getKey();
+                String boneKey = UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey());
                 if(version < 3 && boneKey.equals("torso")) boneKey = "body";// rename part
 
                 StateCollection collection = getDefaultValues(boneKey);
-                String boneName = UniversalAnimLoader.getCorrectPlayerBoneName(boneKey);
                 BoneAnimation bone = bones.computeIfAbsent(UniversalAnimLoader.getCorrectPlayerBoneName(boneKey), boneName0 ->
                         new BoneAnimation(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new KeyframeStack())
                 );
-                addBodyPartIfExists(boneName, bone, collection, entry.getValue(), degrees, tick, easing, turn);
+                addBodyPartIfExists(boneKey, bone, collection, entry.getValue(), degrees, tick, easing, turn);
                 resolveMissingKeyframes(bone.positionKeyFrames(), false);
                 resolveMissingKeyframes(bone.rotationKeyFrames(), false);
                 resolveMissingKeyframes(bone.bendKeyFrames(), false);
@@ -238,10 +237,10 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     public static final StateCollection EMPTY = new StateCollection(Vec3f.ZERO, Vec3f.ZERO, Vec3f.ONE);
 
     private static final Map<String, StateCollection> DEFAULT_VALUES = Map.of(
-            "rightArm", new StateCollection(new Vec3f(-5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
-            "leftArm", new StateCollection(new Vec3f(5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
-            "leftLeg", new StateCollection(new Vec3f(1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE),
-            "rightLeg", new StateCollection(new Vec3f(-1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE)
+            "right_arm", new StateCollection(new Vec3f(-5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
+            "left_arm", new StateCollection(new Vec3f(5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
+            "left_leg", new StateCollection(new Vec3f(1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE),
+            "right_leg", new StateCollection(new Vec3f(-1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE)
     );
 
     public record StateCollection(Vec3f pos, Vec3f rot, Vec3f scale) {}
