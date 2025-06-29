@@ -95,7 +95,6 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();
         Map<String, BoneAnimation> bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version);
 
-        //Replaces all keyframes with their easing set to null with two keyframes to get a constant easing/step bedrock keyframe effect
         //Also shifts all easings to the right by one if easeBeforeKeyframe is false
         //If easings are shifted in order for the last keyframe's easing to not be ignored a 0.001 tick long keyframe gets added at the end with that easing
         //The reason why the last easing can't be ignored is because it's used by endTick lerping
@@ -132,6 +131,11 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         for (int i=0;i<list.size();i++) {
             Keyframe keyframe = list.get(i);
             list.set(i, new Keyframe(keyframe.length(), keyframe.startValue(), keyframe.endValue(), previousEasing, keyframe.easingArgs()));
+            if (i == list.size()-1 && previousEasing != keyframe.easingType()) {
+                //If the final easing is constant, it defaults to linear insteadAdd commentMore actions
+                //If you don't want your anim to have endTick lerp then just set stopTick to endTick + 1...
+                list.add(new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), keyframe.easingType() == EasingType.CONSTANT ? EasingType.LINEAR : keyframe.easingType(), keyframe.easingArgs()));
+            }
             previousEasing = keyframe.easingType();
         }
     }
@@ -160,27 +164,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                         new BoneAnimation(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new KeyframeStack())
                 );
                 addBodyPartIfExists(boneKey, bone, entry.getValue(), degrees, tick, easing, turn);
-                resolveMissingKeyframes(bone.positionKeyFrames(), false);
-                resolveMissingKeyframes(bone.rotationKeyFrames(), false);
-                resolveMissingKeyframes(bone.bendKeyFrames(), false);
-                resolveMissingKeyframes(bone.scaleKeyFrames(), true);
             }
         }
         return bones;
-    }
-
-    private void resolveMissingKeyframes(KeyframeStack stack, boolean isScale) {
-        if (!stack.xKeyframes().isEmpty() || !stack.yKeyframes().isEmpty() || !stack.zKeyframes().isEmpty()) {
-            resolveMissingKeyframes(stack.xKeyframes(), isScale);
-            resolveMissingKeyframes(stack.yKeyframes(), isScale);
-            resolveMissingKeyframes(stack.zKeyframes(), isScale);
-        }
-    }
-
-    private void resolveMissingKeyframes(List<Keyframe> keyframes, boolean isScale) {
-        if (keyframes.isEmpty()) {
-            keyframes.add(new Keyframe(0, isScale ? ONE : ZERO, isScale ? ONE : ZERO, EasingType.LINEAR, Collections.singletonList(new ObjectArrayList<>(0))));
-        }
     }
 
     private void addBodyPartIfExists(String boneName, BoneAnimation bone, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {

@@ -233,14 +233,14 @@ public final class LegacyAnimationBinary {
             readKeyframes(buf, part.scaleKeyFrames().yKeyframes(), 0, version, keyframeSize);
             readKeyframes(buf, part.scaleKeyFrames().zKeyframes(), 0, version, keyframeSize);
         }
-        /*if (!easeBefore) {
+        if (!easeBefore) {
             PlayerAnimatorLoader.correctEasings(part.positionKeyFrames());
             PlayerAnimatorLoader.correctEasings(part.rotationKeyFrames());
             PlayerAnimatorLoader.correctEasings(part.scaleKeyFrames());
             PlayerAnimatorLoader.correctEasings(part.bendKeyFrames());
             if (name.equals("right_item") || name.equals("left_item"))
                 PlayerAnimatorLoader.swapTheZYAxisOfRotation(part.rotationKeyFrames());
-        }*/
+        }
         return part;
     }
 
