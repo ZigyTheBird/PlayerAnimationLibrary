@@ -133,8 +133,16 @@ public final class LegacyAnimationBinary {
         writeKeyframes(buf, isItemBone ? part.rotationKeyFrames().zKeyframes() : part.rotationKeyFrames().yKeyframes(), 0, version, easeBefore);
         writeKeyframes(buf, isItemBone ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), 0, version, easeBefore);
         if (BEND_BONE.test(name)) {
-            writeKeyframes(buf, part.bendKeyFrames().xKeyframes(), 0, version, easeBefore);
-            writeKeyframes(buf, part.bendKeyFrames().yKeyframes(), 0, version, easeBefore);
+            if (!name.equals("head")) {
+                writeKeyframes(buf, part.bendKeyFrames(), 0, version, easeBefore);
+                //Marking the no longer supported Y axis bend keyframes as non-existent
+                if (version >= 2) {
+                    putBoolean(buf, true);
+                    buf.putInt(0);
+                } else {
+                    buf.putInt(0);
+                }
+            }
         }
         if (version >= 3) {
             writeKeyframes(buf, part.scaleKeyFrames().xKeyframes(), 0, version, easeBefore);
@@ -192,6 +200,7 @@ public final class LegacyAnimationBinary {
             int count = buf.getInt();
             for (int i = 0; i < count; i++) {
                 String name = UniversalAnimLoader.getCorrectPlayerBoneName(getString(buf));
+                if (name.equals("torso")) name = "body";// rename part
                 boneAnimations.put(name, readPart(buf, name, new BoneAnimation(), version, keyframeSize, easeBefore));
             }
         } else {
@@ -201,16 +210,12 @@ public final class LegacyAnimationBinary {
             boneAnimations.put("left_arm", readPart(buf, "left_arm", new BoneAnimation(), version, keyframeSize, easeBefore));
             boneAnimations.put("right_leg", readPart(buf, "right_leg", new BoneAnimation(), version, keyframeSize, easeBefore));
             boneAnimations.put("left_leg", readPart(buf, "left_leg", new BoneAnimation(), version, keyframeSize, easeBefore));
-
-            BoneAnimation body = boneAnimations.get("body");
-            if (body.bendKeyFrames().hasKeyframes()) {
-                BoneAnimation torso = new BoneAnimation();
-                torso.bendKeyFrames().xKeyframes().addAll(body.bendKeyFrames().xKeyframes());
-                torso.bendKeyFrames().yKeyframes().addAll(body.bendKeyFrames().yKeyframes());
-                body.bendKeyFrames().xKeyframes().clear();
-                body.bendKeyFrames().yKeyframes().clear();
-                boneAnimations.put("torso", torso);
-            }
+        }
+        BoneAnimation body = boneAnimations.get("body");
+        if (body != null && !body.bendKeyFrames().isEmpty()) {
+            BoneAnimation torso = boneAnimations.computeIfAbsent("torso", name -> new BoneAnimation());
+            torso.bendKeyFrames().addAll(body.bendKeyFrames());
+            body.bendKeyFrames().clear();
         }
         long msb = buf.getLong();
         long lsb = buf.getLong();
@@ -229,8 +234,9 @@ public final class LegacyAnimationBinary {
         readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), 0, version, keyframeSize);
         readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), 0, version, keyframeSize);
         if (BEND_BONE.test(name)) {
-            readKeyframes(buf, part.bendKeyFrames().xKeyframes(), 0, version, keyframeSize);
-            readKeyframes(buf, part.bendKeyFrames().yKeyframes(), 0, version, keyframeSize);
+            readKeyframes(buf, part.bendKeyFrames(), 0, version, keyframeSize);
+            //Discarded since no Y axis bend support
+            readKeyframes(buf, new ArrayList<>(), 0, version, keyframeSize);
         }
         if (version >= 3) {
             readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), 0, version, keyframeSize);
@@ -242,8 +248,10 @@ public final class LegacyAnimationBinary {
             PlayerAnimatorLoader.correctEasings(part.rotationKeyFrames());
             PlayerAnimatorLoader.correctEasings(part.scaleKeyFrames());
             PlayerAnimatorLoader.correctEasings(part.bendKeyFrames());
-            if (ITEM_BONE.test(name))
-                PlayerAnimatorLoader.swapTheZYAxisOfRotation(part.rotationKeyFrames());
+            if (ITEM_BONE.test(name)) {
+                PlayerAnimatorLoader.swapTheZYAxis(part.positionKeyFrames());
+                PlayerAnimatorLoader.swapTheZYAxis(part.rotationKeyFrames());
+            }
         }
         return part;
     }
@@ -348,8 +356,8 @@ public final class LegacyAnimationBinary {
         size += axisSize(part.rotationKeyFrames().yKeyframes(), version, easeBefore);
         size += axisSize(part.rotationKeyFrames().zKeyframes(), version, easeBefore);
         if (bendable) {
-            size += axisSize(part.bendKeyFrames().xKeyframes(), version, easeBefore);
-            size += axisSize(part.bendKeyFrames().yKeyframes(), version, easeBefore);
+            size += axisSize(part.bendKeyFrames(), version, easeBefore);
+            size += version >= 2 ? 5 : 4;
         }
         if (version >= 3) {
             size += axisSize(part.scaleKeyFrames().xKeyframes(), version, easeBefore);

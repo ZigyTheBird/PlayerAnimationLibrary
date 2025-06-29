@@ -1,7 +1,6 @@
 {
     "version": 3,
     "name": "running",
-    "author": "MineEmotes",
     "emote": {
         "endTick": 13,
         "isLoop": true,
