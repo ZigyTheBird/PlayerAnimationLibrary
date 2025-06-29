@@ -93,21 +93,20 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             endTick = stopTick <= endTick ? endTick + 3 : stopTick; // https://github.com/KosmX/minecraftPlayerAnimator/blob/1.21/coreLib/src/main/java/dev/kosmx/playerAnim/core/data/KeyframeAnimation.java#L80
 
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();
-        List<BoneAnimation> bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version);
+        Map<String, BoneAnimation> bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version);
 
-        //Replaces all keyframes with their easing set to null with two keyframes to get a constant easing/step bedrock keyframe effect
         //Also shifts all easings to the right by one if easeBeforeKeyframe is false
         //If easings are shifted in order for the last keyframe's easing to not be ignored a 0.001 tick long keyframe gets added at the end with that easing
         //The reason why the last easing can't be ignored is because it's used by endTick lerping
         if (!easeBeforeKeyframe) {
-            for (BoneAnimation boneAnimation : bones) {
-                correctEasings(boneAnimation.positionKeyFrames());
-                correctEasings(boneAnimation.rotationKeyFrames());
-                correctEasings(boneAnimation.scaleKeyFrames());
-                correctEasings(boneAnimation.bendKeyFrames());
-                if (boneAnimation.boneName().equals("right_item") || boneAnimation.boneName().equals("left_item")) {
-                    swapTheZYAxis(boneAnimation.positionKeyFrames());
-                    swapTheZYAxis(boneAnimation.rotationKeyFrames());
+            for (Map.Entry<String, BoneAnimation> boneAnimation : bones.entrySet()) {
+                correctEasings(boneAnimation.getValue().positionKeyFrames());
+                correctEasings(boneAnimation.getValue().rotationKeyFrames());
+                correctEasings(boneAnimation.getValue().scaleKeyFrames());
+                correctEasings(boneAnimation.getValue().bendKeyFrames());
+                if (boneAnimation.getKey().equals("right_item") || boneAnimation.getKey().equals("left_item")) {
+                    swapTheZYAxis(boneAnimation.getValue().positionKeyFrames());
+                    swapTheZYAxis(boneAnimation.getValue().rotationKeyFrames());
                 }
             }
         }
@@ -131,14 +130,21 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
     public static void correctEasings(List<Keyframe> list) {
         EasingType previousEasing = EasingType.EASE_IN_SINE;
+        List<List<Expression>> previousEasingArgs = new ObjectArrayList<>();
         for (int i=0;i<list.size();i++) {
             Keyframe keyframe = list.get(i);
-            list.set(i, new Keyframe(keyframe.length(), keyframe.startValue(), keyframe.endValue(), previousEasing, keyframe.easingArgs()));
+            list.set(i, new Keyframe(keyframe.length(), keyframe.startValue(), keyframe.endValue(), previousEasing, previousEasingArgs));
+            if (i == list.size()-1 && previousEasing != keyframe.easingType()) {
+                //If the final easing is constant, it defaults to linear insteadAdd commentMore actions
+                //If you don't want your anim to have endTick lerp then just set stopTick to endTick + 1...
+                list.add(new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), keyframe.easingType() == EasingType.CONSTANT ? EasingType.LINEAR : keyframe.easingType(), keyframe.easingArgs()));
+            }
             previousEasing = keyframe.easingType();
+            previousEasingArgs = keyframe.easingArgs();
         }
     }
 
-    private List<BoneAnimation> moveDeserializer(List<JsonElement> node, boolean degrees, int version) {
+    private Map<String, BoneAnimation> moveDeserializer(List<JsonElement> node, boolean degrees, int version) {
         Map<String, BoneAnimation> bones = new HashMap<>();
         node.sort((e1, e2) -> {
             final int i1 = e1.getAsJsonObject().get("tick").getAsInt();
@@ -155,7 +161,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                     continue;
                 }
 
-                String boneKey = entry.getKey();
+                String boneKey = UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey());
                 if (version < 3 && boneKey.equals("torso")) boneKey = "body";// rename part
 
                 StateCollection collection = getDefaultValues(boneKey);
@@ -173,29 +179,16 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 }
             }
         }
-        return new ArrayList<>(bones.values());
+        return bones;
     }
 
-    private void resolveMissingKeyframes(KeyframeStack stack, boolean isScale) {
-        if (!stack.xKeyframes().isEmpty() || !stack.yKeyframes().isEmpty() || !stack.zKeyframes().isEmpty()) {
-            resolveMissingKeyframes(stack.xKeyframes(), isScale);
-            resolveMissingKeyframes(stack.yKeyframes(), isScale);
-            resolveMissingKeyframes(stack.zKeyframes(), isScale);
-        }
-    }
-
-    private void resolveMissingKeyframes(List<Keyframe> keyframes, boolean isScale) {
-        if (keyframes.isEmpty()) {
-            keyframes.add(new Keyframe(0, isScale ? ONE : ZERO, isScale ? ONE : ZERO, EasingType.LINEAR, Collections.singletonList(new ObjectArrayList<>(0))));
-        }
-    }
-
-    private void addBodyPartIfExists(BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
+    private void addBodyPartIfExists(String boneName, BoneAnimation bone, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
         JsonObject partNode = node.getAsJsonObject();
         boolean isItem = bone.boneName().equals("right_item") || bone.boneName().equals("left_item");
-        fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), bone.boneName().equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, isItem);
-        fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, isItem);
-        fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false);
+        fillKeyframeStack(bone.positionKeyFrames(), getDefaultValues(boneName), boneName.equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, isItem);
+        fillKeyframeStack(bone.rotationKeyFrames(), Vec3f.ZERO, TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, isItem);
+        fillKeyframeStack(bone.scaleKeyFrames(), Vec3f.ZERO, TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false);
+        fillKeyframeStack(bone.bendKeyFrames(), Vec3f.ZERO, TransformType.BEND, "axis", "bend", null, partNode, degrees, tick, easing, turn, false);
         addPartIfExists(Keyframe.getLastKeyframeTime(bone.bendKeyFrames()), bone.bendKeyFrames(), 0, TransformType.BEND, "bend", partNode, degrees, tick, easing, turn, false);
     }
 
@@ -206,15 +199,21 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, int rotate, boolean shouldNegate) {
+        if (!node.has(name)) return;
+
         Keyframe lastFrame = part.isEmpty() ? null : part.getLast();
         float prevTime = lastFrame != null ? lastTick : 0;
-        if (node.has(name)) {
-            float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees, shouldNegate);
-            List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
-            part.add(new Keyframe(tick - prevTime, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, Collections.singletonList(new ObjectArrayList<>(0))));
-//            if (transformType == TransformType.ROTATION && rotate != 0) {
-//                part.add(new Keyframe(tick - prevTime + 0.001F, expressions, Collections.singletonList(FloatExpression.of(value + MathHelper.PI * 2f * rotate)), easing, Collections.singletonList(new ObjectArrayList<>(0))));
-//            }
+        float delta = tick - prevTime;
+
+        float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees, shouldNegate);
+        List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
+        List<List<Expression>> emptyList = Collections.singletonList(new ObjectArrayList<>(0));
+
+        part.add(new Keyframe(delta, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, emptyList));
+
+        if (transformType == TransformType.ROTATION && rotate != 0) {
+            List<Expression> rotatedExpr = Collections.singletonList(FloatExpression.of(value + MathHelper.PI * 2f * rotate));
+            part.add(new Keyframe(delta + 0.001f, expressions, rotatedExpr, easing, emptyList));
         }
     }
 
@@ -235,18 +234,14 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return easingType;
     }
 
-    public static final StateCollection EMPTY = new StateCollection(Vec3f.ZERO, Vec3f.ZERO, Vec3f.ONE);
-
-    private static final Map<String, StateCollection> DEFAULT_VALUES = Map.of(
-            "rightArm", new StateCollection(new Vec3f(-5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
-            "leftArm", new StateCollection(new Vec3f(5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
-            "leftLeg", new StateCollection(new Vec3f(1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE),
-            "rightLeg", new StateCollection(new Vec3f(-1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE)
+    private static final Map<String, Vec3f> DEFAULT_VALUES = Map.of(
+            "right_arm", new Vec3f(-5, 2, 0),
+            "left_arm", new Vec3f(5, 2, 0),
+            "left_leg", new Vec3f(1.9f, 12, 0.1f),
+            "right_leg", new Vec3f(-1.9f, 12, 0.1f)
     );
 
-    public record StateCollection(Vec3f pos, Vec3f rot, Vec3f scale) {}
-
-    public static StateCollection getDefaultValues(String bone) {
-        return DEFAULT_VALUES.getOrDefault(bone, EMPTY);
+    public static Vec3f getDefaultValues(String bone) {
+        return DEFAULT_VALUES.getOrDefault(bone, Vec3f.ZERO);
     }
 }

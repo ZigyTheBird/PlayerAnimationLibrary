@@ -8,11 +8,13 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyf
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranimcore.util.JsonUtil;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-public class KeyFrameLoader {
-	public static Animation.Keyframes deserialize(JsonElement json) throws JsonParseException {
+public class KeyFrameLoader implements JsonDeserializer<Animation.Keyframes> {
+	@Override
+	public Animation.Keyframes deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext ctx) throws JsonParseException {
 		JsonObject obj = json.getAsJsonObject();
 		SoundKeyframeData[] sounds = buildSoundFrameData(obj);
 		ParticleKeyframeData[] particles = buildParticleFrameData(obj);

@@ -22,8 +22,7 @@ public record KeyframeStack(List<Keyframe> xKeyframes, List<Keyframe> yKeyframes
 	}
 
 	public float getLastKeyframeTime() {
-		return Math.max(getLastXAxisKeyframeTime(),
-				Math.max(getLastYAxisKeyframeTime(), getLastZAxisKeyframeTime()));
+		return Math.max(getLastXAxisKeyframeTime(), Math.max(getLastYAxisKeyframeTime(), getLastZAxisKeyframeTime()));
 	}
 
 	public float getLastXAxisKeyframeTime() {

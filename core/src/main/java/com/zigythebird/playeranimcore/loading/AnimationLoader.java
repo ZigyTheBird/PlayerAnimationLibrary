@@ -10,65 +10,53 @@ import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import com.zigythebird.playeranimcore.misc.CompoundException;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.JsonUtil;
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Type;
+import java.util.*;
 
-public class AnimationLoader {
-	public static Map<String, Animation> deserialize(JsonElement json, Map<String, Vec3f> bones, Map<String, String> parents) throws RuntimeException {
-		JsonObject obj = json.getAsJsonObject();
-		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
+public class AnimationLoader implements JsonDeserializer<Animation> {
+	@Override
+	public Animation deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+		JsonObject animationObj = json.getAsJsonObject();
 
-		ExtraAnimationData extraData = new ExtraAnimationData();
-
-		if (obj.has(PlayerAnimLib.MOD_ID)) {
-			extraData.fromJson(obj.getAsJsonObject(PlayerAnimLib.MOD_ID));
-		}
-		if (extraData.has(ExtraAnimationData.NAME_KEY)) extraData.data().remove(ExtraAnimationData.NAME_KEY);
-
-		for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-			try {
-				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), bones, parents, extraData.copy()));
-			} catch (Exception ex) {
-				PlayerAnimLib.LOGGER.error("Unable to parse animation: {}", entry.getKey(), ex);
-			}
-		}
-
-		return animations;
-	}
-
-	private static Animation bakeAnimation(String name, JsonObject animationObj, Map<String, Vec3f> bones, Map<String, String> parents, ExtraAnimationData extraData) throws CompoundException {
 		float length = animationObj.has("animation_length") ? JsonUtil.getAsFloat(animationObj, "animation_length") * 20f : -1;
-		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
-		List<BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
-		Animation.Keyframes keyframes = KeyFrameLoader.deserialize(animationObj);
+		Map<String, BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
+		if (length == -1) length = calculateAnimationLength(boneAnimations);
 
-		if (length == -1)
-			length = calculateAnimationLength(boneAnimations);
+		Animation.LoopType loopType = readLoopType(animationObj, length);
+		Animation.Keyframes keyframes = context.deserialize(animationObj, Animation.Keyframes.class);
 
+		Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(animationObj, "parents", new JsonObject()));
+		Map<String, Vec3f> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(animationObj, "model", new JsonObject()));
+
+		// Extra data
+		ExtraAnimationData extraData = new ExtraAnimationData();
 		if (animationObj.has(PlayerAnimLib.MOD_ID)) {
 			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID));
-		}
-
-		if (!extraData.data().containsKey(ExtraAnimationData.NAME_KEY)) { // Fallback to name
-			extraData.data().put(ExtraAnimationData.NAME_KEY, name);
 		}
 
 		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);
 	}
 
-	private static List<BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) throws CompoundException {
-		List<BoneAnimation> animations = new ArrayList<>(bonesObj.size());
+	private static Animation.LoopType readLoopType(JsonObject animationObj, float length) throws JsonParseException {
+		if (animationObj.has("loopTick")) {
+			float returnTick = JsonUtil.getAsFloat(animationObj, "loopTick") * 20f;
+			if (returnTick > length || returnTick < 0) {
+				throw new JsonParseException("The returnTick has to be a non-negative value smaller than the endTick value");
+			}
+			return Animation.LoopType.returnToTickLoop(returnTick);
+		}
+		return Animation.LoopType.fromJson(animationObj.get("loop"));
+	}
+
+	private static Map<String, BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) {
+		Map<String, BoneAnimation> animations = new HashMap<>(bonesObj.size());
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
@@ -76,7 +64,10 @@ public class AnimationLoader {
 			KeyframeStack positionFrames = buildKeyframeStack(getKeyframes(entryObj.get("position")), TransformType.POSITION);
 			KeyframeStack rotationFrames = buildKeyframeStack(getKeyframes(entryObj.get("rotation")), TransformType.ROTATION);
 			KeyframeStack bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND);
-			animations.add(new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames, bendFrames.xKeyframes()));
+			animations.put(
+					UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey()),
+					new BoneAnimation(rotationFrames, positionFrames, scaleFrames, bendFrames.xKeyframes())
+			);
 		}
 
 		return animations;
@@ -159,7 +150,7 @@ public class AnimationLoader {
 			throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
 	}
 
-	private static KeyframeStack buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type) throws CompoundException {
+	private static KeyframeStack buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type) {
 		if (entries.isEmpty()) return new KeyframeStack();
 
 		List<Keyframe> xFrames = new ObjectArrayList<>();
@@ -230,10 +221,10 @@ public class AnimationLoader {
 		return frames;
 	}
 
-	public static float calculateAnimationLength(List<BoneAnimation> boneAnimations) {
+	public static float calculateAnimationLength(Map<String, BoneAnimation> boneAnimations) {
 		float length = 0;
 
-		for (BoneAnimation animation : boneAnimations) {
+		for (BoneAnimation animation : boneAnimations.values()) {
 			length = Math.max(length, animation.rotationKeyFrames().getLastKeyframeTime());
 			length = Math.max(length, animation.positionKeyFrames().getLastKeyframeTime());
 			length = Math.max(length, animation.scaleKeyFrames().getLastKeyframeTime());

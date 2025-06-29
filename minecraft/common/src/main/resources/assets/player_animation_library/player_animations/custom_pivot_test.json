@@ -1,19 +1,19 @@
 {
   "format_version": "1.8.0",
-  "model": {
-	  "hip": {
-		  "pivot": [ 0, 12, 0 ]
-	  }
-  },
-  "parents": {
-    "right_arm": "hip",
-    "left_arm": "hip",
-    "torso": "hip",
-    "head": "hip"
-  },
   "animations": {
     "custom_pivot_test": {
       "loop": false,
+      "model": {
+        "hip": {
+          "pivot": [ 0, 12, 0 ]
+        }
+      },
+      "parents": {
+        "right_arm": "hip",
+        "left_arm": "hip",
+        "torso": "hip",
+        "head": "hip"
+      },
       "bones": {
         "head": {
           "position": {

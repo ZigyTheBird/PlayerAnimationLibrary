@@ -13,20 +13,18 @@ import java.util.List;
  * <p>
  * Responsible for holding the various {@link Keyframe Keyframes} for the bone's animation transformations
  *
- * @param boneName The name of the bone as listed in the {@code animation.json}
  * @param rotationKeyFrames The deserialized rotation {@code Keyframe} stack
  * @param positionKeyFrames The deserialized position {@code Keyframe} stack
  * @param scaleKeyFrames The deserialized scale {@code Keyframe} stack
  * @param bendKeyFrames The deserialized bend {@code Keyframe} stack
  */
-public record BoneAnimation(String boneName,
-							KeyframeStack rotationKeyFrames,
+public record BoneAnimation(KeyframeStack rotationKeyFrames,
 							KeyframeStack positionKeyFrames,
 							KeyframeStack scaleKeyFrames,
 							List<Keyframe> bendKeyFrames) {
 
 	public BoneAnimation(String boneName) {
-		this(boneName, new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new ArrayList<>());
+		this(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new ArrayList<>());
 	}
 
 	public boolean hasKeyframes() {

@@ -1,5 +1,6 @@
 package com.zigythebird.playeranimcore.network;
 
+import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 
 import java.util.ArrayList;
@@ -43,5 +44,18 @@ public class NetworkUtils {
         for (T entry : list) {
             writer.accept(buf, entry);
         }
+    }
+
+    public static Vec3f readVec3f(ByteBuf buf) {
+        float x = buf.readFloat();
+        float y = buf.readFloat();
+        float z = buf.readFloat();
+        return new Vec3f(x, y, z);
+    }
+
+    public static void writeVec3f(ByteBuf buf, Vec3f vec3f) {
+        buf.writeFloat(vec3f.x());
+        buf.writeFloat(vec3f.y());
+        buf.writeFloat(vec3f.z());
     }
 }

@@ -68,10 +68,8 @@ components.java {
 
 publishing {
     publications {
-        maven(MavenPublication) {
-            groupId = "com.zigythebird.playeranim"
-            artifactId = "player_animation_library-neoforge-$minecraft_version"
-            version = rootProject.mod_version
+        mavenNeoForge(MavenPublication) {
+            artifactId = "PlayerAnimationLibNeo"
             from components.java
         }
     }

@@ -66,10 +66,8 @@ components.java {
 
 publishing {
     publications {
-        maven(MavenPublication) {
-            groupId = "com.zigythebird.playeranim"
-            artifactId = "player_animation_library-fabric-$minecraft_version"
-            version = rootProject.mod_version
+        mavenFabric(MavenPublication) {
+            artifactId = "PlayerAnimationLibFabric"
             from components.java
         }
     }
