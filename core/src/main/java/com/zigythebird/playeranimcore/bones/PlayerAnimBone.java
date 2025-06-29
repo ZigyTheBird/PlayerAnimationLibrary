@@ -9,8 +9,6 @@ import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Objects;
-
 /**
  * This is the object that is directly modified by animations to handle movement
  */
@@ -207,7 +205,7 @@ public class PlayerAnimBone {
 		return this;
 	}
 
-	public PlayerAnimBone applyOtherBonee(PlayerAnimBone bone) {
+	public PlayerAnimBone applyOtherBone(PlayerAnimBone bone) {
 		this.positionX += bone.positionX;
 		this.positionY += bone.positionY;
 		this.positionZ += bone.positionZ;
