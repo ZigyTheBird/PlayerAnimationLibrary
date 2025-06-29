@@ -32,6 +32,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.ast.Expression;
@@ -120,21 +121,21 @@ public final class LegacyAnimationBinary {
             }
             return;
         }
-        PlayerAnimatorLoader.StateCollection collection = PlayerAnimatorLoader.getDefaultValues(name);
-        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), collection.pos().x(), version);
-        writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), collection.pos().y(), version);
-        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), collection.pos().z(), version);
-        writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), collection.rot().x(), version);
-        writeKeyframes(buf, part.rotationKeyFrames().yKeyframes(), collection.rot().y(), version);
-        writeKeyframes(buf, part.rotationKeyFrames().zKeyframes(), collection.rot().z(), version);
+        Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
+        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version);
+        writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version);
+        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version);
+        writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), 0, version);
+        writeKeyframes(buf, part.rotationKeyFrames().yKeyframes(), 0, version);
+        writeKeyframes(buf, part.rotationKeyFrames().zKeyframes(), 0, version);
         if (BEND_BONE.test(name)) {
             writeKeyframes(buf, part.bendKeyFrames().xKeyframes(), 0, version);
             writeKeyframes(buf, part.bendKeyFrames().yKeyframes(), 0, version);
         }
         if (version >= 3) {
-            writeKeyframes(buf, part.scaleKeyFrames().xKeyframes(), collection.scale().x(), version);
-            writeKeyframes(buf, part.scaleKeyFrames().yKeyframes(), collection.scale().y(), version);
-            writeKeyframes(buf, part.scaleKeyFrames().zKeyframes(), collection.scale().z(), version);
+            writeKeyframes(buf, part.scaleKeyFrames().xKeyframes(), 0, version);
+            writeKeyframes(buf, part.scaleKeyFrames().yKeyframes(), 0, version);
+            writeKeyframes(buf, part.scaleKeyFrames().zKeyframes(), 0, version);
         }
     }
 
@@ -216,21 +217,21 @@ public final class LegacyAnimationBinary {
     }
 
     private static BoneAnimation readPart(ByteBuffer buf, String name, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {
-        PlayerAnimatorLoader.StateCollection collection = PlayerAnimatorLoader.getDefaultValues(name);
-        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), collection.pos().x(), version, keyframeSize);
-        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), collection.pos().y(), version, keyframeSize);
-        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), collection.pos().z(), version, keyframeSize);
-        readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), collection.rot().x(), version, keyframeSize);
-        readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), collection.rot().y(), version, keyframeSize);
-        readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), collection.rot().z(), version, keyframeSize);
+        Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
+        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize);
+        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize);
+        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize);
+        readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), 0, version, keyframeSize);
+        readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), 0, version, keyframeSize);
+        readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), 0, version, keyframeSize);
         if (BEND_BONE.test(name)) {
             readKeyframes(buf, part.bendKeyFrames().xKeyframes(), 0, version, keyframeSize);
             readKeyframes(buf, part.bendKeyFrames().yKeyframes(), 0, version, keyframeSize);
         }
         if (version >= 3) {
-            readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), collection.scale().x(), version, keyframeSize);
-            readKeyframes(buf, part.scaleKeyFrames().yKeyframes(), collection.scale().y(), version, keyframeSize);
-            readKeyframes(buf, part.scaleKeyFrames().zKeyframes(), collection.scale().z(), version, keyframeSize);
+            readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), 0, version, keyframeSize);
+            readKeyframes(buf, part.scaleKeyFrames().yKeyframes(), 0, version, keyframeSize);
+            readKeyframes(buf, part.scaleKeyFrames().zKeyframes(), 0, version, keyframeSize);
         }
         /*if (!easeBefore) {
             PlayerAnimatorLoader.correctEasings(part.positionKeyFrames());

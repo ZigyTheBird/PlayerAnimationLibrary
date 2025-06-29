@@ -156,11 +156,10 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 String boneKey = UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey());
                 if(version < 3 && boneKey.equals("torso")) boneKey = "body";// rename part
 
-                StateCollection collection = getDefaultValues(boneKey);
                 BoneAnimation bone = bones.computeIfAbsent(UniversalAnimLoader.getCorrectPlayerBoneName(boneKey), boneName0 ->
                         new BoneAnimation(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new KeyframeStack())
                 );
-                addBodyPartIfExists(boneKey, bone, collection, entry.getValue(), degrees, tick, easing, turn);
+                addBodyPartIfExists(boneKey, bone, entry.getValue(), degrees, tick, easing, turn);
                 resolveMissingKeyframes(bone.positionKeyFrames(), false);
                 resolveMissingKeyframes(bone.rotationKeyFrames(), false);
                 resolveMissingKeyframes(bone.bendKeyFrames(), false);
@@ -184,11 +183,11 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         }
     }
 
-    private void addBodyPartIfExists(String boneName, BoneAnimation bone, StateCollection collection, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
+    private void addBodyPartIfExists(String boneName, BoneAnimation bone, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
         JsonObject partNode = node.getAsJsonObject();
-        fillKeyframeStack(bone.positionKeyFrames(), collection.pos(), boneName.equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, false);
-        fillKeyframeStack(bone.rotationKeyFrames(), collection.rot(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, boneName.equals("right_item") || boneName.equals("left_item"));
-        fillKeyframeStack(bone.scaleKeyFrames(), collection.scale(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false);
+        fillKeyframeStack(bone.positionKeyFrames(), getDefaultValues(boneName), boneName.equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, false);
+        fillKeyframeStack(bone.rotationKeyFrames(), Vec3f.ZERO, TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, boneName.equals("right_item") || boneName.equals("left_item"));
+        fillKeyframeStack(bone.scaleKeyFrames(), Vec3f.ZERO, TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false);
         fillKeyframeStack(bone.bendKeyFrames(), Vec3f.ZERO, TransformType.BEND, "axis", "bend", null, partNode, degrees, tick, easing, turn, false);
     }
 
@@ -234,18 +233,14 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return easingType;
     }
 
-    public static final StateCollection EMPTY = new StateCollection(Vec3f.ZERO, Vec3f.ZERO, Vec3f.ONE);
-
-    private static final Map<String, StateCollection> DEFAULT_VALUES = Map.of(
-            "right_arm", new StateCollection(new Vec3f(-5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
-            "left_arm", new StateCollection(new Vec3f(5, 2, 0), Vec3f.ZERO, Vec3f.ONE),
-            "left_leg", new StateCollection(new Vec3f(1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE),
-            "right_leg", new StateCollection(new Vec3f(-1.9f, 12, 0.1f), Vec3f.ZERO, Vec3f.ONE)
+    private static final Map<String, Vec3f> DEFAULT_VALUES = Map.of(
+            "right_arm", new Vec3f(-5, 2, 0),
+            "left_arm", new Vec3f(5, 2, 0),
+            "left_leg", new Vec3f(1.9f, 12, 0.1f),
+            "right_leg", new Vec3f(-1.9f, 12, 0.1f)
     );
 
-    public record StateCollection(Vec3f pos, Vec3f rot, Vec3f scale) {}
-
-    public static StateCollection getDefaultValues(String bone) {
-        return DEFAULT_VALUES.getOrDefault(bone, EMPTY);
+    public static Vec3f getDefaultValues(String bone) {
+        return DEFAULT_VALUES.getOrDefault(bone, Vec3f.ZERO);
     }
 }
