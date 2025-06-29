@@ -71,11 +71,7 @@ public class AnimationBinary {
             ProtocolUtils.writeString(buf, instructionKeyframe.getInstructions());
         }
 
-        NetworkUtils.writeMap(buf, animation.pivotBones(), ProtocolUtils::writeString, (buf1, vec3f) -> {
-            buf1.writeFloat(vec3f.x());
-            buf1.writeFloat(vec3f.y());
-            buf1.writeFloat(vec3f.z());
-        });
+        NetworkUtils.writeMap(buf, animation.pivotBones(), ProtocolUtils::writeString, NetworkUtils::writeVec3f);
         NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }
 
@@ -155,12 +151,7 @@ public class AnimationBinary {
         }
         Animation.Keyframes keyFrames = new Animation.Keyframes(sounds, particles, customInstructions);
 
-        Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> {
-            float x = buf1.readFloat();
-            float y = buf1.readFloat();
-            float z = buf1.readFloat();
-            return new Vec3f(x, y, z);
-        });
+        Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ProtocolUtils::readString, NetworkUtils::readVec3f);
         Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
 
         return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents);
