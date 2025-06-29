@@ -97,13 +97,13 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         //The reason why the last easing can't be ignored is because it's used by endTick lerping
         if (!easeBeforeKeyframe) {
             for (Map.Entry<String, BoneAnimation> boneAnimation : bones.entrySet()) {
-                correctEasings(boneAnimation.getValue().positionKeyFrames());
-                correctEasings(boneAnimation.getValue().rotationKeyFrames());
-                correctEasings(boneAnimation.getValue().scaleKeyFrames());
-                correctEasings(boneAnimation.getValue().bendKeyFrames());
+                correctEasings(boneAnimation.positionKeyFrames());
+                correctEasings(boneAnimation.rotationKeyFrames());
+                correctEasings(boneAnimation.scaleKeyFrames());
+                correctEasings(boneAnimation.bendKeyFrames());
                 if (boneAnimation.getKey().equals("right_item") || boneAnimation.getKey().equals("left_item")) {
-                    swapTheZYAxis(boneAnimation.getValue().positionKeyFrames());
-                    swapTheZYAxis(boneAnimation.getValue().rotationKeyFrames());
+                    swapTheZYAxis(boneAnimation.positionKeyFrames());
+                    swapTheZYAxis(boneAnimation.rotationKeyFrames());
                 }
             }
         }
