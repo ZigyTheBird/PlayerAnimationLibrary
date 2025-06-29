@@ -24,9 +24,6 @@ import static com.zigythebird.playeranimcore.loading.UniversalAnimLoader.NO_KEYF
 public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     private final static int modVersion = 3;
 
-    public static final List<Expression> ZERO = Collections.singletonList(FloatExpression.ZERO);
-    public static final List<Expression> ONE = Collections.singletonList(FloatExpression.ONE);
-
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(Animation.class, new PlayerAnimatorLoader())
@@ -164,18 +161,13 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 String boneKey = UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey());
                 if (version < 3 && boneKey.equals("torso")) boneKey = "body";// rename part
 
-                StateCollection collection = getDefaultValues(boneKey);
                 BoneAnimation bone = bones.computeIfAbsent(UniversalAnimLoader.getCorrectPlayerBoneName(boneKey), boneName ->
-                        new BoneAnimation(boneName, new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new ArrayList<>())
+                        new BoneAnimation(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new ArrayList<>())
                 );
-                addBodyPartIfExists(bone, collection, entry.getValue(), degrees, tick, easing, turn);
-                resolveMissingKeyframes(bone.positionKeyFrames(), false);
-                resolveMissingKeyframes(bone.rotationKeyFrames(), false);
-                resolveMissingKeyframes(bone.bendKeyFrames(), false);
-                resolveMissingKeyframes(bone.scaleKeyFrames(), true);
+                addBodyPartIfExists(boneKey, bone, entry.getValue(), degrees, tick, easing, turn);
 
                 if (version < 3 && boneKey.equals("body")) {
-                    bones.put("torso", new BoneAnimation("torso", new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), bone.bendKeyFrames()));
+                    bones.put("torso", new BoneAnimation(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), bone.bendKeyFrames()));
                 }
             }
         }
@@ -184,11 +176,10 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
     private void addBodyPartIfExists(String boneName, BoneAnimation bone, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
         JsonObject partNode = node.getAsJsonObject();
-        boolean isItem = bone.boneName().equals("right_item") || bone.boneName().equals("left_item");
+        boolean isItem = boneName.equals("right_item") || boneName.equals("left_item");
         fillKeyframeStack(bone.positionKeyFrames(), getDefaultValues(boneName), boneName.equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, isItem);
         fillKeyframeStack(bone.rotationKeyFrames(), Vec3f.ZERO, TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, isItem);
         fillKeyframeStack(bone.scaleKeyFrames(), Vec3f.ZERO, TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false);
-        fillKeyframeStack(bone.bendKeyFrames(), Vec3f.ZERO, TransformType.BEND, "axis", "bend", null, partNode, degrees, tick, easing, turn, false);
         addPartIfExists(Keyframe.getLastKeyframeTime(bone.bendKeyFrames()), bone.bendKeyFrames(), 0, TransformType.BEND, "bend", partNode, degrees, tick, easing, turn, false);
     }
 

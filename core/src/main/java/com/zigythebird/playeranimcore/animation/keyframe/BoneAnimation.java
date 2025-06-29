@@ -23,7 +23,7 @@ public record BoneAnimation(KeyframeStack rotationKeyFrames,
 							KeyframeStack scaleKeyFrames,
 							List<Keyframe> bendKeyFrames) {
 
-	public BoneAnimation(String boneName) {
+	public BoneAnimation() {
 		this(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new ArrayList<>());
 	}
 

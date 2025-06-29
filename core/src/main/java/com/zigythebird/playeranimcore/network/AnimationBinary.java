@@ -163,7 +163,7 @@ public class AnimationBinary {
         KeyframeStack scaleKeyFrames = readKeyframeStack(buf);
         List<Keyframe> bendKeyFrames = NetworkUtils.readList(buf, AnimationBinary::readKeyframe);
 
-        return new BoneAnimation(boneName, rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
+        return new BoneAnimation(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
 
     public static KeyframeStack readKeyframeStack(ByteBuf buf) {

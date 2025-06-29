@@ -581,7 +581,7 @@ public abstract class AnimationController implements IAnimation {
 			KeyframeStack rotationKeyFrames = boneAnimation.getValue().rotationKeyFrames();
 			KeyframeStack positionKeyFrames = boneAnimation.getValue().positionKeyFrames();
 			KeyframeStack scaleKeyFrames = boneAnimation.getValue().scaleKeyFrames();
-			KeyframeStack bendKeyFrames = boneAnimation.getValue().bendKeyFrames();
+			List<Keyframe> bendKeyFrames = boneAnimation.getValue().bendKeyFrames();
 
 			if (rotationKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addRotations(
