@@ -29,6 +29,7 @@ public class BinaryBackwardsTest {
             Assertions.assertTrue(byteBuf.hasRemaining(), "animation reads incorrectly at version " + version);
 
             KeyframeAnimation keyframe = AnimationBinary.read(byteBuf, version);
+            Assertions.assertNotNull(keyframe, "animation reads incorrectly at version " + version);
         }
     }
 
