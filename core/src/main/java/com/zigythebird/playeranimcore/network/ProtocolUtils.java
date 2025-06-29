@@ -16,7 +16,6 @@
  */
 package com.zigythebird.playeranimcore.network;
 
-import com.zigythebird.playeranimcore.misc.EmptyException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 
@@ -30,8 +29,6 @@ public class ProtocolUtils {
     public static final int DEFAULT_MAX_STRING_SIZE = 65536; // 64KiB
     private static final int MAXIMUM_VARINT_SIZE = 5;
 
-    private static final EmptyException BAD_VARINT = new EmptyException("Bad VarInt decoded");
-
     /**
      * Reads a Minecraft-style VarInt from the specified {@code buf}.
      *
@@ -42,7 +39,7 @@ public class ProtocolUtils {
         int readable = buf.readableBytes();
         if (readable == 0) {
             // special case for empty buffer
-            throw BAD_VARINT;
+            throw new IllegalStateException("Bad VarInt decoded");
         }
 
         // we can read at least one byte, and this should be a common case
@@ -61,7 +58,7 @@ public class ProtocolUtils {
                 return i;
             }
         }
-        throw BAD_VARINT;
+        throw new IllegalStateException("Bad VarInt decoded");
     }
 
     /**
@@ -169,6 +166,6 @@ public class ProtocolUtils {
     }
 
     public static void checkFrame(boolean b, String message, Object... args) {
-        if (!b) throw new EmptyException(String.format(message, args));
+        if (!b) throw new IllegalStateException(String.format(message, args));
     }
 }

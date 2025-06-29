@@ -23,48 +23,80 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see <a href="https://easings.net/">Easings.net</a>
  * @see <a href="https://cubic-bezier.com">Cubic-Bezier.com</a>
  */
-@FunctionalInterface
-public interface EasingType {
-	Map<String, EasingType> EASING_TYPES = new ConcurrentHashMap<>(64);
+public enum EasingType implements EasingTypeTransformer {
+	LINEAR(0, "linear", value -> EasingType.easeIn(EasingType::linear)),
+	CONSTANT(1, "constant", value -> (value1 -> value1 < 1 ? 0 : 1)),
+	STEP(37, "step", value -> EasingType.easeIn(EasingType.step(value))),
 
-	EasingType LINEAR = register("linear", register("none", value -> easeIn(EasingType::linear)));
-	EasingType CONSTANT = register("constant", value -> (value1 -> value1 < 1 ? 0 : 1));
-	EasingType STEP = register("step", value -> easeIn(step(value)));
-	EasingType EASE_IN_SINE = register("easeinsine", value -> easeIn(EasingType::sine));
-	EasingType EASE_OUT_SINE = register("easeoutsine", value -> easeOut(EasingType::sine));
-	EasingType EASE_IN_OUT_SINE = register("easeinoutsine", value -> easeInOut(EasingType::sine));
-	EasingType EASE_IN_QUAD = register("easeinquad", value -> easeIn(EasingType::quadratic));
-	EasingType EASE_OUT_QUAD = register("easeoutquad", value -> easeOut(EasingType::quadratic));
-	EasingType EASE_IN_OUT_QUAD = register("easeinoutquad", value -> easeInOut(EasingType::quadratic));
-	EasingType EASE_IN_CUBIC = register("easeincubic", value -> easeIn(EasingType::cubic));
-	EasingType EASE_OUT_CUBIC = register("easeoutcubic", value -> easeOut(EasingType::cubic));
-	EasingType EASE_IN_OUT_CUBIC = register("easeinoutcubic", value -> easeInOut(EasingType::cubic));
-	EasingType EASE_IN_QUART = register("easeinquart", value -> easeIn(pow(4)));
-	EasingType EASE_OUT_QUART = register("easeoutquart", value -> easeOut(pow(4)));
-	EasingType EASE_IN_OUT_QUART = register("easeinoutquart", value -> easeInOut(pow(4)));
-	EasingType EASE_IN_QUINT = register("easeinquint", value -> easeIn(pow(4)));
-	EasingType EASE_OUT_QUINT = register("easeoutquint", value -> easeOut(pow(5)));
-	EasingType EASE_IN_OUT_QUINT = register("easeinoutquint", value -> easeInOut(pow(5)));
-	EasingType EASE_IN_EXPO = register("easeinexpo", value -> easeIn(EasingType::exp));
-	EasingType EASE_OUT_EXPO = register("easeoutexpo", value -> easeOut(EasingType::exp));
-	EasingType EASE_IN_OUT_EXPO = register("easeinoutexpo", value -> easeInOut(EasingType::exp));
-	EasingType EASE_IN_CIRC = register("easeincirc", value -> easeIn(EasingType::circle));
-	EasingType EASE_OUT_CIRC = register("easeoutcirc", value -> easeOut(EasingType::circle));
-	EasingType EASE_IN_OUT_CIRC = register("easeinoutcirc", value -> easeInOut(EasingType::circle));
-	EasingType EASE_IN_BACK = register("easeinback", value -> easeIn(back(value)));
-	EasingType EASE_OUT_BACK = register("easeoutback", value -> easeOut(back(value)));
-	EasingType EASE_IN_OUT_BACK = register("easeinoutback", value -> easeInOut(back(value)));
-	EasingType EASE_IN_ELASTIC = register("easeinelastic", value -> easeIn(elastic(value)));
-	EasingType EASE_OUT_ELASTIC = register("easeoutelastic", value -> easeOut(elastic(value)));
-	EasingType EASE_IN_OUT_ELASTIC = register("easeinoutelastic", value -> easeInOut(elastic(value)));
-	EasingType EASE_IN_BOUNCE = register("easeinbounce", value -> easeIn(bounce(value)));
-	EasingType EASE_OUT_BOUNCE = register("easeoutbounce", value -> easeOut(bounce(value)));
-	EasingType EASE_IN_OUT_BOUNCE = register("easeinoutbounce", value -> easeInOut(bounce(value)));
-	EasingType CATMULLROM = register("catmullrom", new CatmullRomEasing());
+	EASE_IN_SINE(6, "easeinsine", value -> EasingType.easeIn(EasingType::sine)),
+	EASE_OUT_SINE(7, "easeoutsine", value -> EasingType.easeOut(EasingType::sine)),
+	EASE_IN_OUT_SINE(8, "easeinoutsine", value -> EasingType.easeInOut(EasingType::sine)),
 
-	Float2FloatFunction buildTransformer(@Nullable Float value);
+	EASE_IN_QUAD(12, "easeinquad", value -> EasingType.easeIn(EasingType::quadratic)),
+	EASE_OUT_QUAD(13, "easeoutquad", value -> EasingType.easeOut(EasingType::quadratic)),
+	EASE_IN_OUT_QUAD(14, "easeinoutquad", value -> EasingType.easeInOut(EasingType::quadratic)),
 
-	static float lerpWithOverride(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable EasingType override) {
+	EASE_IN_CUBIC(9, "easeincubic", value -> EasingType.easeIn(EasingType::cubic)),
+	EASE_OUT_CUBIC(10, "easeoutcubic", value -> EasingType.easeOut(EasingType::cubic)),
+	EASE_IN_OUT_CUBIC(11, "easeinoutcubic", value -> EasingType.easeInOut(EasingType::cubic)),
+
+	EASE_IN_QUART(15, "easeinquart", value -> EasingType.easeIn(EasingType.pow(4))),
+	EASE_OUT_QUART(16, "easeoutquart", value -> EasingType.easeOut(EasingType.pow(4))),
+	EASE_IN_OUT_QUART(17, "easeinoutquart", value -> EasingType.easeInOut(EasingType.pow(4))),
+
+	EASE_IN_QUINT(18, "easeinquint", value -> EasingType.easeIn(EasingType.pow(5))),
+	EASE_OUT_QUINT(19, "easeoutquint", value -> EasingType.easeOut(EasingType.pow(5))),
+	EASE_IN_OUT_QUINT(20, "easeinoutquint", value -> EasingType.easeInOut(EasingType.pow(5))),
+
+	EASE_IN_EXPO(21, "easeinexpo", value -> EasingType.easeIn(EasingType::exp)),
+	EASE_OUT_EXPO(22, "easeoutexpo", value -> EasingType.easeOut(EasingType::exp)),
+	EASE_IN_OUT_EXPO(23, "easeinoutexpo", value -> EasingType.easeInOut(EasingType::exp)),
+
+	EASE_IN_CIRC(24, "easeincirc", value -> EasingType.easeIn(EasingType::circle)),
+	EASE_OUT_CIRC(25, "easeoutcirc", value -> EasingType.easeOut(EasingType::circle)),
+	EASE_IN_OUT_CIRC(26, "easeinoutcirc", value -> EasingType.easeInOut(EasingType::circle)),
+
+	EASE_IN_BACK(27, "easeinback", value -> EasingType.easeIn(EasingType.back(value))),
+	EASE_OUT_BACK(28, "easeoutback", value -> EasingType.easeOut(EasingType.back(value))),
+	EASE_IN_OUT_BACK(29, "easeinoutback", value -> EasingType.easeInOut(EasingType.back(value))),
+
+	EASE_IN_ELASTIC(30, "easeinelastic", value -> EasingType.easeIn(EasingType.elastic(value))),
+	EASE_OUT_ELASTIC(31, "easeoutelastic", value -> EasingType.easeOut(EasingType.elastic(value))),
+	EASE_IN_OUT_ELASTIC(32, "easeinoutelastic", value -> EasingType.easeInOut(EasingType.elastic(value))),
+
+	EASE_IN_BOUNCE(33, "easeinbounce", value -> EasingType.easeIn(EasingType.bounce(value))),
+	EASE_OUT_BOUNCE(34, "easeoutbounce", value -> EasingType.easeOut(EasingType.bounce(value))),
+	EASE_IN_OUT_BOUNCE(35, "easeinoutbounce", value -> EasingType.easeInOut(EasingType.bounce(value))),
+
+	CATMULLROM(36, "catmullrom", new CatmullRomTransformerFunction());
+	// 37 - STEP
+
+	public final byte id;
+	public final String name;
+	private final EasingTypeTransformer transformer;
+
+	private static final Map<String, EasingType> BY_NAME = new ConcurrentHashMap<>(64);
+	private static final Map<Byte, EasingType> BY_ID = new ConcurrentHashMap<>(64);
+
+	EasingType(int id, String name, EasingTypeTransformer transformer) {
+		this.id = (byte) id;
+		this.name = name;
+		this.transformer = transformer;
+	}
+
+	static {
+		for (EasingType type : values()) {
+			BY_NAME.putIfAbsent(type.name.toLowerCase(Locale.ROOT), type);
+			BY_ID.putIfAbsent(type.id, type);
+		}
+	}
+
+	@Override
+	public Float2FloatFunction buildTransformer(@Nullable Float value) {
+		return this.transformer.buildTransformer(value);
+	}
+
+	public static float lerpWithOverride(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable EasingType override) {
 		EasingType easingType = override;
 
 		if (override == null)
@@ -73,28 +105,24 @@ public interface EasingType {
 		return easingType.apply(env, animationPoint);
 	}
 
-	default float apply(MochaEngine<?> env, AnimationPoint animationPoint) {
-		Float easingVariable = null;
-
-		if (animationPoint.easingArgs() != null && !animationPoint.easingArgs().isEmpty())
-			easingVariable = env.eval(animationPoint.easingArgs().getFirst());
-
-		return apply(env, animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
+	@Override
+	public float apply(MochaEngine<?> env, AnimationPoint animationPoint) {
+		return this.transformer.apply(env, animationPoint);
 	}
 
-	default float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue) {
-		if (lerpValue >= 1 || Float.isNaN(lerpValue))
-			return animationPoint.animationEndValue();
-
-		return apply(animationPoint.animationStartValue(), animationPoint.animationEndValue(), easingValue, lerpValue);
+	@Override
+	public float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue) {
+		return this.transformer.apply(env, animationPoint, easingValue, lerpValue);
 	}
 
-	default float apply(float startValue, float endValue, float lerpValue) {
-		return apply(startValue, endValue, null, lerpValue);
+	@Override
+	public float apply(float startValue, float endValue, float lerpValue) {
+		return this.transformer.apply(startValue, endValue, lerpValue);
 	}
 
-	default float apply(float startValue, float endValue, @Nullable Float easingValue, float lerpValue) {
-		return MathHelper.lerp(buildTransformer(easingValue).apply(lerpValue), startValue, endValue);
+	@Override
+	public float apply(float startValue, float endValue, @Nullable Float easingValue, float lerpValue) {
+		return this.transformer.apply(startValue, endValue, lerpValue);
 	}
 
 	/**
@@ -109,9 +137,7 @@ public interface EasingType {
 	 * @return The {@code EasingType} you registered
 	 */
 	static EasingType register(String name, EasingType easingType) {
-		EASING_TYPES.putIfAbsent(name, easingType);
-
-		return easingType;
+		throw new UnsupportedOperationException(name); // TODO
 	}
 
 	/**
@@ -120,7 +146,7 @@ public interface EasingType {
 	 * @param json The {@code easing} {@link JsonElement} to attempt to parse.
 	 * @return A usable {@code EasingType} instance
 	 */
-	static EasingType fromJson(JsonElement json) {
+	public static EasingType fromJson(JsonElement json) {
 		if (!(json instanceof JsonPrimitive primitive) || !primitive.isString())
 			return LINEAR;
 
@@ -133,30 +159,30 @@ public interface EasingType {
 	 * @param name The name of the easing function
 	 * @return The relevant {@code EasingType}, or {@link EasingType#LINEAR} if none match
 	 */
-	static EasingType fromString(String name) {
-		return EASING_TYPES.getOrDefault(name, EasingType.LINEAR);
+	public static EasingType fromString(String name) {
+		return BY_NAME.getOrDefault(name.toLowerCase(Locale.ROOT), EasingType.LINEAR);
 	}
 
 	// ---> Easing Transition Type Functions <--- //
-	
+
 	/**
 	 * Returns an easing function running forward in time
 	 */
-	static Float2FloatFunction easeIn(Float2FloatFunction function) {
+	public static Float2FloatFunction easeIn(Float2FloatFunction function) {
 		return function;
 	}
 
 	/**
 	 * Returns an easing function running backwards in time
 	 */
-	static Float2FloatFunction easeOut(Float2FloatFunction function) {
+	public static Float2FloatFunction easeOut(Float2FloatFunction function) {
 		return time -> 1 - function.apply(1 - time);
 	}
 
 	/**
 	 * Returns an easing function that runs equally both forwards and backwards in time based on the halfway point, generating a symmetrical curve
 	 */
-	static Float2FloatFunction easeInOut(Float2FloatFunction function) {
+	public static Float2FloatFunction easeInOut(Float2FloatFunction function) {
 		return time -> {
 			if (time < 0.5d) {
 				return function.apply(time * 2f) / 2f;
@@ -173,7 +199,7 @@ public interface EasingType {
 	 * <p>
 	 * {@code f(n) = n}
 	 */
-	static float linear(float n) {
+	public static float linear(float n) {
 		return n;
 	}
 
@@ -184,7 +210,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInQuad">Easings.net#easeInQuad</a>
 	 */
-	static float quadratic(float n) {
+	public static float quadratic(float n) {
 		return n * n;
 	}
 
@@ -195,7 +221,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInCubic">Easings.net#easeInCubic</a>
 	 */
-	static float cubic(float n) {
+	public static float cubic(float n) {
 		return n * n * n;
 	}
 
@@ -206,7 +232,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInSine">Easings.net#easeInSine</a>
 	 */
-	static float sine(float n) {
+	public static float sine(float n) {
 		return 1 - MathHelper.cos(n * MathHelper.PI / 2f);
 	}
 
@@ -217,7 +243,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInCirc">Easings.net#easeInCirc</a>
 	 */
-	static float circle(float n) {
+	public static float circle(float n) {
 		return 1 - MathHelper.sqrt(1 - n * n);
 	}
 
@@ -228,7 +254,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInExpo">Easings.net#easeInExpo</a>
 	 */
-	static float exp(float n) {
+	public static float exp(float n) {
 		return MathHelper.pow(2, 10 * (n - 1));
 	}
 
@@ -243,7 +269,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInElastic">Easings.net#easeInElastic</a>
 	 */
-	static Float2FloatFunction elastic(Float n) {
+	public static Float2FloatFunction elastic(Float n) {
 		float n2 = n == null ? 1 : n;
 
 		return t -> 1 - MathHelper.pow(MathHelper.cos(t * MathHelper.PI / 2f), 3) * MathHelper.cos(t * n2 * MathHelper.PI);
@@ -258,7 +284,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="http://easings.net/#easeInBounce">Easings.net#easeInBounce</a>
 	 */
-	static Float2FloatFunction bounce(Float n) {
+	public static Float2FloatFunction bounce(Float n) {
 		final float n2 = n == null ? 0.5f : n;
 
 		Float2FloatFunction one = x -> 121f / 16f * x * x;
@@ -276,7 +302,7 @@ public interface EasingType {
 	 * <p>
 	 * <a href="https://easings.net/#easeInBack">Easings.net#easeInBack</a>
 	 */
-	static Float2FloatFunction back(Float n) {
+	public static Float2FloatFunction back(Float n) {
 		final float n2 = n == null ? 1.70158f : n * 1.70158f;
 
 		return t -> t * t * ((n2 + 1) * t - n2);
@@ -289,7 +315,7 @@ public interface EasingType {
 	 *
 	 * @param n The exponent
 	 */
-	static Float2FloatFunction pow(float n) {
+	public static Float2FloatFunction pow(float n) {
 		return t -> MathHelper.pow(t, n);
 	}
 
@@ -320,7 +346,7 @@ public interface EasingType {
 	 * Returns a stepped value based on the nearest step to the input value.<br>
 	 * The size (grade) of the steps depends on the provided value of {@code n}
 	 **/
-	static Float2FloatFunction step(Float n) {
+	public static Float2FloatFunction step(Float n) {
 		float n2 = n == null ? 2 : n;
 
 		if (n2 < 2)
@@ -361,7 +387,7 @@ public interface EasingType {
 	/**
 	 * Custom EasingType implementation required for special-handling of spline-based interpolation
 	 */
-	class CatmullRomEasing implements EasingType {
+	private static class CatmullRomTransformerFunction implements EasingTypeTransformer {
 		/**
 		 * Generates a value from a given Catmull-Rom spline range with Centripetal parameterization (alpha=0.5)
 		 * <p>
@@ -396,169 +422,7 @@ public interface EasingType {
 		}
 	}
 
-	static EasingType getEasingTypeForID(int id) {
-		switch (id) {
-			case 0 -> {
-				return EasingType.LINEAR;
-			}
-			case 6 -> {
-				return EasingType.EASE_IN_SINE;
-			}
-			case 7 -> {
-				return EasingType.EASE_OUT_SINE;
-			}
-			case 8 -> {
-				return EasingType.EASE_IN_OUT_SINE;
-			}
-			case 9 -> {
-				return EasingType.EASE_IN_CUBIC;
-			}
-			case 10 -> {
-				return EasingType.EASE_OUT_CUBIC;
-			}
-			case 11 -> {
-				return EasingType.EASE_IN_OUT_CUBIC;
-			}
-			case 12 -> {
-				return EasingType.EASE_IN_QUAD;
-			}
-			case 13 -> {
-				return EasingType.EASE_OUT_QUAD;
-			}
-			case 14 -> {
-				return EasingType.EASE_IN_OUT_QUAD;
-			}
-			case 15 -> {
-				return EasingType.EASE_IN_QUART;
-			}
-			case 16 -> {
-				return EasingType.EASE_OUT_QUART;
-			}
-			case 17 -> {
-				return EasingType.EASE_IN_OUT_QUART;
-			}
-			case 18 -> {
-				return EasingType.EASE_IN_QUINT;
-			}
-			case 19 -> {
-				return EasingType.EASE_OUT_QUINT;
-			}
-			case 20 -> {
-				return EasingType.EASE_IN_OUT_QUINT;
-			}
-			case 21 -> {
-				return EasingType.EASE_IN_EXPO;
-			}
-			case 22 -> {
-				return EasingType.EASE_OUT_EXPO;
-			}
-			case 23 -> {
-				return EasingType.EASE_IN_OUT_EXPO;
-			}
-			case 24 -> {
-				return EasingType.EASE_IN_CIRC;
-			}
-			case 25 -> {
-				return EasingType.EASE_OUT_CIRC;
-			}
-			case 26 -> {
-				return EasingType.EASE_IN_OUT_CIRC;
-			}
-			case 27 -> {
-				return EasingType.EASE_IN_BACK;
-			}
-			case 28 -> {
-				return EasingType.EASE_OUT_BACK;
-			}
-			case 29 -> {
-				return EasingType.EASE_IN_OUT_BACK;
-			}
-			case 30 -> {
-				return EasingType.EASE_IN_ELASTIC;
-			}
-			case 31 -> {
-				return EasingType.EASE_OUT_ELASTIC;
-			}
-			case 32 -> {
-				return EasingType.EASE_IN_OUT_ELASTIC;
-			}
-			case 33 -> {
-				return EasingType.EASE_IN_BOUNCE;
-			}
-			case 34 -> {
-				return EasingType.EASE_OUT_BOUNCE;
-			}
-			case 35 -> {
-				return EasingType.EASE_IN_OUT_BOUNCE;
-			}
-		}
-		return null;
-	}
-
-	static byte getIDForEasingType(EasingType easingType) {
-		if (easingType == EasingType.LINEAR) {
-			return 0;
-		} else if (easingType == EasingType.EASE_IN_SINE) {
-			return 6;
-		} else if (easingType == EasingType.EASE_OUT_SINE) {
-			return 7;
-		} else if (easingType == EasingType.EASE_IN_OUT_SINE) {
-			return 8;
-		} else if (easingType == EasingType.EASE_IN_CUBIC) {
-			return 9;
-		} else if (easingType == EasingType.EASE_OUT_CUBIC) {
-			return 10;
-		} else if (easingType == EasingType.EASE_IN_OUT_CUBIC) {
-			return 11;
-		} else if (easingType == EasingType.EASE_IN_QUAD) {
-			return 12;
-		} else if (easingType == EasingType.EASE_OUT_QUAD) {
-			return 13;
-		} else if (easingType == EasingType.EASE_IN_OUT_QUAD) {
-			return 14;
-		} else if (easingType == EasingType.EASE_IN_QUART) {
-			return 15;
-		} else if (easingType == EasingType.EASE_OUT_QUART) {
-			return 16;
-		} else if (easingType == EasingType.EASE_IN_OUT_QUART) {
-			return 17;
-		} else if (easingType == EasingType.EASE_IN_QUINT) {
-			return 18;
-		} else if (easingType == EasingType.EASE_OUT_QUINT) {
-			return 19;
-		} else if (easingType == EasingType.EASE_IN_OUT_QUINT) {
-			return 20;
-		} else if (easingType == EasingType.EASE_IN_EXPO) {
-			return 21;
-		} else if (easingType == EasingType.EASE_OUT_EXPO) {
-			return 22;
-		} else if (easingType == EasingType.EASE_IN_OUT_EXPO) {
-			return 23;
-		} else if (easingType == EasingType.EASE_IN_CIRC) {
-			return 24;
-		} else if (easingType == EasingType.EASE_OUT_CIRC) {
-			return 25;
-		} else if (easingType == EasingType.EASE_IN_OUT_CIRC) {
-			return 26;
-		} else if (easingType == EasingType.EASE_IN_BACK) {
-			return 27;
-		} else if (easingType == EasingType.EASE_OUT_BACK) {
-			return 28;
-		} else if (easingType == EasingType.EASE_IN_OUT_BACK) {
-			return 29;
-		} else if (easingType == EasingType.EASE_IN_ELASTIC) {
-			return 30;
-		} else if (easingType == EasingType.EASE_OUT_ELASTIC) {
-			return 31;
-		} else if (easingType == EasingType.EASE_IN_OUT_ELASTIC) {
-			return 32;
-		} else if (easingType == EasingType.EASE_IN_BOUNCE) {
-			return 33;
-		} else if (easingType == EasingType.EASE_OUT_BOUNCE) {
-			return 34;
-		} else if (easingType == EasingType.EASE_IN_OUT_BOUNCE) {
-			return 35;
-		}
-		return -1;
+	public static EasingType fromId(byte id) {
+		return BY_ID.getOrDefault(id, EasingType.LINEAR);
 	}
 }
