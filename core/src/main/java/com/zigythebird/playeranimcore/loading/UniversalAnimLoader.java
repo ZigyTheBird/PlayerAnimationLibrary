@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animation>> {
     public static final Animation.Keyframes NO_KEYFRAMES = new Animation.Keyframes(new SoundKeyframeData[]{}, new ParticleKeyframeData[]{}, new CustomInstructionKeyframeData[]{});
 
-    public static Map<String, Animation> loadPlayerAnim(InputStream resource) throws IOException {
+    public static Map<String, Animation> loadAnimations(InputStream resource) throws IOException {
         try (Reader reader = new InputStreamReader(resource)) {
             JsonObject json = PlayerAnimLib.GSON.fromJson(reader, JsonObject.class);
 

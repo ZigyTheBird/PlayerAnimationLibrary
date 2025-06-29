@@ -83,9 +83,10 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 		ANIMATIONS.clear();
 
 		for (var resource : manager.listResources("player_animations", resourceLocation -> resourceLocation.getPath().endsWith(".json")).entrySet()) {
+			String namespace = resource.getKey().getNamespace();
 			try (InputStream is = resource.getValue().open()) {
-				for (var entry : UniversalAnimLoader.loadPlayerAnim(is).entrySet()) {
-					ANIMATIONS.put(ResourceLocation.parse(entry.getKey()), entry.getValue());
+				for (var entry : UniversalAnimLoader.loadAnimations(is).entrySet()) {
+					ANIMATIONS.put(ResourceLocation.fromNamespaceAndPath(namespace, entry.getKey()), entry.getValue());
 				}
 			} catch (Exception e) {
 				PlayerAnimLib.LOGGER.error("Player Animation Library failed to load animation {} because:", resource.getKey(), e);
