@@ -200,7 +200,7 @@ public final class LegacyAnimationBinary {
             int count = buf.getInt();
             for (int i = 0; i < count; i++) {
                 String name = UniversalAnimLoader.getCorrectPlayerBoneName(getString(buf));
-                if (version < 3 && name.equals("torso")) name = "body";// rename part
+                if (name.equals("torso")) name = "body";// rename part
                 boneAnimations.put(name, readPart(buf, name, new BoneAnimation(), version, keyframeSize, easeBefore));
             }
         } else {
