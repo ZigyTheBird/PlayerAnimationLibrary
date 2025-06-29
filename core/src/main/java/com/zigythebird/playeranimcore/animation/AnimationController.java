@@ -384,6 +384,14 @@ public abstract class AnimationController implements IAnimation {
 		triggerAnimation(newAnimation, 0);
 	}
 
+	public void triggerAnimation(Animation newAnimation, float startAnimFrom) {
+		triggerAnimation(RawAnimation.begin().then(newAnimation, Animation.LoopType.DEFAULT), startAnimFrom);
+	}
+
+	public void triggerAnimation(Animation newAnimation) {
+		triggerAnimation(RawAnimation.begin().then(newAnimation, Animation.LoopType.DEFAULT), 0);
+	}
+
 	/**
 	 * Fade out from current animation into new animation.
 	 * Does not fade if there is currently no active animation

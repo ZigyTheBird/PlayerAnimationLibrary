@@ -21,7 +21,6 @@ configurations {
 
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
 
     implementation shadowCommon("com.zigythebird:mochafloats:$rootProject.molang_version") {
         transitive = false

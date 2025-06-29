@@ -207,6 +207,24 @@ public class PlayerAnimBone {
 		return this;
 	}
 
+	public PlayerAnimBone applyOtherBonee(PlayerAnimBone bone) {
+		this.positionX += bone.positionX;
+		this.positionY += bone.positionY;
+		this.positionZ += bone.positionZ;
+
+		this.rotX += bone.rotX;
+		this.rotY += bone.rotY;
+		this.rotZ += bone.rotZ;
+
+		this.scaleX *= bone.scaleX;
+		this.scaleY *= bone.scaleY;
+		this.scaleZ *= bone.scaleZ;
+
+		this.bend += bone.bend;
+
+		return this;
+	}
+
 	public PlayerAnimBone addPos(float value) {
 		return addPos(value, value, value);
 	}

@@ -1,16 +1,6 @@
 {
     "version": 3,
     "name": "cape example head",
-    "author": "MineEmotes",
-    "description": "",
-    "comment": "Comission",
-    "bages": [
-        {
-            "translate": "mineemotes.emote.badge.bendless",
-            "fallback": "Bendless",
-            "color": "#34c415"
-        }
-    ],
     "emote": {
         "endTick": 15,
         "isLoop": true,

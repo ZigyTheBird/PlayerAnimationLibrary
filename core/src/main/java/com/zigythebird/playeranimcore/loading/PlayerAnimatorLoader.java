@@ -106,8 +106,8 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                 correctEasings(boneAnimation.scaleKeyFrames());
                 correctEasings(boneAnimation.bendKeyFrames());
                 if (boneAnimation.boneName().equals("right_item") || boneAnimation.boneName().equals("left_item")) {
-                    swapTheZYAxisOfRotation(boneAnimation.positionKeyFrames());
-                    swapTheZYAxisOfRotation(boneAnimation.rotationKeyFrames());
+                    swapTheZYAxis(boneAnimation.positionKeyFrames());
+                    swapTheZYAxis(boneAnimation.rotationKeyFrames());
                 }
             }
         }
@@ -115,7 +115,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
-    public static void swapTheZYAxisOfRotation(KeyframeStack rotationStack) {
+    public static void swapTheZYAxis(KeyframeStack rotationStack) {
         List<Keyframe> yKeyframes = new ArrayList<>(rotationStack.yKeyframes());
         rotationStack.yKeyframes().clear();
         rotationStack.yKeyframes().addAll(rotationStack.zKeyframes());
