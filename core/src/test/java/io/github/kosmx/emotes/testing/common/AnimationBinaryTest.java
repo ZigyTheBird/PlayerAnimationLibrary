@@ -36,8 +36,10 @@ public class AnimationBinaryTest {
         Animation animation = EmoteDataHashingTest.loadAnimation();
 
         for (int version = 1; version <= LegacyAnimationBinary.getCurrentVersion(); version++) {
-            ByteBuffer byteBuf = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation, version));
+            int len = LegacyAnimationBinary.calculateSize(animation, version);
+            ByteBuffer byteBuf = ByteBuffer.allocate(len);
             LegacyAnimationBinary.write(animation, byteBuf, version);
+            Assertions.assertEquals(len, byteBuf.position(), "Incorrect size calculator!");
             byteBuf.flip();
 
             Assertions.assertTrue(byteBuf.hasRemaining(), "animation reads incorrectly at version " + version);
