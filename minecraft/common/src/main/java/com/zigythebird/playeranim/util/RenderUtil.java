@@ -50,7 +50,13 @@ public final class RenderUtil {
         part.zScale = bone.getScaleZ();
     }
 
-	public static void copyVanillaPart(PlayerAnimBone bone, ModelPart part) {
+	public static void translatePoseStackToBone(PoseStack poseStack, PlayerAnimBone bone) {
+		poseStack.translate(bone.getPosX() / 16, bone.getPosY() / 16, bone.getPosZ() / 16);
+		RenderUtil.rotateMatrixAroundBone(poseStack, bone);
+		poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
+	}
+
+	public static void copyVanillaPart(ModelPart part, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 
 		bone.setPosX(part.x - initialPose.x());
