@@ -138,7 +138,7 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
     }
 
     private UUID generateUuid() {
-        long h = Integer.toUnsignedLong(hashCode());
+        long h = Integer.toUnsignedLong(boneAnimations().hashCode());
         return new UUID(h << 32, h);
     }
 

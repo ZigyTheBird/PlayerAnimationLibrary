@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unused")
-public class AnimationBinary {
+public final class AnimationBinary {
     public static final int CURRENT_VERSION = 1;
 
     public static void write(ByteBuf buf, Animation animation) {
