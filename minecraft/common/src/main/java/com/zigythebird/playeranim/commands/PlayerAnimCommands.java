@@ -6,8 +6,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
+import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.RawAnimation;
+import com.zigythebird.playeranimcore.network.LegacyAnimationBinary;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -15,23 +17,51 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.resources.ResourceLocation;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 @SuppressWarnings("unchecked")
 public class PlayerAnimCommands {
     public static <T> void register(CommandDispatcher<T> dispatcher, CommandBuildContext registryAccess) {
         dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testPlayerAnimation")
                 .then(Commands.argument("animationID", ResourceLocationArgument.id())
                         .suggests(new AnimationArgumentProvider())
-                        .executes(PlayerAnimCommands::execute)));
+                        .executes(PlayerAnimCommands::execute)
+                )
+        );
+        dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testLegacyPlayerAnimation")
+                .then(Commands.argument("animationID", ResourceLocationArgument.id())
+                        .suggests(new AnimationArgumentProvider())
+                        .executes(PlayerAnimCommands::executeLegacy)
+                )
+        );
     }
 
     private static int execute(CommandContext<CommandSourceStack> context) {
         ResourceLocation animation = ResourceLocationArgument.getId(context, "animationID");
+        return playAnimation(PlayerAnimResources.getAnimation(animation));
+    }
 
+    private static int executeLegacy(CommandContext<CommandSourceStack> context) {
+        Animation animation = PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID"));
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation));
+        LegacyAnimationBinary.write(animation, byteBuffer);
+        byteBuffer.flip();
+
+        try {
+            return playAnimation(LegacyAnimationBinary.read(byteBuffer));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static int playAnimation(Animation animation) {
         AnimationController controller = (AnimationController) PlayerAnimationAccess.getPlayerAnimationLayer(
                 Minecraft.getInstance().player, PlayerAnimLibMod.ANIMATION_LAYER_ID
         );
         if (controller == null) return 0;
-        controller.triggerAnimation(RawAnimation.begin().thenPlay(PlayerAnimResources.getAnimation(animation)));
+        controller.triggerAnimation(RawAnimation.begin().thenPlay(animation));
         return 1;
     }
 }
