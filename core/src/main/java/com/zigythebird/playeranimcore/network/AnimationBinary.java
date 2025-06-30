@@ -46,6 +46,7 @@ public final class AnimationBinary {
         buf.writeByte(((AnimationFormat)data.getOrDefault("format", AnimationFormat.GECKOLIB)).id);
         buf.writeFloat((float) data.getOrDefault("beginTick", Float.NaN));
         buf.writeFloat((float) data.getOrDefault("endTick", Float.NaN));
+        NetworkUtils.writeUUID(buf, animation.uuid()); // required by emotecraft to stop animations
         NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
 
         // Sounds
@@ -119,6 +120,8 @@ public final class AnimationBinary {
             data.put("beginTick", beginTick);
         if (!Float.isNaN(endTick))
             data.put("endTick", endTick);
+
+        data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUUID(buf)); // required by emotecraft to stop animations
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);
 
         // Sounds

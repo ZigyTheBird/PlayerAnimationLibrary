@@ -3,10 +3,7 @@ package com.zigythebird.playeranimcore.network;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -57,5 +54,16 @@ public class NetworkUtils {
         buf.writeFloat(vec3f.x());
         buf.writeFloat(vec3f.y());
         buf.writeFloat(vec3f.z());
+    }
+
+    public static void writeUUID(ByteBuf buffer, UUID id) {
+        buffer.writeLong(id.getMostSignificantBits());
+        buffer.writeLong(id.getLeastSignificantBits());
+    }
+
+    public static UUID readUUID(ByteBuf buffer) {
+        long mostSigBits = buffer.readLong();
+        long leastSigBits = buffer.readLong();
+        return new UUID(mostSigBits, leastSigBits);
     }
 }
