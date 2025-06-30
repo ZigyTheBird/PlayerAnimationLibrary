@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public enum EasingType implements EasingTypeTransformer {
 	LINEAR(0, "linear", value -> EasingType.easeIn(EasingType::linear)),
-	CONSTANT(1, "constant", value -> (value1 -> value1 < 1 ? 0 : 1)),
+	CONSTANT(1, "constant", value -> (value1 -> 0)),
 	STEP(37, "step", value -> EasingType.easeIn(EasingType.step(value))),
 
 	EASE_IN_SINE(6, "easeinsine", value -> EasingType.easeIn(EasingType::sine)),

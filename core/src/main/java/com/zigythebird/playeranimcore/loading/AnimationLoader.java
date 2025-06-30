@@ -66,7 +66,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			KeyframeStack bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND);
 			animations.put(
 					UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey()),
-					new BoneAnimation(rotationFrames, positionFrames, scaleFrames, bendFrames)
+					new BoneAnimation(rotationFrames, positionFrames, scaleFrames, bendFrames.xKeyframes())
 			);
 		}
 

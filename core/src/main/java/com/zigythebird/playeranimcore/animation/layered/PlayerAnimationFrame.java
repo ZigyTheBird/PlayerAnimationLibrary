@@ -111,7 +111,6 @@ public abstract class PlayerAnimationFrame implements IAnimation {
         public Float scaleY = null;
         public Float scaleZ = null;
 
-        public Float bendAxis = null;
         public Float bend = null;
         
         public PlayerBone() {
@@ -135,7 +134,6 @@ public abstract class PlayerAnimationFrame implements IAnimation {
             this.scaleY = null;
             this.scaleZ = null;
 
-            this.bendAxis = null;
             this.bend = null;
         }
 
@@ -155,7 +153,6 @@ public abstract class PlayerAnimationFrame implements IAnimation {
             this.scaleY = 1F;
             this.scaleZ = 1F;
 
-            this.bendAxis = 0F;
             this.bend = 0F;
         }
 
@@ -181,8 +178,6 @@ public abstract class PlayerAnimationFrame implements IAnimation {
             if (scaleZ != null)
                 bone.setScaleZ(scaleZ);
 
-            if (bendAxis != null)
-                bone.setBendAxis(bendAxis);
             if (bend != null)
                 bone.setBend(bend);
 

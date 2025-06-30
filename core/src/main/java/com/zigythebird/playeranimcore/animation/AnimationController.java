@@ -384,6 +384,14 @@ public abstract class AnimationController implements IAnimation {
 		triggerAnimation(newAnimation, 0);
 	}
 
+	public void triggerAnimation(Animation newAnimation, float startAnimFrom) {
+		triggerAnimation(RawAnimation.begin().then(newAnimation, Animation.LoopType.DEFAULT), startAnimFrom);
+	}
+
+	public void triggerAnimation(Animation newAnimation) {
+		triggerAnimation(RawAnimation.begin().then(newAnimation, Animation.LoopType.DEFAULT), 0);
+	}
+
 	/**
 	 * Fade out from current animation into new animation.
 	 * Does not fade if there is currently no active animation
@@ -559,21 +567,15 @@ public abstract class AnimationController implements IAnimation {
 		final float finalAdjustedTick = adjustedTick;
 		this.animTime = finalAdjustedTick / 20f;
 
-		for (Map.Entry<String, BoneAnimation> boneAnimation : this.currentAnimation.animation().boneAnimations().entrySet()) {
-			BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.computeIfAbsent(boneAnimation.getKey(), (name) -> new BoneAnimationQueue(bones.containsKey(name) ? bones.get(name) : this.pivotBones.get(name)));
-			AdvancedPlayerAnimBone bone = this.bones.get(boneAnimation.getKey());
+		for (Map.Entry<String, BoneAnimation> entry : this.currentAnimation.animation().boneAnimations().entrySet()) {
+			BoneAnimationQueue boneAnimationQueue = this.boneAnimationQueues.computeIfAbsent(entry.getKey(), (name) -> new BoneAnimationQueue(bones.containsKey(name) ? bones.get(name) : this.pivotBones.get(name)));
+			AdvancedPlayerAnimBone bone = this.bones.get(entry.getKey());
 
-			if (boneAnimationQueue == null) {
-				if (crashWhenCantFindBone)
-					throw new RuntimeException("Could not find bone: " + boneAnimation.getKey());
-
-				continue;
-			}
-
-			KeyframeStack rotationKeyFrames = boneAnimation.getValue().rotationKeyFrames();
-			KeyframeStack positionKeyFrames = boneAnimation.getValue().positionKeyFrames();
-			KeyframeStack scaleKeyFrames = boneAnimation.getValue().scaleKeyFrames();
-			KeyframeStack bendKeyFrames = boneAnimation.getValue().bendKeyFrames();
+			BoneAnimation boneAnimation = entry.getValue();
+			KeyframeStack rotationKeyFrames = boneAnimation.rotationKeyFrames();
+			KeyframeStack positionKeyFrames = boneAnimation.positionKeyFrames();
+			KeyframeStack scaleKeyFrames = boneAnimation.scaleKeyFrames();
+			List<Keyframe> bendKeyFrames = boneAnimation.bendKeyFrames();
 
 			if (rotationKeyFrames.hasKeyframes()) {
 				boneAnimationQueue.addRotations(
@@ -596,10 +598,8 @@ public abstract class AnimationController implements IAnimation {
 						getAnimationPointAtTick(scaleKeyFrames.zKeyframes(), adjustedTick, TransformType.SCALE, bone != null ? bone::setScaleZTransitionLength : null));
 			}
 
-			if (bendKeyFrames.hasKeyframes()) {
-				boneAnimationQueue.addBends(
-						getAnimationPointAtTick(bendKeyFrames.xKeyframes(), adjustedTick, TransformType.BEND, bone != null ? bone::setBendAxisTransitionLength : null),
-						getAnimationPointAtTick(bendKeyFrames.yKeyframes(), adjustedTick, TransformType.BEND, bone != null ? bone::setBendTransitionLength : null));
+			if (!bendKeyFrames.isEmpty()) {
+				boneAnimationQueue.addBend(getAnimationPointAtTick(bendKeyFrames, adjustedTick, TransformType.BEND, bone != null ? bone::setBendTransitionLength : null));
 			}
 		}
 
@@ -715,24 +715,24 @@ public abstract class AnimationController implements IAnimation {
 		for (AdvancedPlayerAnimBone bone : bones.values()) {
 			bone.setEnabled(currentAnimation.animation().getBone(bone.getName()) != null);
 		}
-		for (Map.Entry<String, BoneAnimation> boneAnimation : currentAnimation.animation().boneAnimations().entrySet()) {
-			if (bones.containsKey(boneAnimation.getKey())) {
-				AdvancedPlayerAnimBone bone = bones.get(boneAnimation.getKey());
+		for (Map.Entry<String, BoneAnimation> entry : currentAnimation.animation().boneAnimations().entrySet()) {
+			if (bones.containsKey(entry.getKey())) {
+				AdvancedPlayerAnimBone bone = bones.get(entry.getKey());
 				if (isDisableAxisIfNotModified()) {
-					bone.positionXEnabled = !boneAnimation.getValue().positionKeyFrames().xKeyframes().isEmpty();
-					bone.positionYEnabled = !boneAnimation.getValue().positionKeyFrames().yKeyframes().isEmpty();
-					bone.positionZEnabled = !boneAnimation.getValue().positionKeyFrames().zKeyframes().isEmpty();
+					BoneAnimation boneAnimation = entry.getValue();
+					bone.positionXEnabled = !boneAnimation.positionKeyFrames().xKeyframes().isEmpty();
+					bone.positionYEnabled = !boneAnimation.positionKeyFrames().yKeyframes().isEmpty();
+					bone.positionZEnabled = !boneAnimation.positionKeyFrames().zKeyframes().isEmpty();
 
-					bone.rotXEnabled = !boneAnimation.getValue().rotationKeyFrames().xKeyframes().isEmpty();
-					bone.rotYEnabled = !boneAnimation.getValue().rotationKeyFrames().yKeyframes().isEmpty();
-					bone.rotZEnabled = !boneAnimation.getValue().rotationKeyFrames().zKeyframes().isEmpty();
+					bone.rotXEnabled = !boneAnimation.rotationKeyFrames().xKeyframes().isEmpty();
+					bone.rotYEnabled = !boneAnimation.rotationKeyFrames().yKeyframes().isEmpty();
+					bone.rotZEnabled = !boneAnimation.rotationKeyFrames().zKeyframes().isEmpty();
 
-					bone.scaleXEnabled = !boneAnimation.getValue().scaleKeyFrames().xKeyframes().isEmpty();
-					bone.scaleYEnabled = !boneAnimation.getValue().scaleKeyFrames().yKeyframes().isEmpty();
-					bone.scaleZEnabled = !boneAnimation.getValue().scaleKeyFrames().zKeyframes().isEmpty();
+					bone.scaleXEnabled = !boneAnimation.scaleKeyFrames().xKeyframes().isEmpty();
+					bone.scaleYEnabled = !boneAnimation.scaleKeyFrames().yKeyframes().isEmpty();
+					bone.scaleZEnabled = !boneAnimation.scaleKeyFrames().zKeyframes().isEmpty();
 
-					bone.bendAxisEnabled = !boneAnimation.getValue().bendKeyFrames().xKeyframes().isEmpty();
-					bone.bendEnabled = !boneAnimation.getValue().bendKeyFrames().yKeyframes().isEmpty();
+					bone.bendEnabled = !boneAnimation.bendKeyFrames().isEmpty();
 				} else bone.setEnabled(true);
 			}
 		}
@@ -919,7 +919,6 @@ public abstract class AnimationController implements IAnimation {
 			AnimationPoint scaleXPoint = boneAnimation.scaleXQueue().poll();
 			AnimationPoint scaleYPoint = boneAnimation.scaleYQueue().poll();
 			AnimationPoint scaleZPoint = boneAnimation.scaleZQueue().poll();
-			AnimationPoint bendAxisPoint = boneAnimation.bendAxisQueue().poll();
 			AnimationPoint bendPoint = boneAnimation.bendQueue().poll();
 			EasingType easingType = this.overrideEasingTypeFunction.apply(this);
 
@@ -941,8 +940,7 @@ public abstract class AnimationController implements IAnimation {
 				bone.setScaleZ(EasingType.lerpWithOverride(this.molangRuntime, scaleZPoint, easingType));
 			}
 
-			if (bendAxisPoint != null) {
-				bone.setBendAxis(EasingType.lerpWithOverride(this.molangRuntime, bendAxisPoint, easingType));
+			if (bendPoint != null) {
 				bone.setBend(EasingType.lerpWithOverride(this.molangRuntime, bendPoint, easingType));
 			}
 		}

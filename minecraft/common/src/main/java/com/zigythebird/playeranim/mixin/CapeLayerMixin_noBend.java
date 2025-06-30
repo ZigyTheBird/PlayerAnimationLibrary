@@ -44,7 +44,7 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
                 poseStack.mulPose((new Quaternionf()).rotateZYX(torso.zRot, torso.yRot, torso.xRot));
 
                 poseStack.translate(0.0F, 0.0F, 0.125F);
-                poseStack.mulPose(Axis.YP.rotationDegrees(180));
+                poseStack.mulPose(Axis.YP.rotation(3.14159f));
 
                 ModelPart part = capeLayer.getCape();
                 PlayerAnimBone bone = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("cape");

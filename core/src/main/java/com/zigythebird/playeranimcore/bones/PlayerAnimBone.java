@@ -7,10 +7,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.enums.Axis;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import it.unimi.dsi.fastutil.Pair;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Objects;
 
 /**
  * This is the object that is directly modified by animations to handle movement
@@ -30,7 +27,6 @@ public class PlayerAnimBone {
 	public float rotY;
 	public float rotZ;
 
-	public float bendAxis;
 	public float bend;
 
 	public PlayerAnimBone(String name) {
@@ -75,10 +71,6 @@ public class PlayerAnimBone {
 
 	public float getScaleZ() {
 		return this.scaleZ;
-	}
-
-	public float getBendAxis() {
-		return this.bendAxis;
 	}
 
 	public float getBend() {
@@ -139,23 +131,8 @@ public class PlayerAnimBone {
 		setScaleZ(scaleZ);
 	}
 
-	public void setBendAxis(float value) {
-		this.bendAxis = value;
-
-	}
-
 	public void setBend(float value) {
 		this.bend = value;
-	}
-
-	public void updateBend(float bendAxis, float bend) {
-		setBendAxis(bendAxis);
-		setBend(bend);
-	}
-
-	public void updateBend(Pair<Float, Float> bend) {
-		setBendAxis(bend.left());
-		setBend(bend.right());
 	}
 
 	public void setToInitialPose() {
@@ -171,7 +148,6 @@ public class PlayerAnimBone {
 		this.scaleY = 1;
 		this.scaleZ = 1;
 
-		this.bendAxis = 0;
 		this.bend = 0;
 	}
 
@@ -206,7 +182,6 @@ public class PlayerAnimBone {
 		this.scaleY *= value;
 		this.scaleZ *= value;
 
-		this.bendAxis *= value;
 		this.bend *= value;
 
 		return this;
@@ -225,7 +200,24 @@ public class PlayerAnimBone {
 		this.scaleY += bone.scaleY;
 		this.scaleZ += bone.scaleZ;
 
-		this.bendAxis += bone.bendAxis;
+		this.bend += bone.bend;
+
+		return this;
+	}
+
+	public PlayerAnimBone applyOtherBone(PlayerAnimBone bone) {
+		this.positionX += bone.positionX;
+		this.positionY += bone.positionY;
+		this.positionZ += bone.positionZ;
+
+		this.rotX += bone.rotX;
+		this.rotY += bone.rotY;
+		this.rotZ += bone.rotZ;
+
+		this.scaleX *= bone.scaleX;
+		this.scaleY *= bone.scaleY;
+		this.scaleZ *= bone.scaleZ;
+
 		this.bend += bone.bend;
 
 		return this;
@@ -346,7 +338,6 @@ public class PlayerAnimBone {
 		this.scaleY = bone.scaleY;
 		this.scaleZ = bone.scaleZ;
 
-		this.bendAxis = bone.bendAxis;
 		this.bend = bone.bend;
 		return this;
 	}
@@ -374,8 +365,6 @@ public class PlayerAnimBone {
 			if (advancedBone.isScaleZEnabled())
 				this.scaleZ = bone.scaleZ;
 
-			if (advancedBone.isBendAxisEnabled())
-				this.bendAxis = bone.bendAxis;
 			if (advancedBone.isBendEnabled())
 				this.bend = bone.bend;
 
@@ -407,8 +396,6 @@ public class PlayerAnimBone {
 		if (bone.scaleZEnabled)
 			this.scaleZ = beginOrEndTickLerp(scaleZ, bone.scaleZ, bone.scaleZTransitionLength, animTime, animation, TransformType.SCALE, Axis.Z);
 
-		if (bone.bendAxisEnabled)
-			this.bendAxis = beginOrEndTickLerp(bendAxis, bone.bendAxis, bone.bendAxisTransitionLength, animTime, animation, TransformType.BEND, Axis.X);
 		if (bone.bendEnabled)
 			this.bend = beginOrEndTickLerp(bend, bone.bend, bone.bendTransitionLength, animTime, animation, TransformType.BEND, Axis.Y);
 
@@ -425,17 +412,19 @@ public class PlayerAnimBone {
 			EasingType easingType = EasingType.EASE_IN_OUT_SINE;
 			if (animation != null && animation.data().has("easeBeforeKeyframe") && !(boolean)animation.data().getRaw("easeBeforeKeyframe")) {
 				BoneAnimation boneAnimation = animation.getBone(getName());
-				KeyframeStack keyframeStack;
+				KeyframeStack keyframeStack = null;
 				switch (type) {
-					case BEND -> keyframeStack = boneAnimation.bendKeyFrames();
+					case BEND -> easingType = boneAnimation.bendKeyFrames().getLast().easingType();
 					case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
 					case SCALE -> keyframeStack = boneAnimation.scaleKeyFrames();
 					default -> keyframeStack = boneAnimation.positionKeyFrames();
 				}
-				switch (axis) {
-					case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
-					case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
-					default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
+				if (keyframeStack != null) {
+					switch (axis) {
+						case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
+						case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
+						default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
+					}
 				}
 			}
 			return easingType.apply(startValue, endValue, animTime / transitionLength);
@@ -457,7 +446,6 @@ public class PlayerAnimBone {
 		this.scaleZ = snapshot.getScaleZ();
 
 		this.bend = snapshot.getBend();
-		this.bendAxis = snapshot.getBendAxis();
 	}
 	
 	public PlayerAnimBone copySnapshotSafe(AdvancedBoneSnapshot snapshot) {
@@ -482,8 +470,6 @@ public class PlayerAnimBone {
 		if (snapshot.scaleZEnabled)
 			this.scaleZ = snapshot.getScaleZ();
 
-		if (snapshot.bendAxisEnabled)
-			this.bendAxis = snapshot.getBendAxis();
 		if (snapshot.bendEnabled)
 			this.bend = snapshot.getBend();
 

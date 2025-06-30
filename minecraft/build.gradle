@@ -14,6 +14,11 @@ subprojects {
         silentMojangMappingsLicense()
     }
 
+    jar {
+        if (!rootProject.version.toString().contains("dev") && !project.gradle.startParameter.taskNames.contains("runClient"))
+            processResources.exclude('assets/player_animation_library/player_animations/*')
+    }
+
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         mappings loom.layered() {

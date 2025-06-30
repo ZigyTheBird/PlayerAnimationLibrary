@@ -1,16 +1,6 @@
 {
     "version": 3,
     "name": "cape example torso 0",
-    "author": "MineEmotes",
-    "description": "",
-    "comment": "Comission",
-    "bages": [
-        {
-            "translate": "mineemotes.emote.badge.bendless",
-            "fallback": "Bendless",
-            "color": "#34c415"
-        }
-    ],
     "emote": {
         "endTick": 15,
         "isLoop": true,

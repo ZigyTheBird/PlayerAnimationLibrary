@@ -5,6 +5,9 @@
 
 package com.zigythebird.playeranimcore.animation.keyframe;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A record of a deserialized animation for a given bone
  * <p>
@@ -18,14 +21,14 @@ package com.zigythebird.playeranimcore.animation.keyframe;
 public record BoneAnimation(KeyframeStack rotationKeyFrames,
 							KeyframeStack positionKeyFrames,
 							KeyframeStack scaleKeyFrames,
-							KeyframeStack bendKeyFrames) {
+							List<Keyframe> bendKeyFrames) {
 
 	public BoneAnimation() {
-		this(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new KeyframeStack());
+		this(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new ArrayList<>());
 	}
 
 	public boolean hasKeyframes() {
 		return rotationKeyFrames().hasKeyframes() || positionKeyFrames().hasKeyframes() ||
-				scaleKeyFrames().hasKeyframes() || bendKeyFrames().hasKeyframes();
+				scaleKeyFrames().hasKeyframes() || !bendKeyFrames.isEmpty();
 	}
 }

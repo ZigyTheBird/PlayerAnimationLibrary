@@ -13,7 +13,6 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone implements IBoneEnabl
     public Float rotYTransitionLength = null;
     public Float rotZTransitionLength = null;
 
-    public Float bendAxisTransitionLength = null;
     public Float bendTransitionLength = null;
 
     public boolean scaleXEnabled = true;
@@ -54,10 +53,6 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone implements IBoneEnabl
 
     public void setBendTransitionLength(Float bendTransitionLength) {
         this.bendTransitionLength = bendTransitionLength;
-    }
-
-    public void setBendAxisTransitionLength(Float bendAxisTransitionLength) {
-        this.bendAxisTransitionLength = bendAxisTransitionLength;
     }
 
     public void setRotZTransitionLength(Float rotZTransitionLength) {
@@ -139,11 +134,6 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone implements IBoneEnabl
     @Override
     public boolean isRotZEnabled() {
         return rotZEnabled;
-    }
-
-    @Override
-    public boolean isBendAxisEnabled() {
-        return bendAxisEnabled;
     }
 
     @Override
