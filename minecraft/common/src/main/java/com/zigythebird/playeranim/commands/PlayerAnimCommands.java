@@ -9,7 +9,10 @@ import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.RawAnimation;
+import com.zigythebird.playeranimcore.network.AnimationBinary;
 import com.zigythebird.playeranimcore.network.LegacyAnimationBinary;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -29,10 +32,16 @@ public class PlayerAnimCommands {
                         .executes(PlayerAnimCommands::execute)
                 )
         );
-        dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testLegacyPlayerAnimation")
+        dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testLegacyAnimationBinary")
                 .then(Commands.argument("animationID", ResourceLocationArgument.id())
                         .suggests(new AnimationArgumentProvider())
                         .executes(PlayerAnimCommands::executeLegacy)
+                )
+        );
+        dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testAnimationBinary")
+                .then(Commands.argument("animationID", ResourceLocationArgument.id())
+                        .suggests(new AnimationArgumentProvider())
+                        .executes(PlayerAnimCommands::executeBinary)
                 )
         );
     }
@@ -54,6 +63,15 @@ public class PlayerAnimCommands {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static int executeBinary(CommandContext<CommandSourceStack> context) {
+        Animation animation = PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID"));
+
+        ByteBuf byteBuf = Unpooled.buffer();
+        AnimationBinary.write(byteBuf, animation);
+
+        return playAnimation(AnimationBinary.read(byteBuf));
     }
 
     private static int playAnimation(Animation animation) {
