@@ -344,7 +344,9 @@ public abstract class AnimationController implements IAnimation {
 				this.currentRawAnimation = rawAnimation;
 				this.startAnimFrom = startAnimFrom;
 				this.shouldResetTick = true;
-				this.animationState = State.TRANSITIONING;
+				this.animationState = State.RUNNING;
+				this.currentAnimation = this.animationQueue.poll();
+				setupNewAnimation();
 				this.justStartedTransition = true;
 				this.needsAnimationReload = false;
 
@@ -374,7 +376,7 @@ public abstract class AnimationController implements IAnimation {
 		this.triggeredAnimation = newAnimation;
 
 		this.needsAnimationReload = true;
-		this.animationState = State.TRANSITIONING;
+		this.animationState = State.RUNNING;
 		this.shouldResetTick = true;
 		this.startAnimFrom = startAnimFrom;
 		this.justStartedTransition = true;
@@ -473,12 +475,6 @@ public abstract class AnimationController implements IAnimation {
 	public void process(AnimationData state, final float seekTime, boolean crashWhenCantFindBone) {
 		float adjustedTick = adjustTick(seekTime);
 
-		if (animationState == State.TRANSITIONING) {
-			this.shouldResetTick = true;
-			this.animationState = State.RUNNING;
-			adjustedTick = adjustTick(seekTime);
-		}
-
 		PlayState playState = handleAnimation(state);
 
 		if (playState == PlayState.STOP || (this.currentAnimation == null && this.animationQueue.isEmpty())) {
@@ -490,36 +486,8 @@ public abstract class AnimationController implements IAnimation {
 
 		this.boneAnimationQueues.clear();
 
-		if (this.justStartedTransition && (this.shouldResetTick || this.justStopped)) {
-			this.justStopped = false;
-			adjustedTick = adjustTick(seekTime);
-
-			if (this.currentAnimation == null)
-				this.animationState = State.TRANSITIONING;
-		}
-		else if (this.currentAnimation == null) {
-			this.shouldResetTick = true;
-			this.animationState = State.TRANSITIONING;
-			this.justStartedTransition = true;
-			this.needsAnimationReload = false;
-			adjustedTick = adjustTick(seekTime);
-		}
-		else if (this.animationState != State.TRANSITIONING) {
-			this.animationState = State.RUNNING;
-		}
-
 		if (getAnimationState() == State.RUNNING) {
 			processCurrentAnimation(adjustedTick, seekTime, crashWhenCantFindBone, state);
-		}
-		else if (this.animationState == State.TRANSITIONING) {
-			if (this.lastPollTime != seekTime && (adjustedTick == startAnimFrom || this.isJustStarting)) {
-				this.justStartedTransition = false;
-				this.lastPollTime = seekTime;
-				this.currentAnimation = this.animationQueue.poll();
-
-				setupNewAnimation();
-				resetEventKeyFrames();
-			}
 		}
 	}
 
@@ -555,7 +523,7 @@ public abstract class AnimationController implements IAnimation {
 					return;
 				}
 				else {
-					this.animationState = State.TRANSITIONING;
+					this.animationState = State.RUNNING;
 					this.shouldResetTick = true;
 					adjustedTick = adjustTick(seekTime);
 					this.currentAnimation = this.animationQueue.poll();
@@ -645,11 +613,6 @@ public abstract class AnimationController implements IAnimation {
 
 				this.customKeyframeHandler.handle(new CustomInstructionKeyframeEvent(adjustedTick, this, keyframeData, animationData));
 			}
-		}
-
-		if (this.shouldResetTick && this.animationState == State.TRANSITIONING) {
-			this.currentAnimation = this.animationQueue.poll();
-			setupNewAnimation();
 		}
 	}
 
@@ -771,13 +734,13 @@ public abstract class AnimationController implements IAnimation {
 		if (transitionLengthSetter != null) {
 			ExtraAnimationData extraData = animation.data();
 			if (hasBeginTick() && !frames.isEmpty() && currentFrame == frames.getFirst() && tick < currentFrame.length()
-					&& extraData.<Float>get("beginTick").orElse(0F) > tick) {
+					&& extraData.<Float>get("beginTick").get() > tick) {
 				startValue = endValue;
 				transitionLengthSetter.accept(currentFrame.length());
 			} else if (hasEndTick() && !frames.isEmpty() && currentFrame == frames.getLast() && tick >= location.tick()
 					&& extraData.<Float>get("endTick").orElse(0F) <= tick) {
 
-				transitionLengthSetter.accept(animation.length() - extraData.<Float>get("endTick").orElse(0F));
+				transitionLengthSetter.accept(animation.length() - extraData.<Float>get("endTick").get());
 			} else transitionLengthSetter.accept(null);
 		}
 
@@ -832,11 +795,11 @@ public abstract class AnimationController implements IAnimation {
 			PlayerAnimBone bone1 = activeBones.get(bone.getName());
 			if (bone1 instanceof AdvancedPlayerAnimBone advancedBone) {
 				ExtraAnimationData extraData = this.currentAnimation.animation().data();
-				if (hasBeginTick() && extraData.<Float>get("beginTick").orElse(0F) > this.getAnimationTicks()) {
+				if (hasBeginTick() && extraData.<Float>get("beginTick").get() > this.getAnimationTicks()) {
 					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks(), null);
 				}
-				else if (hasEndTick() && extraData.<Float>get("endTick").orElse(0F) <= this.getAnimationTicks()) {
-					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get("endTick").orElse(0F), this.currentAnimation.animation());
+				else if (hasEndTick() && extraData.<Float>get("endTick").get() <= this.getAnimationTicks()) {
+					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get("endTick").get(), this.currentAnimation.animation());
 				}
 				else bone.copyOtherBoneIfNotDisabled(bone1);
 			}
