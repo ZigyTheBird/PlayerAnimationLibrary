@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.util.ExprBytesUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -87,7 +88,6 @@ public final class AnimationBinary {
 
     public static void writeKeyframe(Keyframe keyframe, ByteBuf buf) {
         buf.writeFloat(keyframe.length());
-        ExprBytesUtils.writeList(buf, keyframe.startValue(), ExprBytesUtils::writeExpression);
         ExprBytesUtils.writeList(buf, keyframe.endValue(), ExprBytesUtils::writeExpression);
         buf.writeByte(keyframe.easingType().id);
         ExprBytesUtils.writeList(buf, keyframe.easingArgs(), (expressions, buf1) ->
@@ -158,29 +158,36 @@ public final class AnimationBinary {
         KeyframeStack rotationKeyFrames = readKeyframeStack(buf);
         KeyframeStack positionKeyFrames = readKeyframeStack(buf);
         KeyframeStack scaleKeyFrames = readKeyframeStack(buf);
-        List<Keyframe> bendKeyFrames = ExprBytesUtils.readList(buf, AnimationBinary::readKeyframe);
+        List<Keyframe> bendKeyFrames = readKeyframeList(buf);
 
         return new BoneAnimation(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
 
     public static KeyframeStack readKeyframeStack(ByteBuf buf) {
-        List<Keyframe> xKeyframes = ExprBytesUtils.readList(buf, AnimationBinary::readKeyframe);
-        List<Keyframe> yKeyframes = ExprBytesUtils.readList(buf, AnimationBinary::readKeyframe);
-        List<Keyframe> zKeyframes = ExprBytesUtils.readList(buf, AnimationBinary::readKeyframe);
+        List<Keyframe> xKeyframes = readKeyframeList(buf);
+        List<Keyframe> yKeyframes = readKeyframeList(buf);
+        List<Keyframe> zKeyframes = readKeyframeList(buf);
 
         return new KeyframeStack(xKeyframes, yKeyframes, zKeyframes);
     }
 
-    public static Keyframe readKeyframe(ByteBuf buf) {
-        float length = buf.readFloat();
+    public static List<Keyframe> readKeyframeList(ByteBuf buf) {
+        int count = buf.readInt();
+        List<Keyframe> list = new ArrayList<>(count);
 
-        List<Expression> startValue = ExprBytesUtils.readList(buf, ExprBytesUtils::readExpression);
-        List<Expression> endValue = ExprBytesUtils.readList(buf, ExprBytesUtils::readExpression);
-        EasingType easingType = EasingType.fromId(buf.readByte());
-        List<List<Expression>> easingArgs = ExprBytesUtils.readList(buf,
-                buf1 -> ExprBytesUtils.readList(buf1, ExprBytesUtils::readExpression)
-        );
+        for(int i = 0; i < count; ++i) {
+            float length = buf.readFloat();
 
-        return new Keyframe(length, startValue, endValue, easingType, easingArgs);
+            List<Expression> endValue = ExprBytesUtils.readList(buf, ExprBytesUtils::readExpression);
+            List<Expression> startValue = !list.isEmpty() ? list.getLast().endValue() : endValue;
+            EasingType easingType = EasingType.fromId(buf.readByte());
+            List<List<Expression>> easingArgs = ExprBytesUtils.readList(buf,
+                    buf1 -> ExprBytesUtils.readList(buf1, ExprBytesUtils::readExpression)
+            );
+
+            list.add(new Keyframe(length, startValue, endValue, easingType, easingArgs));
+        }
+
+        return list;
     }
 }
