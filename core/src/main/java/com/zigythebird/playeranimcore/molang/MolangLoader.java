@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.event.MolangEvent;
+import com.zigythebird.playeranimcore.loading.UsesMolangChecker;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.MolangParser;
 import team.unnamed.mocha.parser.ParseException;
@@ -26,16 +27,18 @@ import java.util.function.ToDoubleFunction;
 public class MolangLoader {
     private static final Consumer<ParseException> HANDLER = e -> PlayerAnimLib.LOGGER.warn("Failed to parse!", e);
 
-    public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
+    public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue, UsesMolangChecker checker) {
         List<Expression> expressions;
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
             List<Expression> expressions1 = parser.parseAll();
-            if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
+            boolean isConstant = IsConstantExpression.test(expressions1.getFirst());
+            if (expressions1.size() == 1 && isForRotation && isConstant) {
                 expressions = new ArrayList<>();
                 expressions.add(FloatExpression.of(Math.toRadians(((FloatExpression) expressions1.getFirst()).value())));
             } else {
                 expressions = expressions1;
             }
+            if (!isConstant) checker.molangHasBeenUsed();
         } catch (IOException e) {
             PlayerAnimLib.LOGGER.error("Failed to compile molang '{}'!", element, e);
             if (defaultValue == null) return null;

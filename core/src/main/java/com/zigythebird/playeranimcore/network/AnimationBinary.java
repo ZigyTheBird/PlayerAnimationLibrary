@@ -12,10 +12,13 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import team.unnamed.mocha.parser.ast.Expression;
+import team.unnamed.mocha.parser.ast.FloatExpression;
 import team.unnamed.mocha.util.ExprBytesUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -41,10 +44,12 @@ public final class AnimationBinary {
         }
         Map<String, Object> data = animation.data().data();
         buf.writeByte(((AnimationFormat)data.getOrDefault("format", AnimationFormat.GECKOLIB)).id);
+        buf.writeBoolean(animation.usesMolang());
         buf.writeFloat((float) data.getOrDefault("beginTick", Float.NaN));
         buf.writeFloat((float) data.getOrDefault("endTick", Float.NaN));
         NetworkUtils.writeUUID(buf, animation.uuid()); // required by emotecraft to stop animations
-        NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
+        NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, (byteBuf, boneAnimation)
+                -> writeBoneAnimation(byteBuf, boneAnimation, animation.usesMolang()));
 
         // Sounds
         buf.writeInt(animation.keyFrames().sounds().length);
@@ -73,26 +78,36 @@ public final class AnimationBinary {
         NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }
 
-    public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone) {
-        writeKeyframeStack(buf, bone.rotationKeyFrames());
-        writeKeyframeStack(buf, bone.positionKeyFrames());
-        writeKeyframeStack(buf, bone.scaleKeyFrames());
-        ExprBytesUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
+    public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone, boolean usesMolang) {
+        writeKeyframeStack(buf, bone.rotationKeyFrames(), usesMolang);
+        writeKeyframeStack(buf, bone.positionKeyFrames(), usesMolang);
+        writeKeyframeStack(buf, bone.scaleKeyFrames(), usesMolang);
+        ExprBytesUtils.writeList(buf, bone.bendKeyFrames(), (keyframe, byteBuf) -> writeKeyframe(keyframe, byteBuf, usesMolang));
     }
 
-    public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack) {
-        ExprBytesUtils.writeList(buf, stack.xKeyframes(), AnimationBinary::writeKeyframe);
-        ExprBytesUtils.writeList(buf, stack.yKeyframes(), AnimationBinary::writeKeyframe);
-        ExprBytesUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
+    public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack, boolean usesMolang) {
+        ExprBytesUtils.writeList(buf, stack.xKeyframes(), (keyframe, byteBuf) -> writeKeyframe(keyframe, byteBuf, usesMolang));
+        ExprBytesUtils.writeList(buf, stack.yKeyframes(), (keyframe, byteBuf) -> writeKeyframe(keyframe, byteBuf, usesMolang));
+        ExprBytesUtils.writeList(buf, stack.zKeyframes(), (keyframe, byteBuf) -> writeKeyframe(keyframe, byteBuf, usesMolang));
     }
 
-    public static void writeKeyframe(Keyframe keyframe, ByteBuf buf) {
+    public static void writeKeyframe(Keyframe keyframe, ByteBuf buf, boolean usesMolang) {
         buf.writeFloat(keyframe.length());
-        ExprBytesUtils.writeList(buf, keyframe.endValue(), ExprBytesUtils::writeExpression);
+        if (usesMolang)
+            ExprBytesUtils.writeList(buf, keyframe.endValue(), ExprBytesUtils::writeExpression);
+        else
+            buf.writeFloat(((FloatExpression)keyframe.endValue().getFirst()).value());
         buf.writeByte(keyframe.easingType().id);
-        ExprBytesUtils.writeList(buf, keyframe.easingArgs(), (expressions, buf1) ->
+        if (usesMolang)
+            ExprBytesUtils.writeList(buf, keyframe.easingArgs(), (expressions, buf1) ->
                 ExprBytesUtils.writeList(buf1, expressions, ExprBytesUtils::writeExpression)
         );
+        else {
+            List<List<Expression>> easingArgs = keyframe.easingArgs();
+            if (!easingArgs.isEmpty() && !easingArgs.getFirst().isEmpty())
+                buf.writeFloat(((FloatExpression)easingArgs.getFirst().getFirst()).value());
+            else buf.writeFloat(Float.NaN);
+        }
     }
 
     public static Animation read(ByteBuf buf) {
@@ -108,6 +123,7 @@ public final class AnimationBinary {
         }
         ExtraAnimationData data = new ExtraAnimationData();
         data.put("format", AnimationFormat.fromId(buf.readByte()));
+        boolean usesMolang = buf.readBoolean();
         float beginTick = buf.readFloat();
         float endTick = buf.readFloat();
         if (!Float.isNaN(beginTick))
@@ -116,7 +132,7 @@ public final class AnimationBinary {
             data.put("endTick", endTick);
 
         data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUUID(buf)); // required by emotecraft to stop animations
-        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);
+        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, byteBuf -> readBoneAnimation(byteBuf, usesMolang));
 
         // Sounds
         int soundCount = buf.readInt();
@@ -151,39 +167,47 @@ public final class AnimationBinary {
         Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ProtocolUtils::readString, NetworkUtils::readVec3f);
         Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
 
-        return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents);
+        return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents, usesMolang);
     }
 
-    public static BoneAnimation readBoneAnimation(ByteBuf buf) {
-        KeyframeStack rotationKeyFrames = readKeyframeStack(buf);
-        KeyframeStack positionKeyFrames = readKeyframeStack(buf);
-        KeyframeStack scaleKeyFrames = readKeyframeStack(buf);
-        List<Keyframe> bendKeyFrames = readKeyframeList(buf);
+    public static BoneAnimation readBoneAnimation(ByteBuf buf, boolean usesMolang) {
+        KeyframeStack rotationKeyFrames = readKeyframeStack(buf, usesMolang);
+        KeyframeStack positionKeyFrames = readKeyframeStack(buf, usesMolang);
+        KeyframeStack scaleKeyFrames = readKeyframeStack(buf, usesMolang);
+        List<Keyframe> bendKeyFrames = readKeyframeList(buf, usesMolang);
 
         return new BoneAnimation(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
 
-    public static KeyframeStack readKeyframeStack(ByteBuf buf) {
-        List<Keyframe> xKeyframes = readKeyframeList(buf);
-        List<Keyframe> yKeyframes = readKeyframeList(buf);
-        List<Keyframe> zKeyframes = readKeyframeList(buf);
+    public static KeyframeStack readKeyframeStack(ByteBuf buf, boolean usesMolang) {
+        List<Keyframe> xKeyframes = readKeyframeList(buf, usesMolang);
+        List<Keyframe> yKeyframes = readKeyframeList(buf, usesMolang);
+        List<Keyframe> zKeyframes = readKeyframeList(buf, usesMolang);
 
         return new KeyframeStack(xKeyframes, yKeyframes, zKeyframes);
     }
 
-    public static List<Keyframe> readKeyframeList(ByteBuf buf) {
+    public static List<Keyframe> readKeyframeList(ByteBuf buf, boolean usesMolang) {
         int count = buf.readInt();
         List<Keyframe> list = new ArrayList<>(count);
 
         for(int i = 0; i < count; ++i) {
             float length = buf.readFloat();
 
-            List<Expression> endValue = ExprBytesUtils.readList(buf, ExprBytesUtils::readExpression);
+            List<Expression> endValue = usesMolang ? ExprBytesUtils.readList(buf, ExprBytesUtils::readExpression) : Collections.singletonList(FloatExpression.of(buf.readFloat()));
             List<Expression> startValue = !list.isEmpty() ? list.getLast().endValue() : endValue;
             EasingType easingType = EasingType.fromId(buf.readByte());
-            List<List<Expression>> easingArgs = ExprBytesUtils.readList(buf,
+            List<List<Expression>> easingArgs;
+            if (usesMolang)
+                easingArgs = ExprBytesUtils.readList(buf,
                     buf1 -> ExprBytesUtils.readList(buf1, ExprBytesUtils::readExpression)
-            );
+                );
+            else {
+                float easingArg = buf.readFloat();
+                if (Float.isNaN(easingArg))
+                    easingArgs = new ObjectArrayList<>();
+                else easingArgs = Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)));
+            }
 
             list.add(new Keyframe(length, startValue, endValue, easingType, easingArgs));
         }

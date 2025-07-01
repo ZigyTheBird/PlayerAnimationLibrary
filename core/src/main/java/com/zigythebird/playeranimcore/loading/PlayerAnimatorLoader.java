@@ -109,7 +109,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             }
         }
 
-        return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+        return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>(), false);
     }
 
     public static void swapTheZYAxis(KeyframeStack rotationStack) {
