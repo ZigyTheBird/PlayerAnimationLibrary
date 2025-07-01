@@ -129,17 +129,17 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     public static void correctEasings(List<Keyframe> list) {
         EasingType previousEasing = EasingType.EASE_IN_SINE;
         List<List<Expression>> previousEasingArgs = new ObjectArrayList<>();
+        Keyframe keyframe = null;
         for (int i=0;i<list.size();i++) {
-            Keyframe keyframe = list.get(i);
+            keyframe = list.get(i);
             list.set(i, new Keyframe(keyframe.length(), keyframe.startValue(), keyframe.endValue(), previousEasing, previousEasingArgs));
-            if (i == list.size()-1 && previousEasing != keyframe.easingType()) {
-                //If the final easing is constant, it defaults to linear insteadAdd commentMore actions
-                //If you don't want your anim to have endTick lerp then just set stopTick to endTick + 1...
-                list.add(new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), keyframe.easingType() == EasingType.CONSTANT ? EasingType.LINEAR : keyframe.easingType(), keyframe.easingArgs()));
-            }
             previousEasing = keyframe.easingType();
             previousEasingArgs = keyframe.easingArgs();
         }
+        //If the final easing is constant, it defaults to linear insteadAdd commentMore actions
+        //If you don't want your anim to have endTick lerp then just set stopTick to endTick + 1
+        if (keyframe != null)
+            list.add(new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), keyframe.easingType() == EasingType.CONSTANT ? EasingType.LINEAR : keyframe.easingType(), keyframe.easingArgs()));
     }
 
     private Map<String, BoneAnimation> moveDeserializer(List<JsonElement> node, boolean degrees, int version) {
