@@ -1,6 +1,5 @@
 package com.zigythebird.playeranimcore.network;
 
-import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.EasingType;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
@@ -13,12 +12,9 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
-import team.unnamed.mocha.parser.MolangParser;
 import team.unnamed.mocha.parser.ast.Expression;
-import team.unnamed.mocha.util.ExpressionListUtils;
+import team.unnamed.mocha.util.ExprBytesUtils;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -80,25 +76,23 @@ public final class AnimationBinary {
         writeKeyframeStack(buf, bone.rotationKeyFrames());
         writeKeyframeStack(buf, bone.positionKeyFrames());
         writeKeyframeStack(buf, bone.scaleKeyFrames());
-        NetworkUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
+        ExprBytesUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
     }
 
     public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack) {
-        NetworkUtils.writeList(buf, stack.xKeyframes(), AnimationBinary::writeKeyframe);
-        NetworkUtils.writeList(buf, stack.yKeyframes(), AnimationBinary::writeKeyframe);
-        NetworkUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
+        ExprBytesUtils.writeList(buf, stack.xKeyframes(), AnimationBinary::writeKeyframe);
+        ExprBytesUtils.writeList(buf, stack.yKeyframes(), AnimationBinary::writeKeyframe);
+        ExprBytesUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
     }
 
-    public static void writeKeyframe(ByteBuf buf, Keyframe keyframe) {
+    public static void writeKeyframe(Keyframe keyframe, ByteBuf buf) {
         buf.writeFloat(keyframe.length());
-        writeExpressions(buf, keyframe.startValue());
-        writeExpressions(buf, keyframe.endValue());
+        ExprBytesUtils.writeList(buf, keyframe.startValue(), ExprBytesUtils::writeExpression);
+        ExprBytesUtils.writeList(buf, keyframe.endValue(), ExprBytesUtils::writeExpression);
         buf.writeByte(keyframe.easingType().id);
-        NetworkUtils.writeList(buf, keyframe.easingArgs(), AnimationBinary::writeExpressions);
-    }
-
-    public static void writeExpressions(ByteBuf buf, List<Expression> expressions) {
-        ProtocolUtils.writeString(buf, ExpressionListUtils.toString(expressions));
+        ExprBytesUtils.writeList(buf, keyframe.easingArgs(), (expressions, buf1) ->
+                ExprBytesUtils.writeList(buf1, expressions, ExprBytesUtils::writeExpression)
+        );
     }
 
     public static Animation read(ByteBuf buf) {
@@ -164,15 +158,15 @@ public final class AnimationBinary {
         KeyframeStack rotationKeyFrames = readKeyframeStack(buf);
         KeyframeStack positionKeyFrames = readKeyframeStack(buf);
         KeyframeStack scaleKeyFrames = readKeyframeStack(buf);
-        List<Keyframe> bendKeyFrames = NetworkUtils.readList(buf, AnimationBinary::readKeyframe);
+        List<Keyframe> bendKeyFrames = ExprBytesUtils.readList(buf, AnimationBinary::readKeyframe);
 
         return new BoneAnimation(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
 
     public static KeyframeStack readKeyframeStack(ByteBuf buf) {
-        List<Keyframe> xKeyframes = NetworkUtils.readList(buf, AnimationBinary::readKeyframe);
-        List<Keyframe> yKeyframes = NetworkUtils.readList(buf, AnimationBinary::readKeyframe);
-        List<Keyframe> zKeyframes = NetworkUtils.readList(buf, AnimationBinary::readKeyframe);
+        List<Keyframe> xKeyframes = ExprBytesUtils.readList(buf, AnimationBinary::readKeyframe);
+        List<Keyframe> yKeyframes = ExprBytesUtils.readList(buf, AnimationBinary::readKeyframe);
+        List<Keyframe> zKeyframes = ExprBytesUtils.readList(buf, AnimationBinary::readKeyframe);
 
         return new KeyframeStack(xKeyframes, yKeyframes, zKeyframes);
     }
@@ -180,21 +174,13 @@ public final class AnimationBinary {
     public static Keyframe readKeyframe(ByteBuf buf) {
         float length = buf.readFloat();
 
-        List<Expression> startValue = readExpression(buf);
-        List<Expression> endValue = readExpression(buf);
+        List<Expression> startValue = ExprBytesUtils.readList(buf, ExprBytesUtils::readExpression);
+        List<Expression> endValue = ExprBytesUtils.readList(buf, ExprBytesUtils::readExpression);
         EasingType easingType = EasingType.fromId(buf.readByte());
-        List<List<Expression>> easingArgs = NetworkUtils.readList(buf, AnimationBinary::readExpression);
+        List<List<Expression>> easingArgs = ExprBytesUtils.readList(buf,
+                buf1 -> ExprBytesUtils.readList(buf1, ExprBytesUtils::readExpression)
+        );
 
         return new Keyframe(length, startValue, endValue, easingType, easingArgs);
-    }
-
-    public static List<Expression> readExpression(ByteBuf buf) {
-        String molang = ProtocolUtils.readString(buf);
-        try (MolangParser parser = MolangParser.parser(molang)) {
-            return parser.parseAll();
-        } catch (IOException e) {
-            PlayerAnimLib.LOGGER.error("Failed to parse molang: '{}'!", molang, e);
-            return Collections.emptyList();
-        }
     }
 }

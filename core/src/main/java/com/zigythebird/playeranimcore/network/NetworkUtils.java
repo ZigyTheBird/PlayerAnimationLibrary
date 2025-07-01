@@ -27,22 +27,6 @@ public class NetworkUtils {
         }
     }
 
-    public static <T> List<T> readList(ByteBuf buf, Function<ByteBuf, T> reader) {
-        int count = buf.readInt();
-        List<T> list = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            list.add(reader.apply(buf));
-        }
-        return list;
-    }
-
-    public static <T> void writeList(ByteBuf buf, List<T> list, BiConsumer<ByteBuf, T> writer) {
-        buf.writeInt(list.size());
-        for (T entry : list) {
-            writer.accept(buf, entry);
-        }
-    }
-
     public static Vec3f readVec3f(ByteBuf buf) {
         float x = buf.readFloat();
         float y = buf.readFloat();
