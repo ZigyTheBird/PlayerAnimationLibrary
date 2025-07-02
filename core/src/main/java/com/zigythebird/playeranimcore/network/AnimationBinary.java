@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 import team.unnamed.mocha.util.ExprBytesUtils;
+import team.unnamed.mocha.util.VarIntUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,35 +48,35 @@ public final class AnimationBinary {
         buf.writeBoolean(animation.usesMolang());
         buf.writeFloat((float) data.getOrDefault("beginTick", Float.NaN));
         buf.writeFloat((float) data.getOrDefault("endTick", Float.NaN));
-        NetworkUtils.writeUUID(buf, animation.uuid()); // required by emotecraft to stop animations
-        NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, (byteBuf, boneAnimation)
+        NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
+        NetworkUtils.writeMap(buf, animation.boneAnimations(), ExprBytesUtils::writeString, (byteBuf, boneAnimation)
                 -> writeBoneAnimation(byteBuf, boneAnimation, animation.usesMolang()));
 
         // Sounds
-        buf.writeInt(animation.keyFrames().sounds().length);
+        VarIntUtils.writeVarInt(buf, animation.keyFrames().sounds().length);
         for (SoundKeyframeData soundKeyframe : animation.keyFrames().sounds()) {
             buf.writeFloat(soundKeyframe.getStartTick());
-            ProtocolUtils.writeString(buf, soundKeyframe.getSound());
+            ExprBytesUtils.writeString(buf, soundKeyframe.getSound());
         }
 
         // Particles
-        buf.writeInt(animation.keyFrames().particles().length);
+        VarIntUtils.writeVarInt(buf, animation.keyFrames().particles().length);
         for (ParticleKeyframeData particleKeyframe : animation.keyFrames().particles()) {
             buf.writeFloat(particleKeyframe.getStartTick());
-            ProtocolUtils.writeString(buf, particleKeyframe.getEffect());
-            ProtocolUtils.writeString(buf, particleKeyframe.getLocator());
-            ProtocolUtils.writeString(buf, particleKeyframe.script());
+            ExprBytesUtils.writeString(buf, particleKeyframe.getEffect());
+            ExprBytesUtils.writeString(buf, particleKeyframe.getLocator());
+            ExprBytesUtils.writeString(buf, particleKeyframe.script());
         }
 
         // Instructions
-        buf.writeInt(animation.keyFrames().customInstructions().length);
+        VarIntUtils.writeVarInt(buf, animation.keyFrames().customInstructions().length);
         for (CustomInstructionKeyframeData instructionKeyframe : animation.keyFrames().customInstructions()) {
             buf.writeFloat(instructionKeyframe.getStartTick());
-            ProtocolUtils.writeString(buf, instructionKeyframe.getInstructions());
+            ExprBytesUtils.writeString(buf, instructionKeyframe.getInstructions());
         }
 
-        NetworkUtils.writeMap(buf, animation.pivotBones(), ProtocolUtils::writeString, NetworkUtils::writeVec3f);
-        NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
+        NetworkUtils.writeMap(buf, animation.pivotBones(), ExprBytesUtils::writeString, NetworkUtils::writeVec3f);
+        NetworkUtils.writeMap(buf, animation.parents(), ExprBytesUtils::writeString, ExprBytesUtils::writeString);
     }
 
     public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone, boolean usesMolang) {
@@ -131,41 +132,41 @@ public final class AnimationBinary {
         if (!Float.isNaN(endTick))
             data.put("endTick", endTick);
 
-        data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUUID(buf)); // required by emotecraft to stop animations
-        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, byteBuf -> readBoneAnimation(byteBuf, usesMolang));
+        data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
+        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ExprBytesUtils::readString, byteBuf -> readBoneAnimation(byteBuf, usesMolang));
 
         // Sounds
-        int soundCount = buf.readInt();
+        int soundCount = VarIntUtils.readVarInt(buf);
         SoundKeyframeData[] sounds = new SoundKeyframeData[soundCount];
         for (int i = 0; i < soundCount; i++) {
             float startTick = buf.readFloat();
-            String sound = ProtocolUtils.readString(buf);
+            String sound = ExprBytesUtils.readString(buf);
             sounds[i] = new SoundKeyframeData(startTick, sound);
         }
 
         // Particles
-        int particleCount = buf.readInt();
+        int particleCount = VarIntUtils.readVarInt(buf);
         ParticleKeyframeData[] particles = new ParticleKeyframeData[particleCount];
         for (int i = 0; i < particleCount; i++) {
             float startTick = buf.readFloat();
-            String effect = ProtocolUtils.readString(buf);
-            String locator = ProtocolUtils.readString(buf);
-            String script = ProtocolUtils.readString(buf);
+            String effect = ExprBytesUtils.readString(buf);
+            String locator = ExprBytesUtils.readString(buf);
+            String script = ExprBytesUtils.readString(buf);
             particles[i] = new ParticleKeyframeData(startTick, effect, locator, script);
         }
 
         // Instructions
-        int customInstructionCount = buf.readInt();
+        int customInstructionCount = VarIntUtils.readVarInt(buf);
         CustomInstructionKeyframeData[] customInstructions = new CustomInstructionKeyframeData[customInstructionCount];
         for (int i = 0; i < customInstructionCount; i++) {
             float startTick = buf.readFloat();
-            String instructions = ProtocolUtils.readString(buf);
+            String instructions = ExprBytesUtils.readString(buf);
             customInstructions[i] = new CustomInstructionKeyframeData(startTick, instructions);
         }
         Animation.Keyframes keyFrames = new Animation.Keyframes(sounds, particles, customInstructions);
 
-        Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ProtocolUtils::readString, NetworkUtils::readVec3f);
-        Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
+        Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ExprBytesUtils::readString, NetworkUtils::readVec3f);
+        Map<String, String> parents = NetworkUtils.readMap(buf, ExprBytesUtils::readString, ExprBytesUtils::readString);
 
         return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents, usesMolang);
     }

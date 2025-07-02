@@ -134,16 +134,14 @@ public final class LegacyAnimationBinary {
         writeKeyframes(buf, isItem ? part.rotationKeyFrames().zKeyframes() : part.rotationKeyFrames().yKeyframes(), version, easeBefore, isItem);
         writeKeyframes(buf, isItem ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), version, easeBefore, isItem);
         if (BEND_BONE.test(name)) {
-            if (!name.equals("head")) {
-                writeKeyframes(buf, part.bendKeyFrames(), version, easeBefore, false);
-                //Marking the no longer supported Y axis bend keyframes as non-existent
-                if (version >= 2) {
-                    putBoolean(buf, true);
-                    buf.putInt(0);
-                } else {
-                    buf.putInt(0);
-                }
+            //Marking the no longer supported Y axis bend keyframes as non-existent
+            if (version >= 2) {
+                putBoolean(buf, true);
+                buf.putInt(0);
+            } else {
+                buf.putInt(0);
             }
+            writeKeyframes(buf, part.bendKeyFrames(), version, easeBefore, false);
         }
         if (version >= 3) {
             writeKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, easeBefore, false);
@@ -288,9 +286,8 @@ public final class LegacyAnimationBinary {
         readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version, keyframeSize, isItem);
         readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize, isItem);
         if (BEND_BONE.test(name)) {
+            readKeyframes(buf, new ArrayList<>(), version, keyframeSize, false); // Discarded since no Y axis bend support
             readKeyframes(buf, part.bendKeyFrames(), version, keyframeSize, false);
-            //Discarded since no Y axis bend support
-            readKeyframes(buf, new ArrayList<>(), version, keyframeSize, false);
         }
         if (version >= 3) {
             readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, keyframeSize, false);
@@ -417,8 +414,8 @@ public final class LegacyAnimationBinary {
         size += axisSize(part.rotationKeyFrames().yKeyframes(), version, easeBefore);
         size += axisSize(part.rotationKeyFrames().zKeyframes(), version, easeBefore);
         if (bendable) {
-            size += axisSize(part.bendKeyFrames(), version, easeBefore);
             size += version >= 2 ? 5 : 4;
+            size += axisSize(part.bendKeyFrames(), version, easeBefore);
         }
         if (version >= 3) {
             size += axisSize(part.scaleKeyFrames().xKeyframes(), version, easeBefore);
