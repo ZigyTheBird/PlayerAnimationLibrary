@@ -2,7 +2,7 @@ package com.zigythebird.playeranimcore.network;
 
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
-import team.unnamed.mocha.util.VarIntUtils;
+import team.unnamed.mocha.util.network.VarIntUtils;
 
 import java.util.*;
 import java.util.function.BiConsumer;
