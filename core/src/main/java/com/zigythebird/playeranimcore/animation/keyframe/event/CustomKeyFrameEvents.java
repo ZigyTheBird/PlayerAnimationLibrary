@@ -10,6 +10,12 @@ import com.zigythebird.playeranimcore.event.Event;
 import com.zigythebird.playeranimcore.event.EventResult;
 
 public class CustomKeyFrameEvents {
+    /**
+     * A event for pre-defined custom instruction keyframes
+     * <p>
+     * When the keyframe is encountered, the {@link CustomKeyFrameHandler#handle(float, AnimationController, KeyFrameData, AnimationData)} method will be called.
+     * You can then take whatever action you want at this point.
+     */
     public static final Event<CustomKeyFrameHandler<CustomInstructionKeyframeData>> CUSTOM_INSTRUCTION_KEYFRAME_EVENT = new Event<>(listeners -> (animationTick, controller, eventKeyFrame, animationData) -> {
         for (CustomKeyFrameHandler<CustomInstructionKeyframeData> listener : listeners) {
             EventResult result = listener.handle(animationTick, controller, eventKeyFrame, animationData);
@@ -20,6 +26,12 @@ public class CustomKeyFrameEvents {
         return EventResult.PASS;
     });
 
+    /**
+     * A event for when a predefined particle keyframe is hit
+     * <p>
+     * When the keyframe is encountered, the {@link CustomKeyFrameHandler#handle(float, AnimationController, KeyFrameData, AnimationData)} method will be called.
+     * Spawn the particles/effects of your choice at this time.
+     */
     public static final Event<CustomKeyFrameHandler<ParticleKeyframeData>> PARTICLE_KEYFRAME_EVENT = new Event<>(listeners -> (animationTick, controller, eventKeyFrame, animationData) -> {
         for (CustomKeyFrameHandler<ParticleKeyframeData> listener : listeners) {
             EventResult result = listener.handle(animationTick, controller, eventKeyFrame, animationData);
@@ -30,6 +42,12 @@ public class CustomKeyFrameEvents {
         return EventResult.PASS;
     });
 
+    /**
+     * A event for when a predefined sound keyframe is hit
+     * <p>
+     * When the keyframe is encountered, the {@link CustomKeyFrameHandler#handle(float, AnimationController, KeyFrameData, AnimationData)} method will be called.
+     * Play the sound(s) of your choice at this time.
+     */
     public static final Event<CustomKeyFrameHandler<SoundKeyframeData>> SOUND_KEYFRAME_EVENT = new Event<>(listeners -> (animationTick, controller, eventKeyFrame, animationData) -> {
         for (CustomKeyFrameHandler<SoundKeyframeData> listener : listeners) {
             EventResult result = listener.handle(animationTick, controller, eventKeyFrame, animationData);
