@@ -2,6 +2,7 @@ package com.zigythebird.playeranimcore.network;
 
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
+import team.unnamed.mocha.util.VarIntUtils;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -9,7 +10,7 @@ import java.util.function.Function;
 
 public class NetworkUtils {
     public static <K, V> Map<K, V> readMap(ByteBuf buf, Function<ByteBuf, K> keyReader, Function<ByteBuf, V> valueReader) {
-        int count = buf.readInt();
+        int count = VarIntUtils.readVarInt(buf);
         Map<K, V> map = new HashMap<>(count);
         for (int i = 0; i < count; i++) {
             K key = keyReader.apply(buf);
@@ -20,7 +21,7 @@ public class NetworkUtils {
     }
 
     public static <K, V> void writeMap(ByteBuf buf, Map<K, V> map, BiConsumer<ByteBuf, K> keyWriter, BiConsumer<ByteBuf, V> valueWriter) {
-        buf.writeInt(map.size());
+        VarIntUtils.writeVarInt(buf, map.size());
         for (var entry : map.entrySet()) {
             keyWriter.accept(buf, entry.getKey());
             valueWriter.accept(buf, entry.getValue());
@@ -40,14 +41,14 @@ public class NetworkUtils {
         buf.writeFloat(vec3f.z());
     }
 
-    public static void writeUUID(ByteBuf buffer, UUID id) {
-        buffer.writeLong(id.getMostSignificantBits());
-        buffer.writeLong(id.getLeastSignificantBits());
+    public static UUID readUuid(ByteBuf buf) {
+        long msb = buf.readLong();
+        long lsb = buf.readLong();
+        return new UUID(msb, lsb);
     }
 
-    public static UUID readUUID(ByteBuf buffer) {
-        long mostSigBits = buffer.readLong();
-        long leastSigBits = buffer.readLong();
-        return new UUID(mostSigBits, leastSigBits);
+    public static void writeUuid(ByteBuf buf, UUID uuid) {
+        buf.writeLong(uuid.getMostSignificantBits());
+        buf.writeLong(uuid.getLeastSignificantBits());
     }
 }
