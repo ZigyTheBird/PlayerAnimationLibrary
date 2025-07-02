@@ -272,7 +272,7 @@ public final class LegacyAnimationBinary {
         data.put("uuid", new UUID(msb, lsb));
         data.put("format", AnimationFormat.PLAYER_ANIMATOR);
 
-        return new Animation(data, endTick, loopType, boneAnimations, UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>(), false);
+        return new Animation(data, endTick, loopType, boneAnimations, UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
     private static BoneAnimation readPart(ByteBuffer buf, String name, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {

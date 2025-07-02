@@ -26,8 +26,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		JsonObject animationObj = json.getAsJsonObject();
 
 		float length = animationObj.has("animation_length") ? JsonUtil.getAsFloat(animationObj, "animation_length") * 20f : -1;
-		UsesMolangChecker usesMolangChecker = new UsesMolangChecker();
-		Map<String, BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()), usesMolangChecker);
+		Map<String, BoneAnimation> boneAnimations = bakeBoneAnimations(JsonUtil.getAsJsonObject(animationObj, "bones", new JsonObject()));
 		if (length == -1) length = calculateAnimationLength(boneAnimations);
 
 		Animation.LoopType loopType = readLoopType(animationObj, length);
@@ -42,7 +41,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID));
 		}
 
-		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents, usesMolangChecker.hasMolangBeenUsed());
+		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);
 	}
 
 	private static Animation.LoopType readLoopType(JsonObject animationObj, float length) throws JsonParseException {
@@ -56,15 +55,15 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		return Animation.LoopType.fromJson(animationObj.get("loop"));
 	}
 
-	private static Map<String, BoneAnimation> bakeBoneAnimations(JsonObject bonesObj, UsesMolangChecker usesMolangChecker) {
+	private static Map<String, BoneAnimation> bakeBoneAnimations(JsonObject bonesObj) {
 		Map<String, BoneAnimation> animations = new HashMap<>(bonesObj.size());
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
-			KeyframeStack scaleFrames = buildKeyframeStack(getKeyframes(entryObj.get("scale")), TransformType.SCALE, usesMolangChecker);
-			KeyframeStack positionFrames = buildKeyframeStack(getKeyframes(entryObj.get("position")), TransformType.POSITION, usesMolangChecker);
-			KeyframeStack rotationFrames = buildKeyframeStack(getKeyframes(entryObj.get("rotation")), TransformType.ROTATION, usesMolangChecker);
-			KeyframeStack bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND, usesMolangChecker);
+			KeyframeStack scaleFrames = buildKeyframeStack(getKeyframes(entryObj.get("scale")), TransformType.SCALE);
+			KeyframeStack positionFrames = buildKeyframeStack(getKeyframes(entryObj.get("position")), TransformType.POSITION);
+			KeyframeStack rotationFrames = buildKeyframeStack(getKeyframes(entryObj.get("rotation")), TransformType.ROTATION);
+			KeyframeStack bendFrames = buildKeyframeStack(getKeyframes(entryObj.get("bend")), TransformType.BEND);
 			animations.put(
 					UniversalAnimLoader.getCorrectPlayerBoneName(entry.getKey()),
 					new BoneAnimation(rotationFrames, positionFrames, scaleFrames, bendFrames.xKeyframes())
@@ -151,7 +150,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
 	}
 
-	private static KeyframeStack buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type, UsesMolangChecker usesMolangChecker) {
+	private static KeyframeStack buildKeyframeStack(List<FloatObjectPair<JsonElement>> entries, TransformType type) {
 		if (entries.isEmpty()) return new KeyframeStack();
 
 		List<Keyframe> xFrames = new ObjectArrayList<>();
@@ -174,9 +173,9 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			Expression defaultValue = type == TransformType.SCALE ? FloatExpression.ONE : FloatExpression.ZERO;
 
 			JsonArray keyFrameVector = element instanceof JsonArray array ? array : JsonUtil.getAsJsonArray(element.getAsJsonObject(), "vector");
-			List<Expression> xValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(0), defaultValue, usesMolangChecker);
-			List<Expression> yValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(1), defaultValue, usesMolangChecker);
-			List<Expression> zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue, usesMolangChecker);
+			List<Expression> xValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(0), defaultValue);
+			List<Expression> yValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(1), defaultValue);
+			List<Expression> zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
 			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
