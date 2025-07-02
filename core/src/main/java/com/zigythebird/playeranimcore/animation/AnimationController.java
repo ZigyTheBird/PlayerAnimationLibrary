@@ -1,10 +1,7 @@
 package com.zigythebird.playeranimcore.animation;
 
-import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.keyframe.*;
-import com.zigythebird.playeranimcore.animation.keyframe.event.CustomInstructionKeyframeEvent;
-import com.zigythebird.playeranimcore.animation.keyframe.event.ParticleKeyframeEvent;
-import com.zigythebird.playeranimcore.animation.keyframe.event.SoundKeyframeEvent;
+import com.zigythebird.playeranimcore.animation.keyframe.event.CustomKeyFrameEvents;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.KeyFrameData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
@@ -24,6 +21,7 @@ import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
+import com.zigythebird.playeranimcore.event.EventResult;
 import com.zigythebird.playeranimcore.math.ModMatrix4f;
 import com.zigythebird.playeranimcore.math.ModVector4f;
 import com.zigythebird.playeranimcore.math.Vec3f;
@@ -69,12 +67,11 @@ public abstract class AnimationController implements IAnimation {
 	protected boolean isJustStarting = false;
 	protected boolean needsAnimationReload = false;
 	protected boolean shouldResetTick = false;
-	private boolean justStopped = true;
 	protected boolean justStartedTransition = false;
 
-	protected SoundKeyframeHandler soundKeyframeHandler = null;
-	protected ParticleKeyframeHandler particleKeyframeHandler = null;
-	protected CustomKeyframeHandler customKeyframeHandler = null;
+	protected CustomKeyFrameEvents.CustomKeyFrameHandler<SoundKeyframeData> soundKeyframeHandler = null;
+	protected CustomKeyFrameEvents.CustomKeyFrameHandler<ParticleKeyframeData> particleKeyframeHandler = null;
+	protected CustomKeyFrameEvents.CustomKeyFrameHandler<CustomInstructionKeyframeData> customKeyframeHandler = null;
 
 	protected RawAnimation triggeredAnimation = null;
 	protected boolean handlingTriggeredAnimations = false;
@@ -121,27 +118,27 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * Applies the given {@link SoundKeyframeHandler} to this controller, for handling {@link SoundKeyframeEvent sound keyframe instructions}
+	 * Applies the given {@link CustomKeyFrameEvents.CustomKeyFrameHandler} to this controller, for handling {@link SoundKeyframeData sound keyframe instructions}
 	 */
-	public AnimationController setSoundKeyframeHandler(SoundKeyframeHandler soundHandler) {
+	public AnimationController setSoundKeyframeHandler(CustomKeyFrameEvents.CustomKeyFrameHandler<SoundKeyframeData> soundHandler) {
 		this.soundKeyframeHandler = soundHandler;
 
 		return this;
 	}
 
 	/**
-	 * Applies the given {@link ParticleKeyframeHandler} to this controller, for handling {@link ParticleKeyframeEvent particle keyframe instructions}
+	 * Applies the given {@link CustomKeyFrameEvents.CustomKeyFrameHandler} to this controller, for handling {@link ParticleKeyframeData particle keyframe instructions}
 	 */
-	public AnimationController setParticleKeyframeHandler(ParticleKeyframeHandler particleHandler) {
+	public AnimationController setParticleKeyframeHandler(CustomKeyFrameEvents.CustomKeyFrameHandler<ParticleKeyframeData> particleHandler) {
 		this.particleKeyframeHandler = particleHandler;
 
 		return this;
 	}
 
 	/**
-	 * Applies the given {@link CustomKeyframeHandler} to this controller, for handling {@link CustomInstructionKeyframeEvent sound keyframe instructions}
+	 * Applies the given {@link CustomKeyFrameEvents.CustomKeyFrameHandler} to this controller, for handling {@link CustomInstructionKeyframeData sound keyframe instructions}
 	 */
-	public AnimationController setCustomInstructionKeyframeHandler(CustomKeyframeHandler customInstructionHandler) {
+	public AnimationController setCustomInstructionKeyframeHandler(CustomKeyFrameEvents.CustomKeyFrameHandler<CustomInstructionKeyframeData> customInstructionHandler) {
 		this.customKeyframeHandler = customInstructionHandler;
 
 		return this;
@@ -479,7 +476,6 @@ public abstract class AnimationController implements IAnimation {
 
 		if (playState == PlayState.STOP || (this.currentAnimation == null && this.animationQueue.isEmpty())) {
 			this.animationState = State.STOPPED;
-			this.justStopped = true;
 
 			return;
 		}
@@ -579,39 +575,37 @@ public abstract class AnimationController implements IAnimation {
 			return -1;
 		}).forEach(entry -> this.boneAnimationQueues.putLast(entry.getKey(), entry.getValue()));
 
-		for (SoundKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().sounds()) {
-			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
-				if (this.soundKeyframeHandler == null) {
-					PlayerAnimLib.LOGGER.warn("Sound Keyframe found for {}, but no keyframe handler registered", this);
+		handleCustomKeyframe(
+				this.currentAnimation.animation().keyFrames().sounds(),
+				this.soundKeyframeHandler, CustomKeyFrameEvents.SOUND_KEYFRAME_EVENT.invoker(),
+				adjustedTick, animationData
+		);
 
-					break;
+		handleCustomKeyframe(
+				this.currentAnimation.animation().keyFrames().particles(),
+				this.particleKeyframeHandler, CustomKeyFrameEvents.PARTICLE_KEYFRAME_EVENT.invoker(),
+				adjustedTick, animationData
+		);
+
+		handleCustomKeyframe(
+				this.currentAnimation.animation().keyFrames().customInstructions(),
+				this.customKeyframeHandler, CustomKeyFrameEvents.CUSTOM_INSTRUCTION_KEYFRAME_EVENT.invoker(),
+				adjustedTick, animationData
+		);
+	}
+
+	private <T extends KeyFrameData> void handleCustomKeyframe(T[] keyframes, @Nullable CustomKeyFrameEvents.CustomKeyFrameHandler<T> main, CustomKeyFrameEvents.CustomKeyFrameHandler<T> event, float animationTick, AnimationData animationData) {
+		for (T keyframeData : keyframes) {
+			if (animationTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
+
+				EventResult result = main == null ? EventResult.PASS : main.handle(animationTick, this, keyframeData, animationData);
+				if (result == EventResult.PASS) {
+					result = event.handle(animationTick, this, keyframeData, animationData);
 				}
 
-				this.soundKeyframeHandler.handle(new SoundKeyframeEvent(adjustedTick, this, keyframeData, animationData));
-			}
-		}
-
-		for (ParticleKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().particles()) {
-			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
-				if (this.particleKeyframeHandler == null) {
-					PlayerAnimLib.LOGGER.warn("Particle Keyframe found for {}, but no keyframe handler registered", this);
-
-					break;
-				}
-
-				this.particleKeyframeHandler.handle(new ParticleKeyframeEvent(adjustedTick, this, keyframeData, animationData));
-			}
-		}
-
-		for (CustomInstructionKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().customInstructions()) {
-			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
-				if (this.customKeyframeHandler == null) {
-					PlayerAnimLib.LOGGER.warn("Custom Instruction Keyframe found for {}, but no keyframe handler registered", this);
-
-					break;
-				}
-
-				this.customKeyframeHandler.handle(new CustomInstructionKeyframeEvent(adjustedTick, this, keyframeData, animationData));
+				/*if (result == EventResult.FAIL) { TODO
+					return;
+				}*/
 			}
 		}
 	}
@@ -1045,39 +1039,6 @@ public abstract class AnimationController implements IAnimation {
 			return setAnimation(animation, 0);
 		}
 		PlayState setAnimation(RawAnimation animation, int startFromTick);
-	}
-
-	/**
-	 * A handler for when a predefined sound keyframe is hit
-	 * <p>
-	 * When the keyframe is encountered, the {@link SoundKeyframeHandler#handle(SoundKeyframeEvent)} method will be called.
-	 * Play the sound(s) of your choice at this time.
-	 */
-	@FunctionalInterface
-	public interface SoundKeyframeHandler {
-		void handle(SoundKeyframeEvent event);
-	}
-
-	/**
-	 * A handler for when a predefined particle keyframe is hit
-	 * <p>
-	 * When the keyframe is encountered, the {@link ParticleKeyframeHandler#handle(ParticleKeyframeEvent)} method will be called.
-	 * Spawn the particles/effects of your choice at this time.
-	 */
-	@FunctionalInterface
-	public interface ParticleKeyframeHandler {
-		void handle(ParticleKeyframeEvent event);
-	}
-
-	/**
-	 * A handler for pre-defined custom instruction keyframes
-	 * <p>
-	 * When the keyframe is encountered, the {@link CustomKeyframeHandler#handle(CustomInstructionKeyframeEvent)} method will be called.
-	 * You can then take whatever action you want at this point.
-	 */
-	@FunctionalInterface
-	public interface CustomKeyframeHandler {
-		void handle(CustomInstructionKeyframeEvent event);
 	}
 
 	@SuppressWarnings("ConstantConditions")

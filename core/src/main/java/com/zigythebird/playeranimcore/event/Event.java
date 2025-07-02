@@ -24,18 +24,20 @@
 
 package com.zigythebird.playeranimcore.event;
 
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
+import java.util.List;
 
 /**
  * To register a listener, use {@link Event#register(Object)};
  * @param <T>
  */
 public class Event<T> {
-    final ArrayList<T> listeners = new ArrayList<>();
-    final Invoker<T> _invoker;
+    private final List<T> listeners = new ObjectArrayList<>();
+    private final Invoker<T> invoker;
 
-    public Event(Class<T> clazz, Invoker<T> invoker){
-        this._invoker = invoker;
+    public Event(Invoker<T> invoker) {
+        this.invoker = invoker;
     }
 
     /**
@@ -44,8 +46,8 @@ public class Event<T> {
      * @return the invoker
      * This shall <strong>only</strong> be used by the API
      */
-    public final T invoker(){
-        return _invoker.invoker(listeners);
+    public final T invoker() {
+        return invoker.invoker(listeners);
     }
 
     /**
@@ -53,8 +55,8 @@ public class Event<T> {
      * See the actual event documentation for return type
      * @param listener the listener.
      */
-    public void register(T listener){
-        if(listener == null) throw new NullPointerException("listener can not be null");
+    public void register(T listener) {
+        if (listener == null) throw new NullPointerException("listener can not be null");
         listeners.add(listener);
     }
 
@@ -62,7 +64,7 @@ public class Event<T> {
      * unregister the listener
      * @param listener listener to unregister, or a similar listener if it has <code>equals()</code> function.
      */
-    public void unregister(T listener){
+    public void unregister(T listener) {
         listeners.remove(listener);
     }
 
@@ -70,5 +72,4 @@ public class Event<T> {
     public interface Invoker<T>{
         T invoker(Iterable<T> listeners);
     }
-
 }

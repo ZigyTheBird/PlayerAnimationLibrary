@@ -19,10 +19,5 @@ public enum EventResult {
     /**
      * Event failed, cancel the further processing, see the event's documentation
      */
-    FAIL,
-
-    /**
-     * Cancel the event, then does nothing. sometimes the same as SUCCESS
-     */
-    CONSUME
+    FAIL
 }
