@@ -14,7 +14,8 @@ import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.util.ExprBytesUtils;
-import team.unnamed.mocha.util.VarIntUtils;
+import team.unnamed.mocha.util.network.ProtocolUtils;
+import team.unnamed.mocha.util.network.VarIntUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,54 +46,53 @@ public final class AnimationBinary {
         buf.writeFloat((float) data.getOrDefault("beginTick", Float.NaN));
         buf.writeFloat((float) data.getOrDefault("endTick", Float.NaN));
         NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
-        NetworkUtils.writeMap(buf, animation.boneAnimations(), ExprBytesUtils::writeString, AnimationBinary::writeBoneAnimation);
+        NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
 
         // Sounds
         VarIntUtils.writeVarInt(buf, animation.keyFrames().sounds().length);
         for (SoundKeyframeData soundKeyframe : animation.keyFrames().sounds()) {
             buf.writeFloat(soundKeyframe.getStartTick());
-            ExprBytesUtils.writeString(buf, soundKeyframe.getSound());
+            ProtocolUtils.writeString(buf, soundKeyframe.getSound());
         }
 
         // Particles
         VarIntUtils.writeVarInt(buf, animation.keyFrames().particles().length);
         for (ParticleKeyframeData particleKeyframe : animation.keyFrames().particles()) {
             buf.writeFloat(particleKeyframe.getStartTick());
-            ExprBytesUtils.writeString(buf, particleKeyframe.getEffect());
-            ExprBytesUtils.writeString(buf, particleKeyframe.getLocator());
-            ExprBytesUtils.writeString(buf, particleKeyframe.script());
+            ProtocolUtils.writeString(buf, particleKeyframe.getEffect());
+            ProtocolUtils.writeString(buf, particleKeyframe.getLocator());
+            ProtocolUtils.writeString(buf, particleKeyframe.script());
         }
 
         // Instructions
         VarIntUtils.writeVarInt(buf, animation.keyFrames().customInstructions().length);
         for (CustomInstructionKeyframeData instructionKeyframe : animation.keyFrames().customInstructions()) {
             buf.writeFloat(instructionKeyframe.getStartTick());
-            ExprBytesUtils.writeString(buf, instructionKeyframe.getInstructions());
+            ProtocolUtils.writeString(buf, instructionKeyframe.getInstructions());
         }
 
-        NetworkUtils.writeMap(buf, animation.pivotBones(), ExprBytesUtils::writeString, NetworkUtils::writeVec3f);
-        NetworkUtils.writeMap(buf, animation.parents(), ExprBytesUtils::writeString, ExprBytesUtils::writeString);
+        NetworkUtils.writeMap(buf, animation.pivotBones(), ProtocolUtils::writeString, NetworkUtils::writeVec3f);
+        NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }
 
     public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone) {
         writeKeyframeStack(buf, bone.rotationKeyFrames());
         writeKeyframeStack(buf, bone.positionKeyFrames());
         writeKeyframeStack(buf, bone.scaleKeyFrames());
-        ExprBytesUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
     }
 
     public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack) {
-        ExprBytesUtils.writeList(buf, stack.xKeyframes(), AnimationBinary::writeKeyframe);
-        ExprBytesUtils.writeList(buf, stack.yKeyframes(), AnimationBinary::writeKeyframe);
-        ExprBytesUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, stack.xKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, stack.yKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
     }
 
     public static void writeKeyframe(Keyframe keyframe, ByteBuf buf) {
         buf.writeFloat(keyframe.length());
         ExprBytesUtils.writeList(buf, keyframe.endValue(), ExprBytesUtils::writeExpression);
         buf.writeByte(keyframe.easingType().id);
-        ExprBytesUtils.writeList(buf, keyframe.easingArgs(), (expressions, buf1) ->
-                ExprBytesUtils.writeList(buf1, expressions, ExprBytesUtils::writeExpression));
+        ProtocolUtils.writeList(buf, keyframe.easingArgs(), ExprBytesUtils::writeExpressions);;
     }
 
     public static Animation read(ByteBuf buf) {
@@ -117,14 +117,14 @@ public final class AnimationBinary {
             data.put("endTick", endTick);
 
         data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
-        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ExprBytesUtils::readString, AnimationBinary::readBoneAnimation);
+        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);
 
         // Sounds
         int soundCount = VarIntUtils.readVarInt(buf);
         SoundKeyframeData[] sounds = new SoundKeyframeData[soundCount];
         for (int i = 0; i < soundCount; i++) {
             float startTick = buf.readFloat();
-            String sound = ExprBytesUtils.readString(buf);
+            String sound = ProtocolUtils.readString(buf);
             sounds[i] = new SoundKeyframeData(startTick, sound);
         }
 
@@ -133,9 +133,9 @@ public final class AnimationBinary {
         ParticleKeyframeData[] particles = new ParticleKeyframeData[particleCount];
         for (int i = 0; i < particleCount; i++) {
             float startTick = buf.readFloat();
-            String effect = ExprBytesUtils.readString(buf);
-            String locator = ExprBytesUtils.readString(buf);
-            String script = ExprBytesUtils.readString(buf);
+            String effect = ProtocolUtils.readString(buf);
+            String locator = ProtocolUtils.readString(buf);
+            String script = ProtocolUtils.readString(buf);
             particles[i] = new ParticleKeyframeData(startTick, effect, locator, script);
         }
 
@@ -144,13 +144,13 @@ public final class AnimationBinary {
         CustomInstructionKeyframeData[] customInstructions = new CustomInstructionKeyframeData[customInstructionCount];
         for (int i = 0; i < customInstructionCount; i++) {
             float startTick = buf.readFloat();
-            String instructions = ExprBytesUtils.readString(buf);
+            String instructions = ProtocolUtils.readString(buf);
             customInstructions[i] = new CustomInstructionKeyframeData(startTick, instructions);
         }
         Animation.Keyframes keyFrames = new Animation.Keyframes(sounds, particles, customInstructions);
 
-        Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ExprBytesUtils::readString, NetworkUtils::readVec3f);
-        Map<String, String> parents = NetworkUtils.readMap(buf, ExprBytesUtils::readString, ExprBytesUtils::readString);
+        Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ProtocolUtils::readString, NetworkUtils::readVec3f);
+        Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
 
         return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents);
     }
