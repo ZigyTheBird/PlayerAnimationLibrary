@@ -36,7 +36,7 @@ public class PlayerAnimationController extends AnimationController {
     protected void internalSetupAnim(AnimationData state) {
         if (state instanceof PlayerAnimationData playerAnimationData) {
             this.isJustStarting = playerAnimationData.getPlayerAnimManager().isFirstTick();
-            this.process(state, playerAnimationData.getPlayer().playerAnimLib$getAnimProcessor().animTime, false);
+            this.process(state, playerAnimationData.getPlayer().playerAnimLib$getAnimProcessor().animTime);
         }
         super.internalSetupAnim(state);
     }
