@@ -29,7 +29,16 @@ public class BinarySizeTest {
             AnimationBinary.write(byteBuf, version, animation);
 
             int size = byteBuf.readableBytes();
-            System.out.println("[NEW] in version " + version + " size " + size);
+            System.out.println("[NEW] without MoLang in version " + version + " size " + size);
+            Assertions.assertTrue(size < MAX_PACKET_SIZE, "size exceeds");
+
+            byteBuf = Unpooled.buffer();
+            AnimationBinary.write(byteBuf, version,
+                    new Animation(animation.data(), animation.length(), animation.loopType(), animation.boneAnimations(),
+                            animation.keyFrames(), animation.pivotBones(), animation.parents(), true));
+
+            size = byteBuf.readableBytes();
+            System.out.println("[NEW] with MoLang in version " + version + " size " + size);
             Assertions.assertTrue(size < MAX_PACKET_SIZE, "size exceeds");
         }
     }
