@@ -55,7 +55,16 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
     public interface LoopType {
         Map<String, LoopType> LOOP_TYPES = new ConcurrentHashMap<>(4);
 
-        LoopType DEFAULT = (currentAnimation) -> currentAnimation.loopType().shouldPlayAgain(currentAnimation);
+        LoopType DEFAULT = new LoopType() {
+            @Override
+            public boolean shouldPlayAgain(Animation currentAnimation) {
+                return currentAnimation.loopType().shouldPlayAgain(currentAnimation);
+            }
+
+            public float restartFromTick(Animation currentAnimation) {
+                return currentAnimation.loopType().restartFromTick(currentAnimation);
+            }
+        };
         LoopType PLAY_ONCE = register("play_once", register("false", (currentAnimation) -> false));
         LoopType HOLD_ON_LAST_FRAME = register("hold_on_last_frame", (currentAnimation) -> true);
         LoopType LOOP = register("loop", register("true", (currentAnimation) -> true));
