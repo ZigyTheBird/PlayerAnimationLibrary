@@ -108,7 +108,6 @@ public final class AnimationBinary {
         }
         ExtraAnimationData data = new ExtraAnimationData();
         data.put("format", AnimationFormat.fromId(buf.readByte()));
-        boolean usesMolang = buf.readBoolean();
         float beginTick = buf.readFloat();
         float endTick = buf.readFloat();
         if (!Float.isNaN(beginTick))
@@ -182,8 +181,7 @@ public final class AnimationBinary {
             List<Expression> endValue = ProtocolUtils.readList(buf, ExprBytesUtils::readExpression);
             List<Expression> startValue = !list.isEmpty() ? list.getLast().endValue() : endValue;
             EasingType easingType = EasingType.fromId(buf.readByte());
-            List<List<Expression>> easingArgs;
-            easingArgs = ProtocolUtils.readList(buf,
+            List<List<Expression>> easingArgs = ProtocolUtils.readList(buf,
                     buf1 -> ProtocolUtils.readList(buf1, ExprBytesUtils::readExpression)
             );
 
