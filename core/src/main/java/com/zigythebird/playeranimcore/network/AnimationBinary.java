@@ -90,7 +90,7 @@ public final class AnimationBinary {
 
     public static void writeKeyframe(Keyframe keyframe, ByteBuf buf) {
         buf.writeFloat(keyframe.length());
-        ProtocolUtils.writeList(buf, keyframe.endValue(), ExprBytesUtils::writeExpression);
+        ExprBytesUtils.writeExpressions(keyframe.endValue(), buf);
         buf.writeByte(keyframe.easingType().id);
         ProtocolUtils.writeList(buf, keyframe.easingArgs(), ExprBytesUtils::writeExpressions);
     }
@@ -175,15 +175,13 @@ public final class AnimationBinary {
         int count = VarIntUtils.readVarInt(buf);
         List<Keyframe> list = new ArrayList<>(count);
 
-        for(int i = 0; i < count; ++i) {
+        for (int i = 0; i < count; ++i) {
             float length = buf.readFloat();
 
-            List<Expression> endValue = ProtocolUtils.readList(buf, ExprBytesUtils::readExpression);
+            List<Expression> endValue = ExprBytesUtils.readExpressions(buf);
             List<Expression> startValue = !list.isEmpty() ? list.getLast().endValue() : endValue;
             EasingType easingType = EasingType.fromId(buf.readByte());
-            List<List<Expression>> easingArgs = ProtocolUtils.readList(buf,
-                    buf1 -> ProtocolUtils.readList(buf1, ExprBytesUtils::readExpression)
-            );
+            List<List<Expression>> easingArgs = ProtocolUtils.readList(buf, ExprBytesUtils::readExpressions);
 
             list.add(new Keyframe(length, startValue, endValue, easingType, easingArgs));
         }
