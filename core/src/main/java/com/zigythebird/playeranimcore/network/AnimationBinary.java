@@ -189,7 +189,7 @@ public final class AnimationBinary {
     }
 
     public static List<Keyframe> readKeyframeList(ByteBuf buf, boolean usesMolang) {
-        int count = buf.readInt();
+        int count = VarIntUtils.readVarInt(buf);
         List<Keyframe> list = new ArrayList<>(count);
 
         for(int i = 0; i < count; ++i) {
