@@ -599,9 +599,9 @@ public abstract class AnimationController implements IAnimation {
 					result = event.handle(animationTick, this, keyframeData, animationData);
 				}
 
-				/*if (result == EventResult.FAIL) { TODO
+				if (result == EventResult.FAIL) {
 					return;
-				}*/
+				}
 			}
 		}
 	}
