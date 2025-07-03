@@ -642,11 +642,10 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	public boolean hasBeginTick() {
-		return this.currentAnimation != null && this.currentAnimation.animation().data().has("beginTick");
+		return this.currentAnimation.animation().data().has("beginTick");
 	}
 
 	public boolean hasEndTick() {
-		if (this.currentAnimation == null) return false;
 		Animation animation = this.currentAnimation.animation();
 		return animation.data().has("endTick") && !animation.loopType().shouldPlayAgain(animation);
 	}
@@ -731,7 +730,6 @@ public abstract class AnimationController implements IAnimation {
 				transitionLengthSetter.accept(currentFrame.length());
 			} else if (hasEndTick() && !frames.isEmpty() && currentFrame == frames.getLast() && tick >= location.tick()
 					&& endTick <= tick) {
-
 				transitionLengthSetter.accept(animation.length() - endTick);
 			} else transitionLengthSetter.accept(null);
 		}
@@ -785,7 +783,7 @@ public abstract class AnimationController implements IAnimation {
 	public PlayerAnimBone get3DTransformRaw(@NotNull PlayerAnimBone bone) {
 		if (activeBones.containsKey(bone.getName())) {
 			PlayerAnimBone bone1 = activeBones.get(bone.getName());
-			if (bone1 instanceof AdvancedPlayerAnimBone advancedBone) {
+			if (this.currentAnimation != null && bone1 instanceof AdvancedPlayerAnimBone advancedBone) {
 				ExtraAnimationData extraData = this.currentAnimation.animation().data();
 				if (hasBeginTick() && extraData.<Float>get("beginTick").get() > this.getAnimationTicks()) {
 					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks(), null);
@@ -922,7 +920,7 @@ public abstract class AnimationController implements IAnimation {
 
 				Vec3f defaultPos = BONE_POSITIONS.getOrDefault(bone.getName(), Vec3f.ZERO);
 				ModVector4f pos = new ModVector4f(defaultPos.x(), defaultPos.y(), defaultPos.z(), 1).mul(matrix);
-				bone.setPosX(pos.x - defaultPos.x() + bone.getPosX());
+				bone.setPosX(-pos.x + defaultPos.x() + bone.getPosX());
 				bone.setPosY(pos.y - defaultPos.y() + bone.getPosY());
 				bone.setPosZ(-pos.z + defaultPos.z() + bone.getPosZ());
 
