@@ -44,7 +44,7 @@ public final class PlayerAnimationAccess {
      * <hr>
      * NOTE: When the event fires, {@link IAnimatedPlayer#playerAnimLib$getAnimManager()} will be null you'll have to use the given stack.
      */
-    public static final Event<AnimationRegister> REGISTER_ANIMATION_EVENT = new Event<>(AnimationRegister.class, listeners -> (player, animationStack) -> {
+    public static final Event<AnimationRegister> REGISTER_ANIMATION_EVENT = new Event<>(listeners -> (player, animationStack) -> {
         for (AnimationRegister listener : listeners) {
             listener.registerAnimation(player, animationStack);
         }
