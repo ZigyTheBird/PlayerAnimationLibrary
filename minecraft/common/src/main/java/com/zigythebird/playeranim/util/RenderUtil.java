@@ -50,7 +50,7 @@ public final class RenderUtil {
         part.zScale = bone.getScaleZ();
     }
 
-	public static void translatePoseStackToBone(PoseStack poseStack, PlayerAnimBone bone) {
+	public static void translateMatrixToBone(PoseStack poseStack, PlayerAnimBone bone) {
 		poseStack.translate(bone.getPosX() / 16, bone.getPosY() / 16, bone.getPosZ() / 16);
 		RenderUtil.rotateMatrixAroundBone(poseStack, bone);
 		poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());

@@ -55,6 +55,7 @@ public abstract class AnimationController implements IAnimation {
 			"head", new Vec3f(0, 24, 0),
 			"body", new Vec3f(0, 12, 0)
 	);
+	public static KeyframeLocation<Keyframe> EMPTY_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0), 0, 0);
 	
 	protected final AnimationStateHandler stateHandler;
 	protected final LinkedHashMap<String, BoneAnimationQueue> boneAnimationQueues = new LinkedHashMap<>();
@@ -694,7 +695,7 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		this.pivotBones.clear();
-		for (Map.Entry<String, Vec3f> entry : currentAnimation.animation().pivotBones().entrySet()) {
+		for (Map.Entry<String, Vec3f> entry : currentAnimation.animation().bones().entrySet()) {
 			this.pivotBones.put(entry.getKey(), new PivotBone(entry.getKey(), entry.getValue()));
 		}
 	}
@@ -758,7 +759,7 @@ public abstract class AnimationController implements IAnimation {
 	 */
 	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, float ageInTicks) {
 		if (frames.isEmpty())
-			return new KeyframeLocation<>(new Keyframe(0), 0, 0);
+			return EMPTY_KEYFRAME_LOCATION;
 
 		float totalFrameTime = 0;
 
@@ -901,9 +902,14 @@ public abstract class AnimationController implements IAnimation {
 		if (this.currentAnimation == null) return;
 		Map<String, String> parentsMap = this.currentAnimation.animation().parents();
 
+        List<PlayerAnimBone> bones1 = new ArrayList<>(this.bones.values());
+		for (PlayerAnimBone pivotBone : this.pivotBones.values()) {
+			if (!parentsMap.containsValue(pivotBone.getName()))
+				bones1.add(pivotBone);
+		}
+
 		for (PlayerAnimBone bone : this.bones.values()) {
 			if (parentsMap.containsKey(bone.getName())) {
-				this.activeBones.put(bone.getName(), bone);
 				if (!this.boneAnimationQueues.containsKey(bone.getName())) bone.setToInitialPose();
 				ModMatrix4f matrix = new ModMatrix4f();
 				List<PivotBone> parents = new ArrayList<>();

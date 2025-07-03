@@ -1,7 +1,7 @@
 /*package com.zigythebird.playeranim.animation.layered.modifier;
 
 import com.zigythebird.playeranim.animation.AnimationData;
-import com.zigythebird.playeranim.pivotBones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.PlayerAnimBone;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;

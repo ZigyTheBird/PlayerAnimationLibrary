@@ -38,9 +38,9 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
                     Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(json, "parents", new JsonObject()));
                     Map<String, Vec3f> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(json, "model", new JsonObject()));
                     for (Animation animation : animationMap.values()) {
-                        if (animation.pivotBones().isEmpty()) {
+                        if (animation.bones().isEmpty()) {
                             animation.parents().putAll(parents);
-                            animation.pivotBones().putAll(bones);
+                            animation.bones().putAll(bones);
                         }
                     }
                 }

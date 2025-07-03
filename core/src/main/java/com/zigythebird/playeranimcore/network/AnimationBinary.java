@@ -71,7 +71,7 @@ public final class AnimationBinary {
             ProtocolUtils.writeString(buf, instructionKeyframe.getInstructions());
         }
 
-        NetworkUtils.writeMap(buf, animation.pivotBones(), ProtocolUtils::writeString, NetworkUtils::writeVec3f);
+        NetworkUtils.writeMap(buf, animation.bones(), ProtocolUtils::writeString, NetworkUtils::writeVec3f);
         NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }
 
