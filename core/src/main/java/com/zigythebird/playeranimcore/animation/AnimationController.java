@@ -282,6 +282,7 @@ public abstract class AnimationController implements IAnimation {
 	 */
 	public void stop() {
 		this.animationState = State.STOPPED;
+		resetEventKeyFrames();
 	}
 
 	/**
@@ -664,6 +665,7 @@ public abstract class AnimationController implements IAnimation {
 
 	protected void setupNewAnimation() {
 		if (currentAnimation == null) return;
+		resetEventKeyFrames();
 		for (AdvancedPlayerAnimBone bone : bones.values()) {
 			bone.setEnabled(currentAnimation.animation().getBone(bone.getName()) != null);
 		}
@@ -776,7 +778,10 @@ public abstract class AnimationController implements IAnimation {
 	/**
 	 * Clear the {@link KeyFrameData} cache in preparation for the next animation
 	 */
-	private void resetEventKeyFrames() {
+	protected void resetEventKeyFrames() {
+		if (!this.executedKeyFrames.isEmpty()) {
+			CustomKeyFrameEvents.RESET_KEYFRAMES_EVENT.invoker().handle(this, this.executedKeyFrames);
+		}
 		this.executedKeyFrames.clear();
 	}
 

@@ -9,6 +9,8 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.event.Event;
 import com.zigythebird.playeranimcore.event.EventResult;
 
+import java.util.Set;
+
 public class CustomKeyFrameEvents {
     /**
      * A event for pre-defined custom instruction keyframes
@@ -58,8 +60,19 @@ public class CustomKeyFrameEvents {
         return EventResult.PASS;
     });
 
+    public static final Event<ResetKeyFramesHandler> RESET_KEYFRAMES_EVENT = new Event<>(listeners -> (controller, eventKeyFrames) -> {
+        for (ResetKeyFramesHandler listener : listeners) {
+            listener.handle(controller, eventKeyFrames);
+        }
+    });
+
     @FunctionalInterface
     public interface CustomKeyFrameHandler<T extends KeyFrameData> {
         EventResult handle(float animationTick, AnimationController controller, T keyFrameData, AnimationData animationData);
+    }
+
+    @FunctionalInterface
+    public interface ResetKeyFramesHandler {
+        void handle(AnimationController controller, Set<KeyFrameData> keyFrameData);
     }
 }
