@@ -591,7 +591,7 @@ public abstract class AnimationController implements IAnimation {
 		);
 	}
 
-	private <T extends KeyFrameData> void handleCustomKeyframe(T[] keyframes, @Nullable CustomKeyFrameEvents.CustomKeyFrameHandler<T> main, CustomKeyFrameEvents.CustomKeyFrameHandler<T> event, float animationTick, AnimationData animationData) {
+	protected  <T extends KeyFrameData> void handleCustomKeyframe(T[] keyframes, @Nullable CustomKeyFrameEvents.CustomKeyFrameHandler<T> main, CustomKeyFrameEvents.CustomKeyFrameHandler<T> event, float animationTick, AnimationData animationData) {
 		for (T keyframeData : keyframes) {
 			if (animationTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 
