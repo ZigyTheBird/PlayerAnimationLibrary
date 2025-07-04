@@ -127,9 +127,10 @@ public final class LegacyAnimationBinary {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isItem = ITEM_BONE.test(name);
         boolean isBody = name.equals("body");
-        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, isBody, isItem);
-        writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, easeBefore, isBody, isItem || !isBody);
-        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, isBody, isItem);
+        boolean div = isBody && version >= 2;
+        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, div, isItem);
+        writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, easeBefore, div, isItem || !isBody);
+        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, div, isItem);
         writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, easeBefore, isItem);
         writeKeyframes(buf, isItem ? part.rotationKeyFrames().zKeyframes() : part.rotationKeyFrames().yKeyframes(), version, easeBefore, isItem);
         writeKeyframes(buf, isItem ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), version, easeBefore, isItem);
@@ -278,10 +279,11 @@ public final class LegacyAnimationBinary {
     private static BoneAnimation readPart(ByteBuffer buf, String name, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isBody = name.equals("body");
+        boolean mul = isBody && version >= 2;
         boolean isItem = ITEM_BONE.test(name);
-        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, isBody, isItem);
-        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize, isBody, isItem || !isBody);
-        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, isBody, isItem);
+        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, mul, isItem);
+        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize, mul, isItem || !isBody);
+        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, mul, isItem);
         readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, keyframeSize, isItem);
         readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version, keyframeSize, isItem);
         readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize, isItem);
