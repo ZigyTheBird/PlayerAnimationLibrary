@@ -1,9 +1,9 @@
 package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.mcanimcore.animation.AnimationProcessor;
+import com.zigythebird.mcanimcore.animation.layered.AnimationStack;
+import com.zigythebird.mcanimcore.bones.AnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -67,7 +67,7 @@ public class PlayerAnimManager extends AnimationStack {
 	}
 
 	public void updatePart(String partName, ModelPart part, AnimationProcessor processor) {
-		PlayerAnimBone bone = processor.getBone(partName);
+		AnimBone bone = processor.getBone(partName);
 		PartPose initialPose = part.getInitialPose();
 		bone = this.get3DTransform(bone);
 		RenderUtil.translatePartToBone(part, bone, initialPose);

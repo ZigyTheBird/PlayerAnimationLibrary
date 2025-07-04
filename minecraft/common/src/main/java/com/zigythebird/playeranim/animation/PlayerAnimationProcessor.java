@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranimcore.animation.AnimationData;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
+import com.zigythebird.mcanimcore.animation.AnimationData;
+import com.zigythebird.mcanimcore.animation.AnimationProcessor;
+import com.zigythebird.mcanimcore.animation.layered.AnimationStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.phys.Vec3;
@@ -18,13 +18,25 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
     public PlayerAnimationProcessor(AbstractClientPlayer player) {
         super();
         this.player = player;
+
+        this.registerAnimBone("body");
+        this.registerAnimBone("right_arm");
+        this.registerAnimBone("left_arm");
+        this.registerAnimBone("right_leg");
+        this.registerAnimBone("left_leg");
+        this.registerAnimBone("head");
+        this.registerAnimBone("torso");
+        this.registerAnimBone("right_item");
+        this.registerAnimBone("left_item");
+        this.registerAnimBone("cape");
+        this.registerAnimBone("elytra");
     }
 
     @Override
-    public void tickAnimation(AnimationStack stack, AnimationData state) {
-        super.tickAnimation(stack, state);
+    public void tickAnimation(AnimationStack AnimManager, AnimationData state) {
+        super.tickAnimation(AnimManager, state);
 
-        if (stack instanceof PlayerAnimManager playerAnimManager) {
+        if (AnimManager instanceof PlayerAnimManager playerAnimManager) {
             playerAnimManager.finishFirstTick();
         }
     }

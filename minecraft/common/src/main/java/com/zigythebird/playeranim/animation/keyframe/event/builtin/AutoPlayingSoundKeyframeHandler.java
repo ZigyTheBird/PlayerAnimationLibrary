@@ -2,11 +2,11 @@ package com.zigythebird.playeranim.animation.keyframe.event.builtin;
 
 import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranim.util.ClientUtil;
-import com.zigythebird.playeranimcore.animation.AnimationController;
-import com.zigythebird.playeranimcore.animation.AnimationData;
-import com.zigythebird.playeranimcore.animation.keyframe.event.CustomKeyFrameEvents;
-import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
-import com.zigythebird.playeranimcore.event.EventResult;
+import com.zigythebird.mcanimcore.animation.AnimationController;
+import com.zigythebird.mcanimcore.animation.AnimationData;
+import com.zigythebird.mcanimcore.animation.keyframe.event.CustomKeyFrameEvents;
+import com.zigythebird.mcanimcore.animation.keyframe.event.data.SoundKeyframeData;
+import com.zigythebird.mcanimcore.event.EventResult;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;

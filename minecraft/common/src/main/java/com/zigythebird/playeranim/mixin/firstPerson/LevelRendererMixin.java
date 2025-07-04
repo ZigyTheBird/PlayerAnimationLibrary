@@ -27,7 +27,7 @@ package com.zigythebird.playeranim.mixin.firstPerson;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
-import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
+import com.zigythebird.mcanimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;

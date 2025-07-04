@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.util.CameraUtils;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.mcanimcore.bones.AnimBone;
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -43,7 +43,7 @@ public abstract class CameraMixin {
 
     @Inject(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V", shift = At.Shift.AFTER))
     private void computeCameraAngles(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
-        PlayerAnimBone bone = CameraUtils.computeCamera(((Camera)(Object)this));
+        AnimBone bone = CameraUtils.computeCamera(((Camera)(Object)this));
         if (bone != null) {
             playerAnimLib$setRotation(bone.getRotX(), bone.getRotY(), bone.getRotZ());
             this.move(bone.getPosX(), -bone.getPosY(), -bone.getPosZ());

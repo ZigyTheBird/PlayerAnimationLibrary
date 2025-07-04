@@ -2,9 +2,9 @@ package com.zigythebird.playeranim.api;
 
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranimcore.animation.AnimationController;
-import com.zigythebird.playeranimcore.animation.layered.IAnimation;
-import com.zigythebird.playeranimcore.event.Event;
+import com.zigythebird.mcanimcore.animation.AnimationController;
+import com.zigythebird.mcanimcore.animation.layered.IAnimation;
+import com.zigythebird.mcanimcore.event.Event;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.player.AbstractClientPlayer;

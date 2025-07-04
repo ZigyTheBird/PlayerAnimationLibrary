@@ -3,10 +3,10 @@ package com.zigythebird.playeranim.animation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.animation.AnimationController;
-import com.zigythebird.playeranimcore.animation.AnimationData;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import com.zigythebird.playeranimcore.animation.RawAnimation;
+import com.zigythebird.mcanimcore.animation.AnimationController;
+import com.zigythebird.mcanimcore.animation.AnimationData;
+import com.zigythebird.mcanimcore.animation.AnimationProcessor;
+import com.zigythebird.mcanimcore.animation.RawAnimation;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -26,6 +26,21 @@ public class PlayerAnimationController extends AnimationController {
     public PlayerAnimationController(AbstractClientPlayer player, AnimationStateHandler animationHandler) {
         super(animationHandler);
         this.player = player;
+    }
+
+    @Override
+    protected void registerBones() {
+        this.registerAnimBone("body");
+        this.registerAnimBone("right_arm");
+        this.registerAnimBone("left_arm");
+        this.registerAnimBone("right_leg");
+        this.registerAnimBone("left_leg");
+        this.registerAnimBone("head");
+        this.registerAnimBone("torso");
+        this.registerAnimBone("right_item");
+        this.registerAnimBone("left_item");
+        this.registerAnimBone("cape");
+        this.registerAnimBone("elytra");
     }
 
     public AbstractClientPlayer getPlayer() {

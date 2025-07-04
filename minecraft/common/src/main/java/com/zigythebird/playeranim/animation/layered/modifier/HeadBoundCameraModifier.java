@@ -1,7 +1,7 @@
 /*package com.zigythebird.playeranim.animation.layered.modifier;
 
 import com.zigythebird.playeranim.animation.AnimationData;
-import com.zigythebird.playeranim.bones.PlayerAnimBone;
+import com.zigythebird.playeranim.bones.AnimBone;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -20,7 +20,7 @@ public class HeadBoundCameraModifier extends AbstractModifier {
     }
 
     @Override
-    public PlayerAnimBone get3DCameraTransform(Camera camera, PlayerAnimBone bone) {
+    public AnimBone get3DCameraTransform(Camera camera, AnimBone bone) {
         if (Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
             AbstractClientPlayer player = Minecraft.getInstance().player;
             float f = Mth.lerp(tickDelta, player.yBodyRotO, player.yBodyRot);

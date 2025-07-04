@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
-import com.zigythebird.playeranimcore.animation.AnimationData;
+import com.zigythebird.mcanimcore.animation.AnimationData;
 import net.minecraft.client.player.AbstractClientPlayer;
 
 public class PlayerAnimationData extends AnimationData {

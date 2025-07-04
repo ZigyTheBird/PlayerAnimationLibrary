@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.mcanimcore.animation.AnimationProcessor;
+import com.zigythebird.mcanimcore.bones.AnimBone;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -29,9 +29,9 @@ public abstract class ElytraLayerMixin_noBend<S extends HumanoidRenderState, M e
             PlayerAnimManager emote = animationState.playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive()) {
                 AnimationProcessor processor = animationState.playerAnimLib$getAnimProcessor();
-                PlayerAnimBone torso = processor.getBone("torso");
-                PlayerAnimBone cape = processor.getBone("cape");
-                PlayerAnimBone elytra = processor.getBone("elytra");
+                AnimBone torso = processor.getBone("torso");
+                AnimBone cape = processor.getBone("cape");
+                AnimBone elytra = processor.getBone("elytra");
                 torso.setToInitialPose();
                 cape.setToInitialPose();
                 elytra.setToInitialPose();

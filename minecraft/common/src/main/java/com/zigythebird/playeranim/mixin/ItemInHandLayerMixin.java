@@ -26,9 +26,9 @@ package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.zigythebird.mcanimcore.bones.AnimBone;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
@@ -43,16 +43,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandLayer.class)
 public class ItemInHandLayerMixin {
     @Unique
-    private final PlayerAnimBone playerAnimLib$rightItem = new PlayerAnimBone("right_item");
+    private final AnimBone playerAnimLib$rightItem = new AnimBone("right_item");
     @Unique
-    private final PlayerAnimBone playerAnimLib$leftItem = new PlayerAnimBone("left_item");
+    private final AnimBone playerAnimLib$leftItem = new AnimBone("left_item");
 
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionfc;)V", ordinal = 0))
     private void changeItemLocation(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, HumanoidArm arm, PoseStack matrices, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
         if (renderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
             if (anim == null) return;
-            PlayerAnimBone bone;
+            AnimBone bone;
 
             if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
             else bone = playerAnimLib$rightItem;
@@ -69,7 +69,7 @@ public class ItemInHandLayerMixin {
         if (renderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
             if (anim == null) return;
-            PlayerAnimBone bone;
+            AnimBone bone;
 
             if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
             else bone = playerAnimLib$rightItem;

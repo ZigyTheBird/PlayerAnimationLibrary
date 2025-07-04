@@ -1,8 +1,8 @@
 package io.github.kosmx.emotes.testing.common;
 
-import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.network.AnimationBinary;
-import com.zigythebird.playeranimcore.network.LegacyAnimationBinary;
+import com.zigythebird.mcanimcore.animation.Animation;
+import com.zigythebird.mcanimcore.network.AnimationBinary;
+import com.zigythebird.mcanimcore.network.LegacyAnimationBinary;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Assertions;

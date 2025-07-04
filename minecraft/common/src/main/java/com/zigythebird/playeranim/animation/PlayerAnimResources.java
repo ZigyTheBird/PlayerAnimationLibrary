@@ -1,9 +1,9 @@
 package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.PlayerAnimLibMod;
-import com.zigythebird.playeranimcore.PlayerAnimLib;
-import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
+import com.zigythebird.mcanimcore.MCAnimLib;
+import com.zigythebird.mcanimcore.animation.Animation;
+import com.zigythebird.mcanimcore.loading.UniversalAnimLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -91,7 +91,7 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 					ANIMATIONS.put(ResourceLocation.fromNamespaceAndPath(namespace, entry.getKey()), entry.getValue());
 				}
 			} catch (Exception e) {
-				PlayerAnimLib.LOGGER.error("Player Animation Library failed to load animation {} because:", resource.getKey(), e);
+				MCAnimLib.LOGGER.error("Player Animation Library failed to load animation {} because:", resource.getKey(), e);
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 package io.github.kosmx.emotes.testing.common;
 
-import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.network.LegacyAnimationBinary;
+import com.zigythebird.mcanimcore.animation.Animation;
+import com.zigythebird.mcanimcore.network.LegacyAnimationBinary;
 import dev.kosmx.playerAnim.core.data.AnimationBinary;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.data.gson.AnimationJson;

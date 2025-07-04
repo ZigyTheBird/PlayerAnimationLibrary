@@ -27,8 +27,8 @@ package com.zigythebird.playeranim.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.mcanimcore.api.firstPerson.FirstPersonMode;
+import com.zigythebird.mcanimcore.bones.AnimBone;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -62,7 +62,7 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
                 poseStack.translate(0.0F, 1.501F, 0.0F);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
-                PlayerAnimBone body = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("body");
+                AnimBone body = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("body");
                 body.setToInitialPose();
 
                 //These are additive properties

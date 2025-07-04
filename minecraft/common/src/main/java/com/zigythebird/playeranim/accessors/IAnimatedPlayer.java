@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.accessors;
 
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import com.zigythebird.playeranimcore.animation.layered.IAnimation;
+import com.zigythebird.mcanimcore.animation.AnimationProcessor;
+import com.zigythebird.mcanimcore.animation.layered.IAnimation;
 import net.minecraft.resources.ResourceLocation;
 
 public interface IAnimatedPlayer {

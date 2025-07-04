@@ -2,7 +2,7 @@ package com.zigythebird.playeranim.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.mcanimcore.bones.AnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 
@@ -10,7 +10,7 @@ import net.minecraft.client.model.geom.PartPose;
  * Helper class for various methods and functions useful while rendering
  */
 public final class RenderUtil {
-	public static void rotateMatrixAroundBone(PoseStack poseStack, PlayerAnimBone bone) {
+	public static void rotateMatrixAroundBone(PoseStack poseStack, AnimBone bone) {
 		if (bone.getRotZ() != 0)
 			poseStack.mulPose(Axis.ZP.rotation(bone.getRotZ()));
 
@@ -21,7 +21,7 @@ public final class RenderUtil {
 			poseStack.mulPose(Axis.XP.rotation(bone.getRotX()));
 	}
 
-	public static void translatePartToBone(ModelPart part, PlayerAnimBone bone) {
+	public static void translatePartToBone(ModelPart part, AnimBone bone) {
 		part.x = bone.getPosX();
 		part.y = -bone.getPosY();
 		part.z = bone.getPosZ();
@@ -36,7 +36,7 @@ public final class RenderUtil {
 	}
 
 	//Initial pose only applied to yRot and position because that's all that's needed for vanilla parts.
-    public static void translatePartToBone(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
+    public static void translatePartToBone(ModelPart part, AnimBone bone, PartPose initialPose) {
         part.x = bone.getPosX() + initialPose.x();
         part.y = -bone.getPosY() + initialPose.y();
         part.z = bone.getPosZ() + initialPose.z();
@@ -50,13 +50,13 @@ public final class RenderUtil {
         part.zScale = bone.getScaleZ();
     }
 
-	public static void translateMatrixToBone(PoseStack poseStack, PlayerAnimBone bone) {
+	public static void translateMatrixToBone(PoseStack poseStack, AnimBone bone) {
 		poseStack.translate(bone.getPosX() / 16, bone.getPosY() / 16, bone.getPosZ() / 16);
 		RenderUtil.rotateMatrixAroundBone(poseStack, bone);
 		poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 	}
 
-	public static void copyVanillaPart(ModelPart part, PlayerAnimBone bone) {
+	public static void copyVanillaPart(ModelPart part, AnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 
 		bone.setPosX(part.x - initialPose.x());

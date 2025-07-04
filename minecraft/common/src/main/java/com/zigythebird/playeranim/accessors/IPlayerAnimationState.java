@@ -1,7 +1,7 @@
 package com.zigythebird.playeranim.accessors;
 
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
+import com.zigythebird.mcanimcore.animation.AnimationProcessor;
 import org.jetbrains.annotations.Nullable;
 
 /**

@@ -4,10 +4,10 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.zigythebird.mcanimcore.bones.AnimBone;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -47,7 +47,7 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
                 poseStack.mulPose(Axis.YP.rotation(3.14159f));
 
                 ModelPart part = capeLayer.getCape();
-                PlayerAnimBone bone = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("cape");
+                AnimBone bone = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("cape");
                 bone.setToInitialPose();
                 emote.get3DTransform(bone);
 
