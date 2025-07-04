@@ -649,7 +649,7 @@ public abstract class AnimationController implements IAnimation {
 
 	public boolean hasEndTick() {
 		Animation animation = this.currentAnimation.animation();
-		return animation.data().has("endTick") && !animation.loopType().shouldPlayAgain(animation);
+		return !animation.loopType().shouldPlayAgain(animation) && animation.data().has("endTick");
 	}
 
 	public boolean isDisableAxisIfNotModified() {
@@ -735,8 +735,8 @@ public abstract class AnimationController implements IAnimation {
 			} else transitionLengthSetter.accept(null);
 		}
 
-		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(animation) && location.tick() == endTick + 1) {
-			KeyframeLocation<Keyframe> returnToLocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(animation)-1);
+		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(animation) && tick > location.tick()) {
+			KeyframeLocation<Keyframe> returnToLocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(animation));
 			Keyframe returnToFrame = returnToLocation.keyframe();
 			float returnToValue = this.molangRuntime.eval(returnToFrame.endValue());
 			if (type == TransformType.ROTATION || type == TransformType.BEND) {
