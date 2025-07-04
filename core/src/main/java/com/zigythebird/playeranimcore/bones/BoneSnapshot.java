@@ -45,7 +45,6 @@ public class BoneSnapshot {
 		this.scaleY = bone.getScaleY();
 		this.scaleZ = bone.getScaleZ();
 
-		this.bendAxis = bone.getBendAxis();
 		this.bend = bone.getBend();
 
 		this.bone = bone;
@@ -85,7 +84,6 @@ public class BoneSnapshot {
 			this.scaleY = bone.getScaleY();
 			this.scaleZ = bone.getScaleZ();
 
-			this.bendAxis = bone.getBendAxis();
 			this.bend = bone.getBend();
 		}
 		else setToInitialPose();

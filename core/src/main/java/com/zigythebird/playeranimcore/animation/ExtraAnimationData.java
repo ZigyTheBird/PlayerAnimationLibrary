@@ -54,13 +54,6 @@ public record ExtraAnimationData(Map<String, Object> data) {
         data.put(name, object);
     }
 
-    /**
-     * Not null for playeranimator animations, for geckolib most likely null
-     */
-    public UUID uuid() {
-        return UUID.fromString((String) data().get(UUID_KEY));
-    }
-
     public void fromJson(JsonObject node) {
         for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
             data().put(entry.getKey(), getValue(entry.getValue()));

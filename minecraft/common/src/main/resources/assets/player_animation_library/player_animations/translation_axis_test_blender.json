@@ -1,7 +1,5 @@
 {
     "name": "translation_axis_test_blender",
-    "author": "Your name",
-    "description": "description",
     "emote":{
         "isLoop": "false",
         "returnTick": 2,

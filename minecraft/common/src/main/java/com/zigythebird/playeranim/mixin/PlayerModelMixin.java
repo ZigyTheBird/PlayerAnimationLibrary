@@ -85,12 +85,12 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
             processor.handleAnimations(emote.getTickDelta(), false);
             ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
-            RenderUtil.copyVanillaPart(processor.getBone("head"), this.head);
-            RenderUtil.copyVanillaPart(processor.getBone("torso"), this.body);
-            RenderUtil.copyVanillaPart(processor.getBone("right_arm"), this.rightArm);
-            RenderUtil.copyVanillaPart(processor.getBone("left_arm"), this.leftArm);
-            RenderUtil.copyVanillaPart(processor.getBone("right_leg"), this.rightLeg);
-            RenderUtil.copyVanillaPart(processor.getBone("left_leg"), this.leftLeg);
+            RenderUtil.copyVanillaPart(this.head, processor.getBone("head"));
+            RenderUtil.copyVanillaPart(this.body, processor.getBone("torso"));
+            RenderUtil.copyVanillaPart(this.rightArm, processor.getBone("right_arm"));
+            RenderUtil.copyVanillaPart(this.leftArm, processor.getBone("left_arm"));
+            RenderUtil.copyVanillaPart(this.rightLeg, processor.getBone("right_leg"));
+            RenderUtil.copyVanillaPart(this.leftLeg, processor.getBone("left_leg"));
 
             emote.updatePart("head", this.head, processor);
             emote.updatePart("right_arm", this.rightArm, processor);

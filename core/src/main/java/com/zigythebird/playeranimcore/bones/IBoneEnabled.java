@@ -13,6 +13,5 @@ public interface IBoneEnabled {
     boolean isRotYEnabled();
     boolean isRotZEnabled();
 
-    boolean isBendAxisEnabled();
     boolean isBendEnabled();
 }
