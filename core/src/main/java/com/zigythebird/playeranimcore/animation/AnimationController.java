@@ -45,16 +45,6 @@ import java.util.function.Predicate;
  * one to control attacks, one to control size, etc.
  */
 public abstract class AnimationController implements IAnimation {
-	//Bone pivot point positions used to apply custom pivot point translations.
-	public static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
-			"right_arm", new Vec3f(5, 22, 0),
-			"left_arm", new Vec3f(-5, 22, 0),
-			"left_leg", new Vec3f(-2f, 12, 0f),
-			"right_leg", new Vec3f(2f, 12, 0f),
-			"torso", new Vec3f(0, 24, 0),
-			"head", new Vec3f(0, 24, 0),
-			"body", new Vec3f(0, 12, 0)
-	);
 	public static KeyframeLocation<Keyframe> EMPTY_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0), 0, 0);
 	
 	protected final AnimationStateHandler stateHandler;
@@ -103,18 +93,10 @@ public abstract class AnimationController implements IAnimation {
 		this.stateHandler = animationHandler;
 		this.molangRuntime = MolangLoader.createNewEngine(this);
 
-		this.registerPlayerAnimBone("body");
-		this.registerPlayerAnimBone("right_arm");
-		this.registerPlayerAnimBone("left_arm");
-		this.registerPlayerAnimBone("right_leg");
-		this.registerPlayerAnimBone("left_leg");
-		this.registerPlayerAnimBone("head");
-		this.registerPlayerAnimBone("torso");
-		this.registerPlayerAnimBone("right_item");
-		this.registerPlayerAnimBone("left_item");
-		this.registerPlayerAnimBone("cape");
-		this.registerPlayerAnimBone("elytra");
+		registerBones();
 	}
+
+	public abstract void registerBones();
 
 	/**
 	 * Applies the given {@link CustomKeyFrameEvents.CustomKeyFrameHandler} to this controller, for handling {@link SoundKeyframeData sound keyframe instructions}
@@ -927,7 +909,7 @@ public abstract class AnimationController implements IAnimation {
 					MatrixUtil.prepMatrixForBone(matrix, pivotBone, pivotBone.getPivot());
 				}
 
-				Vec3f defaultPos = BONE_POSITIONS.getOrDefault(bone.getName(), Vec3f.ZERO);
+				Vec3f defaultPos = getBonePosition(bone.getName());
 				ModVector4f pos = new ModVector4f(defaultPos.x(), defaultPos.y(), defaultPos.z(), 1).mul(matrix);
 				bone.setPosX(-pos.x + defaultPos.x() + bone.getPosX());
 				bone.setPosY(pos.y - defaultPos.y() + bone.getPosY());
@@ -940,6 +922,8 @@ public abstract class AnimationController implements IAnimation {
 			}
 		}
 	}
+
+	public abstract Vec3f getBonePosition(String name);
 
 	public AnimationController addModifier(@NotNull AbstractModifier modifier, int idx) {
 		modifier.setHost(this);

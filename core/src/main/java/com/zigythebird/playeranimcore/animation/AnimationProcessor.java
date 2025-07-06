@@ -27,19 +27,7 @@ public abstract class AnimationProcessor {
 	/**
 	 * Each AnimationProcessor must be bound to a player
 	 */
-	public AnimationProcessor() {
-		this.registerPlayerAnimBone("body");
-		this.registerPlayerAnimBone("right_arm");
-		this.registerPlayerAnimBone("left_arm");
-		this.registerPlayerAnimBone("right_leg");
-		this.registerPlayerAnimBone("left_leg");
-		this.registerPlayerAnimBone("head");
-		this.registerPlayerAnimBone("torso");
-		this.registerPlayerAnimBone("right_item");
-		this.registerPlayerAnimBone("left_item");
-		this.registerPlayerAnimBone("cape");
-		this.registerPlayerAnimBone("elytra");
-	}
+	public AnimationProcessor() {}
 
 	/**
 	 * This method is called once per render frame for each player being rendered
@@ -95,7 +83,7 @@ public abstract class AnimationProcessor {
 		return this.bones.get(boneName);
 	}
 
-	private void registerPlayerAnimBone(String name) {
+	protected void registerPlayerAnimBone(String name) {
 		registerPlayerAnimBone(new PlayerAnimBone(name));
 	}
 
@@ -106,7 +94,7 @@ public abstract class AnimationProcessor {
 	 * <p>
 	 * Failure to properly register a bone will break things.
 	 */
-	private void registerPlayerAnimBone(PlayerAnimBone bone) {
+	protected void registerPlayerAnimBone(PlayerAnimBone bone) {
 		this.bones.put(bone.getName(), bone);
 	}
 

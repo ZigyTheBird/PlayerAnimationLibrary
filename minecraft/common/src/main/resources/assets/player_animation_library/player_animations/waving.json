@@ -3,7 +3,7 @@
 	"emote":{
 		"beginTick":12,
 		"endTick":45,
-		"stopTick":55,
+		"stopTick":50,
 		"degrees":true,
 		"moves":[
 			{

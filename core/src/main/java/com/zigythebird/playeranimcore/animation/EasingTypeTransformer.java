@@ -20,8 +20,10 @@ public interface EasingTypeTransformer {
     }
 
     default float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue) {
-        if (lerpValue >= 1 || Float.isNaN(lerpValue))
+        if (lerpValue >= 1)
             return animationPoint.animationEndValue();
+        if (Float.isNaN(lerpValue))
+            return animationPoint.animationStartValue();
 
         return apply(animationPoint.animationStartValue(), animationPoint.animationEndValue(), easingValue, lerpValue);
     }

@@ -18,6 +18,18 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
     public PlayerAnimationProcessor(AbstractClientPlayer player) {
         super();
         this.player = player;
+
+        this.registerPlayerAnimBone("body");
+        this.registerPlayerAnimBone("right_arm");
+        this.registerPlayerAnimBone("left_arm");
+        this.registerPlayerAnimBone("right_leg");
+        this.registerPlayerAnimBone("left_leg");
+        this.registerPlayerAnimBone("head");
+        this.registerPlayerAnimBone("torso");
+        this.registerPlayerAnimBone("right_item");
+        this.registerPlayerAnimBone("left_item");
+        this.registerPlayerAnimBone("cape");
+        this.registerPlayerAnimBone("elytra");
     }
 
     @Override
