@@ -42,11 +42,11 @@ allprojects {
     publishing {
         repositories {
             maven {
-                name = "zigythebirdmods"
-                url = "https://maven.zigythebird.com/mods"
-                credentials(PasswordCredentials)
-                authentication {
-                    basic(BasicAuthentication)
+                name = "RedlanceMinecraft"
+                url = "https://repo.redlance.org/public"
+                credentials {
+                    username = "dima_dencep"
+                    password = System.getenv("MAVEN_PASSWORD")
                 }
             }
         }
