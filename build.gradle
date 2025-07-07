@@ -15,7 +15,7 @@ allprojects {
     repositories {
         // Fix issue with lwjgl-freetype not being found on macOS
         maven {
-            url "https://libraries.minecraft.net"
+            url = "https://libraries.minecraft.net"
             content {
                 includeModule("org.lwjgl", "lwjgl-freetype")
             }
