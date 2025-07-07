@@ -5,7 +5,7 @@
 
 package com.zigythebird.playeranimcore.animation.keyframe;
 
-import com.zigythebird.playeranimcore.animation.EasingType;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.parser.ast.Expression;
 

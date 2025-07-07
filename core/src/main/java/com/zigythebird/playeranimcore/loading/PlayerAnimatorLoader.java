@@ -2,7 +2,7 @@ package com.zigythebird.playeranimcore.loading;
 
 import com.google.gson.*;
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.animation.EasingType;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;

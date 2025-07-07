@@ -17,6 +17,7 @@ import com.zigythebird.playeranimcore.bones.AdvancedBoneSnapshot;
 import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
 import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.enums.State;

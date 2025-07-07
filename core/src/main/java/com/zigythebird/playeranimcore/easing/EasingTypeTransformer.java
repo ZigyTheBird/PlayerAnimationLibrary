@@ -1,4 +1,4 @@
-package com.zigythebird.playeranimcore.animation;
+package com.zigythebird.playeranimcore.easing;
 
 import com.zigythebird.playeranimcore.animation.keyframe.AnimationPoint;
 import com.zigythebird.playeranimcore.math.MathHelper;

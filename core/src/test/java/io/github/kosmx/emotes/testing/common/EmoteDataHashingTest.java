@@ -1,7 +1,7 @@
 package io.github.kosmx.emotes.testing.common;
 
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.animation.EasingType;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import org.junit.jupiter.api.Assertions;

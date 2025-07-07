@@ -26,40 +26,6 @@ public record Vec3f(float x, float y, float z) {
         return new Vec3f(this.x + other.x, this.y + other.y, this.z + other.z);
     }
 
-    /**
-     * Dot product with other vector
-     *
-     * @param other rhs operand
-     * @return v
-     */
-    public float dotProduct(Vec3f other) {
-        return this.x * other.x + this.y * other.y + this.z * other.z;
-    }
-
-    /**
-     * Cross product
-     *
-     * @param other rhs operand
-     * @return v
-     */
-    public Vec3f crossProduct(Vec3f other) {
-        return new Vec3f(
-                this.y * other.z - this.z * other.y,
-                this.z * other.x - this.x * other.z,
-                this.x * other.y - this.y * other.x
-        );
-    }
-
-    /**
-     * Subtract a vector from this
-     *
-     * @param other rhs operand
-     * @return v
-     */
-    public Vec3f subtract(Vec3f other) {
-        return new Vec3f(this.x - other.x, this.y - other.y, this.z - other.z);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

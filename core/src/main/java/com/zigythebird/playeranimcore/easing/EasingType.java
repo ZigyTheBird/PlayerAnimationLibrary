@@ -1,4 +1,4 @@
-package com.zigythebird.playeranimcore.animation;
+package com.zigythebird.playeranimcore.easing;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -8,9 +8,7 @@ import com.zigythebird.playeranimcore.math.MathHelper;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
-import team.unnamed.mocha.parser.ast.Expression;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,8 +66,11 @@ public enum EasingType implements EasingTypeTransformer {
 	EASE_OUT_BOUNCE(34, "easeoutbounce", value -> EasingType.easeOut(EasingType.bounce(value))),
 	EASE_IN_OUT_BOUNCE(35, "easeinoutbounce", value -> EasingType.easeInOut(EasingType.bounce(value))),
 
-	CATMULLROM(36, "catmullrom", new CatmullRomTransformerFunction());
+	CATMULLROM(36, "catmullrom", new CatmullRomEasing()),
 	// 37 - STEP
+
+	BEZIER(38, "bezier", new BezierEasingBefore()),
+	BEZIER_AFTER(39, "bezier_after", new BezierEasingAfter());
 
 	public final byte id;
 	public final String name;
@@ -123,21 +124,6 @@ public enum EasingType implements EasingTypeTransformer {
 	@Override
 	public float apply(float startValue, float endValue, @Nullable Float easingValue, float lerpValue) {
 		return this.transformer.apply(startValue, endValue, lerpValue);
-	}
-
-	/**
-	 * Register an {@code EasingType} with Geckolib for handling animation transitions and value curves
-	 * <p>
-	 * <b><u>MUST be called during mod construct</u></b>
-	 * <p>
-	 * It is recommended you don't call this directly, and instead call it via {@code GeckoLibUtil#addCustomEasingType}
-	 *
-	 * @param name The name of the easing type
-	 * @param easingType The {@code EasingType} to associate with the given name
-	 * @return The {@code EasingType} you registered
-	 */
-	static EasingType register(String name, EasingType easingType) {
-		throw new UnsupportedOperationException(name); // TODO
 	}
 
 	/**
@@ -382,44 +368,6 @@ public enum EasingType implements EasingTypeTransformer {
 
 			return leftBorderIndex * stepLength;
 		};
-	}
-
-	/**
-	 * Custom EasingType implementation required for special-handling of spline-based interpolation
-	 */
-	private static class CatmullRomTransformerFunction implements EasingTypeTransformer {
-		/**
-		 * Generates a value from a given Catmull-Rom spline range with Centripetal parameterization (alpha=0.5)
-		 * <p>
-		 * Per standard implementation, this generates a spline curve over control points p1-p2, with p0 and p3
-		 * acting as curve anchors.<br>
-		 * We then apply the delta to determine the point on the generated spline to return.
-		 *
-		 * @see <a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Wikipedia</a>
-		 */
-		public static float getPointOnSpline(float delta, float p0, float p1, float p2, float p3) {
-			return 0.5f * (2f * p1 + (p2 - p0) * delta +
-					(2f * p0 - 5f * p1 + 4f * p2 - p3) * delta * delta +
-					(3f * p1 - p0 - 3f * p2 + p3) * delta * delta * delta);
-		}
-
-		@Override
-		public Float2FloatFunction buildTransformer(Float value) {
-			return easeIn(EasingType::linear);
-		}
-
-		@Override
-		public float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue)  {
-			if (animationPoint.currentTick() >= animationPoint.transitionLength())
-				return animationPoint.animationEndValue();
-
-			List<List<Expression>> easingArgs = animationPoint.easingArgs();
-
-			if (easingArgs.size() < 2)
-				return MathHelper.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
-
-			return getPointOnSpline(lerpValue, env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), env.eval(easingArgs.get(1)));
-		}
 	}
 
 	public static EasingType fromId(byte id) {
