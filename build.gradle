@@ -45,7 +45,7 @@ allprojects {
                 name = "RedlanceMinecraft"
                 url = "https://repo.redlance.org/public"
                 credentials {
-                    username = "dima_dencep"
+                    username = "ZigyTheBird"
                     password = System.getenv("MAVEN_PASSWORD")
                 }
             }
