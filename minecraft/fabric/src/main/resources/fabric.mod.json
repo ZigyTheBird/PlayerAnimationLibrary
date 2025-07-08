@@ -24,10 +24,10 @@
     "player_animation_library.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.16.10",
-    "minecraft": "~1.21.4",
-    "java": ">=21",
-    "fabric-api": "*"
+    "fabricloader": ">=0.16.14",
+    "minecraft": ">=1.21.6",
+    "fabric-resource-loader-v0": "*",
+    "fabric-command-api-v2": "*"
   },
   "custom": {
     "modmenu": {
