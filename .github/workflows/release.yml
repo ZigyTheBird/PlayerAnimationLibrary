@@ -8,7 +8,6 @@ on:
       MODRINTH_TOKEN:
         required: true
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +18,7 @@ jobs:
       - name: Get Artifact Id
         uses: actions/github-script@v5
         env:
-          branch: ${{ github.head_ref || github.ref_name }}   
+          branch: ${{ github.head_ref || github.ref_name }}
         id: artifact_id
         with:
           result-encoding: string
@@ -46,8 +45,8 @@ jobs:
           name: ${{ steps.artifact_id.outputs.result }}
           path: |
             ./dist/**/*
-            ./fabric/build/libs
-            ./neoforge/build/libs
+            ./minecraft/fabric/build/libs
+            ./minecraft/neoforge/build/libs
             ./gradle.properties
 
   deploy:
@@ -57,11 +56,11 @@ jobs:
     steps:
       - name: Checkout Branch
         uses: actions/checkout@v3
-          
+
       - name: Get Artifact Id
         uses: actions/github-script@v5
         env:
-          branch: ${{ github.head_ref || github.ref_name }}   
+          branch: ${{ github.head_ref || github.ref_name }}
         id: artifact_id
         with:
           result-encoding: string
@@ -88,7 +87,7 @@ jobs:
           result-encoding: string
           script: |
             const fs = require("fs")
-            return fs.readdirSync("./fabric/build/libs")[0] || false;
+            return fs.readdirSync("./minecraft/fabric/build/libs")[0] || false;
 
       - name: Check For Forge Jar
         uses: actions/github-script@v5
@@ -97,7 +96,7 @@ jobs:
           result-encoding: string
           script: |
             const fs = require("fs")
-            return fs.readdirSync("./neoforge/build/libs")[0] || false;
+            return fs.readdirSync("./minecraft/neoforge/build/libs")[0] || false;
 
       - name: Run Publish Fabric
         if: ${{ steps.fabric_release.outputs.result != 'false' }}
@@ -115,8 +114,8 @@ jobs:
           version: ${{ steps.gradle_properties.outputs.mod_version }}
 
           files: |
-            ./fabric/build/libs/!(*-@(dev|sources|javadoc|all)).jar
-            ./fabric/build/libs/*-@(dev|sources|javadoc|all).jar
+            ./minecraft/fabric/build/libs/!(*-@(dev|sources|javadoc|all|dev-shadow)).jar
+            ./minecraft/fabric/build/libs/*-@(dev|sources|javadoc|all|dev-shadow).jar
           version-type: release
 
           loaders: fabric
@@ -145,8 +144,8 @@ jobs:
           version: ${{ steps.gradle_properties.outputs.mod_version }}
 
           files: |
-            ./neoforge/build/libs/!(*-@(dev|sources|javadoc|all)).jar
-            ./neoforge/build/libs/*-@(dev|sources|javadoc|all).jar
+            ./minecraft/neoforge/build/libs/!(*-@(dev|sources|javadoc|all|dev-shadow)).jar
+            ./minecraft/neoforge/build/libs/*-@(dev|sources|javadoc|all|dev-shadow).jar
           version-type: release
 
           loaders: neoforge
