@@ -1,17 +1,16 @@
 package com.zigythebird.playeranimcore.network;
 
+import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
+import team.unnamed.mocha.util.network.VarIntUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class NetworkUtils {
     public static <K, V> Map<K, V> readMap(ByteBuf buf, Function<ByteBuf, K> keyReader, Function<ByteBuf, V> valueReader) {
-        int count = buf.readInt();
+        int count = VarIntUtils.readVarInt(buf);
         Map<K, V> map = new HashMap<>(count);
         for (int i = 0; i < count; i++) {
             K key = keyReader.apply(buf);
@@ -22,26 +21,34 @@ public class NetworkUtils {
     }
 
     public static <K, V> void writeMap(ByteBuf buf, Map<K, V> map, BiConsumer<ByteBuf, K> keyWriter, BiConsumer<ByteBuf, V> valueWriter) {
-        buf.writeInt(map.size());
+        VarIntUtils.writeVarInt(buf, map.size());
         for (var entry : map.entrySet()) {
             keyWriter.accept(buf, entry.getKey());
             valueWriter.accept(buf, entry.getValue());
         }
     }
 
-    public static <T> List<T> readList(ByteBuf buf, Function<ByteBuf, T> reader) {
-        int count = buf.readInt();
-        List<T> list = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            list.add(reader.apply(buf));
-        }
-        return list;
+    public static Vec3f readVec3f(ByteBuf buf) {
+        float x = buf.readFloat();
+        float y = buf.readFloat();
+        float z = buf.readFloat();
+        return new Vec3f(x, y, z);
     }
 
-    public static <T> void writeList(ByteBuf buf, List<T> list, BiConsumer<ByteBuf, T> writer) {
-        buf.writeInt(list.size());
-        for (T entry : list) {
-            writer.accept(buf, entry);
-        }
+    public static void writeVec3f(ByteBuf buf, Vec3f vec3f) {
+        buf.writeFloat(vec3f.x());
+        buf.writeFloat(vec3f.y());
+        buf.writeFloat(vec3f.z());
+    }
+
+    public static UUID readUuid(ByteBuf buf) {
+        long msb = buf.readLong();
+        long lsb = buf.readLong();
+        return new UUID(msb, lsb);
+    }
+
+    public static void writeUuid(ByteBuf buf, UUID uuid) {
+        buf.writeLong(uuid.getMostSignificantBits());
+        buf.writeLong(uuid.getLeastSignificantBits());
     }
 }

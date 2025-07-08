@@ -1,2 +1,2 @@
-This mod is based on GeckoLib and is up to date with version 4.8.4 (commit 2d7dc6e) of it.
+This mod is based on GeckoLib and is up to date with version 4.8.4 (commit 2d7dc6e) of it. + full bedrock support + real bezier
 All code from GeckoLib is under the MIT license and has the appropriate copyright notice at the top of its class file.

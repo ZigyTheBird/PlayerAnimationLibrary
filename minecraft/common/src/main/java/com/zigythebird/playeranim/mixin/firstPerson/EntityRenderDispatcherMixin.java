@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
     @Inject(method = "renderShadow", at = @At("HEAD"), cancellable = true)
-    private static void renderShadow_HEAD_PlayerAnimator(PoseStack poseStack, MultiBufferSource multiBufferSource, EntityRenderState entityRenderState, float f, float g, LevelReader levelReader, float h, CallbackInfo ci) {
+    private static void renderShadow_HEAD_PlayerAnimator(PoseStack poseStack, MultiBufferSource multiBufferSource, EntityRenderState entityRenderState, float strength, LevelReader levelReader, float size, CallbackInfo ci) {
         if (entityRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$isCameraEntity() && FirstPersonMode.isFirstPersonPass()) {
             // Shadow doesn't render in first person,
             // so we don't want to make it appear during first person animation

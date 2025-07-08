@@ -25,13 +25,16 @@
 package com.zigythebird.playeranimcore.network;
 
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.animation.EasingType;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
+import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
-import com.zigythebird.playeranimcore.misc.UnsupportedKeyframeForLegacyBinaryException;
+import com.zigythebird.playeranimcore.math.Vec3f;
+import com.zigythebird.playeranimcore.molang.MolangLoader;
+import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -40,6 +43,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Utility class to convert animation data to a binary format.
@@ -48,6 +52,10 @@ import java.util.*;
  */
 @SuppressWarnings("unused")
 public final class LegacyAnimationBinary {
+    private static final MochaEngine<?> MOCHA_ENGINE = MolangLoader.createNewEngine();
+    public static final Predicate<String> BEND_BONE = name -> !name.equals("head") && !name.equals("left_item") && !name.equals("right_item");
+    public static final Predicate<String> ITEM_BONE = name -> name.equals("left_item") || name.equals("right_item");
+
     /**
      * Write the animation into the ByteBuffer.
      * Versioning:
@@ -58,56 +66,36 @@ public final class LegacyAnimationBinary {
      * @param buf       target byteBuf
      * @param version   Binary version
      * @return          target byteBuf for chaining
-     * @param <T> ByteBuffer
      *
      * @throws java.nio.BufferOverflowException if can't write into ByteBuf
      */
-    public static <T extends ByteBuffer> T write(Animation animation, T buf, int version) throws BufferOverflowException {
+    public static ByteBuffer write(Animation animation, ByteBuffer buf, int version) throws BufferOverflowException {
         buf.putInt(animation.data().<Float>get("beginTick").orElse(0F).intValue());
-        buf.putInt((animation.data().<Float>get("endTick").orElse(animation.length()).intValue()));
+        buf.putInt(animation.data().<Float>get("endTick").orElse(animation.length()).intValue());
         buf.putInt((int) animation.length());
         putBoolean(buf, animation.loopType().shouldPlayAgain(animation));
         buf.putInt((int)animation.loopType().restartFromTick(animation));
-        putBoolean(buf, animation.data().<Boolean>get("isEasingBefore").orElse(false));
+        boolean easeBefore = animation.data().<Boolean>get("isEasingBefore")
+                .orElse(animation.data().data().getOrDefault("format", AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
+        putBoolean(buf, easeBefore);
         putBoolean(buf, animation.data().<Boolean>get("nsfw").orElse(false));
         buf.put(keyframeSize(version));
         if (version >= 2) {
             buf.putInt(animation.boneAnimations().size());
-            for (BoneAnimation part : animation.boneAnimations()) {
-                putString(buf, part.boneName());
-                writePart(buf, part, version);
+            for (Map.Entry<String, BoneAnimation> part : animation.boneAnimations().entrySet()) {
+                putString(buf, UniversalAnimLoader.restorePlayerBoneName(part.getKey()));
+                writePart(buf, part.getKey(), part.getValue(), version, easeBefore);
             }
         } else {
-            writePart(buf, animation.boneAnimations().stream()
-                    .filter(boneAnimation -> boneAnimation.boneName().equals("head"))
-                    .findFirst().orElse(null), version);
-
-            writePart(buf, animation.boneAnimations().stream()
-                    .filter(boneAnimation -> boneAnimation.boneName().equals("head"))
-                    .findFirst().orElse(null), version);
-
-            writePart(buf, animation.boneAnimations().stream()
-                    .filter(boneAnimation -> boneAnimation.boneName().equals("body"))
-                    .findFirst().orElse(null), version);
-
-            writePart(buf, animation.boneAnimations().stream()
-                    .filter(boneAnimation -> boneAnimation.boneName().equals("right_arm"))
-                    .findFirst().orElse(null), version);
-
-            writePart(buf, animation.boneAnimations().stream()
-                    .filter(boneAnimation -> boneAnimation.boneName().equals("left_arm"))
-                    .findFirst().orElse(null), version);
-
-            writePart(buf, animation.boneAnimations().stream()
-                    .filter(boneAnimation -> boneAnimation.boneName().equals("right_leg"))
-                    .findFirst().orElse(null), version);
-
-            writePart(buf, animation.boneAnimations().stream()
-                    .filter(boneAnimation -> boneAnimation.boneName().equals("left_leg"))
-                    .findFirst().orElse(null), version);
+            writePart(buf, "head", animation.getBone("head"), version, easeBefore);
+            writePart(buf, "body", animation.getBone("body"), version, easeBefore);
+            writePart(buf, "right_arm", animation.getBone("right_arm"), version, easeBefore);
+            writePart(buf, "left_arm", animation.getBone("left_arm"), version, easeBefore);
+            writePart(buf, "right_leg", animation.getBone("right_leg"), version, easeBefore);
+            writePart(buf, "left_leg", animation.getBone("left_leg"), version, easeBefore);
         }
-        buf.putLong(animation.data().uuid().getMostSignificantBits());
-        buf.putLong(animation.data().uuid().getLeastSignificantBits());
+        buf.putLong(animation.uuid().getMostSignificantBits());
+        buf.putLong(animation.uuid().getLeastSignificantBits());
 
         return buf;
     }
@@ -117,68 +105,107 @@ public final class LegacyAnimationBinary {
      * @param animation animation
      * @param buf       target byteBuf
      * @return          target byteBuf for chaining
-     * @param <T>       ByteBuffer
      * @throws BufferOverflowException if can't write into byteBuf
      */
-    public static <T extends ByteBuffer> T write(Animation animation, T buf) throws BufferOverflowException {
+    public static ByteBuffer write(Animation animation, ByteBuffer buf) throws BufferOverflowException {
         return write(animation, buf, getCurrentVersion());
     }
 
-    @SuppressWarnings("ConstantConditions")
-    private static void writePart(ByteBuffer buf, BoneAnimation part, int version) {
+    private static void writePart(ByteBuffer buf, String name, BoneAnimation part, int version, boolean easeBefore) {
         if (part == null) {
             int i = 6;
-            if (!part.boneName().equals("head")) i += 2;
+            if (BEND_BONE.test(name)) i += 2;
             if (version >= 3) i += 3;
-            for (; i >= 0; i--) {
+            for (; i > 0; i--) {
                 if (version >= 2) {
                     putBoolean(buf, false);
                     buf.putInt(0);
-                } else buf.putInt(0);
+                } else buf.putInt(-1);
             }
+            return;
         }
-        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), version);
-        writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), version);
-        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), version);
-        writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version);
-        writeKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version);
-        writeKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version);
-        if (!part.boneName().equals("head")) {
-            writeKeyframes(buf, part.bendKeyFrames().xKeyframes(), version);
-            writeKeyframes(buf, part.bendKeyFrames().yKeyframes(), version);
+        Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
+        boolean isItem = ITEM_BONE.test(name);
+        boolean isBody = name.equals("body");
+        boolean div = isBody && version >= 2;
+        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, div, isItem);
+        writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, easeBefore, div, isItem || !isBody);
+        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, div, isItem);
+        writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, easeBefore, isItem);
+        writeKeyframes(buf, isItem ? part.rotationKeyFrames().zKeyframes() : part.rotationKeyFrames().yKeyframes(), version, easeBefore, isItem);
+        writeKeyframes(buf, isItem ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), version, easeBefore, isItem);
+        if (BEND_BONE.test(name)) {
+            //Marking the no longer supported Y axis bend keyframes as non-existent
+            if (version >= 2) {
+                putBoolean(buf, true);
+                buf.putInt(0);
+            } else {
+                buf.putInt(0);
+            }
+            writeKeyframes(buf, part.bendKeyFrames(), version, easeBefore, false);
         }
         if (version >= 3) {
-            writeKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version);
-            writeKeyframes(buf, part.scaleKeyFrames().yKeyframes(), version);
-            writeKeyframes(buf, part.scaleKeyFrames().zKeyframes(), version);
+            writeKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, easeBefore, false);
+            writeKeyframes(buf, part.scaleKeyFrames().yKeyframes(), version, easeBefore, false);
+            writeKeyframes(buf, part.scaleKeyFrames().zKeyframes(), version, easeBefore, false);
         }
     }
 
-    private static void writeKeyframes(ByteBuffer buf, List<Keyframe> part, int version) {
+    private static void writeKeyframes(ByteBuffer buf, List<Keyframe> part, int version, boolean easeBefore, boolean negate) {
+        writeKeyframes(buf, part, 0f, version, easeBefore, false, negate);
+    }
+
+    private static void writeKeyframes(ByteBuffer buf, List<Keyframe> part, float def, int version, boolean easeBefore, boolean div, boolean negate) {
         if (version >= 2) {
-            putBoolean(buf, true);
-            buf.putInt(part.size());
-        } else {
-            buf.putInt(part.size());
+            putBoolean(buf, !part.isEmpty());
         }
-        int tick = 0;
-        for (Keyframe move : part) {
-            buf.putInt(tick);
-            tick += (int) move.length();
-            List<Expression> endValue = move.endValue();
-            if (endValue.size() == 1 && endValue.getFirst() instanceof FloatExpression expression) {
-                buf.putFloat(expression.value());
-                buf.put(EasingType.getIDForEasingType(move.easingType()));
-                if (version >= 4) {
-                    if (!move.easingArgs().isEmpty() && move.easingArgs().getFirst().getFirst() instanceof FloatExpression expression1) {
-                        buf.putFloat(expression1.value());
-                    } else buf.putFloat(Float.NaN);
+
+        int keyframeCount = part.size();
+        if (!easeBefore) keyframeCount -= 1;
+        buf.putInt(keyframeCount);
+        if (keyframeCount == 0) return;
+
+        float tickAccumulator = 0;
+        for (int i = 0; i < keyframeCount; i++) {
+            Keyframe move = part.get(i);
+
+            tickAccumulator += move.length();
+            buf.putInt((int) Math.floor(tickAccumulator));
+
+            buf.putFloat(((MOCHA_ENGINE.eval(move.endValue()) * (negate ? -1 : 1)) + def) / (div ? 16f : 1f));
+
+            EasingType easingToWrite;
+            List<Expression> easingArgsToWrite = Collections.emptyList();
+
+            if (easeBefore) {
+                easingToWrite = move.easingType();
+                if (move.easingArgs() != null && !move.easingArgs().isEmpty() && !move.easingArgs().getFirst().isEmpty()) {
+                    easingArgsToWrite = move.easingArgs().getFirst();
+                }
+            } else {
+                Keyframe nextMove = part.get(i + 1);
+                easingToWrite = nextMove.easingType();
+                if (nextMove.easingArgs() != null && !nextMove.easingArgs().isEmpty() && !nextMove.easingArgs().getFirst().isEmpty()) {
+                    easingArgsToWrite = nextMove.easingArgs().getFirst();
                 }
             }
-            else throw new UnsupportedKeyframeForLegacyBinaryException();
+
+            buf.put(easingToWrite.id);
+
+            if (version >= 4) {
+                if (easingArgsToWrite != null && !easingArgsToWrite.isEmpty()) {
+                    buf.putFloat(MOCHA_ENGINE.eval(easingArgsToWrite));
+                } else {
+                    buf.putFloat(Float.NaN);
+                }
+            }
         }
     }
-    
+
+    public static Animation read(ByteBuffer buf) throws IOException {
+        return read(buf, getCurrentVersion());
+    }
+
     /**
      * Read keyframe animation from binary data.
      * Creates a Bool extra property with validation data with name <code>valid</code>
@@ -190,85 +217,132 @@ public final class LegacyAnimationBinary {
      */
     public static Animation read(ByteBuffer buf, int version) throws IOException {
         ExtraAnimationData data = new ExtraAnimationData();
-        data.put("beginTick", buf.getInt());
-        data.put("endTick", buf.getInt());
-        float stopTick = buf.getInt();
-        boolean shouldLoop = getBoolean(buf);
-        float returnTick = buf.getInt();
-        Animation.LoopType loopType = shouldLoop ? Animation.LoopType.returnToTickLoop(returnTick) : Animation.LoopType.PLAY_ONCE;
+
+        int beginTick = buf.getInt();
+        data.put("beginTick", (float) beginTick);
+
+        int endTick = Math.max(buf.getInt(), beginTick + 1);
+        if (endTick <= 0) throw new IOException("endTick must be bigger than 0");
+        data.put("endTick", (float) endTick);
+
+        int stopTick = buf.getInt();
+
+        boolean isLooped = getBoolean(buf);
+        int returnTick = buf.getInt();
+        Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
+        if (isLooped) {
+            if (returnTick > endTick || returnTick < 0) {
+                throw new IOException("The returnTick has to be a non-negative value smaller than the endTick value");
+            }
+            if (returnTick == 0) loopType = Animation.LoopType.LOOP;
+            else loopType = Animation.LoopType.returnToTickLoop(returnTick);
+        }
+        if (loopType == Animation.LoopType.PLAY_ONCE) {
+            endTick = stopTick <= endTick ? endTick + 3 : stopTick; // https://github.com/KosmX/minecraftPlayerAnimator/blob/1.21/coreLib/src/main/java/dev/kosmx/playerAnim/core/data/KeyframeAnimation.java#L80
+        }
+
         boolean easeBefore = getBoolean(buf);
         data.put("isEasingBefore", easeBefore);
         data.put("nsfw", getBoolean(buf));
         int keyframeSize = buf.get();
         if (keyframeSize <= 0) throw new IOException("keyframe size must be greater than 0, current: " + keyframeSize);
-        List<BoneAnimation> boneAnimations = new ArrayList<>();
+        Map<String, BoneAnimation> boneAnimations = new HashMap<>();
         if (version >= 2) {
             int count = buf.getInt();
             for (int i = 0; i < count; i++) {
-                String name = getString(buf);
-                boneAnimations.add(readPart(buf, new BoneAnimation(name), version, keyframeSize, easeBefore));
+                String name = UniversalAnimLoader.getCorrectPlayerBoneName(getString(buf));
+                boneAnimations.put(name, readPart(buf, name, new BoneAnimation(), version, keyframeSize, easeBefore));
             }
         } else {
-            boneAnimations.add(readPart(buf, new BoneAnimation("head"), version, keyframeSize, easeBefore));
-            boneAnimations.add(readPart(buf, new BoneAnimation("body"), version, keyframeSize, easeBefore));
-            boneAnimations.add(readPart(buf, new BoneAnimation("right_arm"), version, keyframeSize, easeBefore));
-            boneAnimations.add(readPart(buf, new BoneAnimation("left_arm"), version, keyframeSize, easeBefore));
-            boneAnimations.add(readPart(buf, new BoneAnimation("right_left"), version, keyframeSize, easeBefore));
-            boneAnimations.add(readPart(buf, new BoneAnimation("left_leg"), version, keyframeSize, easeBefore));
+            boneAnimations.put("head", readPart(buf, "head", new BoneAnimation(), version, keyframeSize, easeBefore));
+            boneAnimations.put("body", readPart(buf, "body", new BoneAnimation(), version, keyframeSize, easeBefore));
+            boneAnimations.put("right_arm", readPart(buf, "right_arm", new BoneAnimation(), version, keyframeSize, easeBefore));
+            boneAnimations.put("left_arm", readPart(buf, "left_arm", new BoneAnimation(), version, keyframeSize, easeBefore));
+            boneAnimations.put("right_leg", readPart(buf, "right_leg", new BoneAnimation(), version, keyframeSize, easeBefore));
+            boneAnimations.put("left_leg", readPart(buf, "left_leg", new BoneAnimation(), version, keyframeSize, easeBefore));
 
-            BoneAnimation body = boneAnimations.get(1);
-            if (body.bendKeyFrames().hasKeyframes()) {
-                BoneAnimation torso = new BoneAnimation("torso");
-                torso.bendKeyFrames().xKeyframes().addAll(body.bendKeyFrames().xKeyframes());
-                torso.bendKeyFrames().yKeyframes().addAll(body.bendKeyFrames().yKeyframes());
-                body.bendKeyFrames().xKeyframes().clear();
-                body.bendKeyFrames().yKeyframes().clear();
-                boneAnimations.add(torso);
+            BoneAnimation body = boneAnimations.get("body");
+            if (body != null && !body.bendKeyFrames().isEmpty()) {
+                BoneAnimation torso = boneAnimations.computeIfAbsent("torso", name -> new BoneAnimation());
+                torso.bendKeyFrames().addAll(body.bendKeyFrames());
+                body.bendKeyFrames().clear();
             }
         }
         long msb = buf.getLong();
         long lsb = buf.getLong();
         data.put("uuid", new UUID(msb, lsb));
+        data.put("format", AnimationFormat.PLAYER_ANIMATOR);
 
-        return new Animation(data, stopTick, loopType, boneAnimations, UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+        return new Animation(data, endTick, loopType, boneAnimations, UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
-    private static BoneAnimation readPart(ByteBuffer buf, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {
-        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), version, keyframeSize);
-        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), version, keyframeSize);
-        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), version, keyframeSize);
-        readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, keyframeSize);
-        readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version, keyframeSize);
-        readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize);
-        String partName = part.boneName();
-        if (!partName.equals("head")) {
-            readKeyframes(buf, part.bendKeyFrames().xKeyframes(), version, keyframeSize);
-            readKeyframes(buf, part.bendKeyFrames().yKeyframes(), version, keyframeSize);
+    private static BoneAnimation readPart(ByteBuffer buf, String name, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {
+        Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
+        boolean isBody = name.equals("body");
+        boolean mul = isBody && version >= 2;
+        boolean isItem = ITEM_BONE.test(name);
+        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, mul, isItem);
+        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize, mul, isItem || !isBody);
+        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, mul, isItem);
+        readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, keyframeSize, isItem);
+        readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version, keyframeSize, isItem);
+        readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize, isItem);
+        if (BEND_BONE.test(name)) {
+            readKeyframes(buf, new ArrayList<>(), version, keyframeSize, false); // Discarded since no Y axis bend support
+            readKeyframes(buf, part.bendKeyFrames(), version, keyframeSize, false);
         }
         if (version >= 3) {
-            readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, keyframeSize);
-            readKeyframes(buf, part.scaleKeyFrames().yKeyframes(), version, keyframeSize);
-            readKeyframes(buf, part.scaleKeyFrames().zKeyframes(), version, keyframeSize);
+            readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, keyframeSize, false);
+            readKeyframes(buf, part.scaleKeyFrames().yKeyframes(), version, keyframeSize, false);
+            readKeyframes(buf, part.scaleKeyFrames().zKeyframes(), version, keyframeSize, false);
         }
-        PlayerAnimatorLoader.correctEasings(part.positionKeyFrames());
-        PlayerAnimatorLoader.correctEasings(part.rotationKeyFrames());
-        PlayerAnimatorLoader.correctEasings(part.scaleKeyFrames());
-        PlayerAnimatorLoader.correctEasings(part.bendKeyFrames());
+        if (!easeBefore) {
+            PlayerAnimatorLoader.correctEasings(part.positionKeyFrames());
+            PlayerAnimatorLoader.correctEasings(part.rotationKeyFrames());
+            PlayerAnimatorLoader.correctEasings(part.scaleKeyFrames());
+            PlayerAnimatorLoader.correctEasings(part.bendKeyFrames());
+            if (isItem) {
+                PlayerAnimatorLoader.swapTheZYAxis(part.positionKeyFrames());
+                PlayerAnimatorLoader.swapTheZYAxis(part.rotationKeyFrames());
+            }
+        }
         return part;
     }
 
+    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, int version, int keyframeSize, boolean negate) {
+        readKeyframes(buf, part, (float) 0, version, keyframeSize, false, negate);
+    }
 
-
-    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, int version, int keyframeSize) {
+    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, float def, int version, int keyframeSize, boolean mul, boolean negate) {
         int length;
-        length = buf.getInt();
+        boolean enabled;
+        if (version >= 2) {
+            enabled = getBoolean(buf);
+            length = buf.getInt();
+        } else {
+            length = buf.getInt();
+            enabled = length >= 0;
+        }
+
+        if (!enabled) {
+            if (length > 0) {
+                buf.position(buf.position() + length * keyframeSize);
+            }
+            part.clear();
+            return;
+        }
+
+        int lastTick = 0;
         for (int i = 0; i < length; i++) {
             Keyframe prevKeyframe = part.isEmpty() ? null : part.getLast();
             int currentPos = buf.position();
 
             int tick = buf.getInt();
-            List<Expression> expression = Collections.singletonList(FloatExpression.of(buf.getFloat()));
-            EasingType easingType = EasingType.getEasingTypeForID(buf.get());
+            float keyframeLength = (float)tick - lastTick;
+            lastTick = tick;
+
+            List<Expression> expression = Collections.singletonList(FloatExpression.of((buf.getFloat() - def) * (mul ? 16 : 1) * (negate ? -1 : 1)));
+            EasingType easingType = EasingType.fromId(buf.get());
             Float easingArg = null;
 
             if (version >= 4) {
@@ -279,7 +353,7 @@ public final class LegacyAnimationBinary {
                 }
             }
 
-            part.add(new Keyframe(tick, prevKeyframe == null ? expression : prevKeyframe.endValue(), expression, easingType,
+            part.add(new Keyframe(keyframeLength, prevKeyframe == null ? expression : prevKeyframe.endValue(), expression, easingType,
                     easingArg == null ? Collections.singletonList(Collections.emptyList()) :
                             Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)))));
             buf.position(currentPos + keyframeSize);
@@ -294,21 +368,26 @@ public final class LegacyAnimationBinary {
         return 4;
     }
 
+    public static int calculateSize(Animation animation) {
+        return calculateSize(animation, getCurrentVersion());
+    }
+
     public static int calculateSize(Animation animation, int version) {
         //I will create less efficient loops, but these will be more easily fixable
         int size = 36;//The header makes xx bytes IIIBIBBBLL
+        boolean easeBefore = animation.data().<Boolean>get("isEasingBefore")
+                .orElse(animation.data().data().getOrDefault("format", AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
         if (version < 2) {
-            for (BoneAnimation boneAnimation : animation.boneAnimations()) {
-                String partName = boneAnimation.boneName();
-                if (partName.equals("right_arm") || partName.equals("left_arm") || partName.equals("right_left") ||
-                        partName.equals("left_leg") || partName.equals("body") || partName.equals("head")) {
-                    size += partSize(boneAnimation, version);
-                }
-            }
+            size += partSize(animation.getBone("head"), false, version, easeBefore);
+            size += partSize(animation.getBone("body"), true, version, easeBefore);
+            size += partSize(animation.getBone("right_arm"), true, version, easeBefore);
+            size += partSize(animation.getBone("left_arm"), true, version, easeBefore);
+            size += partSize(animation.getBone("right_leg"), true, version, easeBefore);
+            size += partSize(animation.getBone("left_leg"), true, version, easeBefore);
         } else {
             size += 4;
-            for (BoneAnimation entry : animation.boneAnimations()) {
-                size += stringSize(entry.boneName()) + partSize(entry, version);
+            for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
+                size += stringSize(UniversalAnimLoader.restorePlayerBoneName(entry.getKey())) + partSize(entry.getValue(), BEND_BONE.test(entry.getKey()), version, easeBefore);
             }
         }
         //The size of an empty emote is 230 bytes.
@@ -322,29 +401,34 @@ public final class LegacyAnimationBinary {
         return bytes.length + 4;
     }
 
-    private static int partSize(BoneAnimation part, int version){
+    private static int partSize(BoneAnimation part, boolean bendable, int version, boolean easeBefore) {
+        if (part == null) {
+            int i = 6;
+            if (bendable) i += 2;
+            if (version >= 3) i += 3;
+            return i * (version >= 2 ? 5 : 4);
+        }
         int size = 0;
-        size += axisSize(part.positionKeyFrames().xKeyframes(), version);
-        size += axisSize(part.positionKeyFrames().yKeyframes(), version);
-        size += axisSize(part.positionKeyFrames().zKeyframes(), version);
-        size += axisSize(part.rotationKeyFrames().xKeyframes(), version);
-        size += axisSize(part.rotationKeyFrames().yKeyframes(), version);
-        size += axisSize(part.rotationKeyFrames().zKeyframes(), version);
-        String partName = part.boneName();
-        if (!partName.equals("head")) {
-            size += axisSize(part.bendKeyFrames().xKeyframes(), version);
-            size += axisSize(part.bendKeyFrames().yKeyframes(), version);
+        size += axisSize(part.positionKeyFrames().xKeyframes(), version, easeBefore);
+        size += axisSize(part.positionKeyFrames().yKeyframes(), version, easeBefore);
+        size += axisSize(part.positionKeyFrames().zKeyframes(), version, easeBefore);
+        size += axisSize(part.rotationKeyFrames().xKeyframes(), version, easeBefore);
+        size += axisSize(part.rotationKeyFrames().yKeyframes(), version, easeBefore);
+        size += axisSize(part.rotationKeyFrames().zKeyframes(), version, easeBefore);
+        if (bendable) {
+            size += version >= 2 ? 5 : 4;
+            size += axisSize(part.bendKeyFrames(), version, easeBefore);
         }
         if (version >= 3) {
-            size += axisSize(part.scaleKeyFrames().xKeyframes(), version);
-            size += axisSize(part.scaleKeyFrames().yKeyframes(), version);
-            size += axisSize(part.scaleKeyFrames().zKeyframes(), version);
+            size += axisSize(part.scaleKeyFrames().xKeyframes(), version, easeBefore);
+            size += axisSize(part.scaleKeyFrames().yKeyframes(), version, easeBefore);
+            size += axisSize(part.scaleKeyFrames().zKeyframes(), version, easeBefore);
         }
         return size;
     }
 
-    private static int axisSize(List<Keyframe> axis, int version){
-        return axis.size()*keyframeSize(version) + (version >= 2 ? 5 : 4);// count*IFB + I (for count)
+    private static int axisSize(List<Keyframe> axis, int version, boolean easeBefore) {
+        return Math.max(0, (axis.size() - (easeBefore ? 0 : 1)))*keyframeSize(version) + (version >= 2 ? 5 : 4);// count*IFB + I (for count)
     }
 
     /**

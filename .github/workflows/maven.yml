@@ -23,11 +23,13 @@ jobs:
               uses: actions/setup-java@v4
               with:
                   distribution: 'adopt'
-                  java-version: 17
+                  java-version: 21
 
             - name: Grant Execute Permission
               run: chmod +x gradlew
 
             - name: Build
               run: |
-                  ./gradlew publishMavenPublicationToZigythebirdmodsRepository
+                  ./gradlew publish
+              env:
+                MAVEN_PASSWORD: ${{ secrets.REDLANCE_PASSWORD }}

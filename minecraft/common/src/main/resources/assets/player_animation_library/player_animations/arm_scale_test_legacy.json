@@ -1,7 +1,6 @@
 {
     "version": 3,
     "name": "arm_scale_test_legacy",
-    "uuid": "00000000-0000-0000-0000-000000000000",
     "emote": {
         "endTick": 1,
         "isLoop": true,

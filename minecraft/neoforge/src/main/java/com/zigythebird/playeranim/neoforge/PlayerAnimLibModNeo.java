@@ -20,7 +20,8 @@ import org.jetbrains.annotations.NotNull;
 public final class PlayerAnimLibModNeo extends PlayerAnimLibMod {
     public PlayerAnimLibModNeo(IEventBus bus) {
         bus.addListener(this::onAddClientReloadListeners);
-        NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
+        if (!FMLLoader.isProduction() || ModList.get().getModFileById(PlayerAnimLibMod.MOD_ID).versionString().contains("dev"))
+            NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
 
         super.init();
 
@@ -37,7 +38,6 @@ public final class PlayerAnimLibModNeo extends PlayerAnimLibMod {
     }
 
     public void onRegisterCommands(RegisterClientCommandsEvent event) {
-        if (!FMLLoader.isProduction() || ModList.get().getModFileById(PlayerAnimLibMod.MOD_ID).versionString().contains("dev"))
-            PlayerAnimCommands.register(event.getDispatcher(), event.getBuildContext());
+        PlayerAnimCommands.register(event.getDispatcher(), event.getBuildContext());
     }
 }

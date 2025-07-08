@@ -5,7 +5,7 @@
 
 package com.zigythebird.playeranimcore.animation.keyframe;
 
-import com.zigythebird.playeranimcore.animation.EasingType;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import team.unnamed.mocha.parser.ast.Expression;
 
@@ -33,6 +33,10 @@ public record Keyframe(float length, List<Expression> startValue, List<Expressio
 
 	public Keyframe(float length) {
 		this(length, Collections.emptyList(), Collections.emptyList());
+	}
+
+	public static float getLastKeyframeTime(List<Keyframe> list) {
+		return (float) list.stream().mapToDouble(Keyframe::length).sum();
 	}
 
 	@Override

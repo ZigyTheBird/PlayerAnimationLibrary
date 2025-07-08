@@ -2,7 +2,6 @@ package com.zigythebird.playeranim.accessors;
 
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Extension of PlayerRenderState
@@ -13,7 +12,7 @@ public interface IPlayerAnimationState {
 
     // AnimationApplier animationApplier
     void playerAnimLib$setAnimManager(PlayerAnimManager manager);
-    @Nullable PlayerAnimManager playerAnimLib$getAnimManager();
+    PlayerAnimManager playerAnimLib$getAnimManager();
 
     void playerAnimLib$setAnimProcessor(AnimationProcessor processor);
     AnimationProcessor playerAnimLib$getAnimProcessor();

@@ -26,15 +26,15 @@ public record KeyframeStack(List<Keyframe> xKeyframes, List<Keyframe> yKeyframes
 	}
 
 	public float getLastXAxisKeyframeTime() {
-		return (float) xKeyframes().stream().mapToDouble(Keyframe::length).sum();
+		return Keyframe.getLastKeyframeTime(xKeyframes);
 	}
 
 	public float getLastYAxisKeyframeTime() {
-		return (float) yKeyframes().stream().mapToDouble(Keyframe::length).sum();
+		return Keyframe.getLastKeyframeTime(yKeyframes);
 	}
 
 	public float getLastZAxisKeyframeTime() {
-		return (float) zKeyframes().stream().mapToDouble(Keyframe::length).sum();
+		return Keyframe.getLastKeyframeTime(zKeyframes);
 	}
 
 	public boolean hasKeyframes() {
