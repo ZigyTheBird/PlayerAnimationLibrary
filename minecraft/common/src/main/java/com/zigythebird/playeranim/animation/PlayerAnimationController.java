@@ -45,10 +45,13 @@ public class PlayerAnimationController extends AnimationController {
         return this.player;
     }
 
-    public @Nullable PoseStack getBoneWorldPositionPoseStack(String name, float tickDelta) {
+    /**
+     * Get the position of a bone in the world in the form of a PoseStack.
+     */
+    public @Nullable PoseStack getBoneWorldPositionPoseStack(String name, float tickDelta, Vec3 cameraPos) {
         if (!this.activeBones.containsKey(name)) return null;
         PoseStack poseStack = new PoseStack();
-        Vec3 position = player.getPosition(tickDelta);
+        Vec3 position = player.getPosition(tickDelta).subtract(cameraPos);
         poseStack.translate(position.x(), position.y(), position.z());
         poseStack.mulPose(Axis.YP.rotationDegrees(180 - Mth.lerp(tickDelta, player.yBodyRotO, player.yBodyRot)));
         RenderUtil.translateMatrixToBone(poseStack, this.activeBones.get(name));
