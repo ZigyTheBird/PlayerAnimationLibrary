@@ -43,7 +43,7 @@ public class LivingEntityRendererMixin {
     @Shadow @Final protected List<Object> layers;
 
     @Redirect(
-            method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
     at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;layers:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<Object> filterLayers(LivingEntityRenderer instance) {
         if (instance instanceof PlayerRenderer && FirstPersonMode.isFirstPersonPass()) {

@@ -35,12 +35,12 @@ public class AutoPlayingSoundKeyframeHandler implements CustomKeyFrameEvents.Cus
         ResourceLocation rl = ResourceLocation.tryParse(segments[0]);
         if (rl == null) return EventResult.PASS;
 
-        Optional<Holder.Reference<SoundEvent>> soundEvent = BuiltInRegistries.SOUND_EVENT.get(rl);
-        if (soundEvent.isEmpty()) return EventResult.PASS;
+        SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.get(rl);
+        if (soundEvent == null) return EventResult.PASS;
 
         float volume = segments.length > 1 ? Float.parseFloat(segments[1]) : 1;
         float pitch = segments.length > 2 ? Float.parseFloat(segments[2]) : 1;
-        ClientUtil.getLevel().playSound(null, position.x, position.y, position.z, soundEvent.get(), SoundSource.PLAYERS, volume, pitch);
+        ClientUtil.getLevel().playSound(null, position.x, position.y, position.z, soundEvent, SoundSource.PLAYERS, volume, pitch);
         return EventResult.SUCCESS;
     }
 }

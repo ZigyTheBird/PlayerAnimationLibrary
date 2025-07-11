@@ -26,14 +26,16 @@ package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
+import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
-import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,10 +49,10 @@ public class ItemInHandLayerMixin {
     @Unique
     private final PlayerAnimBone playerAnimLib$leftItem = new PlayerAnimBone("left_item");
 
-    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionfc;)V", ordinal = 0))
-    private void changeItemLocation(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, HumanoidArm arm, PoseStack matrices, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
-        if (renderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
+    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", ordinal = 0))
+    private void changeItemLocation(LivingEntity livingEntity, ItemStack itemStack, ItemDisplayContext displayContext, HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
+        if (livingEntity instanceof AbstractClientPlayer player && ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor() != null && ((IAnimatedPlayer)player).playerAnimLib$getAnimManager().isActive()) {
+            PlayerAnimManager anim = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
             if (anim == null) return;
             PlayerAnimBone bone;
 
@@ -60,14 +62,14 @@ public class ItemInHandLayerMixin {
             bone.setToInitialPose();
             anim.get3DTransform(bone);
 
-            matrices.translate(bone.getPosX()/16, bone.getPosY()/16, bone.getPosZ()/16);
+            poseStack.translate(bone.getPosX()/16, bone.getPosY()/16, bone.getPosZ()/16);
         }
     }
 
-    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"))
-    private void changeItemRotationAndScale(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, HumanoidArm arm, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
-        if (renderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
+    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"))
+    private void changeItemRotationAndScale(LivingEntity livingEntity, ItemStack itemStack, ItemDisplayContext displayContext, HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
+        if (livingEntity instanceof AbstractClientPlayer player && ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor() != null && player.playerAnimLib$getAnimManager().isActive()) {
+            PlayerAnimManager anim = player.playerAnimLib$getAnimManager();
             if (anim == null) return;
             PlayerAnimBone bone;
 

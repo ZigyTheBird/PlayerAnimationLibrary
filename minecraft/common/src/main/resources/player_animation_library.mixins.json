@@ -6,6 +6,7 @@
   "minVersion": "0.8",
   "client": [
     "AbstractClientPlayerMixin",
+    "CameraAccessor",
     "CapeLayerAccessor",
     "CapeLayerMixin_noBend",
     "ElytraLayerMixin_noBend",
@@ -17,7 +18,6 @@
     "ModelPartMixin",
     "PlayerModelMixin",
     "PlayerRendererMixin",
-    "PlayerRenderStateMixin",
     "firstPerson.EntityRenderDispatcherMixin",
     "firstPerson.ItemInHandRendererMixin",
     "firstPerson.LevelRendererMixin",

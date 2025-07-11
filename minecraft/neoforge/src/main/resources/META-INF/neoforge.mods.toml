@@ -16,14 +16,14 @@ logoFile = "icon.png"
 [[dependencies.player_animation_library]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.7,)"
+versionRange = "[21.1,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.player_animation_library]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.6,)"
+versionRange = "[1.21.1,)"
 ordering = "NONE"
 side = "BOTH"
 
