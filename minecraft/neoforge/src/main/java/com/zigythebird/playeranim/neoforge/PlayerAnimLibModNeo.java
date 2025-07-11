@@ -11,8 +11,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,8 +33,8 @@ public final class PlayerAnimLibModNeo extends PlayerAnimLibMod {
         );
     }
 
-    public void onAddClientReloadListeners(@NotNull AddClientReloadListenersEvent event) {
-        event.addListener(PlayerAnimResources.KEY, new PlayerAnimResources());
+    public void onAddClientReloadListeners(@NotNull RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(new PlayerAnimResources());
     }
 
     public void onRegisterCommands(RegisterClientCommandsEvent event) {
