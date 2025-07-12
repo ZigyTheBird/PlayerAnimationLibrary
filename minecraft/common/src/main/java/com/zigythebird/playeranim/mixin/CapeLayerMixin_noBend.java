@@ -26,8 +26,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CapeLayer.class)
 public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderState, PlayerModel> {
-
-    @Shadow @Final private HumanoidModel<PlayerRenderState> model;
+    @Shadow
+    @Final
+    private HumanoidModel<PlayerRenderState> model;
 
     private CapeLayerMixin_noBend(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent, Void v) {
         super(renderLayerParent);
@@ -55,7 +56,6 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
             }
         }
     }
-
 
     @WrapWithCondition(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
     private boolean translate(PoseStack instance, float f, float g, float h, @Local(argsOnly = true) PlayerRenderState playerRenderState) {

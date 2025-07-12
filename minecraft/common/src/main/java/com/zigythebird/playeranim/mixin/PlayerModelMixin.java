@@ -28,7 +28,6 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.accessors.IUpperPartHelper;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.AnimationProcessor;
@@ -54,16 +53,8 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
         super(modelPart, function);
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void initBend(ModelPart modelPart, boolean bl, CallbackInfo ci){
-        ((IUpperPartHelper)rightArm).playerAnimLib$setUpperPart(true);
-        ((IUpperPartHelper)leftArm).playerAnimLib$setUpperPart(true);
-        ((IUpperPartHelper)head).playerAnimLib$setUpperPart(true);
-        ((IUpperPartHelper)hat).playerAnimLib$setUpperPart(true);
-    }
-
     @Unique
-    private void playerAnimLib$setToInitialPose(){
+    private void playerAnimLib$setToInitialPose() {
         this.head.resetPose();
         this.body.resetPose();
         this.rightArm.resetPose();
