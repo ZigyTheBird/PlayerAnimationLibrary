@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
-import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,7 +41,7 @@ public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderStat
                 ModelPart torso = this.getParentModel().body;
 
                 poseStack.translate(torso.x / 16, torso.y / 16, torso.z / 16);
-                poseStack.mulPose((new Quaternionf()).rotateZYX(torso.zRot, torso.yRot, torso.xRot));
+                RenderUtil.rotateZYX(poseStack.last(), torso.zRot, torso.yRot, torso.xRot);
 
                 poseStack.translate(0.0F, 0.0F, 0.125F);
                 poseStack.mulPose(Axis.YP.rotation(3.14159f));

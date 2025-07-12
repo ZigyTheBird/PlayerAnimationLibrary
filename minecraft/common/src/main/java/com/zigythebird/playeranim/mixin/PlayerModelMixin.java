@@ -38,7 +38,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.resources.ResourceLocation;
-import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -133,7 +132,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
         if (((IMutableModel)this).playerAnimLib$getAnimation() != null && ((IMutableModel)this).playerAnimLib$getAnimation().isActive()) {
             poseStack.translate(modelPart.x / 16.0F, modelPart.y / 16.0F, modelPart.z / 16.0F);
             if (modelPart.xRot != 0.0F || modelPart.yRot != 0.0F || modelPart.zRot != 0.0F) {
-                poseStack.mulPose(new Quaternionf().rotationZYX(modelPart.zRot, modelPart.yRot, modelPart.xRot));
+                RenderUtil.rotateZYX(poseStack.last(), modelPart.zRot, modelPart.yRot, modelPart.xRot);
             }
             poseStack.translate(0, (modelPart.yScale - 1) * 0.609375, (modelPart.zScale - 1) * 0.0625);
 

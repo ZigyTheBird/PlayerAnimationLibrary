@@ -73,4 +73,9 @@ public final class RenderUtil {
 
 		bone.setBend(0);
 	}
+
+	public static void rotateZYX(PoseStack.Pose matrices, float angleZ, float angleY, float angleX) {
+		matrices.pose().rotateZYX(angleZ, angleY, angleX);
+		matrices.normal().rotateZYX(angleZ, angleY, angleX);
+	}
 }
