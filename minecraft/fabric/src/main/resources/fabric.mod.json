@@ -14,7 +14,7 @@
   },
   "license": "MIT License",
   "icon": "icon.png",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "client": [
       "com.zigythebird.playeranim.fabric.PlayerAnimLibModFabric"
