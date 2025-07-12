@@ -25,10 +25,7 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
-import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
@@ -52,33 +49,6 @@ public class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityM
         if (FirstPersonMode.isFirstPersonPass() && entity instanceof AbstractClientPlayer player
                 && player == Minecraft.getInstance().cameraEntity) {
             playerAnimLib$setAllPartsVisible(true);
-        }
-    }
-    
-    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;isBodyVisible(Lnet/minecraft/world/entity/LivingEntity;)Z"))
-    private void doTranslations(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-        if (entity instanceof AbstractClientPlayer player) {
-            var animationPlayer = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
-            if (animationPlayer != null && animationPlayer.isActive()) {
-                poseStack.translate(0.0F, 1.501F, 0.0F);
-                poseStack.scale(-1.0F, -1.0F, 1.0F);
-
-                PlayerAnimBone body = ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor().getBone("body");
-                body.setToInitialPose();
-
-                //These are additive properties
-                body = animationPlayer.get3DTransform(body);
-
-                poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
-                poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);
-
-                RenderUtil.rotateMatrixAroundBone(poseStack, body);
-
-                poseStack.translate(0, -0.75, 0);
-
-                poseStack.scale(-1.0F, -1.0F, 1.0F);
-                poseStack.translate(0.0F, -1.501F, 0.0F);
-            }
         }
     }
 

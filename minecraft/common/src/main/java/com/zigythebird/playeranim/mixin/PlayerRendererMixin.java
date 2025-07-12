@@ -27,6 +27,8 @@ package com.zigythebird.playeranim.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranim.util.RenderUtil;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -41,5 +43,26 @@ public abstract class PlayerRendererMixin {
     private void modifyRenderState(AbstractClientPlayer entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
         PlayerAnimManager animation = ((IAnimatedPlayer)entity).playerAnimLib$getAnimManager();
         animation.setTickDelta(partialTicks);
+    }
+
+    @Inject(method = "setupRotations(Lnet/minecraft/client/player/AbstractClientPlayer;Lcom/mojang/blaze3d/vertex/PoseStack;FFFF)V", at = @At("RETURN"))
+    private void applyBodyTransforms(AbstractClientPlayer player, PoseStack poseStack, float f, float bodyYaw, float tickDelta, float scale, CallbackInfo ci){
+        var animationPlayer = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
+        if (animationPlayer != null && animationPlayer.isActive()) {
+            PlayerAnimBone body = ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor().getBone("body");
+            body.setToInitialPose();
+
+            //These are additive properties
+            body = animationPlayer.get3DTransform(body);
+
+            poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
+            poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);
+
+            body.rotX *= -1;
+            body.rotY *= -1;
+            RenderUtil.rotateMatrixAroundBone(poseStack, body);
+
+            poseStack.translate(0, -0.75, 0);
+        }
     }
 }
