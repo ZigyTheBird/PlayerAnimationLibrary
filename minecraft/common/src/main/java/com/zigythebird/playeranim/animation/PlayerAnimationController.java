@@ -51,7 +51,8 @@ public class PlayerAnimationController extends AnimationController {
     public @Nullable PoseStack getBoneWorldPositionPoseStack(String name, float tickDelta, Vec3 cameraPos) {
         if (!this.activeBones.containsKey(name)) return null;
         PoseStack poseStack = new PoseStack();
-        Vec3 position = player.getPosition(tickDelta).subtract(cameraPos);
+        Vec3f pivot = getBonePosition(name);
+        Vec3 position = player.getPosition(tickDelta).subtract(cameraPos).add(pivot.x(), pivot.y(), pivot.z());
         poseStack.translate(position.x(), position.y(), position.z());
         poseStack.mulPose(Axis.YP.rotationDegrees(180 - Mth.lerp(tickDelta, player.yBodyRotO, player.yBodyRot)));
         RenderUtil.translateMatrixToBone(poseStack, this.activeBones.get(name));
@@ -90,6 +91,8 @@ public class PlayerAnimationController extends AnimationController {
 
     @Override
     public Vec3f getBonePosition(String name) {
-        return BONE_POSITIONS.getOrDefault(name, Vec3f.ZERO);
+        if (BONE_POSITIONS.containsKey(name)) return BONE_POSITIONS.get(name);
+        if (pivotBones.containsKey(name)) return pivotBones.get(name).getPivot();
+        return Vec3f.ZERO;
     }
 }

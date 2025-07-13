@@ -894,9 +894,10 @@ public abstract class AnimationController implements IAnimation {
 				bones1.add(pivotBone);
 		}
 
-		for (PlayerAnimBone bone : this.bones.values()) {
+		for (PlayerAnimBone bone : bones1) {
 			if (parentsMap.containsKey(bone.getName())) {
 				if (!this.boneAnimationQueues.containsKey(bone.getName())) bone.setToInitialPose();
+				this.activeBones.put(bone.getName(), bone);
 				ModMatrix4f matrix = new ModMatrix4f();
 				List<PivotBone> parents = new ArrayList<>();
 				PivotBone currentParent = this.pivotBones.get(parentsMap.get(bone.getName()));
