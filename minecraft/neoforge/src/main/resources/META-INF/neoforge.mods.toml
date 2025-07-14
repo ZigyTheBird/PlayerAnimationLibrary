@@ -11,6 +11,8 @@ authors = "Zigy, dima_dencep"
 description = '''
 A library that allows mods to animate the player, in a way that doesn't conflict with other mods. (and much more!)
 '''
+
+displayURL = "https://docs.zigythebird.com/pal/intro"
 logoFile = "icon.png"
 
 [[dependencies.player_animation_library]]

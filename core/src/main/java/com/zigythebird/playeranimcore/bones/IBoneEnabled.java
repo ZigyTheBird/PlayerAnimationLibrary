@@ -1,8 +1,6 @@
 package com.zigythebird.playeranimcore.bones;
 
 public interface IBoneEnabled {
-
-
     boolean isScaleXEnabled();
     boolean isScaleYEnabled();
     boolean isScaleZEnabled();
