@@ -77,13 +77,13 @@ public record ExtraAnimationData(Map<String, Object> data) {
             }
             return list;
         }
-        if (element instanceof JsonObject object) {
+        /*if (element instanceof JsonObject object) {
             Map<String, Object> map = new HashMap<>(object.size());
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 map.put(entry.getKey(), getValue(entry.getValue()));
             }
             return map;
-        }
+        }*/
         return element;
     }
 
