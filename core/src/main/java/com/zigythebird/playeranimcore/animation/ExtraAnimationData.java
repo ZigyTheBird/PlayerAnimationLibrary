@@ -59,7 +59,7 @@ public record ExtraAnimationData(Map<String, Object> data) {
             data().put(entry.getKey(), getValue(entry.getValue()));
         }
     }
-    
+
     public Object getValue(JsonElement element) {
         if (element instanceof JsonPrimitive p) {
             if (p.isBoolean()) {
@@ -71,16 +71,18 @@ public record ExtraAnimationData(Map<String, Object> data) {
             }
         }
         if (element instanceof JsonArray array) {
-            List<Object> list = new ArrayList<>();
+            List<Object> list = new ArrayList<>(array.size());
             for (JsonElement element1 : array) {
                 list.add(getValue(element1));
             }
+            return list;
         }
         if (element instanceof JsonObject object) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>(object.size());
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 map.put(entry.getKey(), getValue(entry.getValue()));
             }
+            return map;
         }
         return element;
     }
