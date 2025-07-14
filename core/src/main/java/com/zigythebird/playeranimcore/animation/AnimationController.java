@@ -73,7 +73,7 @@ public abstract class AnimationController implements IAnimation {
 	protected State animationState = State.STOPPED;
 	protected float tickOffset;
 	protected float startAnimFrom;
-	protected Function<AnimationController, Boolean> shouldTransitionFunction = controller -> true;
+	protected Consumer<Function<String, AdvancedPlayerAnimBone>> postAnimationSetupConsumer = function -> {};
 	protected Function<AnimationController, Float> animationSpeedModifier = controller -> 1F;
 	protected Function<AnimationController, EasingType> overrideEasingTypeFunction = controller -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
@@ -127,6 +127,16 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
+	 * Gives you each bone after it has been set up for a new animation.
+	 * Useful for disabling certain bone axes, or all of them if you want.
+	 */
+	public AnimationController setPostAnimationSetupConsumer(Consumer<Function<String, AdvancedPlayerAnimBone>> postAnimationSetupConsumer) {
+		this.postAnimationSetupConsumer = postAnimationSetupConsumer;
+
+		return this;
+	}
+
+	/**
 	 * Applies the given modifier function to this controller, for handling the speed that the controller should play its animations at
 	 * <p>
 	 * An output value of 1 is considered neutral, with 2 playing an animation twice as fast, 0.5 playing half as fast, etc
@@ -162,24 +172,6 @@ public abstract class AnimationController implements IAnimation {
 	 */
 	public AnimationController setOverrideEasingTypeFunction(Function<AnimationController, EasingType> easingType) {
 		this.overrideEasingTypeFunction = easingType;
-
-		return this;
-	}
-
-	/**
-	 * Determines whether the controller should respect the beginTick and endTick values
-	 * (usually used with blender animations) if they are specified in an animation.
-	 */
-	public AnimationController setShouldTransition(boolean shouldTransition) {
-		return setShouldTransitionFunction(animatable -> shouldTransition);
-	}
-
-	/**
-	 * Determines whether the controller should respect the beginTick and endTick values
-	 * (usually used with blender animations) if they are specified in an animation.
-	 */
-	public AnimationController setShouldTransitionFunction(Function<AnimationController, Boolean> shouldTransition) {
-		this.shouldTransitionFunction = shouldTransition;
 
 		return this;
 	}
@@ -683,6 +675,8 @@ public abstract class AnimationController implements IAnimation {
 		for (Map.Entry<String, Vec3f> entry : currentAnimation.animation().bones().entrySet()) {
 			this.pivotBones.put(entry.getKey(), new PivotBone(entry.getKey(), entry.getValue()));
 		}
+
+		this.postAnimationSetupConsumer.accept((name) -> bones.getOrDefault(name, null));
 	}
 
 	/**

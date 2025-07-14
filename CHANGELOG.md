@@ -1,1 +1,3 @@
-Mod can now load on server for Emotecraft.
+Easy way to enable/disable bones.
+Fixed bug with custom pivot points.
+Removed unnecessary bend code.
