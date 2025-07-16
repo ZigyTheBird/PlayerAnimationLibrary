@@ -35,8 +35,12 @@ import java.util.Map;
 public class MirrorModifier extends AbstractModifier {
     public static final Map<String, String> mirrorMap;
 
+    public boolean enabled = true;
+
     @Override
     public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
+        if (!enabled) return bone;
+
         String modelName = bone.getName();
         if (mirrorMap.containsKey(modelName)) modelName = mirrorMap.get(modelName);
         transformBone(bone);
@@ -49,10 +53,10 @@ public class MirrorModifier extends AbstractModifier {
         return bone;
     }
 
-    // Override candidate
     @Override
     public @NotNull FirstPersonConfiguration getFirstPersonConfiguration() {
         FirstPersonConfiguration configuration = super.getFirstPersonConfiguration();
+        if (!enabled) return configuration;
         return new FirstPersonConfiguration()
                 .setShowLeftArm(configuration.isShowRightArm())
                 .setShowRightArm(configuration.isShowLeftArm())
