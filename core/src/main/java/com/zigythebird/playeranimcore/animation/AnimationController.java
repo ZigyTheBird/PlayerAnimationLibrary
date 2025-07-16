@@ -737,7 +737,7 @@ public abstract class AnimationController implements IAnimation {
 				return new AnimationPoint(returnToFrame.easingType(), returnToFrame.easingArgs(), tick - location.tick(), returnToLocation.tick() + animation.length() - location.tick(), endValue, returnToValue);
 			}
 			else {
-				return new AnimationPoint(EasingType.LINEAR, null, tick - location.tick(), endTick + 1 - location.tick(), startValue, type == TransformType.SCALE ? 1 : 0);
+				return new AnimationPoint(EasingType.EASE_IN_OUT_SINE, null, tick - location.tick(), endTick + 1 - location.tick(), endValue, type == TransformType.SCALE ? 1 : 0);
 			}
 		}
 
