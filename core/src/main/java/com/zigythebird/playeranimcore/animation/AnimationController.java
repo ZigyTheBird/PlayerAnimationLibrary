@@ -472,7 +472,7 @@ public abstract class AnimationController implements IAnimation {
 			if (this.currentAnimation.loopType().shouldPlayAgain(animation)) {
 				if (this.animationState != State.PAUSED) {
 					this.shouldResetTick = true;
-					startAnimFrom = this.currentAnimation.loopType().restartFromTick(animation);
+					this.startAnimFrom = this.currentAnimation.loopType().restartFromTick(animation);
 					adjustedTick = adjustTick(seekTime);
 					resetEventKeyFrames();
 				}
@@ -721,24 +721,6 @@ public abstract class AnimationController implements IAnimation {
 			} else if (hasEndTick() && !frames.isEmpty() && currentFrame == frames.getLast() && endTick <= tick) {
 				transitionLengthSetter.accept(animation.length() - endTick);
 			} else transitionLengthSetter.accept(null);
-		}
-
-		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(animation) && tick > location.tick()) {
-			float returnToTick = loopType.restartFromTick(animation);
-			if (returnToTick > 0) {
-				KeyframeLocation<Keyframe> returnToLocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(animation));
-				Keyframe returnToFrame = returnToLocation.keyframe();
-				float returnToValue = this.molangRuntime.eval(returnToFrame.endValue());
-				if (type == TransformType.ROTATION || type == TransformType.BEND) {
-					if (!(MolangLoader.isConstant(returnToFrame.endValue()))) {
-						returnToValue = (float) Math.toRadians(returnToValue);
-					}
-				}
-				return new AnimationPoint(returnToFrame.easingType(), returnToFrame.easingArgs(), tick - location.tick(), returnToLocation.tick() + animation.length() - location.tick(), endValue, returnToValue);
-			}
-			else {
-				return new AnimationPoint(EasingType.EASE_IN_OUT_SINE, null, tick - location.tick(), endTick + 1 - location.tick(), endValue, type == TransformType.SCALE ? 1 : 0);
-			}
 		}
 
 		return new AnimationPoint(currentFrame.easingType(), currentFrame.easingArgs(), location.startTick(), currentFrame.length(), startValue, endValue);
