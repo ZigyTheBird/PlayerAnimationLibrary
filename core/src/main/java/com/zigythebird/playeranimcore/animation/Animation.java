@@ -61,6 +61,7 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
                 return currentAnimation.loopType().shouldPlayAgain(currentAnimation);
             }
 
+            @Override
             public float restartFromTick(Animation currentAnimation) {
                 return currentAnimation.loopType().restartFromTick(currentAnimation);
             }

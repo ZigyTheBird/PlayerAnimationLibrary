@@ -95,7 +95,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
         if (getFadeType() == FadeType.FADE_IN) {
             if (transitionAnimation != null && transitionAnimation.isActive()) transitionAnimation.get3DTransform(bone);
         }
-        return copy2.scale(a).add(bone.scale(1 - a));
+        return bone.scale(1 - a).add(copy2.scale(a));
     }
 
     protected float calculateProgress(float f, String boneName) {

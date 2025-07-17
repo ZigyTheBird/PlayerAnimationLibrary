@@ -472,7 +472,7 @@ public abstract class AnimationController implements IAnimation {
 			if (this.currentAnimation.loopType().shouldPlayAgain(animation)) {
 				if (this.animationState != State.PAUSED) {
 					this.shouldResetTick = true;
-					startAnimFrom = this.currentAnimation.loopType().restartFromTick(animation);
+					this.startAnimFrom = this.currentAnimation.loopType().restartFromTick(animation);
 					adjustedTick = adjustTick(seekTime);
 					resetEventKeyFrames();
 				}
@@ -630,7 +630,7 @@ public abstract class AnimationController implements IAnimation {
 	public boolean isDisableAxisIfNotModified() {
 		if (this.currentAnimation != null) {
 			Optional<Boolean> result = this.currentAnimation.animation().data().get("disableAxisIfNotModified");
-            return result.orElseGet(this::isAnimationPlayerAnimatorFormat);
+            return result.orElse(true);
         }
 		return false;
 	}
@@ -663,6 +663,17 @@ public abstract class AnimationController implements IAnimation {
 					bone.scaleZEnabled = !boneAnimation.scaleKeyFrames().zKeyframes().isEmpty();
 
 					bone.bendEnabled = !boneAnimation.bendKeyFrames().isEmpty();
+					
+					if (!this.isAnimationPlayerAnimatorFormat()) {
+						if (bone.positionXEnabled || bone.positionYEnabled || bone.positionZEnabled)
+							bone.setPositionEnabled(true);
+
+						if (bone.rotXEnabled || bone.rotYEnabled || bone.rotZEnabled)
+							bone.setRotEnabled(true);
+
+						if (bone.scaleXEnabled || bone.scaleYEnabled || bone.scaleZEnabled)
+							bone.setScaleEnabled(true);
+					}
 				} else bone.setEnabled(true);
 			}
 		}
@@ -710,18 +721,6 @@ public abstract class AnimationController implements IAnimation {
 			} else if (hasEndTick() && !frames.isEmpty() && currentFrame == frames.getLast() && endTick <= tick) {
 				transitionLengthSetter.accept(animation.length() - endTick);
 			} else transitionLengthSetter.accept(null);
-		}
-
-		if (this.isAnimationPlayerAnimatorFormat() && loopType.shouldPlayAgain(animation) && tick > location.tick()) {
-			KeyframeLocation<Keyframe> returnToLocation = getCurrentKeyFrameLocation(frames, loopType.restartFromTick(animation));
-			Keyframe returnToFrame = returnToLocation.keyframe();
-			float returnToValue = this.molangRuntime.eval(returnToFrame.endValue());
-			if (type == TransformType.ROTATION || type == TransformType.BEND) {
-				if (!(MolangLoader.isConstant(returnToFrame.endValue()))) {
-					returnToValue = (float) Math.toRadians(returnToValue);
-				}
-			}
-			return new AnimationPoint(returnToFrame.easingType(), returnToFrame.easingArgs(), tick - location.tick(), returnToLocation.tick() + animation.length() - location.tick(), endValue, returnToValue);
 		}
 
 		return new AnimationPoint(currentFrame.easingType(), currentFrame.easingArgs(), location.startTick(), currentFrame.length(), startValue, endValue);
