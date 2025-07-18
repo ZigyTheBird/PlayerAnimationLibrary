@@ -70,15 +70,15 @@ public final class LegacyAnimationBinary {
      * @throws java.nio.BufferOverflowException if can't write into ByteBuf
      */
     public static ByteBuffer write(Animation animation, ByteBuffer buf, int version) throws BufferOverflowException {
-        buf.putInt(animation.data().<Float>get("beginTick").orElse(0F).intValue());
-        buf.putInt(animation.data().<Float>get("endTick").orElse(animation.length()).intValue());
+        buf.putInt(animation.data().<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).orElse(0F).intValue());
+        buf.putInt(animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()).intValue());
         buf.putInt((int) animation.length());
         putBoolean(buf, animation.loopType().shouldPlayAgain(animation));
         buf.putInt((int)animation.loopType().restartFromTick(animation));
-        boolean easeBefore = animation.data().<Boolean>get("isEasingBefore")
-                .orElse(animation.data().data().getOrDefault("format", AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
+        boolean easeBefore = animation.data().<Boolean>get(ExtraAnimationData.EASING_BEFORE_KEY)
+                .orElse(animation.data().data().getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
         putBoolean(buf, easeBefore);
-        putBoolean(buf, animation.data().<Boolean>get("nsfw").orElse(false));
+        putBoolean(buf, animation.data().<Boolean>get(ExtraAnimationData.NSFW_KEY).orElse(false));
         buf.put(keyframeSize(version));
         if (version >= 2) {
             buf.putInt(animation.boneAnimations().size());
@@ -219,11 +219,11 @@ public final class LegacyAnimationBinary {
         ExtraAnimationData data = new ExtraAnimationData();
 
         int beginTick = buf.getInt();
-        data.put("beginTick", (float) beginTick);
+        data.put(ExtraAnimationData.BEGIN_TICK_KEY, (float) beginTick);
 
         int endTick = Math.max(buf.getInt(), beginTick + 1);
         if (endTick <= 0) throw new IOException("endTick must be bigger than 0");
-        data.put("endTick", (float) endTick);
+        data.put(ExtraAnimationData.END_TICK_KEY, (float) endTick);
 
         int stopTick = buf.getInt();
 
@@ -242,8 +242,8 @@ public final class LegacyAnimationBinary {
         }
 
         boolean easeBefore = getBoolean(buf);
-        data.put("isEasingBefore", easeBefore);
-        data.put("nsfw", getBoolean(buf));
+        data.put(ExtraAnimationData.EASING_BEFORE_KEY, easeBefore);
+        data.put(ExtraAnimationData.NSFW_KEY, getBoolean(buf));
         int keyframeSize = buf.get();
         if (keyframeSize <= 0) throw new IOException("keyframe size must be greater than 0, current: " + keyframeSize);
         Map<String, BoneAnimation> boneAnimations = new HashMap<>();
@@ -270,8 +270,8 @@ public final class LegacyAnimationBinary {
         }
         long msb = buf.getLong();
         long lsb = buf.getLong();
-        data.put("uuid", new UUID(msb, lsb));
-        data.put("format", AnimationFormat.PLAYER_ANIMATOR);
+        data.put(ExtraAnimationData.UUID_KEY, new UUID(msb, lsb));
+        data.put(ExtraAnimationData.FORMAT_KEY, AnimationFormat.PLAYER_ANIMATOR);
 
         return new Animation(data, endTick, loopType, boneAnimations, UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
@@ -375,8 +375,8 @@ public final class LegacyAnimationBinary {
     public static int calculateSize(Animation animation, int version) {
         //I will create less efficient loops, but these will be more easily fixable
         int size = 36;//The header makes xx bytes IIIBIBBBLL
-        boolean easeBefore = animation.data().<Boolean>get("isEasingBefore")
-                .orElse(animation.data().data().getOrDefault("format", AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
+        boolean easeBefore = animation.data().<Boolean>get(ExtraAnimationData.EASING_BEFORE_KEY)
+                .orElse(animation.data().data().getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
         if (version < 2) {
             size += partSize(animation.getBone("head"), false, version, easeBefore);
             size += partSize(animation.getBone("body"), true, version, easeBefore);

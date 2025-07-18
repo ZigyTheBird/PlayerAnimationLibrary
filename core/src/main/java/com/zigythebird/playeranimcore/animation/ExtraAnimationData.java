@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -11,6 +12,11 @@ import java.util.*;
 public record ExtraAnimationData(Map<String, Object> data) {
     public static final String NAME_KEY = "name";
     public static final String UUID_KEY = "uuid";
+    public static final String FORMAT_KEY = "format";
+    public static final String BEGIN_TICK_KEY = "beginTick";
+    public static final String END_TICK_KEY = "endTick";
+    public static final String NSFW_KEY = "nsfw";
+    public static final String EASING_BEFORE_KEY = "easeBeforeKeyframe";
 
     public ExtraAnimationData(String key, Object value) {
         this(new HashMap<>(Collections.singletonMap(key, value)));
@@ -48,6 +54,16 @@ public record ExtraAnimationData(Map<String, Object> data) {
         } catch (Throwable ignored) {}
 
         return Optional.empty();
+    }
+
+    public List<?> getList(String key) {
+        Object obj = getRaw(key);
+        return switch (obj) {
+            case null -> Collections.emptyList();
+            case JsonArray json -> json.asList();
+            case List<?> list -> list;
+            default -> throw new ClassCastException(obj.getClass().getName());
+        };
     }
 
     public void put(String name, Object object) {
@@ -89,5 +105,13 @@ public record ExtraAnimationData(Map<String, Object> data) {
 
     public ExtraAnimationData copy() {
         return new ExtraAnimationData(new HashMap<>(){{putAll(data());}});
+    }
+
+    public boolean isDisableAxisIfNotModified() {
+        return this.<Boolean>get("disableAxisIfNotModified").orElse(true);
+    }
+
+    public boolean isAnimationPlayerAnimatorFormat() {
+        return this.<AnimationFormat>get(ExtraAnimationData.FORMAT_KEY).orElse(null) == AnimationFormat.PLAYER_ANIMATOR;
     }
 }

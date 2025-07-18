@@ -45,9 +45,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
         ExtraAnimationData extra = new ExtraAnimationData();
         extra.fromJson(node);
-        extra.put("format", AnimationFormat.PLAYER_ANIMATOR);
+        extra.put(ExtraAnimationData.FORMAT_KEY, AnimationFormat.PLAYER_ANIMATOR);
 
-        if (modVersion < version){
+        if (modVersion < version) {
             throw new JsonParseException(extra.name() + " is version " + version + ". Player Animation library can only process version " + modVersion + ".");
         }
 
@@ -56,16 +56,16 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
     private Animation emoteDeserializer(ExtraAnimationData extra, JsonObject node, int version) throws JsonParseException {
         boolean easeBeforeKeyframe = node.has("easeBeforeKeyframe") && node.get("easeBeforeKeyframe").getAsBoolean();
-        extra.put("easeBeforeKeyframe", easeBeforeKeyframe);
+        extra.put(ExtraAnimationData.EASING_BEFORE_KEY, easeBeforeKeyframe);
         float beginTick = 0;
         if (node.has("beginTick")) {
             beginTick = node.get("beginTick").getAsFloat();
-            extra.put("beginTick", beginTick);
+            extra.put(ExtraAnimationData.BEGIN_TICK_KEY, beginTick);
         }
         float endTick = beginTick + 1;
         if (node.has("endTick")) {
             endTick = Math.max(node.get("endTick").getAsFloat(), endTick);
-            extra.put("endTick", endTick);
+            extra.put(ExtraAnimationData.END_TICK_KEY, endTick);
         }
         if(endTick <= 0) throw new JsonParseException("endTick must be bigger than 0");
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
@@ -81,9 +81,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             }
         }
 
-        if (node.has("nsfw")) extra.data().put(
-                "nsfw", node.get("nsfw").getAsBoolean()
-        );
+        if (node.has("nsfw")) extra.put(ExtraAnimationData.NSFW_KEY, node.get("nsfw").getAsBoolean());
 
         float stopTick = node.has("stopTick") ? node.get("stopTick").getAsFloat() : 0;
         if (loopType == Animation.LoopType.PLAY_ONCE) {

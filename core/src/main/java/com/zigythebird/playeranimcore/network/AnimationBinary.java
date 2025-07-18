@@ -42,9 +42,9 @@ public final class AnimationBinary {
             }
         }
         Map<String, Object> data = animation.data().data();
-        buf.writeByte(((AnimationFormat)data.getOrDefault("format", AnimationFormat.GECKOLIB)).id);
-        buf.writeFloat((float) data.getOrDefault("beginTick", Float.NaN));
-        buf.writeFloat((float) data.getOrDefault("endTick", Float.NaN));
+        buf.writeByte(((AnimationFormat)data.getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB)).id);
+        buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.BEGIN_TICK_KEY, Float.NaN));
+        buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.END_TICK_KEY, Float.NaN));
         NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
         NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
 
@@ -107,13 +107,13 @@ public final class AnimationBinary {
             else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
         }
         ExtraAnimationData data = new ExtraAnimationData();
-        data.put("format", AnimationFormat.fromId(buf.readByte()));
+        data.put(ExtraAnimationData.FORMAT_KEY, AnimationFormat.fromId(buf.readByte()));
         float beginTick = buf.readFloat();
         float endTick = buf.readFloat();
         if (!Float.isNaN(beginTick))
-            data.put("beginTick", beginTick);
+            data.put(ExtraAnimationData.BEGIN_TICK_KEY, beginTick);
         if (!Float.isNaN(endTick))
-            data.put("endTick", endTick);
+            data.put(ExtraAnimationData.END_TICK_KEY, endTick);
 
         data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);

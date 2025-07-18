@@ -1,6 +1,7 @@
 package com.zigythebird.playeranimcore.bones;
 
 import com.zigythebird.playeranimcore.animation.Animation;
+import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
@@ -410,7 +411,7 @@ public class PlayerAnimBone {
 				startValue = endValue;
 				endValue = temp;
 
-				if (animation.data().has("easeBeforeKeyframe") && !(boolean) animation.data().getRaw("easeBeforeKeyframe")) {
+				if (animation.data().has(ExtraAnimationData.EASING_BEFORE_KEY) && !(boolean) animation.data().getRaw(ExtraAnimationData.EASING_BEFORE_KEY)) {
 					BoneAnimation boneAnimation = animation.getBone(getName());
 					KeyframeStack keyframeStack = null;
 					switch (type) {

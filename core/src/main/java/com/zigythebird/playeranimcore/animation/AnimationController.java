@@ -619,24 +619,20 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	public boolean hasBeginTick() {
-		return this.currentAnimation.animation().data().has("beginTick");
+		return this.currentAnimation.animation().data().has(ExtraAnimationData.BEGIN_TICK_KEY);
 	}
 
 	public boolean hasEndTick() {
 		Animation animation = this.currentAnimation.animation();
-		return !animation.loopType().shouldPlayAgain(animation) && animation.data().has("endTick");
+		return !animation.loopType().shouldPlayAgain(animation) && animation.data().has(ExtraAnimationData.END_TICK_KEY);
 	}
 
 	public boolean isDisableAxisIfNotModified() {
-		if (this.currentAnimation != null) {
-			Optional<Boolean> result = this.currentAnimation.animation().data().get("disableAxisIfNotModified");
-            return result.orElse(true);
-        }
-		return false;
+		return this.currentAnimation != null && this.currentAnimation.animation().data().isDisableAxisIfNotModified();
 	}
 
 	public boolean isAnimationPlayerAnimatorFormat() {
-		return this.currentAnimation != null && this.currentAnimation.animation().data().<AnimationFormat>get("format").orElse(null) == AnimationFormat.PLAYER_ANIMATOR;
+		return this.currentAnimation != null && this.currentAnimation.animation().data().isAnimationPlayerAnimatorFormat();
 	}
 
 	protected void setupNewAnimation() {
@@ -696,7 +692,7 @@ public abstract class AnimationController implements IAnimation {
 	private AnimationPoint getAnimationPointAtTick(List<Keyframe> frames, float tick, TransformType type, Consumer<Float> transitionLengthSetter) {
 		Animation animation = this.currentAnimation.animation();
 		Animation.LoopType loopType = animation.loopType();
-		float endTick = animation.data().<Float>get("endTick").orElse(animation.length()-1);
+		float endTick = animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()-1);
 
 		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick);
 		Keyframe currentFrame = location.keyframe();
@@ -715,7 +711,7 @@ public abstract class AnimationController implements IAnimation {
 
 		if (transitionLengthSetter != null) {
 			ExtraAnimationData extraData = animation.data();
-			if (hasBeginTick() && !frames.isEmpty() && currentFrame == frames.getFirst() && extraData.<Float>get("beginTick").get() > tick) {
+			if (hasBeginTick() && !frames.isEmpty() && currentFrame == frames.getFirst() && extraData.<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).get() > tick) {
 				startValue = endValue;
 				transitionLengthSetter.accept(currentFrame.length());
 			} else if (hasEndTick() && !frames.isEmpty() && currentFrame == frames.getLast() && endTick <= tick) {
@@ -765,11 +761,11 @@ public abstract class AnimationController implements IAnimation {
 			PlayerAnimBone bone1 = activeBones.get(bone.getName());
 			if (this.currentAnimation != null && bone1 instanceof AdvancedPlayerAnimBone advancedBone) {
 				ExtraAnimationData extraData = this.currentAnimation.animation().data();
-				if (hasBeginTick() && extraData.<Float>get("beginTick").get() > this.getAnimationTicks()) {
+				if (hasBeginTick() && extraData.<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).get() > this.getAnimationTicks()) {
 					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks(), null);
 				}
-				else if (hasEndTick() && extraData.<Float>get("endTick").get() <= this.getAnimationTicks()) {
-					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get("endTick").get(), this.currentAnimation.animation());
+				else if (hasEndTick() && extraData.<Float>get(ExtraAnimationData.END_TICK_KEY).get() <= this.getAnimationTicks()) {
+					bone.beginOrEndTickLerp(advancedBone, this.getAnimationTicks() - extraData.<Float>get(ExtraAnimationData.END_TICK_KEY).get(), this.currentAnimation.animation());
 				}
 				else bone.copyOtherBoneIfNotDisabled(bone1);
 			}
