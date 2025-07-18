@@ -56,6 +56,10 @@ public record ExtraAnimationData(Map<String, Object> data) {
         return Optional.empty();
     }
 
+    public <T> T getNullable(String key) {
+        return this.<T>get(key).orElse(null);
+    }
+
     public List<?> getList(String key) {
         Object obj = getRaw(key);
         return switch (obj) {
@@ -104,7 +108,7 @@ public record ExtraAnimationData(Map<String, Object> data) {
     }
 
     public ExtraAnimationData copy() {
-        return new ExtraAnimationData(new HashMap<>(){{putAll(data());}});
+        return new ExtraAnimationData(new HashMap<>(data()));
     }
 
     public boolean isDisableAxisIfNotModified() {
