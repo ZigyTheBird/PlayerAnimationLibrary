@@ -30,27 +30,29 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
 
     public static Map<String, Animation> loadAnimations(InputStream resource) throws IOException {
         try (Reader reader = new InputStreamReader(resource)) {
-            JsonObject json = PlayerAnimLib.GSON.fromJson(reader, JsonObject.class);
+            return loadAnimations(PlayerAnimLib.GSON.fromJson(reader, JsonObject.class));
+        }
+    }
 
-            if (json.has("animations")) {
-                Map<String, Animation> animationMap = PlayerAnimLib.GSON.fromJson(json.get("animations"), PlayerAnimLib.ANIMATIONS_MAP_TYPE);
-                if (json.has("parents") && json.has("model")) {
-                    Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(json, "parents", new JsonObject()));
-                    Map<String, Vec3f> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(json, "model", new JsonObject()));
-                    for (Animation animation : animationMap.values()) {
-                        if (animation.bones().isEmpty()) {
-                            animation.bones().putAll(bones);
-                        }
-                        if (animation.parents().isEmpty()) {
-                            animation.parents().putAll(parents);
-                        }
+    public static Map<String, Animation> loadAnimations(JsonObject json) {
+        if (json.has("animations")) {
+            Map<String, Animation> animationMap = PlayerAnimLib.GSON.fromJson(json.get("animations"), PlayerAnimLib.ANIMATIONS_MAP_TYPE);
+            if (json.has("parents") && json.has("model")) {
+                Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(json, "parents", new JsonObject()));
+                Map<String, Vec3f> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(json, "model", new JsonObject()));
+                for (Animation animation : animationMap.values()) {
+                    if (animation.bones().isEmpty()) {
+                        animation.bones().putAll(bones);
+                    }
+                    if (animation.parents().isEmpty()) {
+                        animation.parents().putAll(parents);
                     }
                 }
-                return animationMap;
-            } else {
-                Animation animation = PlayerAnimatorLoader.GSON.fromJson(json, Animation.class);
-                return Collections.singletonMap(animation.data().name(), animation);
             }
+            return animationMap;
+        } else {
+            Animation animation = PlayerAnimatorLoader.GSON.fromJson(json, Animation.class);
+            return Collections.singletonMap(animation.data().name(), animation);
         }
     }
 
