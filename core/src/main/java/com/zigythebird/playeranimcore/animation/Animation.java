@@ -159,9 +159,23 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
     }
 
     private UUID generateUuid() {
-        long msb = Integer.toUnsignedLong(boneAnimations().hashCode());
-        long lsb = Integer.toUnsignedLong(bones().hashCode());
-        return new UUID(msb << Integer.SIZE, lsb << Integer.SIZE);
+        return generateUuid(
+                Float.floatToIntBits(length),
+                boneAnimations.hashCode(),
+                keyFrames.hashCode(),
+                bones.hashCode(),
+                parents.hashCode()
+        );
+    }
+
+    private static UUID generateUuid(int... hashes) {
+        long mostSigBits = 17L;
+        long leastSigBits = 31L;
+        for (int hash : hashes) {
+            mostSigBits = 31L * mostSigBits + hash;
+            leastSigBits = 37L * leastSigBits + hash;
+        }
+        return new UUID(mostSigBits, leastSigBits);
     }
 
     public UUID uuid() {
