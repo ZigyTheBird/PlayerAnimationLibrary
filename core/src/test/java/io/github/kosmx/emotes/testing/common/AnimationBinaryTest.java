@@ -45,7 +45,8 @@ public class AnimationBinaryTest {
             Assertions.assertTrue(byteBuf.hasRemaining(), "animation reads incorrectly at version " + version);
 
             Animation readed = LegacyAnimationBinary.read(byteBuf, version);
-            Assertions.assertNotNull(readed, "animation reads incorrectly at version " + version);
+            // Assertions.assertEquals(animation.boneAnimations(), readed.boneAnimations(), "animation reads incorrectly at version " + version);
+            Assertions.assertNotNull(readed, "animation reads incorrectly at version " + version); // TODO Not working correctly (zigy, please fix)
         }
     }
 }

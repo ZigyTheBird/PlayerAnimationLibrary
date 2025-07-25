@@ -22,7 +22,8 @@ public class EmoteDataHashingTest {
         Assertions.assertEquals(emote1, emote2, "EmoteData should equal with the a perfect copy"); //Object are not the same, but should be equal
         Assertions.assertEquals(emote1.hashCode(), emote2.hashCode(), "The hash should be same");
 
-        emote1.boneAnimations().get("body").positionKeyFrames().xKeyframes().add(new Keyframe(1, Collections.emptyList(), Collections.emptyList(), EasingType.CONSTANT));
+        emote1.boneAnimations().entrySet().iterator().next().getValue()
+                .positionKeyFrames().xKeyframes().add(new Keyframe(1, Collections.emptyList(), Collections.emptyList(), EasingType.CONSTANT));
 
         Assertions.assertNotEquals(emote1, emote2, "After any change these should be NOT equals");
         Assertions.assertNotEquals(emote1.hashCode(), emote2.hashCode(), "After any change these should have different hash");

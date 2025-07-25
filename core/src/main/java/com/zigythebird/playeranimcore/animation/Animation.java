@@ -147,9 +147,21 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Animation animation)) return false;
+        return Float.compare(length, animation.length) == 0 && Objects.equals(keyFrames, animation.keyFrames) && Objects.equals(bones, animation.bones) && Objects.equals(parents, animation.parents) && Objects.equals(boneAnimations, animation.boneAnimations);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(length, boneAnimations, keyFrames, bones, parents);
+    }
+
     private UUID generateUuid() {
-        long h = Integer.toUnsignedLong(boneAnimations().hashCode());
-        return new UUID(h << 32, h);
+        long msb = Integer.toUnsignedLong(boneAnimations().hashCode());
+        long lsb = Integer.toUnsignedLong(bones().hashCode());
+        return new UUID(msb << Integer.SIZE, lsb << Integer.SIZE);
     }
 
     public UUID uuid() {
