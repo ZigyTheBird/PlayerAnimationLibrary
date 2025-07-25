@@ -44,7 +44,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         }
 
         ExtraAnimationData extra = new ExtraAnimationData();
-        extra.fromJson(node);
+        extra.fromJson(node, true);
         extra.put(ExtraAnimationData.FORMAT_KEY, AnimationFormat.PLAYER_ANIMATOR);
 
         if (modVersion < version) {

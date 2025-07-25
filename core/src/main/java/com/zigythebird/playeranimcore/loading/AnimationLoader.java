@@ -21,9 +21,9 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 public class AnimationLoader implements JsonDeserializer<Animation> {
-	private static List<Expression> ZERO = Collections.singletonList(FloatExpression.of(0));
-	private static List<Expression> ZERO_POINT_ONE = Collections.singletonList(FloatExpression.of(0.1));
-	private static List<Expression> MINUS_ZERO_POINT_ONE = Collections.singletonList(FloatExpression.of(-0.1));
+	private static final List<Expression> ZERO = Collections.singletonList(FloatExpression.of(0));
+	private static final List<Expression> ZERO_POINT_ONE = Collections.singletonList(FloatExpression.of(0.1));
+	private static final List<Expression> MINUS_ZERO_POINT_ONE = Collections.singletonList(FloatExpression.of(-0.1));
 
 	@Override
 	public Animation deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -42,7 +42,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		// Extra data
 		ExtraAnimationData extraData = new ExtraAnimationData();
 		if (animationObj.has(PlayerAnimLib.MOD_ID)) {
-			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID));
+			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID), false);
 		}
 
 		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);

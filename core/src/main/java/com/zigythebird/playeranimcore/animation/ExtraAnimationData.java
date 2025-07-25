@@ -1,9 +1,6 @@
 package com.zigythebird.playeranimcore.animation;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,9 +71,11 @@ public record ExtraAnimationData(Map<String, Object> data) {
         data.put(name, object);
     }
 
-    public void fromJson(JsonObject node) {
+    public void fromJson(JsonObject node, boolean root) {
         for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
-            data().put(entry.getKey(), getValue(entry.getValue()));
+            String key = entry.getKey();
+            if (root && ("version".equalsIgnoreCase(key) || "emote".equalsIgnoreCase(key))) continue;
+            data().put(key, getValue(entry.getValue()));
         }
     }
 
@@ -97,14 +96,7 @@ public record ExtraAnimationData(Map<String, Object> data) {
             }
             return list;
         }
-        /*if (element instanceof JsonObject object) {
-            Map<String, Object> map = new HashMap<>(object.size());
-            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-                map.put(entry.getKey(), getValue(entry.getValue()));
-            }
-            return map;
-        }*/
-        return element;
+        return element.toString();
     }
 
     public ExtraAnimationData copy() {
