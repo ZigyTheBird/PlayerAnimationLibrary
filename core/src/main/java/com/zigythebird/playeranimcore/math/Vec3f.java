@@ -37,4 +37,9 @@ public record Vec3f(float x, float y, float z) {
     public String toString() {
         return "Vec3f[" + this.x + "; " + this.y + "; " + this.z + "]";
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
+    }
 }

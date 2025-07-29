@@ -41,17 +41,12 @@ public record Keyframe(float length, List<Expression> startValue, List<Expressio
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.length, this.startValue, this.endValue, this.easingType, this.easingArgs);
+		return Objects.hash(this.length, this.startValue, this.endValue, this.easingType.id, this.easingArgs);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-
-		return hashCode() == obj.hashCode();
+	public boolean equals(Object o) {
+		if (!(o instanceof Keyframe keyframe)) return false;
+        return Float.compare(length, keyframe.length) == 0 && easingType.id == keyframe.easingType.id && Objects.equals(endValue, keyframe.endValue) && Objects.equals(startValue, keyframe.startValue) && Objects.equals(easingArgs, keyframe.easingArgs);
 	}
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExtraDataTest {
@@ -18,7 +19,7 @@ public class ExtraDataTest {
         Assertions.assertInstanceOf(String.class, animation.data().getNullable("name"));
         Assertions.assertInstanceOf(String.class, animation.data().getNullable("description"));
 
-        Assertions.assertInstanceOf(List.class, animation.data().getNullable("bages"));
+        Assertions.assertInstanceOf(List.class, animation.data().get("bages").orElseGet(ArrayList::new));
         List<?> badges = animation.data().getList("bages");
         for (Object badge : badges) {
             Assertions.assertInstanceOf(String.class, badge);

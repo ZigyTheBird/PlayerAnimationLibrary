@@ -141,7 +141,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private Map<String, BoneAnimation> moveDeserializer(List<JsonElement> node, boolean degrees, int version) {
-        Map<String, BoneAnimation> bones = new HashMap<>();
+        Map<String, BoneAnimation> bones = new TreeMap<>();
         node.sort((e1, e2) -> {
             final int i1 = e1.getAsJsonObject().get("tick").getAsInt();
             final int i2 = e2.getAsJsonObject().get("tick").getAsInt();

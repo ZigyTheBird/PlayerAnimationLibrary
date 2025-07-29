@@ -11,6 +11,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.UUID;
 
 public class EmoteDataHashingTest {
     @RepeatedTest(10)
@@ -22,6 +23,9 @@ public class EmoteDataHashingTest {
         Assertions.assertEquals(emote1, emote2, "EmoteData should equal with the a perfect copy"); //Object are not the same, but should be equal
         Assertions.assertEquals(emote1.hashCode(), emote2.hashCode(), "The hash should be same");
 
+        Assertions.assertEquals(ANIMATION_UUID, emote1.get(), "The uuid should be same");
+        Assertions.assertEquals(ANIMATION_UUID, emote2.get(), "The uuid should be same");
+
         emote1.boneAnimations().entrySet().iterator().next().getValue()
                 .positionKeyFrames().xKeyframes().add(new Keyframe(1, Collections.emptyList(), Collections.emptyList(), EasingType.CONSTANT));
 
@@ -29,6 +33,7 @@ public class EmoteDataHashingTest {
         Assertions.assertNotEquals(emote1.hashCode(), emote2.hashCode(), "After any change these should have different hash");
     }
 
+    public static final UUID ANIMATION_UUID = UUID.fromString("0003b28f-2df8-2ad8-0007-84fa4a7d3766");
     public static Animation loadAnimation() throws IOException {
         try (InputStream is = EmoteDataHashingTest.class.getResourceAsStream("/bye-bye-bye.json")) {
             return UniversalAnimLoader.loadAnimations(is).values().iterator().next();
