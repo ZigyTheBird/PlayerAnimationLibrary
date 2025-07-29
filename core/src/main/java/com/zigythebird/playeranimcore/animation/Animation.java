@@ -26,7 +26,12 @@ import java.util.function.Supplier;
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
 public record Animation(ExtraAnimationData data, float length, LoopType loopType, Map<String, BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, Vec3f> bones, Map<String, String> parents) implements Supplier<UUID> {
-    public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
+    public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {
+        @Override
+        public int hashCode() {
+            return Objects.hash(Arrays.hashCode(sounds), Arrays.hashCode(particles), Arrays.hashCode(customInstructions));
+        }
+    }
 
     static Animation generateWaitAnimation(float length) {
         return new Animation(new ExtraAnimationData(ExtraAnimationData.NAME_KEY, AnimationStage.WAIT.name()), length, LoopType.PLAY_ONCE,
@@ -147,9 +152,35 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Animation animation)) return false;
+        return Float.compare(length, animation.length) == 0 && Objects.equals(keyFrames, animation.keyFrames) && Objects.equals(bones, animation.bones) && Objects.equals(parents, animation.parents) && Objects.equals(boneAnimations, animation.boneAnimations);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(length, boneAnimations, keyFrames, bones, parents);
+    }
+
     private UUID generateUuid() {
-        long h = Integer.toUnsignedLong(boneAnimations().hashCode());
-        return new UUID(h << 32, h);
+        return generateUuid(
+                Float.floatToIntBits(length),
+                boneAnimations.hashCode(),
+                keyFrames.hashCode(),
+                bones.hashCode(),
+                parents.hashCode()
+        );
+    }
+
+    private static UUID generateUuid(int... hashes) {
+        long mostSigBits = 17L;
+        long leastSigBits = 31L;
+        for (int hash : hashes) {
+            mostSigBits = 31L * mostSigBits + hash;
+            leastSigBits = 37L * leastSigBits + hash;
+        }
+        return new UUID(mostSigBits, leastSigBits);
     }
 
     public UUID uuid() {

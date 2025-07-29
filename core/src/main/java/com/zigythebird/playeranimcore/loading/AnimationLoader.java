@@ -42,7 +42,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		// Extra data
 		ExtraAnimationData extraData = new ExtraAnimationData();
 		if (animationObj.has(PlayerAnimLib.MOD_ID)) {
-			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID));
+			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID), false);
 		}
 
 		return new Animation(extraData, length, loopType, boneAnimations, keyframes, bones, parents);
