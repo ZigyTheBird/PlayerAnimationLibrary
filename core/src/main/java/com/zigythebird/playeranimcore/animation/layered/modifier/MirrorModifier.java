@@ -47,7 +47,7 @@ public class MirrorModifier extends AbstractModifier {
 
         PlayerAnimBone newBone = new PlayerAnimBone(modelName);
         newBone.copyOtherBone(bone);
-        super.get3DTransform(newBone);
+        newBone = super.get3DTransform(newBone);
         transformBone(newBone);
         bone.copyOtherBone(newBone);
         return bone;

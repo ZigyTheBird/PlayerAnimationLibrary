@@ -7,8 +7,9 @@
   "client": [
     "AbstractClientPlayerMixin",
     "CapeLayerAccessor",
-    "CapeLayerMixin_noBend",
-    "ElytraLayerMixin_noBend",
+    "CapeLayerMixin",
+    "CapeModelAccessor",
+    "ElytraLayerMixin",
     "HumanoidArmorLayerMixin",
     "HumanoidModelMixin",
     "ItemInHandLayerMixin",

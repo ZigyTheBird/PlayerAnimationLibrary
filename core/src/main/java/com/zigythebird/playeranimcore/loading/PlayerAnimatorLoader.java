@@ -55,6 +55,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private Animation emoteDeserializer(ExtraAnimationData extra, JsonObject node, int version) throws JsonParseException {
+        if (version < 3) extra.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES, true);
         boolean easeBeforeKeyframe = node.has("easeBeforeKeyframe") && node.get("easeBeforeKeyframe").getAsBoolean();
         extra.put(ExtraAnimationData.EASING_BEFORE_KEY, easeBeforeKeyframe);
         float beginTick = 0;
@@ -164,14 +165,14 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
                         new BoneAnimation(new KeyframeStack(), new KeyframeStack(), new KeyframeStack(), new ArrayList<>())
                 );
                 addBodyPartIfExists(boneKey, bone, entry.getValue(), degrees, tick, easing, turn);
-
-                BoneAnimation body = bones.get("body");
-                if (body != null && !body.bendKeyFrames().isEmpty()) {
-                    BoneAnimation torso = bones.computeIfAbsent("torso", name -> new BoneAnimation());
-                    torso.bendKeyFrames().addAll(body.bendKeyFrames());
-                    body.bendKeyFrames().clear();
-                }
             }
+        }
+        BoneAnimation body = bones.get("body");
+        if (body != null && !body.bendKeyFrames().isEmpty()) {
+            BoneAnimation torso = bones.computeIfAbsent("torso", name -> new BoneAnimation());
+            torso.bendKeyFrames().addAll(body.bendKeyFrames());
+            body.bendKeyFrames().clear();
+            if (!body.hasKeyframes()) bones.remove("body");
         }
         return bones;
     }
@@ -198,22 +199,20 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         float prevTime = lastFrame != null ? lastTick : 0;
         float delta = tick - prevTime;
 
-        float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees, shouldNegate);
+        float value = convertPlayerAnimValue(def, node.get(name).getAsFloat(), transformType, degrees, shouldNegate, rotate);
         List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
         List<List<Expression>> emptyList = Collections.singletonList(new ObjectArrayList<>(0));
 
         part.add(new Keyframe(delta, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, emptyList));
-
-        if (transformType == TransformType.ROTATION && rotate != 0) {
-            List<Expression> rotatedExpr = Collections.singletonList(FloatExpression.of(value + MathHelper.PI * 2f * rotate));
-            part.add(new Keyframe(delta + 0.001f, expressions, rotatedExpr, easing, emptyList));
-        }
     }
 
-    private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees, boolean shouldNegate) {
+    private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees, boolean shouldNegate, int rotate) {
         if (transformType != TransformType.ROTATION && transformType != TransformType.SCALE) value -= def;
         if (shouldNegate) value *= -1;
-        if (degrees && transformType == TransformType.ROTATION) value = MathHelper.toRadians(value);
+        if (transformType == TransformType.ROTATION) {
+            if (degrees) value = MathHelper.toRadians(value);
+            value += (float) (Math.PI * 2 * rotate);
+        }
         if (transformType == TransformType.POSITION) value *= 16;
 
         return value;

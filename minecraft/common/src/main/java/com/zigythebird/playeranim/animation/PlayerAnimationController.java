@@ -3,16 +3,18 @@ package com.zigythebird.playeranim.animation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.animation.AnimationController;
-import com.zigythebird.playeranimcore.animation.AnimationData;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import com.zigythebird.playeranimcore.animation.RawAnimation;
+import com.zigythebird.playeranimcore.animation.*;
+import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
+import com.zigythebird.playeranimcore.easing.EasingType;
+import com.zigythebird.playeranimcore.math.MathHelper;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -27,6 +29,9 @@ public class PlayerAnimationController extends AnimationController {
             "head", new Vec3f(0, 24, 0),
             "body", new Vec3f(0, 12, 0)
     );
+
+    //Used for applying torso bend to bones like the head.
+    protected List<AdvancedPlayerAnimBone> top_bones;
 
     protected final AbstractClientPlayer player;
 
@@ -61,17 +66,19 @@ public class PlayerAnimationController extends AnimationController {
 
     @Override
     public void registerBones() {
+        this.top_bones = new ArrayList<>();
+
         this.registerPlayerAnimBone("body");
-        this.registerPlayerAnimBone("right_arm");
-        this.registerPlayerAnimBone("left_arm");
+        this.top_bones.add(this.registerPlayerAnimBone("right_arm"));
+        this.top_bones.add(this.registerPlayerAnimBone("left_arm"));
         this.registerPlayerAnimBone("right_leg");
         this.registerPlayerAnimBone("left_leg");
-        this.registerPlayerAnimBone("head");
+        this.top_bones.add(this.registerPlayerAnimBone("head"));
         this.registerPlayerAnimBone("torso");
         this.registerPlayerAnimBone("right_item");
         this.registerPlayerAnimBone("left_item");
-        this.registerPlayerAnimBone("cape");
-        this.registerPlayerAnimBone("elytra");
+        this.top_bones.add(this.registerPlayerAnimBone("cape"));
+        this.top_bones.add(this.registerPlayerAnimBone("elytra"));
     }
 
     @Override
@@ -81,12 +88,24 @@ public class PlayerAnimationController extends AnimationController {
     }
 
     @Override
-    protected void internalSetupAnim(AnimationData state) {
-        if (state instanceof PlayerAnimationData playerAnimationData) {
-            this.isJustStarting = playerAnimationData.getPlayerAnimManager().isFirstTick();
-            this.process(state, playerAnimationData.getPlayer().playerAnimLib$getAnimProcessor().animTime);
+    protected void applyCustomPivotPoints() {
+        float bend = bones.get("torso").getBend();
+        if (Math.abs(bend) > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES) == Boolean.TRUE)) {
+            float s = (float) Math.sin(bend);
+            float offset = EasingType.circle(Math.abs(s)) * 6;
+            for (AdvancedPlayerAnimBone bone : top_bones) {
+                this.activeBones.put(bone.getName(), bone);
+                bone.rotX += bend;
+                bone.positionY -= offset;
+                bone.positionZ += offset;
+                if (s > 0)
+                    bone.positionZ *= -1;
+                bone.rotXEnabled = true;
+                bone.positionYEnabled = true;
+                bone.positionZEnabled = true;
+            }
         }
-        super.internalSetupAnim(state);
+        super.applyCustomPivotPoints();
     }
 
     @Override
