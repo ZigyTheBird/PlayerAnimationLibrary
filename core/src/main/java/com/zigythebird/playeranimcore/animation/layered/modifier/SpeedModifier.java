@@ -24,13 +24,11 @@
 
 package com.zigythebird.playeranimcore.animation.layered.modifier;
 
-import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.AnimationData;
 
 /**
  * Modifies the animation speed.
- * It's better to use {@link AnimationController#setAnimationSpeed(float)}
- * speed = 2 means twice the speed, the animation will take half as long
+ * The speed parameter is a multiplier so for example, 2 means twice the speed, the animation will take half as long.
  * <code>length = 1/speed</code>
  */
 public class SpeedModifier extends AbstractModifier {
@@ -62,6 +60,7 @@ public class SpeedModifier extends AbstractModifier {
     protected void step(float delta, AnimationData state) {
         delta *= speed;
         delta += shiftedDelta;
+        state.setPartialTick(0);
         while (delta > 1) {
             delta -= 1;
             super.tick(state);

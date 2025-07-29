@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.zigythebird.playeranim.accessors.ICapeLayer;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
@@ -19,40 +20,46 @@ import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CapeLayer.class)
-public abstract class CapeLayerMixin_noBend extends RenderLayer<PlayerRenderState, PlayerModel> {
+public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, PlayerModel> implements ICapeLayer {
+    @Unique
+    private final PlayerAnimBone pal$bone = new PlayerAnimBone("cape");
+
     @Shadow
     @Final
     private HumanoidModel<PlayerRenderState> model;
 
-    private CapeLayerMixin_noBend(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent, Void v) {
+    private CapeLayerMixin(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent, Void v) {
         super(renderLayerParent);
     }
 
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/HumanoidModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V"))
     private void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, PlayerRenderState playerRenderState, float f, float g, CallbackInfo ci) {
-        if (model instanceof CapeLayerAccessor capeLayer) {
+        if (model instanceof CapeModelAccessor capeLayer) {
+            ModelPart part = capeLayer.getCape();
             PlayerAnimManager emote = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive()) {
                 ModelPart torso = this.getParentModel().body;
 
-                poseStack.translate(torso.x / 16, torso.y / 16, torso.z / 16);
-                RenderUtil.rotateZYX(poseStack.last(), torso.zRot, torso.yRot, torso.xRot);
-
                 poseStack.translate(0.0F, 0.0F, 0.125F);
                 poseStack.mulPose(Axis.YP.rotation(3.14159f));
 
-                ModelPart part = capeLayer.getCape();
-                PlayerAnimBone bone = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("cape");
-                bone.setToInitialPose();
-                emote.get3DTransform(bone);
+                poseStack.translate(torso.x / 16, torso.y / 16, torso.z / 16);
+                RenderUtil.rotateZYX(poseStack.last(), torso.zRot, torso.yRot, torso.xRot);
 
-                RenderUtil.translatePartToBone(part, bone);
+                pal$bone.setToInitialPose();
+                emote.get3DTransform(pal$bone);
+
+                RenderUtil.translatePartToBone(part, pal$bone);
+
+                this.applyBend(part, torso, pal$bone.getBend());
             }
+            else this.resetBend(part);
         }
     }
 

@@ -11,14 +11,7 @@ import net.minecraft.client.model.geom.PartPose;
  */
 public final class RenderUtil {
 	public static void rotateMatrixAroundBone(PoseStack poseStack, PlayerAnimBone bone) {
-		if (bone.getRotZ() != 0)
-			poseStack.mulPose(Axis.ZP.rotation(bone.getRotZ()));
-
-		if (bone.getRotY() != 0)
-			poseStack.mulPose(Axis.YP.rotation(bone.getRotY()));
-
-		if (bone.getRotX() != 0)
-			poseStack.mulPose(Axis.XP.rotation(bone.getRotX()));
+		rotateZYX(poseStack.last(), bone.getRotZ(), bone.getRotY(), bone.getRotX());
 	}
 
 	public static void translatePartToBone(ModelPart part, PlayerAnimBone bone) {
@@ -60,7 +53,7 @@ public final class RenderUtil {
 		PartPose initialPose = part.getInitialPose();
 
 		bone.setPosX(part.x - initialPose.x());
-		bone.setPosY(part.y - initialPose.y());
+		bone.setPosY(-(part.y - initialPose.y()));
 		bone.setPosZ(part.z - initialPose.z());
 
 		bone.setRotX(part.xRot);
@@ -72,6 +65,22 @@ public final class RenderUtil {
 		bone.setScaleZ(part.zScale);
 
 		bone.setBend(0);
+	}
+
+	public static PlayerAnimBone applyVanillaPart(ModelPart part, PlayerAnimBone bone) {
+		bone.positionX += part.x;
+		bone.positionY -= part.y;
+		bone.positionZ += part.z;
+
+		bone.rotX += part.xRot;
+		bone.rotY += part.yRot;
+		bone.rotZ += part.zRot;
+
+		bone.scaleX *= part.xScale;
+		bone.scaleY *= part.yScale;
+		bone.scaleZ *= part.zScale;
+
+		return bone;
 	}
 
 	public static void rotateZYX(PoseStack.Pose matrices, float angleZ, float angleY, float angleX) {

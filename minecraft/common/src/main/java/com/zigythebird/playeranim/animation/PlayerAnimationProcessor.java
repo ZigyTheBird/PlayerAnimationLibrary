@@ -18,18 +18,6 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
     public PlayerAnimationProcessor(AbstractClientPlayer player) {
         super();
         this.player = player;
-
-        this.registerPlayerAnimBone("body");
-        this.registerPlayerAnimBone("right_arm");
-        this.registerPlayerAnimBone("left_arm");
-        this.registerPlayerAnimBone("right_leg");
-        this.registerPlayerAnimBone("left_leg");
-        this.registerPlayerAnimBone("head");
-        this.registerPlayerAnimBone("torso");
-        this.registerPlayerAnimBone("right_item");
-        this.registerPlayerAnimBone("left_item");
-        this.registerPlayerAnimBone("cape");
-        this.registerPlayerAnimBone("elytra");
     }
 
     @Override
@@ -44,7 +32,6 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
     @Override
     public void handleAnimations(float partialTick, boolean fullTick) {
         Vec3 velocity = player.getDeltaMovement();
-        AnimationData animationData = new PlayerAnimationData(player, partialTick, (float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f));
 
         Minecraft mc = Minecraft.getInstance();
         PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
@@ -61,19 +48,14 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
 
         if (!mc.isPaused()) {
             animatableManager.updatedAt(currentFrameTime);
-
-            float lastUpdateTime = animatableManager.getLastUpdateTime();
-            this.animTime += lastUpdateTime - this.lastGameTickTime;
-            this.lastGameTickTime = lastUpdateTime;
         }
 
-        animationData.setAnimationTick(this.animTime);
+        AnimationData animationData = new PlayerAnimationData(player, (float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f), partialTick);
         this.lastRenderedInstance = player.getId();
 
         if (fullTick) player.playerAnimLib$getAnimManager().tick(animationData.copy());
 
-        if (!this.getRegisteredBones().isEmpty())
-            this.tickAnimation(animatableManager, animationData);
+        this.tickAnimation(animatableManager, animationData);
     }
 
     public AbstractClientPlayer getPlayer() {

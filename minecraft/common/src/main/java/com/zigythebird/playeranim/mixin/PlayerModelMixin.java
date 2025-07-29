@@ -32,6 +32,7 @@ import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -48,6 +49,20 @@ import java.util.function.Function;
 
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
 public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
+    @Unique
+    private final PlayerAnimBone pal$head = new PlayerAnimBone("head");
+    @Unique
+    private final PlayerAnimBone pal$torso = new PlayerAnimBone("torso");
+    @Unique
+    private final PlayerAnimBone pal$rightArm = new PlayerAnimBone("right_arm");
+    @Unique
+    private final PlayerAnimBone pal$leftArm = new PlayerAnimBone("left_arm");
+    @Unique
+    private final PlayerAnimBone pal$rightLeg = new PlayerAnimBone("right_leg");
+    @Unique
+    private final PlayerAnimBone pal$leftLeg = new PlayerAnimBone("left_leg");
+    
+    
     public PlayerModelMixin(ModelPart modelPart, Function<ResourceLocation, RenderType> function) {
         super(modelPart, function);
     }
@@ -75,19 +90,19 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
             processor.handleAnimations(emote.getTickDelta(), false);
             ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
-            RenderUtil.copyVanillaPart(this.head, processor.getBone("head"));
-            RenderUtil.copyVanillaPart(this.body, processor.getBone("torso"));
-            RenderUtil.copyVanillaPart(this.rightArm, processor.getBone("right_arm"));
-            RenderUtil.copyVanillaPart(this.leftArm, processor.getBone("left_arm"));
-            RenderUtil.copyVanillaPart(this.rightLeg, processor.getBone("right_leg"));
-            RenderUtil.copyVanillaPart(this.leftLeg, processor.getBone("left_leg"));
+            RenderUtil.copyVanillaPart(this.head, pal$head);
+            RenderUtil.copyVanillaPart(this.body, pal$torso);
+            RenderUtil.copyVanillaPart(this.rightArm, pal$rightArm);
+            RenderUtil.copyVanillaPart(this.leftArm, pal$leftArm);
+            RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
+            RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
 
-            emote.updatePart("head", this.head, processor);
-            emote.updatePart("right_arm", this.rightArm, processor);
-            emote.updatePart("left_arm", this.leftArm, processor);
-            emote.updatePart("right_leg", this.rightLeg, processor);
-            emote.updatePart("left_leg", this.leftLeg, processor);
-            emote.updatePart("torso", this.body, processor);
+            emote.updatePart(this.head, pal$head);
+            emote.updatePart(this.rightArm, pal$rightArm);
+            emote.updatePart(this.leftArm, pal$leftArm);
+            emote.updatePart(this.rightLeg, pal$rightLeg);
+            emote.updatePart(this.leftLeg, pal$leftLeg);
+            emote.updatePart(this.body, pal$torso);
         }
         else {
             ((IMutableModel)this).playerAnimLib$setAnimation(null);

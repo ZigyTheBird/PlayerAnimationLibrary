@@ -66,8 +66,7 @@ public class PlayerAnimManager extends AnimationStack {
 		return player;
 	}
 
-	public void updatePart(String partName, ModelPart part, AnimationProcessor processor) {
-		PlayerAnimBone bone = processor.getBone(partName);
+	public void updatePart(ModelPart part, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 		bone = this.get3DTransform(bone);
 		RenderUtil.translatePartToBone(part, bone, initialPose);
