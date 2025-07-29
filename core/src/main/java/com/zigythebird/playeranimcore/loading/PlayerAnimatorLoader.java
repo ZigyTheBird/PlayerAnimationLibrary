@@ -220,9 +220,9 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     public static EasingType easingTypeFromString(String string) {
-        EasingType easingType = EasingType.fromString(string.toLowerCase());
+        EasingType easingType = EasingType.fromString(string);
         if (easingType == EasingType.LINEAR) {
-            return EasingType.fromString("ease" + string.toLowerCase());
+            return EasingType.fromString("ease" + string);
         }
         return easingType;
     }
