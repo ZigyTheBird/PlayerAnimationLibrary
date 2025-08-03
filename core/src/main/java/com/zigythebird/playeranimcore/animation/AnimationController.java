@@ -219,6 +219,21 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
+	 * Pauses the current animation
+	 */
+	public void pause() {
+		this.animationState = State.PAUSED;
+	}
+
+	/**
+	 * Unpauses the current animation if it's paused
+	 */
+	public void unpause() {
+		if (this.animationState == State.PAUSED)
+			this.animationState = State.RUNNING;
+	}
+
+	/**
 	 * Checks whether the last animation that was playing on this controller has finished or not
 	 * <p>
 	 * This will return true if the controller has had an animation set previously, and it has finished playing
@@ -322,16 +337,6 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * Fade out from current animation into new animation.
-	 * Does not fade if there is currently no active animation
-	 * @param fadeModifier Fade modifier, use {@link AbstractFadeModifier#standardFadeIn(int, EasingType)} for simple fade.
-	 * @param newAnimation The animation you want to play.
-	 */
-	public void replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable RawAnimation newAnimation) {
-		replaceAnimationWithFade(fadeModifier, newAnimation, true);
-	}
-
-	/**
 	 * Fade out from current to a new animation
 	 * @param fadeModifier    Fade modifier, use {@link AbstractFadeModifier#standardFadeIn(int, EasingType)} for simple fade.
 	 * @param newAnimation    The animation you want to play.
@@ -351,12 +356,24 @@ public abstract class AnimationController implements IAnimation {
 		this.triggerAnimation(newAnimation);
 	}
 
+	public void replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable RawAnimation newAnimation) {
+		replaceAnimationWithFade(fadeModifier, newAnimation, true);
+	}
+
+	public void replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable Animation newAnimation, boolean fadeFromNothing) {
+		replaceAnimationWithFade(fadeModifier, RawAnimation.begin().then(newAnimation, Animation.LoopType.DEFAULT), fadeFromNothing);
+	}
+
+	public void replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable Animation newAnimation) {
+		replaceAnimationWithFade(fadeModifier, newAnimation, true);
+	}
+
 	/**
 	 * Stops and removes a previously triggered animation, effectively ending it immediately.
 	 *
 	 * @return true if a triggered animation was stopped
 	 */
-	protected boolean stopTriggeredAnimation() {
+	public boolean stopTriggeredAnimation() {
 		if (this.triggeredAnimation == null)
 			return false;
 
@@ -421,7 +438,7 @@ public abstract class AnimationController implements IAnimation {
 	 * @return The computed current animation speed modifier
 	 */
 	public float getAnimationSpeed() {
-        float speed = 1;
+		float speed = 1;
 		for (AbstractModifier modifier : modifiers) {
 			if (modifier instanceof SpeedModifier speedModifier)
 				speed *= speedModifier.speed;
@@ -816,7 +833,7 @@ public abstract class AnimationController implements IAnimation {
 		if (!modifiers.isEmpty()) {
 			modifiers.getFirst().tick(state);
 		}
-		else tick += 1;
+		else if (this.animationState == State.RUNNING) tick += 1;
 	}
 
 	@Override
@@ -943,7 +960,7 @@ public abstract class AnimationController implements IAnimation {
 
 		@Override
 		public void tick(AnimationData state) {
-			this.anim.tick += 1;
+			if (this.anim.animationState == State.RUNNING) this.anim.tick += 1;
 		}
 
 		@Override

@@ -23,7 +23,11 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public final class AnimationBinary {
-    public static final int CURRENT_VERSION = 1;
+    /**
+     * Version 1: Initial Release
+     * Version 2: Added support for animations that don't apply the torso bend to other bones
+     */
+    public static final int CURRENT_VERSION = 2;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
@@ -45,6 +49,8 @@ public final class AnimationBinary {
         buf.writeByte(((AnimationFormat)data.getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB)).id);
         buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.BEGIN_TICK_KEY, Float.NaN));
         buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.END_TICK_KEY, Float.NaN));
+        if (version > 1)
+            buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES, false));
         NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
         NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
 
@@ -110,10 +116,13 @@ public final class AnimationBinary {
         data.put(ExtraAnimationData.FORMAT_KEY, AnimationFormat.fromId(buf.readByte()));
         float beginTick = buf.readFloat();
         float endTick = buf.readFloat();
+        boolean applyBendToOtherBones = buf.readBoolean();
         if (!Float.isNaN(beginTick))
             data.put(ExtraAnimationData.BEGIN_TICK_KEY, beginTick);
         if (!Float.isNaN(endTick))
             data.put(ExtraAnimationData.END_TICK_KEY, endTick);
+        if (applyBendToOtherBones)
+            data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES, true);
 
         data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);

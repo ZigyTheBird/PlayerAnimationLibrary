@@ -4,13 +4,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.*;
+import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
 import com.zigythebird.playeranimcore.easing.EasingType;
-import com.zigythebird.playeranimcore.math.MathHelper;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -48,6 +50,30 @@ public class PlayerAnimationController extends AnimationController {
 
     public AbstractClientPlayer getPlayer() {
         return this.player;
+    }
+
+    public boolean triggerAnimation(ResourceLocation newAnimation, float startAnimFrom) {
+        if (PlayerAnimResources.hasAnimation(newAnimation)) {
+            triggerAnimation(PlayerAnimResources.getAnimation(newAnimation), startAnimFrom);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean triggerAnimation(ResourceLocation newAnimation) {
+        return triggerAnimation(newAnimation, 0);
+    }
+
+    public boolean replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable ResourceLocation newAnimation, boolean fadeFromNothing) {
+        if (PlayerAnimResources.hasAnimation(newAnimation)) {
+            replaceAnimationWithFade(fadeModifier, PlayerAnimResources.getAnimation(newAnimation), fadeFromNothing);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable ResourceLocation newAnimation) {
+        return replaceAnimationWithFade(fadeModifier, newAnimation, true);
     }
 
     /**
