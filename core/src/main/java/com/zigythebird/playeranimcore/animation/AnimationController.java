@@ -905,7 +905,7 @@ public abstract class AnimationController implements IAnimation {
 		}
 	}
 
-	protected AdvancedPlayerAnimBone registerPlayerAnimBone(String name) {
+	public AdvancedPlayerAnimBone registerPlayerAnimBone(String name) {
 		return registerPlayerAnimBone(new AdvancedPlayerAnimBone(name));
 	}
 
@@ -914,7 +914,7 @@ public abstract class AnimationController implements IAnimation {
 	 * <p>
 	 * This is normally handled automatically by the mod
 	 */
-	protected AdvancedPlayerAnimBone registerPlayerAnimBone(AdvancedPlayerAnimBone bone) {
+	public AdvancedPlayerAnimBone registerPlayerAnimBone(AdvancedPlayerAnimBone bone) {
 		this.bones.put(bone.getName(), bone);
 		return bone;
 	}

@@ -6,7 +6,6 @@ import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.*;
 import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
-import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
@@ -95,16 +94,20 @@ public class PlayerAnimationController extends AnimationController {
         this.top_bones = new ArrayList<>();
 
         this.registerPlayerAnimBone("body");
-        this.top_bones.add(this.registerPlayerAnimBone("right_arm"));
-        this.top_bones.add(this.registerPlayerAnimBone("left_arm"));
+        this.registerTopPlayerAnimBone("right_arm");
+        this.registerTopPlayerAnimBone("left_arm");
         this.registerPlayerAnimBone("right_leg");
         this.registerPlayerAnimBone("left_leg");
-        this.top_bones.add(this.registerPlayerAnimBone("head"));
+        this.registerTopPlayerAnimBone("head");
         this.registerPlayerAnimBone("torso");
         this.registerPlayerAnimBone("right_item");
         this.registerPlayerAnimBone("left_item");
-        this.top_bones.add(this.registerPlayerAnimBone("cape"));
-        this.top_bones.add(this.registerPlayerAnimBone("elytra"));
+        this.registerTopPlayerAnimBone("cape");
+        this.registerTopPlayerAnimBone("elytra");
+    }
+
+    public void registerTopPlayerAnimBone(String name) {
+        this.top_bones.add(this.registerPlayerAnimBone(name));
     }
 
     @Override
@@ -116,16 +119,16 @@ public class PlayerAnimationController extends AnimationController {
     @Override
     protected void applyCustomPivotPoints() {
         float bend = bones.get("torso").getBend();
-        if (Math.abs(bend) > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES) == Boolean.TRUE)) {
-            float s = (float) Math.sin(bend);
-            float offset = EasingType.circle(Math.abs(s)) * 6;
+        float absBend = Mth.abs(bend);
+        if (absBend > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES) == Boolean.TRUE)) {
+            float h = 1 - Mth.cos(absBend);
+            float i = 1 - Mth.sin(absBend);
             for (AdvancedPlayerAnimBone bone : top_bones) {
+                float offset = getBonePosition(bone.getName()).y() - 18;
                 this.activeBones.put(bone.getName(), bone);
                 bone.rotX += bend;
-                bone.positionY -= offset;
-                bone.positionZ += offset;
-                if (s > 0)
-                    bone.positionZ *= -1;
+                bone.positionZ += offset * i - offset;
+                bone.positionY += offset * h * -Mth.sign(bend);
                 bone.rotXEnabled = true;
                 bone.positionYEnabled = true;
                 bone.positionZEnabled = true;

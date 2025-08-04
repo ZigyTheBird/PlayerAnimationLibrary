@@ -42,7 +42,7 @@ public final class RawAnimation {
 	 * Append an animation to the animation chain, playing the named animation and stopping
 	 * or progressing to the next chained animation depending on the loop type set in the animation json
 	 *
-	 * @param animation The  animation to play once
+	 * @param animation The animation to play once
 	 */
 	public RawAnimation thenPlay(Animation animation) {
 		return then(animation, Animation.LoopType.DEFAULT);
@@ -51,7 +51,7 @@ public final class RawAnimation {
 	/**
 	 * Append an animation to the animation chain, playing the named animation and repeating it continuously until the animation is stopped by external sources
 	 *
-	 * @param animation The the animation to play on a loop
+	 * @param animation The animation to play on a loop
 	 */
 	public RawAnimation thenLoop(Animation animation) {
 		return then(animation, Animation.LoopType.LOOP);
@@ -74,7 +74,7 @@ public final class RawAnimation {
 	 * Appends an animation to the animation chain, then has the animatable hold the pose at the end of the
 	 * animation until it is stopped by external sources
 	 *
-	 * @param animation The  animation to play and hold
+	 * @param animation The animation to play and hold
 	 */
 	public RawAnimation thenPlayAndHold(Animation animation) {
 		return then(animation, Animation.LoopType.HOLD_ON_LAST_FRAME);
@@ -98,7 +98,7 @@ public final class RawAnimation {
 	/**
 	 * Append an animation to the animation chain, playing the named animation and proceeding based on the <code>loopType</code> parameter provided
 	 *
-	 * @param animation The  animation to play. <u>MUST</u> match the name of the animation in the <code>.animation.json</code> file.
+	 * @param animation The animation to play. <u>MUST</u> match the name of the animation in the <code>.animation.json</code> file.
 	 * @param loopType The loop type handler for the animation, overriding the default value set in the animation json
 	 */
 	public RawAnimation then(Animation animation, Animation.LoopType loopType) {

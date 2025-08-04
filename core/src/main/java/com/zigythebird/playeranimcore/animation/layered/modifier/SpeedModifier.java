@@ -60,7 +60,6 @@ public class SpeedModifier extends AbstractModifier {
     protected void step(float delta, AnimationData state) {
         delta *= speed;
         delta += shiftedDelta;
-        state.setPartialTick(0);
         while (delta > 1) {
             delta -= 1;
             super.tick(state);
