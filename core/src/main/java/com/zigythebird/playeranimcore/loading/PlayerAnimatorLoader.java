@@ -55,7 +55,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     }
 
     private Animation emoteDeserializer(ExtraAnimationData extra, JsonObject node, int version) throws JsonParseException {
-        if (version < 3) extra.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES, true);
+        if (version < 3) extra.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
         boolean easeBeforeKeyframe = node.has("easeBeforeKeyframe") && node.get("easeBeforeKeyframe").getAsBoolean();
         extra.put(ExtraAnimationData.EASING_BEFORE_KEY, easeBeforeKeyframe);
         float beginTick = 0;

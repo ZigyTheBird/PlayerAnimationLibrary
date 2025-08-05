@@ -120,7 +120,7 @@ public class PlayerAnimationController extends AnimationController {
     protected void applyCustomPivotPoints() {
         float bend = bones.get("torso").getBend();
         float absBend = Mth.abs(bend);
-        if (absBend > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES) == Boolean.TRUE)) {
+        if (absBend > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY) == Boolean.TRUE)) {
             float h = 1 - Mth.cos(absBend);
             float i = 1 - Mth.sin(absBend);
             for (AdvancedPlayerAnimBone bone : top_bones) {

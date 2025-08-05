@@ -14,7 +14,7 @@ public record ExtraAnimationData(Map<String, Object> data) {
     public static final String END_TICK_KEY = "endTick";
     public static final String NSFW_KEY = "nsfw";
     public static final String EASING_BEFORE_KEY = "easeBeforeKeyframe";
-    public static final String APPLY_BEND_TO_OTHER_BONES = "applyBendToOtherBones";
+    public static final String APPLY_BEND_TO_OTHER_BONES_KEY = "applyBendToOtherBones";
 
     public ExtraAnimationData(String key, Object value) {
         this(new HashMap<>(Collections.singletonMap(key, value)));
