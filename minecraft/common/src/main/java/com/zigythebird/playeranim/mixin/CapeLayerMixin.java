@@ -55,6 +55,9 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
                 pal$bone.setToInitialPose();
                 emote.get3DTransform(pal$bone);
 
+                pal$bone.mulPos(-1, 1, -1);
+                pal$bone.mulRot(-1, 1, -1);
+
                 RenderUtil.translatePartToBone(part, pal$bone);
 
                 this.applyBend(part, torso, pal$bone.getBend());

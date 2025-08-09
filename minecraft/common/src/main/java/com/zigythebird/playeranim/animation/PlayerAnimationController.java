@@ -21,14 +21,15 @@ import java.util.Queue;
 
 public class PlayerAnimationController extends AnimationController {
     //Bone pivot point positions used to apply custom pivot point translations.
-    public static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
+    private static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
             "right_arm", new Vec3f(5, 22, 0),
             "left_arm", new Vec3f(-5, 22, 0),
             "left_leg", new Vec3f(-2f, 12, 0f),
             "right_leg", new Vec3f(2f, 12, 0f),
             "torso", new Vec3f(0, 24, 0),
             "head", new Vec3f(0, 24, 0),
-            "body", new Vec3f(0, 12, 0)
+            "body", new Vec3f(0, 12, 0),
+            "cape", new Vec3f(0, 24, -2)
     );
 
     //Used for applying torso bend to bones like the head.
@@ -121,14 +122,15 @@ public class PlayerAnimationController extends AnimationController {
         float bend = bones.get("torso").getBend();
         float absBend = Mth.abs(bend);
         if (absBend > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY) == Boolean.TRUE)) {
-            float h = 1 - Mth.cos(absBend);
+            float h = -(1 - Mth.cos(absBend));
             float i = 1 - Mth.sin(absBend);
+            int sign = Mth.sign(bend);
             for (AdvancedPlayerAnimBone bone : top_bones) {
                 float offset = getBonePosition(bone.getName()).y() - 18;
                 this.activeBones.put(bone.getName(), bone);
                 bone.rotX += bend;
-                bone.positionZ += offset * i - offset;
-                bone.positionY += offset * h * -Mth.sign(bend);
+                bone.positionZ += (offset * i - offset) * sign;
+                bone.positionY += offset * h;
                 bone.rotXEnabled = true;
                 bone.positionYEnabled = true;
                 bone.positionZEnabled = true;
