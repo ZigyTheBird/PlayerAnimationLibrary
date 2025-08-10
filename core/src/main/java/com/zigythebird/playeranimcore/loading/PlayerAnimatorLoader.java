@@ -22,7 +22,8 @@ import java.util.*;
 import static com.zigythebird.playeranimcore.loading.UniversalAnimLoader.NO_KEYFRAMES;
 
 public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
-    private final static int modVersion = 3;
+    public static final List<Expression> ZERO = Collections.singletonList(FloatExpression.ZERO);
+    private static final int modVersion = 3;
 
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -203,7 +204,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
         List<List<Expression>> emptyList = Collections.singletonList(new ObjectArrayList<>(0));
 
-        part.add(new Keyframe(delta, lastFrame == null ? expressions : lastFrame.endValue(), expressions, easing, emptyList));
+        part.add(new Keyframe(delta, lastFrame == null ? ZERO : lastFrame.endValue(), expressions, easing, emptyList));
     }
 
     private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees, boolean shouldNegate, int rotate) {
