@@ -27,9 +27,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CapeLayer.class)
 public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, PlayerModel> implements ICapeLayer {
-    @Unique
-    private final PlayerAnimBone pal$bone = new PlayerAnimBone("cape");
-
     @Shadow
     @Final
     private HumanoidModel<PlayerRenderState> model;
@@ -52,15 +49,14 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
                 poseStack.translate(torso.x / 16, torso.y / 16, torso.z / 16);
                 RenderUtil.rotateZYX(poseStack.last(), torso.zRot, torso.yRot, torso.xRot);
 
-                pal$bone.setToInitialPose();
-                emote.get3DTransform(pal$bone);
+                PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("cape"));
 
-                pal$bone.mulPos(-1, 1, -1);
-                pal$bone.mulRot(-1, 1, -1);
+                bone.mulPos(-1, 1, -1);
+                bone.mulRot(-1, 1, -1);
 
-                RenderUtil.translatePartToBone(part, pal$bone);
+                RenderUtil.translatePartToBone(part, bone);
 
-                this.applyBend(part, torso, pal$bone.getBend());
+                this.applyBend(part, torso, bone.getBend());
             }
             else this.resetBend(part);
         }

@@ -15,16 +15,12 @@ import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WingsLayer.class)
 public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
-    @Unique
-    private final PlayerAnimBone pal$bone = new PlayerAnimBone("elytra");
-
     private ElytraLayerMixin(RenderLayerParent<S, M> renderLayerParent) {
         super(renderLayerParent);
     }
@@ -35,13 +31,12 @@ public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends 
             PlayerAnimManager emote = animationState.playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive() && this.renderer instanceof PlayerRenderer playerRenderer) {
                 ModelPart torso = playerRenderer.getModel().body;
-                pal$bone.setToInitialPose();
-                emote.get3DTransform(pal$bone);
-                RenderUtil.applyVanillaPart(((IPlayerRenderer)renderer).pal$getCape(), pal$bone);
-                pal$bone.mulPos(-1);
-                pal$bone.mulRot(-1, 1, -1);
-                RenderUtil.applyVanillaPart(torso, pal$bone);
-                RenderUtil.translateMatrixToBone(poseStack, pal$bone);
+                PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("body"));
+                RenderUtil.applyVanillaPart(((IPlayerRenderer)renderer).pal$getCape(), bone);
+                bone.mulPos(-1);
+                bone.mulRot(-1, 1, -1);
+                RenderUtil.applyVanillaPart(torso, bone);
+                RenderUtil.translateMatrixToBone(poseStack, bone);
             }
         }
     }

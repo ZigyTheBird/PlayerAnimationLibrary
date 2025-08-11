@@ -83,8 +83,6 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             }
         }
 
-        if (node.has("nsfw")) extra.put(ExtraAnimationData.NSFW_KEY, node.get("nsfw").getAsBoolean());
-
         float stopTick = node.has("stopTick") ? node.get("stopTick").getAsFloat() : 0;
         if (loopType == Animation.LoopType.PLAY_ONCE) {
             endTick = stopTick <= endTick ? endTick + 3 : stopTick; // https://github.com/KosmX/minecraftPlayerAnimator/blob/1.21/coreLib/src/main/java/dev/kosmx/playerAnim/core/data/KeyframeAnimation.java#L80
@@ -180,17 +178,18 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
     private void addBodyPartIfExists(String boneName, BoneAnimation bone, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
         JsonObject partNode = node.getAsJsonObject();
-        boolean isItem = boneName.equals("right_item") || boneName.equals("left_item");
-        fillKeyframeStack(bone.positionKeyFrames(), getDefaultValues(boneName), boneName.equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, isItem);
-        fillKeyframeStack(bone.rotationKeyFrames(), Vec3f.ZERO, TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, isItem);
-        fillKeyframeStack(bone.scaleKeyFrames(), Vec3f.ZERO, TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false);
+        boolean shouldNegate = boneName.equals("right_item") || boneName.equals("left_item");
+        boolean isCape = boneName.equals("cape");
+        fillKeyframeStack(bone.positionKeyFrames(), getDefaultValues(boneName), boneName.equals("body") ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, shouldNegate, isCape);
+        fillKeyframeStack(bone.rotationKeyFrames(), Vec3f.ZERO, TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, shouldNegate, isCape);
+        fillKeyframeStack(bone.scaleKeyFrames(), Vec3f.ZERO, TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false, false);
         addPartIfExists(Keyframe.getLastKeyframeTime(bone.bendKeyFrames()), bone.bendKeyFrames(), 0, TransformType.BEND, "bend", partNode, degrees, tick, easing, turn, false);
     }
 
-    private void fillKeyframeStack(KeyframeStack stack, Vec3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn, boolean shouldNegate) {
-        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn, shouldNegate);
+    private void fillKeyframeStack(KeyframeStack stack, Vec3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn, boolean shouldNegate, boolean isCape) {
+        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn, shouldNegate || isCape);
         addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, turn, shouldNegate || transformType == null);
-        addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn, shouldNegate);
+        addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn, shouldNegate || isCape);
     }
 
     private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, int rotate, boolean shouldNegate) {

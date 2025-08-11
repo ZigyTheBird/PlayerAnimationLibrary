@@ -10,6 +10,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstru
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
+import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 import team.unnamed.mocha.parser.ast.Expression;
@@ -115,7 +116,8 @@ public final class AnimationBinary {
             else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
         }
         ExtraAnimationData data = new ExtraAnimationData();
-        data.put(ExtraAnimationData.FORMAT_KEY, AnimationFormat.fromId(buf.readByte()));
+        AnimationFormat format = AnimationFormat.fromId(buf.readByte());
+        data.put(ExtraAnimationData.FORMAT_KEY, format);
         float beginTick = buf.readFloat();
         float endTick = buf.readFloat();
         if (!Float.isNaN(beginTick))
@@ -132,7 +134,7 @@ public final class AnimationBinary {
         }
 
         data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
-        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, AnimationBinary::readBoneAnimation);
+        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, format == AnimationFormat.PLAYER_ANIMATOR));
 
         // Sounds
         int soundCount = VarIntUtils.readVarInt(buf);
@@ -170,24 +172,24 @@ public final class AnimationBinary {
         return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents);
     }
 
-    public static BoneAnimation readBoneAnimation(ByteBuf buf) {
-        KeyframeStack rotationKeyFrames = readKeyframeStack(buf);
-        KeyframeStack positionKeyFrames = readKeyframeStack(buf);
-        KeyframeStack scaleKeyFrames = readKeyframeStack(buf);
-        List<Keyframe> bendKeyFrames = readKeyframeList(buf);
+    public static BoneAnimation readBoneAnimation(ByteBuf buf, boolean shouldStartFromZero) {
+        KeyframeStack rotationKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
+        KeyframeStack positionKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
+        KeyframeStack scaleKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
+        List<Keyframe> bendKeyFrames = readKeyframeList(buf, shouldStartFromZero);
 
         return new BoneAnimation(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
 
-    public static KeyframeStack readKeyframeStack(ByteBuf buf) {
-        List<Keyframe> xKeyframes = readKeyframeList(buf);
-        List<Keyframe> yKeyframes = readKeyframeList(buf);
-        List<Keyframe> zKeyframes = readKeyframeList(buf);
+    public static KeyframeStack readKeyframeStack(ByteBuf buf, boolean shouldStartFromZero) {
+        List<Keyframe> xKeyframes = readKeyframeList(buf, shouldStartFromZero);
+        List<Keyframe> yKeyframes = readKeyframeList(buf, shouldStartFromZero);
+        List<Keyframe> zKeyframes = readKeyframeList(buf, shouldStartFromZero);
 
         return new KeyframeStack(xKeyframes, yKeyframes, zKeyframes);
     }
 
-    public static List<Keyframe> readKeyframeList(ByteBuf buf) {
+    public static List<Keyframe> readKeyframeList(ByteBuf buf, boolean shouldStartFromZero) {
         int count = VarIntUtils.readVarInt(buf);
         List<Keyframe> list = new ArrayList<>(count);
 
@@ -195,7 +197,7 @@ public final class AnimationBinary {
             float length = buf.readFloat();
 
             List<Expression> endValue = ExprBytesUtils.readExpressions(buf);
-            List<Expression> startValue = !list.isEmpty() ? list.getLast().endValue() : endValue;
+            List<Expression> startValue = list.isEmpty() ? (shouldStartFromZero ? PlayerAnimatorLoader.ZERO : endValue) : list.getLast().endValue();
             EasingType easingType = EasingType.fromId(buf.readByte());
             List<List<Expression>> easingArgs = ProtocolUtils.readList(buf, ExprBytesUtils::readExpressions);
 

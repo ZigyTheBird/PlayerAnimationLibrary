@@ -45,9 +45,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LivingEntityRenderer.class)
 public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
     @Shadow protected M model;
-    
-    @Unique
-    private final PlayerAnimBone pal$bone = new PlayerAnimBone("body");
 
     @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("TAIL"))
     private void render(S entityRenderState, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
@@ -65,11 +62,8 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
                 poseStack.translate(0.0F, 1.501F, 0.0F);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
-                PlayerAnimBone body = pal$bone;
-                body.setToInitialPose();
-
                 //These are additive properties
-                body = animationPlayer.get3DTransform(body);
+                PlayerAnimBone body = animationPlayer.get3DTransform(new PlayerAnimBone("body"));
 
                 poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
                 poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);
