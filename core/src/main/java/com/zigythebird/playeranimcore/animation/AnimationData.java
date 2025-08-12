@@ -1,27 +1,12 @@
 package com.zigythebird.playeranimcore.animation;
 
 public class AnimationData {
-	private float partialTick;
 	private float velocity;
-	private float animationTick;
+	private float partialTick;
 
-	public AnimationData(float partialTick, float velocity) {
-		this.partialTick = partialTick;
+	public AnimationData(float velocity, float partialTick) {
 		this.velocity = velocity;
-	}
-
-	public AnimationData(float partialTick, float velocity, float animationTick) {
 		this.partialTick = partialTick;
-		this.velocity = velocity;
-		this.animationTick = animationTick;
-	}
-
-	/**
-	 * Gets the number of ticks that have passed in either the current transition or
-	 * animation, depending on the controller's AnimationData.
-	 */
-	public float getAnimationTick() {
-		return this.animationTick;
 	}
 
 	/**
@@ -52,19 +37,15 @@ public class AnimationData {
 		return this.velocity > 1.0E-6F;
 	}
 
-	public void setAnimationTick(float animationTick) {
-		this.animationTick = animationTick;
+	public void setVelocity(float velocity) {
+		this.velocity = velocity;
 	}
 
 	public void setPartialTick(float partialTick) {
 		this.partialTick = partialTick;
 	}
 
-	public void setVelocity(float velocity) {
-		this.velocity = velocity;
-	}
-
 	public AnimationData copy() {
-		return new AnimationData(partialTick, velocity, animationTick);
+		return new AnimationData(velocity, partialTick);
 	}
 }

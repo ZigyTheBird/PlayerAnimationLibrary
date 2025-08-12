@@ -25,18 +25,43 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
+import com.zigythebird.playeranim.accessors.IPlayerRenderer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.CapeLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = PlayerRenderer.class, priority = 2000)
-public abstract class PlayerRendererMixin {
+public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerRenderState, PlayerModel> implements IPlayerRenderer {
+    @Unique
+    private ModelPart pal$cape;
+
+    public PlayerRendererMixin(EntityRendererProvider.Context context, PlayerModel model, float shadowRadius) {
+        super(context, model, shadowRadius);
+    }
+
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void init(EntityRendererProvider.Context context, boolean useSlimModel, CallbackInfo ci) {
+        for (RenderLayer layer : this.layers) {
+            if (layer instanceof CapeLayer capeLayer) {
+                pal$cape = ((CapeModelAccessor)((CapeLayerAccessor)capeLayer).getModel()).getCape();
+                break;
+            }
+        }
+    }
+
     @Inject(method = "extractRenderState(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;F)V", at = @At("HEAD"))
     private void modifyRenderState(AbstractClientPlayer abstractClientPlayer, PlayerRenderState playerRenderState, float f, CallbackInfo ci) {
         PlayerAnimManager animation = abstractClientPlayer.playerAnimLib$getAnimManager();
@@ -45,5 +70,10 @@ public abstract class PlayerRendererMixin {
         ((IPlayerAnimationState)playerRenderState).playerAnimLib$setAnimProcessor(abstractClientPlayer.playerAnimLib$getAnimProcessor());
         ((IPlayerAnimationState)playerRenderState).playerAnimLib$setAnimManager(animation);
         ((IPlayerAnimationState)playerRenderState).playerAnimLib$setCameraEntity(abstractClientPlayer == Minecraft.getInstance().cameraEntity);
+    }
+
+    @Override
+    public ModelPart pal$getCape() {
+        return pal$cape;
     }
 }

@@ -1,14 +1,14 @@
 {
   "required": true,
   "package": "com.zigythebird.playeranim.mixin",
-  "plugin": "com.zigythebird.playeranim.ModMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
     "AbstractClientPlayerMixin",
     "CapeLayerAccessor",
-    "CapeLayerMixin_noBend",
-    "ElytraLayerMixin_noBend",
+    "CapeLayerMixin",
+    "CapeModelAccessor",
+    "ElytraLayerMixin",
     "HumanoidArmorLayerMixin",
     "HumanoidModelMixin",
     "ItemInHandLayerMixin",

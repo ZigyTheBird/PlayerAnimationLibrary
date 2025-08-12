@@ -62,11 +62,8 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
                 poseStack.translate(0.0F, 1.501F, 0.0F);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
-                PlayerAnimBone body = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().getBone("body");
-                body.setToInitialPose();
-
                 //These are additive properties
-                body = animationPlayer.get3DTransform(body);
+                PlayerAnimBone body = animationPlayer.get3DTransform(new PlayerAnimBone("body"));
 
                 poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
                 poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);

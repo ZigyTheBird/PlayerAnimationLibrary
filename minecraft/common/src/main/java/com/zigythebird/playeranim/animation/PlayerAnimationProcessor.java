@@ -18,18 +18,6 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
     public PlayerAnimationProcessor(AbstractClientPlayer player) {
         super();
         this.player = player;
-
-        this.registerPlayerAnimBone("body");
-        this.registerPlayerAnimBone("right_arm");
-        this.registerPlayerAnimBone("left_arm");
-        this.registerPlayerAnimBone("right_leg");
-        this.registerPlayerAnimBone("left_leg");
-        this.registerPlayerAnimBone("head");
-        this.registerPlayerAnimBone("torso");
-        this.registerPlayerAnimBone("right_item");
-        this.registerPlayerAnimBone("left_item");
-        this.registerPlayerAnimBone("cape");
-        this.registerPlayerAnimBone("elytra");
     }
 
     @Override
@@ -44,36 +32,24 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
     @Override
     public void handleAnimations(float partialTick, boolean fullTick) {
         Vec3 velocity = player.getDeltaMovement();
-        AnimationData animationData = new PlayerAnimationData(player, partialTick, (float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f));
 
-        Minecraft mc = Minecraft.getInstance();
         PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
         int currentTick = player.tickCount;
 
-        if (animatableManager.getFirstTickTime() == -1)
-            animatableManager.startedAt(currentTick + partialTick);
-
         float currentFrameTime = currentTick + partialTick;
-        boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
 
-        if (isReRender && player.getId() == this.lastRenderedInstance)
-            return;
-
-        if (!mc.isPaused()) {
-            animatableManager.updatedAt(currentFrameTime);
-
-            float lastUpdateTime = animatableManager.getLastUpdateTime();
-            this.animTime += lastUpdateTime - this.lastGameTickTime;
-            this.lastGameTickTime = lastUpdateTime;
-        }
-
-        animationData.setAnimationTick(this.animTime);
-        this.lastRenderedInstance = player.getId();
+        AnimationData animationData = new PlayerAnimationData(player, (float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f), partialTick);
 
         if (fullTick) player.playerAnimLib$getAnimManager().tick(animationData.copy());
 
-        if (!this.getRegisteredBones().isEmpty())
-            this.tickAnimation(animatableManager, animationData);
+        if (!animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime())
+            return;
+
+        if (!Minecraft.getInstance().isPaused()) {
+            animatableManager.updatedAt(currentFrameTime);
+        }
+
+        this.tickAnimation(animatableManager, animationData);
     }
 
     public AbstractClientPlayer getPlayer() {

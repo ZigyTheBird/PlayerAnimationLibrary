@@ -6,13 +6,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
 public class PlayerAnimationData extends AnimationData {
     private final AbstractClientPlayer player;
 
-    public PlayerAnimationData(AbstractClientPlayer player, float partialTick, float velocity, float animationTick) {
-        super(partialTick, velocity, animationTick);
-        this.player = player;
-    }
-
-    public PlayerAnimationData(AbstractClientPlayer player, float partialTick, float velocity) {
-        super(partialTick, velocity);
+    public PlayerAnimationData(AbstractClientPlayer player, float velocity, float partialTick) {
+        super(velocity, partialTick);
         this.player = player;
     }
 
@@ -32,6 +27,6 @@ public class PlayerAnimationData extends AnimationData {
 
     @Override
     public PlayerAnimationData copy() {
-        return new PlayerAnimationData(getPlayer(), getPartialTick(), getVelocity(), getAnimationTick());
+        return new PlayerAnimationData(getPlayer(), getVelocity(), getPartialTick());
     }
 }

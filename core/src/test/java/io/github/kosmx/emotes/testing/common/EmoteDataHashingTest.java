@@ -33,7 +33,7 @@ public class EmoteDataHashingTest {
         Assertions.assertNotEquals(emote1.hashCode(), emote2.hashCode(), "After any change these should have different hash");
     }
 
-    public static final UUID ANIMATION_UUID = UUID.fromString("0003b28f-2df8-2ad8-0007-84fa4a7d3766");
+    public static final UUID ANIMATION_UUID = UUID.fromString("0003daa0-db39-8edf-0007-c91b33098e3b");
     public static Animation loadAnimation() throws IOException {
         try (InputStream is = EmoteDataHashingTest.class.getResourceAsStream("/bye-bye-bye.json")) {
             return UniversalAnimLoader.loadAnimations(is).values().iterator().next();
