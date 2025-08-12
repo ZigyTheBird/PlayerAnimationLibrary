@@ -14,8 +14,6 @@ import java.util.Queue;
  */
 @ApiStatus.Internal
 public abstract class AnimationProcessor {
-	protected long lastRenderedInstance = -1;
-
 	/**
 	 * Each AnimationProcessor must be bound to a player
 	 */

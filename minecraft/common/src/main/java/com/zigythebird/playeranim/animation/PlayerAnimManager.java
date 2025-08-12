@@ -19,7 +19,6 @@ public class PlayerAnimManager extends AnimationStack {
 
 	private float lastUpdateTime;
 	private boolean isFirstTick = true;
-	private float firstTickTime = -1;
 	private float tickDelta;
 
 	public PlayerAnimManager(AbstractClientPlayer player) {
@@ -32,14 +31,6 @@ public class PlayerAnimManager extends AnimationStack {
 
 	public void updatedAt(float updateTime) {
 		this.lastUpdateTime = updateTime;
-	}
-
-	public float getFirstTickTime() {
-		return this.firstTickTime;
-	}
-
-	public void startedAt(float time) {
-		this.firstTickTime = time;
 	}
 
 	public boolean isFirstTick() {

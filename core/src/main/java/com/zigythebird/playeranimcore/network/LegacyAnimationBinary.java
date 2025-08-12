@@ -265,6 +265,7 @@ public final class LegacyAnimationBinary {
             BoneAnimation torso = boneAnimations.computeIfAbsent("torso", name -> new BoneAnimation());
             torso.bendKeyFrames().addAll(body.bendKeyFrames());
             body.bendKeyFrames().clear();
+            data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
         }
         long msb = buf.getLong();
         long lsb = buf.getLong();

@@ -33,27 +33,21 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
     public void handleAnimations(float partialTick, boolean fullTick) {
         Vec3 velocity = player.getDeltaMovement();
 
-        Minecraft mc = Minecraft.getInstance();
         PlayerAnimManager animatableManager = player.playerAnimLib$getAnimManager();
         int currentTick = player.tickCount;
 
-        if (animatableManager.getFirstTickTime() == -1)
-            animatableManager.startedAt(currentTick + partialTick);
-
         float currentFrameTime = currentTick + partialTick;
-        boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
-
-        if (isReRender && player.getId() == this.lastRenderedInstance)
-            return;
-
-        if (!mc.isPaused()) {
-            animatableManager.updatedAt(currentFrameTime);
-        }
 
         AnimationData animationData = new PlayerAnimationData(player, (float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f), partialTick);
-        this.lastRenderedInstance = player.getId();
 
         if (fullTick) player.playerAnimLib$getAnimManager().tick(animationData.copy());
+
+        if (!animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime())
+            return;
+
+        if (!Minecraft.getInstance().isPaused()) {
+            animatableManager.updatedAt(currentFrameTime);
+        }
 
         this.tickAnimation(animatableManager, animationData);
     }

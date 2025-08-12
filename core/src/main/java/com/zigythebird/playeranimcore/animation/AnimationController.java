@@ -460,6 +460,7 @@ public abstract class AnimationController implements IAnimation {
 					this.tick = 0;
 					this.startAnimFrom = this.currentAnimation.loopType().restartFromTick(animation);
 					adjustedTick = this.startAnimFrom;
+					this.startAnimFrom -= animationData.getPartialTick();
 					resetEventKeyFrames();
 				}
 			}
@@ -480,7 +481,8 @@ public abstract class AnimationController implements IAnimation {
 				else {
 					this.animationState = State.RUNNING;
 					this.tick = 0;
-					adjustedTick = this.startAnimFrom;
+					this.startAnimFrom = -animationData.getPartialTick();
+					adjustedTick = 0;
 					this.currentAnimation = this.animationQueue.poll();
 					setupNewAnimation();
 				}
