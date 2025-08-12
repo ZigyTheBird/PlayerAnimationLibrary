@@ -351,7 +351,7 @@ public final class LegacyAnimationBinary {
                 }
             }
 
-            part.add(new Keyframe(keyframeLength, prevKeyframe == null ? expression : prevKeyframe.endValue(), expression, easingType,
+            part.add(new Keyframe(keyframeLength, prevKeyframe == null ? PlayerAnimatorLoader.ZERO : prevKeyframe.endValue(), expression, easingType,
                     easingArg == null ? Collections.singletonList(Collections.emptyList()) :
                             Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)))));
             buf.position(currentPos + keyframeSize);
