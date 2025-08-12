@@ -131,7 +131,7 @@ public final class AnimationBinary {
                 data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
             if (!easeBefore)
                 data.put(ExtraAnimationData.EASING_BEFORE_KEY, false);
-        }
+        } else data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
 
         data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, format == AnimationFormat.PLAYER_ANIMATOR));
