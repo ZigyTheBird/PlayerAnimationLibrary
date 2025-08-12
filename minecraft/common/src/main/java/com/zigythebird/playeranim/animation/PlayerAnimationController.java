@@ -29,7 +29,7 @@ public class PlayerAnimationController extends AnimationController {
             "torso", new Vec3f(0, 24, 0),
             "head", new Vec3f(0, 24, 0),
             "body", new Vec3f(0, 12, 0),
-            "cape", new Vec3f(0, 24, -2)
+            "cape", new Vec3f(0, 24, 2)
     );
 
     //Used for applying torso bend to bones like the head.

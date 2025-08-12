@@ -44,12 +44,13 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
                 ModelPart torso = this.getParentModel().body;
 
                 poseStack.translate(0.0F, 0.0F, 0.125F);
-                poseStack.mulPose(Axis.YP.rotation(3.14159f));
 
                 poseStack.translate(torso.x / 16, torso.y / 16, torso.z / 16);
                 RenderUtil.rotateZYX(poseStack.last(), torso.zRot, torso.yRot, torso.xRot);
 
                 PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("cape"));
+
+                poseStack.mulPose(Axis.YP.rotation(3.14159f));
 
                 bone.mulPos(-1, 1, -1);
                 bone.mulRot(-1, 1, -1);
