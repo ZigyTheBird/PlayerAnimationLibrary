@@ -119,7 +119,9 @@ jobs:
           version-type: release
 
           loaders: fabric
-          game-versions: ${{ steps.gradle_properties.outputs.minecraft_version }}
+          game-versions: |
+            ${{ steps.gradle_properties.outputs.minecraft_version }}
+            1.21.8
 
           changelog-file: CHANGELOG.md
 
@@ -149,7 +151,9 @@ jobs:
           version-type: release
 
           loaders: neoforge
-          game-versions: ${{ steps.gradle_properties.outputs.minecraft_version }}
+          game-versions: |
+            ${{ steps.gradle_properties.outputs.minecraft_version }}
+            1.21.8
 
           changelog-file: CHANGELOG.md
 
