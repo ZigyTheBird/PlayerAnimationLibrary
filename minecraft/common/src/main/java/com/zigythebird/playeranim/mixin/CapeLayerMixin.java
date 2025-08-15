@@ -1,7 +1,5 @@
 package com.zigythebird.playeranim.mixin;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.ICapeLayer;
@@ -38,6 +36,7 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
     private void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, PlayerRenderState playerRenderState, float f, float g, CallbackInfo ci) {
         if (model instanceof CapeModelAccessor capeLayer) {
             ModelPart part = capeLayer.getCape();
+            part.resetPose(); //Just to be sure
             PlayerAnimManager emote = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive()) {
                 ModelPart torso = this.getParentModel().body;
@@ -60,11 +59,5 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
             }
             else this.resetBend(part);
         }
-    }
-
-    @WrapWithCondition(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
-    private boolean translate(PoseStack instance, float f, float g, float h, @Local(argsOnly = true) PlayerRenderState playerRenderState) {
-        PlayerAnimManager emote = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimManager();
-        return emote == null || !emote.isActive();
     }
 }

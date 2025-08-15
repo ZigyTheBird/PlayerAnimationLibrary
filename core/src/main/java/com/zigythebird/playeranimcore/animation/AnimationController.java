@@ -33,6 +33,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
+import team.unnamed.mocha.parser.ast.FloatExpression;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -47,6 +48,7 @@ import java.util.function.Predicate;
  */
 public abstract class AnimationController implements IAnimation {
 	public static KeyframeLocation<Keyframe> EMPTY_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0), 0, 0);
+	public static KeyframeLocation<Keyframe> EMPTY_SCALE_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0, Collections.singletonList(FloatExpression.ONE), Collections.singletonList(FloatExpression.ONE)), 0, 0);
 	
 	protected final AnimationStateHandler stateHandler;
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
@@ -709,7 +711,7 @@ public abstract class AnimationController implements IAnimation {
 		Animation animation = this.currentAnimation.animation();
 		float endTick = animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()-1);
 
-		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick);
+		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick, type);
 		Keyframe currentFrame = location.keyframe();
 		float startValue = this.molangRuntime.eval(currentFrame.startValue());
 		float endValue = this.molangRuntime.eval(currentFrame.endValue());
@@ -744,9 +746,9 @@ public abstract class AnimationController implements IAnimation {
 	 * @param ageInTicks The current tick time
 	 * @return A new {@code KeyFrameLocation} containing the current {@code KeyFrame} and the tick time used to find it
 	 */
-	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, float ageInTicks) {
+	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, float ageInTicks, TransformType type) {
 		if (frames.isEmpty())
-			return EMPTY_KEYFRAME_LOCATION;
+			return type == TransformType.SCALE ? EMPTY_SCALE_KEYFRAME_LOCATION : EMPTY_KEYFRAME_LOCATION;
 
 		float totalFrameTime = 0;
 
