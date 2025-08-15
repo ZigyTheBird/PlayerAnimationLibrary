@@ -1,7 +1,6 @@
 package com.zigythebird.playeranimcore.network;
 
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
@@ -9,6 +8,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;

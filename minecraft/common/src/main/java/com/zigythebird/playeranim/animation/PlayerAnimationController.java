@@ -3,7 +3,10 @@ package com.zigythebird.playeranim.animation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.animation.*;
+import com.zigythebird.playeranimcore.animation.AnimationController;
+import com.zigythebird.playeranimcore.animation.AnimationProcessor;
+import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
+import com.zigythebird.playeranimcore.animation.RawAnimation;
 import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
@@ -29,7 +32,8 @@ public class PlayerAnimationController extends AnimationController {
             "torso", new Vec3f(0, 24, 0),
             "head", new Vec3f(0, 24, 0),
             "body", new Vec3f(0, 12, 0),
-            "cape", new Vec3f(0, 24, 2)
+            "cape", new Vec3f(0, 24, 2),
+            "elytra", new Vec3f(0, 24, 2)
     );
 
     //Used for applying torso bend to bones like the head.
@@ -104,7 +108,7 @@ public class PlayerAnimationController extends AnimationController {
         this.registerPlayerAnimBone("right_item");
         this.registerPlayerAnimBone("left_item");
         this.registerTopPlayerAnimBone("cape");
-        this.registerTopPlayerAnimBone("elytra");
+        this.registerPlayerAnimBone("elytra");
     }
 
     public void registerTopPlayerAnimBone(String name) {

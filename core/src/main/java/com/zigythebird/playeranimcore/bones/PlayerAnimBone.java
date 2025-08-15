@@ -2,9 +2,9 @@ package com.zigythebird.playeranimcore.bones;
 
 import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
-import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.Axis;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;

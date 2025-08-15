@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;

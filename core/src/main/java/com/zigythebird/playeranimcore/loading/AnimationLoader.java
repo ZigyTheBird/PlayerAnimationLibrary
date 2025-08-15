@@ -3,11 +3,11 @@ package com.zigythebird.playeranimcore.loading;
 import com.google.gson.*;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
@@ -18,7 +18,10 @@ import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AnimationLoader implements JsonDeserializer<Animation> {
 	private static final List<List<Expression>> ZERO_ARRAY;

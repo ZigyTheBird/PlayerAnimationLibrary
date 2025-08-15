@@ -2,12 +2,10 @@ package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.accessors.IPlayerRenderer;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -30,13 +28,13 @@ public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends 
         if (humanoidRenderState instanceof IPlayerAnimationState animationState) {
             PlayerAnimManager emote = animationState.playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive() && this.renderer instanceof PlayerRenderer playerRenderer) {
-                ModelPart torso = playerRenderer.getModel().body;
-                PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("body"));
-                RenderUtil.applyVanillaPart(((IPlayerRenderer)renderer).pal$getCape(), bone);
-                bone.mulPos(-1);
-                bone.mulRot(-1, 1, -1);
-                RenderUtil.applyVanillaPart(torso, bone);
+                playerRenderer.getModel().body.translateAndRotate(poseStack);
+                poseStack.translate(0, 0, 0.125);
+                PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("elytra"));
+                bone.applyOtherBone(emote.get3DTransform(new PlayerAnimBone("cape")));
+                bone.positionY *= -1;
                 RenderUtil.translateMatrixToBone(poseStack, bone);
+                poseStack.translate(0, 0, -0.125);
             }
         }
     }

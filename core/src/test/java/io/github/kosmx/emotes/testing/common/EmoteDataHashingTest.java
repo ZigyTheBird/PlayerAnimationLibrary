@@ -1,8 +1,8 @@
 package io.github.kosmx.emotes.testing.common;
 
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ public class EmoteDataHashingTest {
         Assertions.assertNotEquals(emote1.hashCode(), emote2.hashCode(), "After any change these should have different hash");
     }
 
-    public static final UUID ANIMATION_UUID = UUID.fromString("0003daa0-db39-8edf-0007-c91b33098e3b");
+    public static final UUID ANIMATION_UUID = UUID.fromString("0003ba25-772b-ca80-0007-91e0b7dcd85e");
     public static Animation loadAnimation() throws IOException {
         try (InputStream is = EmoteDataHashingTest.class.getResourceAsStream("/bye-bye-bye.json")) {
             return UniversalAnimLoader.loadAnimations(is).values().iterator().next();
