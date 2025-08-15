@@ -9,9 +9,6 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- * DO NOT TOUCH THIS UNLESS YOU REALLY KNOW WHAT YOU'RE DOING.
- */
 @ApiStatus.Internal
 public abstract class AnimationProcessor {
 	/**

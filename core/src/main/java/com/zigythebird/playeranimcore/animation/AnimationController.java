@@ -502,7 +502,7 @@ public abstract class AnimationController implements IAnimation {
 				advancedBone = (AdvancedPlayerAnimBone) bone;
 				isAdvancedBone = true;
 			}
-			if (bone == null) return;
+			if (bone == null) continue;
 
 			BoneAnimation boneAnimation = entry.getValue();
 			KeyframeStack rotationKeyFrames = boneAnimation.rotationKeyFrames();
