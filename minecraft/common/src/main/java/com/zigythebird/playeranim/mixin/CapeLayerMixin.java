@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -43,17 +42,17 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
             if (emote != null && emote.isActive()) {
                 ModelPart torso = this.getParentModel().body;
 
-                poseStack.translate(0.0F, 0.0F, 0.125F);
+                torso.translateAndRotate(poseStack);
 
-                poseStack.translate(torso.x / 16, torso.y / 16, torso.z / 16);
-                RenderUtil.rotateZYX(poseStack.last(), torso.zRot, torso.yRot, torso.xRot);
+                poseStack.translate(0.0F, 0.0F, 0.125F);
+                poseStack.mulPose(Axis.YP.rotation(3.14159f));
 
                 PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("cape"));
 
-                poseStack.mulPose(Axis.YP.rotation(3.14159f));
-
-                bone.mulPos(-1, 1, -1);
-                bone.mulRot(-1, 1, -1);
+                bone.positionX *= -1;
+                bone.positionZ *= -1;
+                bone.rotX *= -1;
+                bone.rotZ *= -1;
 
                 RenderUtil.translatePartToBone(part, bone);
 

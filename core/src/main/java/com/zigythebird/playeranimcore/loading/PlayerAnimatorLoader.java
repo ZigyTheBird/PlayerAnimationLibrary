@@ -2,11 +2,11 @@ package com.zigythebird.playeranimcore.loading;
 
 import com.google.gson.*;
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.MathHelper;
@@ -137,7 +137,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         //If the final easing is constant, it defaults to linear insteadAdd commentMore actions
         //If you don't want your anim to have endTick lerp then just set stopTick to endTick + 1
         if (keyframe != null)
-            list.add(new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), keyframe.easingType() == EasingType.CONSTANT ? EasingType.LINEAR : keyframe.easingType(), keyframe.easingArgs()));
+            list.add(new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), keyframe.easingType(), keyframe.easingArgs()));
     }
 
     private Map<String, BoneAnimation> moveDeserializer(List<JsonElement> node, boolean degrees, int version) {

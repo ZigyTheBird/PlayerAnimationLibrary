@@ -1,3 +1,3 @@
-Refactor and optimize a lot of stuff.  
-New API for playing animations.  
-Changed upper part bone code in a way that fixes compatability with a lot of mods including the ears mod.
+Fixed crash with Wavey Capes.  
+Fixed elytra bugs.  
+Fixed mistake where the end tick easing can't be constant.

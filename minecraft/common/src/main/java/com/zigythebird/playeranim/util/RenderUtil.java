@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -65,22 +64,6 @@ public final class RenderUtil {
 		bone.setScaleZ(part.zScale);
 
 		bone.setBend(0);
-	}
-
-	public static PlayerAnimBone applyVanillaPart(ModelPart part, PlayerAnimBone bone) {
-		bone.positionX += part.x;
-		bone.positionY -= part.y;
-		bone.positionZ += part.z;
-
-		bone.rotX += part.xRot;
-		bone.rotY += part.yRot;
-		bone.rotZ += part.zRot;
-
-		bone.scaleX *= part.xScale;
-		bone.scaleY *= part.yScale;
-		bone.scaleZ *= part.zScale;
-
-		return bone;
 	}
 
 	public static void rotateZYX(PoseStack.Pose matrices, float angleZ, float angleY, float angleX) {
