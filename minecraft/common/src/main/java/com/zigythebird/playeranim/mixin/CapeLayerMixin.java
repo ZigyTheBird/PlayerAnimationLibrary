@@ -32,11 +32,16 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
         super(renderLayerParent);
     }
 
+    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/HumanoidModel;setupAnim(Lnet/minecraft/client/renderer/entity/state/HumanoidRenderState;)V"))
+    private void resetPose(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, PlayerRenderState renderState, float yRot, float xRot, CallbackInfo ci) {
+        if (model instanceof CapeModelAccessor capeLayer)
+            capeLayer.getCape().resetPose(); //Just to be sure
+    }
+
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/HumanoidModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V"))
     private void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, PlayerRenderState playerRenderState, float f, float g, CallbackInfo ci) {
         if (model instanceof CapeModelAccessor capeLayer) {
             ModelPart part = capeLayer.getCape();
-            part.resetPose(); //Just to be sure
             PlayerAnimManager emote = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive()) {
                 ModelPart torso = this.getParentModel().body;
