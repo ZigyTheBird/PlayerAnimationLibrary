@@ -49,16 +49,12 @@ public abstract class PlayerRendererMixin {
     private void applyBodyTransforms(AbstractClientPlayer player, PoseStack poseStack, float f, float bodyYaw, float tickDelta, float scale, CallbackInfo ci){
         var animationPlayer = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
         if (animationPlayer != null && animationPlayer.isActive()) {
-            PlayerAnimBone body = ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor().getBone("body");
-            body.setToInitialPose();
-
             //These are additive properties
-            body = animationPlayer.get3DTransform(body);
+            PlayerAnimBone body = animationPlayer.get3DTransform(new PlayerAnimBone("body"));
 
             poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
             poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);
 
-            body.rotX *= -1;
             body.rotY *= -1;
             RenderUtil.rotateMatrixAroundBone(poseStack, body);
 
