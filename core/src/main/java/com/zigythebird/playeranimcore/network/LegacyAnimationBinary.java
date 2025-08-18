@@ -25,10 +25,10 @@
 package com.zigythebird.playeranimcore.network;
 
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
@@ -70,15 +70,15 @@ public final class LegacyAnimationBinary {
      * @throws java.nio.BufferOverflowException if can't write into ByteBuf
      */
     public static ByteBuffer write(Animation animation, ByteBuffer buf, int version) throws BufferOverflowException {
-        buf.putInt(animation.data().<Float>get("beginTick").orElse(0F).intValue());
-        buf.putInt(animation.data().<Float>get("endTick").orElse(animation.length()).intValue());
+        buf.putInt(animation.data().<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).orElse(0F).intValue());
+        buf.putInt(animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()).intValue());
         buf.putInt((int) animation.length());
         putBoolean(buf, animation.loopType().shouldPlayAgain(animation));
         buf.putInt((int)animation.loopType().restartFromTick(animation));
-        boolean easeBefore = animation.data().<Boolean>get("isEasingBefore")
-                .orElse(animation.data().data().getOrDefault("format", AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
+        boolean easeBefore = animation.data().<Boolean>get(ExtraAnimationData.EASING_BEFORE_KEY)
+                .orElse(animation.data().data().getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
         putBoolean(buf, easeBefore);
-        putBoolean(buf, animation.data().<Boolean>get("nsfw").orElse(false));
+        putBoolean(buf, false); //NSFW tag
         buf.put(keyframeSize(version));
         if (version >= 2) {
             buf.putInt(animation.boneAnimations().size());
@@ -127,20 +127,19 @@ public final class LegacyAnimationBinary {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isItem = ITEM_BONE.test(name);
         boolean isBody = name.equals("body");
-        boolean div = isBody && version >= 2;
-        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, div, isItem);
-        writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, easeBefore, div, isItem || !isBody);
-        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, div, isItem);
+        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, isBody, isItem);
+        writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, easeBefore, isBody, isItem || !isBody);
+        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, isBody, isItem);
         writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, easeBefore, isItem);
         writeKeyframes(buf, isItem ? part.rotationKeyFrames().zKeyframes() : part.rotationKeyFrames().yKeyframes(), version, easeBefore, isItem);
         writeKeyframes(buf, isItem ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), version, easeBefore, isItem);
         if (BEND_BONE.test(name)) {
             //Marking the no longer supported Y axis bend keyframes as non-existent
             if (version >= 2) {
-                putBoolean(buf, true);
+                putBoolean(buf, false);
                 buf.putInt(0);
             } else {
-                buf.putInt(0);
+                buf.putInt(-1);
             }
             writeKeyframes(buf, part.bendKeyFrames(), version, easeBefore, false);
         }
@@ -163,7 +162,7 @@ public final class LegacyAnimationBinary {
         int keyframeCount = part.size();
         if (!easeBefore) keyframeCount -= 1;
         buf.putInt(keyframeCount);
-        if (keyframeCount == 0) return;
+        if (keyframeCount <= 0) return;
 
         float tickAccumulator = 0;
         for (int i = 0; i < keyframeCount; i++) {
@@ -219,11 +218,11 @@ public final class LegacyAnimationBinary {
         ExtraAnimationData data = new ExtraAnimationData();
 
         int beginTick = buf.getInt();
-        data.put("beginTick", (float) beginTick);
+        data.put(ExtraAnimationData.BEGIN_TICK_KEY, (float) beginTick);
 
         int endTick = Math.max(buf.getInt(), beginTick + 1);
         if (endTick <= 0) throw new IOException("endTick must be bigger than 0");
-        data.put("endTick", (float) endTick);
+        data.put(ExtraAnimationData.END_TICK_KEY, (float) endTick);
 
         int stopTick = buf.getInt();
 
@@ -242,8 +241,8 @@ public final class LegacyAnimationBinary {
         }
 
         boolean easeBefore = getBoolean(buf);
-        data.put("isEasingBefore", easeBefore);
-        data.put("nsfw", getBoolean(buf));
+        data.put(ExtraAnimationData.EASING_BEFORE_KEY, easeBefore);
+        getBoolean(buf); //Ignored NSFW tag
         int keyframeSize = buf.get();
         if (keyframeSize <= 0) throw new IOException("keyframe size must be greater than 0, current: " + keyframeSize);
         Map<String, BoneAnimation> boneAnimations = new HashMap<>();
@@ -260,18 +259,18 @@ public final class LegacyAnimationBinary {
             boneAnimations.put("left_arm", readPart(buf, "left_arm", new BoneAnimation(), version, keyframeSize, easeBefore));
             boneAnimations.put("right_leg", readPart(buf, "right_leg", new BoneAnimation(), version, keyframeSize, easeBefore));
             boneAnimations.put("left_leg", readPart(buf, "left_leg", new BoneAnimation(), version, keyframeSize, easeBefore));
-
-            BoneAnimation body = boneAnimations.get("body");
-            if (body != null && !body.bendKeyFrames().isEmpty()) {
-                BoneAnimation torso = boneAnimations.computeIfAbsent("torso", name -> new BoneAnimation());
-                torso.bendKeyFrames().addAll(body.bendKeyFrames());
-                body.bendKeyFrames().clear();
-            }
+        }
+        BoneAnimation body = boneAnimations.get("body");
+        if (body != null && !body.bendKeyFrames().isEmpty()) {
+            BoneAnimation torso = boneAnimations.computeIfAbsent("torso", name -> new BoneAnimation());
+            torso.bendKeyFrames().addAll(body.bendKeyFrames());
+            body.bendKeyFrames().clear();
+            data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
         }
         long msb = buf.getLong();
         long lsb = buf.getLong();
-        data.put("uuid", new UUID(msb, lsb));
-        data.put("format", AnimationFormat.PLAYER_ANIMATOR);
+        data.put(ExtraAnimationData.UUID_KEY, new UUID(msb, lsb));
+        data.put(ExtraAnimationData.FORMAT_KEY, AnimationFormat.PLAYER_ANIMATOR);
 
         return new Animation(data, endTick, loopType, boneAnimations, UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
@@ -279,11 +278,10 @@ public final class LegacyAnimationBinary {
     private static BoneAnimation readPart(ByteBuffer buf, String name, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isBody = name.equals("body");
-        boolean mul = isBody && version >= 2;
         boolean isItem = ITEM_BONE.test(name);
-        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, mul, isItem);
-        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize, mul, isItem || !isBody);
-        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, mul, isItem);
+        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, isBody, isItem);
+        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize, isBody, isItem || !isBody);
+        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, isBody, isItem);
         readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, keyframeSize, isItem);
         readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version, keyframeSize, isItem);
         readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize, isItem);
@@ -353,7 +351,7 @@ public final class LegacyAnimationBinary {
                 }
             }
 
-            part.add(new Keyframe(keyframeLength, prevKeyframe == null ? expression : prevKeyframe.endValue(), expression, easingType,
+            part.add(new Keyframe(keyframeLength, prevKeyframe == null ? PlayerAnimatorLoader.ZERO : prevKeyframe.endValue(), expression, easingType,
                     easingArg == null ? Collections.singletonList(Collections.emptyList()) :
                             Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)))));
             buf.position(currentPos + keyframeSize);
@@ -375,8 +373,8 @@ public final class LegacyAnimationBinary {
     public static int calculateSize(Animation animation, int version) {
         //I will create less efficient loops, but these will be more easily fixable
         int size = 36;//The header makes xx bytes IIIBIBBBLL
-        boolean easeBefore = animation.data().<Boolean>get("isEasingBefore")
-                .orElse(animation.data().data().getOrDefault("format", AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
+        boolean easeBefore = animation.data().<Boolean>get(ExtraAnimationData.EASING_BEFORE_KEY)
+                .orElse(animation.data().data().getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
         if (version < 2) {
             size += partSize(animation.getBone("head"), false, version, easeBefore);
             size += partSize(animation.getBone("body"), true, version, easeBefore);

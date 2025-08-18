@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
@@ -19,7 +18,6 @@ public class PlayerAnimManager extends AnimationStack {
 
 	private float lastUpdateTime;
 	private boolean isFirstTick = true;
-	private float firstTickTime = -1;
 	private float tickDelta;
 
 	public PlayerAnimManager(AbstractClientPlayer player) {
@@ -32,14 +30,6 @@ public class PlayerAnimManager extends AnimationStack {
 
 	public void updatedAt(float updateTime) {
 		this.lastUpdateTime = updateTime;
-	}
-
-	public float getFirstTickTime() {
-		return this.firstTickTime;
-	}
-
-	public void startedAt(float time) {
-		this.firstTickTime = time;
 	}
 
 	public boolean isFirstTick() {
@@ -66,8 +56,7 @@ public class PlayerAnimManager extends AnimationStack {
 		return player;
 	}
 
-	public void updatePart(String partName, ModelPart part, ModelPart secondLayer, AnimationProcessor processor) {
-		PlayerAnimBone bone = processor.getBone(partName);
+	public void updatePart(ModelPart part, ModelPart secondLayer, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 		bone = this.get3DTransform(bone);
 		RenderUtil.translatePartToBone(part, bone, initialPose);

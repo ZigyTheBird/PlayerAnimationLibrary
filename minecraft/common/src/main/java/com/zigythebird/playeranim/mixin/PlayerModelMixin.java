@@ -26,14 +26,14 @@ package com.zigythebird.playeranim.mixin;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.accessors.IMutableModel;
+import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.accessors.IUpperPartHelper;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
-import net.minecraft.client.Minecraft;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -65,20 +65,26 @@ public class PlayerModelMixin<T extends LivingEntity> extends HumanoidModel<T> {
 
     @Shadow @Final public ModelPart jacket;
 
+    @Unique
+    private final PlayerAnimBone pal$head = new PlayerAnimBone("head");
+    @Unique
+    private final PlayerAnimBone pal$torso = new PlayerAnimBone("torso");
+    @Unique
+    private final PlayerAnimBone pal$rightArm = new PlayerAnimBone("right_arm");
+    @Unique
+    private final PlayerAnimBone pal$leftArm = new PlayerAnimBone("left_arm");
+    @Unique
+    private final PlayerAnimBone pal$rightLeg = new PlayerAnimBone("right_leg");
+    @Unique
+    private final PlayerAnimBone pal$leftLeg = new PlayerAnimBone("left_leg");
+
+
     public PlayerModelMixin(ModelPart modelPart, Function<ResourceLocation, RenderType> function) {
         super(modelPart, function);
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void initBend(ModelPart modelPart, boolean bl, CallbackInfo ci){
-        ((IUpperPartHelper)rightArm).playerAnimLib$setUpperPart(true);
-        ((IUpperPartHelper)leftArm).playerAnimLib$setUpperPart(true);
-        ((IUpperPartHelper)head).playerAnimLib$setUpperPart(true);
-        ((IUpperPartHelper)hat).playerAnimLib$setUpperPart(true);
-    }
-
     @Unique
-    private void playerAnimLib$setToInitialPose(){
+    private void playerAnimLib$setToInitialPose() {
         this.head.resetPose();
         this.body.resetPose();
         this.rightArm.resetPose();
@@ -163,7 +169,7 @@ public class PlayerModelMixin<T extends LivingEntity> extends HumanoidModel<T> {
         if (((IMutableModel)this).playerAnimLib$getAnimation() != null && ((IMutableModel)this).playerAnimLib$getAnimation().isActive()) {
             poseStack.translate(modelPart.x / 16.0F, modelPart.y / 16.0F, modelPart.z / 16.0F);
             if (modelPart.xRot != 0.0F || modelPart.yRot != 0.0F || modelPart.zRot != 0.0F) {
-                poseStack.mulPose(new Quaternionf().rotationZYX(modelPart.zRot, modelPart.yRot, modelPart.xRot));
+                RenderUtil.rotateZYX(poseStack.last(), modelPart.zRot, modelPart.yRot, modelPart.xRot);
             }
             poseStack.translate(0, (modelPart.yScale - 1) * 0.609375, (modelPart.zScale - 1) * 0.0625);
 

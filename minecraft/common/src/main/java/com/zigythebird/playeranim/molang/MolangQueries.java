@@ -1,6 +1,5 @@
 package com.zigythebird.playeranim.molang;
 
-import com.google.common.collect.Streams;
 import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import net.minecraft.client.CameraType;

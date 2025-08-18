@@ -29,22 +29,13 @@ public abstract class ElytraLayerMixin_noBend<T extends LivingEntity, M extends 
         if (livingEntity instanceof AbstractClientPlayer player) {
             PlayerAnimManager emote = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive()) {
-                AnimationProcessor processor = ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor();
-                PlayerAnimBone torso = processor.getBone("torso");
-                PlayerAnimBone cape = processor.getBone("cape");
-                PlayerAnimBone elytra = processor.getBone("elytra");
-                torso.setToInitialPose();
-                cape.setToInitialPose();
-                elytra.setToInitialPose();
-                emote.get3DTransform(torso);
-                emote.get3DTransform(cape);
-                emote.get3DTransform(elytra);
-                elytra.applyOtherBone(cape);
-                elytra.mulPos(-1);
-                elytra.mulRot(-1, 1, -1);
-                torso.positionY *= -1;
-                elytra.applyOtherBone(torso);
-                RenderUtil.translateMatrixToBone(poseStack, elytra);
+                playerRenderer.getModel().body.translateAndRotate(poseStack);
+                poseStack.translate(0, 0, 0.125);
+                PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("elytra"));
+                bone.applyOtherBone(emote.get3DTransform(new PlayerAnimBone("cape")));
+                bone.positionY *= -1;
+                RenderUtil.translateMatrixToBone(poseStack, bone);
+                poseStack.translate(0, 0, -0.125);
             }
         }
     }

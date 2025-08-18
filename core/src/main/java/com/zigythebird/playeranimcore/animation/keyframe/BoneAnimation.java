@@ -7,6 +7,7 @@ package com.zigythebird.playeranimcore.animation.keyframe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A record of a deserialized animation for a given bone
@@ -30,5 +31,16 @@ public record BoneAnimation(KeyframeStack rotationKeyFrames,
 	public boolean hasKeyframes() {
 		return rotationKeyFrames().hasKeyframes() || positionKeyFrames().hasKeyframes() ||
 				scaleKeyFrames().hasKeyframes() || !bendKeyFrames.isEmpty();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof BoneAnimation that)) return false;
+        return Objects.equals(scaleKeyFrames, that.scaleKeyFrames) && Objects.equals(bendKeyFrames, that.bendKeyFrames) && Objects.equals(rotationKeyFrames, that.rotationKeyFrames) && Objects.equals(positionKeyFrames, that.positionKeyFrames);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
 	}
 }

@@ -8,6 +8,7 @@ package com.zigythebird.playeranimcore.animation.keyframe;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Stores a triplet of {@link Keyframe Keyframes} in an ordered stack
@@ -39,5 +40,16 @@ public record KeyframeStack(List<Keyframe> xKeyframes, List<Keyframe> yKeyframes
 
 	public boolean hasKeyframes() {
 		return !xKeyframes().isEmpty() || !yKeyframes().isEmpty() || !zKeyframes().isEmpty();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof KeyframeStack that)) return false;
+        return Objects.equals(xKeyframes, that.xKeyframes) && Objects.equals(yKeyframes, that.yKeyframes) && Objects.equals(zKeyframes, that.zKeyframes);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(xKeyframes, yKeyframes, zKeyframes);
 	}
 }

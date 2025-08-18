@@ -55,11 +55,11 @@ public class PlayerAnimCommands {
         Animation animation = PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID"));
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation));
-        LegacyAnimationBinary.write(animation, byteBuffer);
+        LegacyAnimationBinary.write(animation, byteBuffer, 1);
         byteBuffer.flip();
 
         try {
-            return playAnimation(LegacyAnimationBinary.read(byteBuffer));
+            return playAnimation(LegacyAnimationBinary.read(byteBuffer, 1));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

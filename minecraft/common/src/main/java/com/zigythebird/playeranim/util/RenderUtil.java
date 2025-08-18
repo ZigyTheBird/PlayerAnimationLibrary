@@ -1,7 +1,6 @@
 package com.zigythebird.playeranim.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,14 +10,7 @@ import net.minecraft.client.model.geom.PartPose;
  */
 public final class RenderUtil {
 	public static void rotateMatrixAroundBone(PoseStack poseStack, PlayerAnimBone bone) {
-		if (bone.getRotZ() != 0)
-			poseStack.mulPose(Axis.ZP.rotation(bone.getRotZ()));
-
-		if (bone.getRotY() != 0)
-			poseStack.mulPose(Axis.YP.rotation(bone.getRotY()));
-
-		if (bone.getRotX() != 0)
-			poseStack.mulPose(Axis.XP.rotation(bone.getRotX()));
+		rotateZYX(poseStack.last(), bone.getRotZ(), bone.getRotY(), bone.getRotX());
 	}
 
 	public static void translatePartToBone(ModelPart part, PlayerAnimBone bone) {
@@ -37,12 +29,12 @@ public final class RenderUtil {
 
 	//Initial pose only applied to yRot and position because that's all that's needed for vanilla parts.
     public static void translatePartToBone(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
-        part.x = bone.getPosX() + initialPose.x;
-        part.y = -bone.getPosY() + initialPose.y;
-        part.z = bone.getPosZ() + initialPose.z;
+        part.x = bone.getPosX() + initialPose.x();
+        part.y = -bone.getPosY() + initialPose.y();
+        part.z = bone.getPosZ() + initialPose.z();
 
         part.xRot = bone.getRotX();
-        part.yRot = bone.getRotY() + initialPose.yRot;
+        part.yRot = bone.getRotY() + initialPose.yRot();
         part.zRot = bone.getRotZ();
 
         part.xScale = bone.getScaleX();
@@ -59,9 +51,9 @@ public final class RenderUtil {
 	public static void copyVanillaPart(ModelPart part, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 
-		bone.setPosX(part.x - initialPose.x);
-		bone.setPosY(part.y - initialPose.y);
-		bone.setPosZ(part.z - initialPose.z);
+		bone.setPosX(part.x - initialPose.x());
+		bone.setPosY(-(part.y - initialPose.y()));
+		bone.setPosZ(part.z - initialPose.z());
 
 		bone.setRotX(part.xRot);
 		bone.setRotY(part.yRot);
@@ -72,5 +64,10 @@ public final class RenderUtil {
 		bone.setScaleZ(part.zScale);
 
 		bone.setBend(0);
+	}
+
+	public static void rotateZYX(PoseStack.Pose matrices, float angleZ, float angleY, float angleX) {
+		matrices.pose().rotateZYX(angleZ, angleY, angleX);
+		matrices.normal().rotateZYX(angleZ, angleY, angleX);
 	}
 }

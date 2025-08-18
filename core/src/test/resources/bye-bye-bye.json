@@ -11,6 +11,12 @@
     "translate": "mineemotes.emote.description.miembye-bye-byedeadpooldance",
     "fallback": "Might sound crazy but it aint no lie baby bye bye bye"
   },
+  "bages": [
+    "string",
+    {
+      "text": "stringed jsonobject"
+    }
+  ],
   "emote": {
     "beginTick": 0,
     "endTick": 557,

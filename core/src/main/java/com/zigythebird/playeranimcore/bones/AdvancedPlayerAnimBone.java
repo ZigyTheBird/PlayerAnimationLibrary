@@ -27,7 +27,6 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone implements IBoneEnabl
     public boolean rotYEnabled = true;
     public boolean rotZEnabled = true;
 
-    public boolean bendAxisEnabled = true;
     public boolean bendEnabled = true;
 
     public AdvancedPlayerAnimBone(String name) {
@@ -47,7 +46,6 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone implements IBoneEnabl
         rotYEnabled = enabled;
         rotZEnabled = enabled;
 
-        bendAxisEnabled = enabled;
         bendEnabled = enabled;
     }
 
@@ -89,6 +87,24 @@ public class AdvancedPlayerAnimBone extends PlayerAnimBone implements IBoneEnabl
 
     public void setScaleXTransitionLength(Float scaleXTransitionLength) {
         this.scaleXTransitionLength = scaleXTransitionLength;
+    }
+
+    public void setPositionEnabled(boolean enabled) {
+        this.positionXEnabled = enabled;
+        this.positionYEnabled = enabled;
+        this.positionZEnabled = enabled;
+    }
+
+    public void setRotEnabled(boolean enabled) {
+        this.rotXEnabled = enabled;
+        this.rotYEnabled = enabled;
+        this.rotZEnabled = enabled;
+    }
+
+    public void setScaleEnabled(boolean enabled) {
+        this.scaleXEnabled = enabled;
+        this.scaleYEnabled = enabled;
+        this.scaleZEnabled = enabled;
     }
 
     @Override

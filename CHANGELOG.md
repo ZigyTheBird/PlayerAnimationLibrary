@@ -1,1 +1,1 @@
-RELEASE!
+Fixed bug where the vanilla cape anims are never applied.

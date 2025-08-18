@@ -27,9 +27,9 @@ package com.zigythebird.playeranimcore.animation.layered.modifier;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.AnimationData;
-import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.FadeType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -95,7 +95,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
         if (getFadeType() == FadeType.FADE_IN) {
             if (transitionAnimation != null && transitionAnimation.isActive()) transitionAnimation.get3DTransform(bone);
         }
-        return copy2.scale(a).add(bone.scale(1 - a));
+        return bone.scale(1 - a).add(copy2.scale(a));
     }
 
     protected float calculateProgress(float f, String boneName) {

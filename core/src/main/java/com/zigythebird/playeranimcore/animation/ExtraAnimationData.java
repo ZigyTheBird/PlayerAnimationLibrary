@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -11,6 +12,11 @@ import java.util.*;
 public record ExtraAnimationData(Map<String, Object> data) {
     public static final String NAME_KEY = "name";
     public static final String UUID_KEY = "uuid";
+    public static final String FORMAT_KEY = "format";
+    public static final String BEGIN_TICK_KEY = "beginTick";
+    public static final String END_TICK_KEY = "endTick";
+    public static final String EASING_BEFORE_KEY = "easeBeforeKeyframe";
+    public static final String APPLY_BEND_TO_OTHER_BONES_KEY = "applyBendToOtherBones";
 
     public ExtraAnimationData(String key, Object value) {
         this(new HashMap<>(Collections.singletonMap(key, value)));
@@ -50,16 +56,32 @@ public record ExtraAnimationData(Map<String, Object> data) {
         return Optional.empty();
     }
 
+    public <T> T getNullable(String key) {
+        return this.<T>get(key).orElse(null);
+    }
+
+    public List<?> getList(String key) {
+        Object obj = getRaw(key);
+        return switch (obj) {
+            case null -> Collections.emptyList();
+            case JsonArray json -> json.asList();
+            case List<?> list -> list;
+            default -> throw new ClassCastException(obj.getClass().getName());
+        };
+    }
+
     public void put(String name, Object object) {
         data.put(name, object);
     }
 
-    public void fromJson(JsonObject node) {
+    public void fromJson(JsonObject node, boolean root) {
         for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
-            data().put(entry.getKey(), getValue(entry.getValue()));
+            String key = entry.getKey();
+            if (root && ("version".equalsIgnoreCase(key) || "emote".equalsIgnoreCase(key))) continue;
+            data().put(key, getValue(entry.getValue()));
         }
     }
-    
+
     public Object getValue(JsonElement element) {
         if (element instanceof JsonPrimitive p) {
             if (p.isBoolean()) {
@@ -71,21 +93,24 @@ public record ExtraAnimationData(Map<String, Object> data) {
             }
         }
         if (element instanceof JsonArray array) {
-            List<Object> list = new ArrayList<>();
+            List<Object> list = new ArrayList<>(array.size());
             for (JsonElement element1 : array) {
                 list.add(getValue(element1));
             }
+            return list;
         }
-        if (element instanceof JsonObject object) {
-            Map<String, Object> map = new HashMap<>();
-            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-                map.put(entry.getKey(), getValue(entry.getValue()));
-            }
-        }
-        return element;
+        return element.toString();
     }
 
     public ExtraAnimationData copy() {
-        return new ExtraAnimationData(new HashMap<>(){{putAll(data());}});
+        return new ExtraAnimationData(new HashMap<>(data()));
+    }
+
+    public boolean isDisableAxisIfNotModified() {
+        return this.<Boolean>get("disableAxisIfNotModified").orElse(true);
+    }
+
+    public boolean isAnimationPlayerAnimatorFormat() {
+        return this.<AnimationFormat>get(ExtraAnimationData.FORMAT_KEY).orElse(null) == AnimationFormat.PLAYER_ANIMATOR;
     }
 }
