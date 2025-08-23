@@ -179,10 +179,24 @@ public abstract class AnimationController implements IAnimation {
 	}
 
     @Nullable
-    public Animation getData() {
+    public Animation getCurrentAnimationInstance() {
         QueuedAnimation queuedAnimation = getCurrentAnimation();
-        if (queuedAnimation == null) return null;
-        return queuedAnimation.animation();
+        if (queuedAnimation != null) {
+            Animation animation = queuedAnimation.animation();
+            if (animation != null) {
+                return animation;
+            }
+        }
+
+        RawAnimation rawAnimation = getTriggeredAnimation();
+        if (rawAnimation != null) {
+            List<RawAnimation.Stage> stages = rawAnimation.getAnimationStages();
+            if (!stages.isEmpty()) {
+                return stages.getFirst().animation();
+            }
+        }
+
+        return null;
     }
 
 	/**
