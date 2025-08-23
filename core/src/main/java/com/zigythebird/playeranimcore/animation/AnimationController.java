@@ -55,7 +55,7 @@ public abstract class AnimationController implements IAnimation {
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PlayerAnimBone> activeBones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PivotBone> pivotBones = new Object2ObjectOpenHashMap<>();
-	protected Queue<QueuedAnimation> animationQueue = new LinkedList<>();
+	protected Queue<AnimationProcessor.QueuedAnimation> animationQueue = new LinkedList<>();
 	protected final MochaEngine<AnimationController> molangRuntime;
 
 	protected boolean needsAnimationReload = false;
@@ -68,7 +68,7 @@ public abstract class AnimationController implements IAnimation {
 	protected boolean handlingTriggeredAnimations = false;
 
 	protected RawAnimation currentRawAnimation;
-	protected QueuedAnimation currentAnimation;
+	protected AnimationProcessor.QueuedAnimation currentAnimation;
 	protected int tick;
 	protected float startAnimFrom;
 	protected State animationState = State.STOPPED;
@@ -174,13 +174,13 @@ public abstract class AnimationController implements IAnimation {
 	 * An animation returned here does not guarantee it is currently playing, just that it is the currently loaded animation for this controller
 	 */
 	@Nullable
-	public QueuedAnimation getCurrentAnimation() {
+	public AnimationProcessor.QueuedAnimation getCurrentAnimation() {
 		return this.currentAnimation;
 	}
 
     @Nullable
     public Animation getCurrentAnimationInstance() {
-        QueuedAnimation queuedAnimation = getCurrentAnimation();
+        AnimationProcessor.QueuedAnimation queuedAnimation = getCurrentAnimation();
         if (queuedAnimation != null) {
             Animation animation = queuedAnimation.animation();
             if (animation != null) {
@@ -313,7 +313,7 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		if (this.needsAnimationReload || !rawAnimation.equals(this.currentRawAnimation)) {
-			Queue<QueuedAnimation> animations = getQueuedAnimations(rawAnimation);
+			Queue<AnimationProcessor.QueuedAnimation> animations = getQueuedAnimations(rawAnimation);
 
 			if (animations != null) {
 				this.animationQueue = animations;
@@ -336,8 +336,8 @@ public abstract class AnimationController implements IAnimation {
 		setAnimation(rawAnimation, 0);
 	}
 
-	protected Queue<QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
-		LinkedList<QueuedAnimation> animations = new LinkedList<>();
+	protected Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
+		LinkedList<AnimationProcessor.QueuedAnimation> animations = new LinkedList<>();
 		for (RawAnimation.Stage stage : rawAnimation.getAnimationStages()) {
 			Animation animation;
 			if (stage.stage() == AnimationStage.WAIT) { // This is intentional. Do not change this or T̶s̶l̶a̶t̶ I will be unhappy!!!
@@ -346,7 +346,7 @@ public abstract class AnimationController implements IAnimation {
 				animation = stage.animation();
 			}
 
-			if (animation != null) animations.add(new QueuedAnimation(animation, stage.loopType()));
+			if (animation != null) animations.add(new AnimationProcessor.QueuedAnimation(animation, stage.loopType()));
 		}
 		return animations;
 	}
@@ -511,7 +511,7 @@ public abstract class AnimationController implements IAnimation {
 				}
 			}
 			else {
-				QueuedAnimation nextAnimation = this.animationQueue.peek();
+                AnimationProcessor.QueuedAnimation nextAnimation = this.animationQueue.peek();
 
 				resetEventKeyFrames();
 

@@ -34,4 +34,11 @@ public abstract class AnimationProcessor {
 				animation.setupAnim(state.copy());
 		}
 	}
+
+    /**
+     * {@link Animation} and {@link Animation.LoopType} override pair,
+     * used to define a playable animation stage for a player
+     * TODO move to standalone class
+     */
+    public record QueuedAnimation(Animation animation, Animation.LoopType loopType) {}
 }
