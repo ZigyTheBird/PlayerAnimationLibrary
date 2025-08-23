@@ -14,7 +14,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
+@SuppressWarnings({"UnstableApiUsage","deprecation"})
 public class BinaryBackwardsTest {
     @Test
     @DisplayName("Binary backwards test (to playeranimator)")
@@ -38,7 +40,7 @@ public class BinaryBackwardsTest {
     @Test
     @DisplayName("Binary backwards test (from playeranimator)")
     public void playeranimator2this() throws IOException {
-        try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/bye-bye-bye.json"))) {
+        try (Reader reader = new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/bye-bye-bye.json")))) {
             List<KeyframeAnimation> keyframes = AnimationJson.GSON.fromJson(reader, AnimationJson.getListedTypeToken());
 
             for (int version = 1; version <= AnimationBinary.getCurrentVersion(); version++) {
