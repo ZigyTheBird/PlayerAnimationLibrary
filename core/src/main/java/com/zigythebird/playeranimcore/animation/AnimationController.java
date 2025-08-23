@@ -291,7 +291,7 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		if (this.needsAnimationReload || !rawAnimation.equals(this.currentRawAnimation)) {
-			Queue<QueuedAnimation> animations = buildAnimationQueue(rawAnimation);
+			Queue<QueuedAnimation> animations = getQueuedAnimations(rawAnimation);
 
 			if (animations != null) {
 				this.animationQueue = animations;
