@@ -198,7 +198,6 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
         return "Animation{" +
                 "data=" + data +
                 ", length=" + length +
-                ", loopType=" + loopType +
                 '}';
     }
 
