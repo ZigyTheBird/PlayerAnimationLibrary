@@ -72,6 +72,7 @@ public abstract class AnimationController implements IAnimation {
 	protected int tick;
 	protected float startAnimFrom;
 	protected State animationState = State.STOPPED;
+	protected boolean isLoopStarted = false;
 	protected Consumer<Function<String, AdvancedPlayerAnimBone>> postAnimationSetupConsumer = function -> {};
 	protected Function<AnimationController, EasingType> overrideEasingTypeFunction = controller -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
@@ -197,6 +198,13 @@ public abstract class AnimationController implements IAnimation {
 	 */
 	public @NotNull State getAnimationState() {
 		return this.animationState;
+	}
+
+	/**
+	 * is the emote already in an infinite loop?
+	 */
+	public boolean isLoopStarted() {
+		return this.isLoopStarted;
 	}
 
 	@Override
@@ -485,6 +493,7 @@ public abstract class AnimationController implements IAnimation {
 					adjustedTick = this.startAnimFrom;
 					this.startAnimFrom -= animationData.getPartialTick();
 					resetEventKeyFrames();
+					this.isLoopStarted = true;
 				}
 			}
 			else {
