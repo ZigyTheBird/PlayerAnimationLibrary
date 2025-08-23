@@ -29,6 +29,7 @@ import com.zigythebird.playeranimcore.math.ModVector4f;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
+import com.zigythebird.playeranimcore.util.ModifierList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
@@ -80,9 +81,7 @@ public abstract class AnimationController implements IAnimation {
 
 	protected Function<AnimationController, FirstPersonMode> firstPersonMode = null;
 	protected Function<AnimationController, FirstPersonConfiguration> firstPersonConfiguration = null;
-	protected final List<AbstractModifier> modifiers = new ArrayList<>();
-
-	private final InternalAnimationAccessor internalAnimationAccessor = new InternalAnimationAccessor(this);
+	protected final ModifierList modifiers = new ModifierList(this);
 
 	/**
 	 * Instantiates a new {@code AnimationController}
@@ -179,7 +178,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
     @Nullable
-    public Animation getData() {
+    public Animation getCurrentAnimationInstance() {
         QueuedAnimation queuedAnimation = getCurrentAnimation();
         if (queuedAnimation == null) return null;
         return queuedAnimation.animation();
@@ -201,7 +200,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * is the emote already in an infinite loop?
+	 * Has the animation looped at least once?
 	 */
 	public boolean isLoopStarted() {
 		return this.isLoopStarted;
@@ -880,10 +879,13 @@ public abstract class AnimationController implements IAnimation {
 
 	public abstract Vec3f getBonePosition(String name);
 
+	public ModifierList getModifiers() {
+		return modifiers;
+	}
+
 	public AnimationController addModifier(@NotNull AbstractModifier modifier, int idx) {
 		modifier.setHost(this);
 		modifiers.add(idx, modifier);
-		linkModifiers();
 		return this;
 	}
 
@@ -899,7 +901,6 @@ public abstract class AnimationController implements IAnimation {
 
 	public AnimationController removeModifier(int idx) {
 		modifiers.remove(idx);
-		linkModifiers();
 		return this;
 	}
 
@@ -921,22 +922,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	public boolean removeModifierIf(Predicate<? super AbstractModifier> predicate) {
-		boolean success = modifiers.removeIf(predicate);
-		linkModifiers();
-		return success;
-	}
-
-	protected void linkModifiers() {
-		Iterator<AbstractModifier> modifierIterator = modifiers.iterator();
-		if (modifierIterator.hasNext()) {
-			AbstractModifier tmp = modifierIterator.next();
-			while (modifierIterator.hasNext()) {
-				AbstractModifier tmp2 = modifierIterator.next();
-				tmp.setAnim(tmp2);
-				tmp = tmp2;
-			}
-			tmp.setAnim(internalAnimationAccessor);
-		}
+		return modifiers.removeIf(predicate);
 	}
 
 	public AdvancedPlayerAnimBone registerPlayerAnimBone(String name) {
@@ -987,8 +973,8 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	@SuppressWarnings("ConstantConditions")
-	private static class InternalAnimationAccessor extends AnimationContainer<AnimationController> {
-		private InternalAnimationAccessor(AnimationController controller) {
+    public static class InternalAnimationAccessor extends AnimationContainer<AnimationController> {
+		public InternalAnimationAccessor(AnimationController controller) {
 			super(controller);
 		}
 
