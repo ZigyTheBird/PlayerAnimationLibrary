@@ -65,10 +65,9 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
                 //These are additive properties
                 PlayerAnimBone body = animationPlayer.get3DTransform(new PlayerAnimBone("body"));
 
-                poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
                 poseStack.translate(body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);
-
                 RenderUtil.rotateMatrixAroundBone(poseStack, body);
+                poseStack.scale(body.getScaleX(), body.getScaleY(), body.getScaleZ());
 
                 poseStack.translate(0, -0.75, 0);
 
