@@ -25,7 +25,7 @@ dependencies {
     implementation forgeRuntimeLibrary(shadowCommon("com.zigythebird:mochafloats:$rootProject.molang_version")) {
         transitive = false
     }
-    forgeRuntimeLibrary include("org.javassist:javassist:$rootProject.javassist_version")
+    modRuntimeOnly forgeRuntimeLibrary(include("org.javassist:javassist:$rootProject.javassist_version"))
 
     common(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":minecraft:common", configuration: "transformProductionNeoForge")) { transitive = false }

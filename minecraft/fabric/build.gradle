@@ -29,7 +29,7 @@ dependencies {
     implementation shadowCommon("com.zigythebird:mochafloats:$rootProject.molang_version") {
         transitive = false
     }
-    include("org.javassist:javassist:$rootProject.javassist_version")
+    modRuntimeOnly include("org.javassist:javassist:$rootProject.javassist_version")
 
     common(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":minecraft:common", configuration: "transformProductionFabric")) { transitive = false }
