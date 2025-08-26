@@ -36,14 +36,14 @@ public final class AnimationBinary {
 
     public static void write(ByteBuf buf, int version, Animation animation) {
         buf.writeFloat(animation.length());
-        boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(animation);
+        boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(null, animation);
         buf.writeBoolean(shouldPlayAgain);
         if (shouldPlayAgain) {
             if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
                 buf.writeBoolean(true);
             } else {
                 buf.writeBoolean(false);
-                buf.writeFloat(animation.loopType().restartFromTick(animation));
+                buf.writeFloat(animation.loopType().restartFromTick(null, animation));
             }
         }
         Map<String, Object> data = animation.data().data();

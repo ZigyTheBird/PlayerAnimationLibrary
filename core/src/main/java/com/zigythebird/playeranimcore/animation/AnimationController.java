@@ -457,10 +457,10 @@ public abstract class AnimationController implements IAnimation {
 		Animation animation = this.currentAnimation.animation();
 
 		if (adjustedTick >= animation.length()) {
-			if (this.currentAnimation.loopType().shouldPlayAgain(animation)) {
+			if (this.currentAnimation.loopType().shouldPlayAgain(this, animation)) {
 				if (this.animationState != State.PAUSED) {
 					this.tick = 0;
-					this.startAnimFrom = this.currentAnimation.loopType().restartFromTick(animation);
+					this.startAnimFrom = this.currentAnimation.loopType().restartFromTick(this, animation);
 					adjustedTick = this.startAnimFrom;
 					this.startAnimFrom -= animationData.getPartialTick();
 					resetEventKeyFrames();
@@ -638,7 +638,7 @@ public abstract class AnimationController implements IAnimation {
 
 	public boolean hasEndTick() {
 		Animation animation = this.currentAnimation.animation();
-		return !animation.loopType().shouldPlayAgain(animation) && animation.data().has(ExtraAnimationData.END_TICK_KEY);
+		return !animation.loopType().shouldPlayAgain(this, animation) && animation.data().has(ExtraAnimationData.END_TICK_KEY);
 	}
 
 	public boolean isDisableAxisIfNotModified() {

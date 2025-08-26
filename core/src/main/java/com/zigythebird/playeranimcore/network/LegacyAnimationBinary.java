@@ -73,8 +73,13 @@ public final class LegacyAnimationBinary {
         buf.putInt(animation.data().<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).orElse(0F).intValue());
         buf.putInt(animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()).intValue());
         buf.putInt((int) animation.length());
-        putBoolean(buf, animation.loopType().shouldPlayAgain(animation));
-        buf.putInt((int)animation.loopType().restartFromTick(animation));
+        if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
+            putBoolean(buf, true);
+            buf.putInt((int) animation.length());
+        } else {
+            putBoolean(buf, animation.loopType().shouldPlayAgain(null, animation));
+            buf.putInt((int)animation.loopType().restartFromTick(null, animation));
+        }
         boolean easeBefore = animation.data().<Boolean>get(ExtraAnimationData.EASING_BEFORE_KEY)
                 .orElse(animation.data().data().getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
         putBoolean(buf, easeBefore);
