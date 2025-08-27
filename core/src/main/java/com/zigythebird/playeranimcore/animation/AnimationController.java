@@ -31,6 +31,7 @@ import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
@@ -80,7 +81,7 @@ public abstract class AnimationController implements IAnimation {
 
 	protected Function<AnimationController, FirstPersonMode> firstPersonMode = null;
 	protected Function<AnimationController, FirstPersonConfiguration> firstPersonConfiguration = null;
-	protected final List<AbstractModifier> modifiers = new ArrayList<>();
+	private final List<AbstractModifier> modifiers = new ArrayList<>();
 
 	private final InternalAnimationAccessor internalAnimationAccessor = new InternalAnimationAccessor(this);
 
@@ -215,7 +216,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * is the emote already in an infinite loop?
+	 * Has the animation looped at least once?
 	 */
 	public boolean isLoopStarted() {
 		return this.isLoopStarted;
@@ -893,6 +894,15 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	public abstract Vec3f getBonePosition(String name);
+
+	/**
+	 * PLEASE DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING.
+	 * THE {@link AnimationController#linkModifiers()} METHOD MUST BE CALLED EVERYTIME ANYTHING IN THE MODIFIER LIST IS CHANGED.
+	 */
+	@ApiStatus.Internal
+	public List<AbstractModifier> getModifiers() {
+		return modifiers;
+	}
 
 	public AnimationController addModifier(@NotNull AbstractModifier modifier, int idx) {
 		modifier.setHost(this);
