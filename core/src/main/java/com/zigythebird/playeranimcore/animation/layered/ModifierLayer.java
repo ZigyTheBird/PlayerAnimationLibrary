@@ -23,7 +23,7 @@ import java.util.function.Predicate;
  * Modifiers <b>affect</b> each other. For example, if you put a fade modifier after a speed modifier, it will be affected by the modifier.
  */
 public class ModifierLayer<T extends IAnimation> implements IAnimation {
-    private final List<AbstractModifier> modifiers = new ArrayList<>();
+    protected final List<AbstractModifier> modifiers = new ArrayList<>();
 
     @Nullable
     T animation;

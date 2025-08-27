@@ -19,6 +19,7 @@ import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
 import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.easing.EasingType;
+import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
@@ -30,6 +31,7 @@ import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
@@ -71,6 +73,7 @@ public abstract class AnimationController implements IAnimation {
 	protected int tick;
 	protected float startAnimFrom;
 	protected State animationState = State.STOPPED;
+	protected boolean isLoopStarted = false;
 	protected Consumer<Function<String, AdvancedPlayerAnimBone>> postAnimationSetupConsumer = function -> {};
 	protected Function<AnimationController, EasingType> overrideEasingTypeFunction = controller -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
@@ -176,6 +179,27 @@ public abstract class AnimationController implements IAnimation {
 		return this.currentAnimation;
 	}
 
+    @Nullable
+    public Animation getCurrentAnimationInstance() {
+        AnimationProcessor.QueuedAnimation queuedAnimation = getCurrentAnimation();
+        if (queuedAnimation != null) {
+            Animation animation = queuedAnimation.animation();
+            if (animation != null) {
+                return animation;
+            }
+        }
+
+        RawAnimation rawAnimation = getTriggeredAnimation();
+        if (rawAnimation != null) {
+            List<RawAnimation.Stage> stages = rawAnimation.getAnimationStages();
+            if (!stages.isEmpty()) {
+                return stages.getFirst().animation();
+            }
+        }
+
+        return null;
+    }
+
 	/**
 	 * Gets the currently playing {@link RawAnimation triggered animation}, if present
 	 */
@@ -189,6 +213,13 @@ public abstract class AnimationController implements IAnimation {
 	 */
 	public @NotNull State getAnimationState() {
 		return this.animationState;
+	}
+
+	/**
+	 * Has the animation looped at least once?
+	 */
+	public boolean isLoopStarted() {
+		return this.isLoopStarted;
 	}
 
 	@Override
@@ -306,7 +337,20 @@ public abstract class AnimationController implements IAnimation {
 		setAnimation(rawAnimation, 0);
 	}
 
-	protected abstract Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation);
+	protected Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
+		LinkedList<AnimationProcessor.QueuedAnimation> animations = new LinkedList<>();
+		for (RawAnimation.Stage stage : rawAnimation.getAnimationStages()) {
+			Animation animation;
+			if (stage.stage() == AnimationStage.WAIT) { // This is intentional. Do not change this or T̶s̶l̶a̶t̶ I will be unhappy!!!
+				animation = Animation.generateWaitAnimation(stage.additionalTicks());
+			} else {
+				animation = stage.animation();
+			}
+
+			if (animation != null) animations.add(new AnimationProcessor.QueuedAnimation(animation, stage.loopType()));
+		}
+		return animations;
+	}
 
 	/**
 	 * Main method used to set the currently playing animation.
@@ -464,10 +508,11 @@ public abstract class AnimationController implements IAnimation {
 					adjustedTick = this.startAnimFrom;
 					this.startAnimFrom -= animationData.getPartialTick();
 					resetEventKeyFrames();
+					this.isLoopStarted = true;
 				}
 			}
 			else {
-				AnimationProcessor.QueuedAnimation nextAnimation = this.animationQueue.peek();
+                AnimationProcessor.QueuedAnimation nextAnimation = this.animationQueue.peek();
 
 				resetEventKeyFrames();
 
@@ -650,6 +695,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	protected void setupNewAnimation() {
+		this.isLoopStarted = false;
 		if (currentAnimation == null) return;
 		this.activeBones.clear();
 		resetEventKeyFrames();
@@ -849,6 +895,15 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	public abstract Vec3f getBonePosition(String name);
+
+	/**
+	 * PLEASE DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING.
+	 * THE {@link AnimationController#linkModifiers()} METHOD MUST BE CALLED EVERYTIME ANYTHING IN THE MODIFIER LIST IS CHANGED.
+	 */
+	@ApiStatus.Internal
+	public List<AbstractModifier> getModifiers() {
+		return modifiers;
+	}
 
 	public AnimationController addModifier(@NotNull AbstractModifier modifier, int idx) {
 		modifier.setHost(this);

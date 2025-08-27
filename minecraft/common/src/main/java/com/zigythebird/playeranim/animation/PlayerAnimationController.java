@@ -4,9 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.AnimationController;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
-import com.zigythebird.playeranimcore.animation.RawAnimation;
 import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
@@ -20,11 +18,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 public class PlayerAnimationController extends AnimationController {
-    //Bone pivot point positions used to apply custom pivot point translations.
-    private static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
+    // Bone pivot point positions used to apply custom pivot point translations.
+    public static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
             "right_arm", new Vec3f(5, 22, 0),
             "left_arm", new Vec3f(-5, 22, 0),
             "left_leg", new Vec3f(-2f, 12, 0f),
@@ -36,7 +33,7 @@ public class PlayerAnimationController extends AnimationController {
             "elytra", new Vec3f(0, 24, 2)
     );
 
-    //Used for applying torso bend to bones like the head.
+    // Used for applying torso bend to bones like the head.
     protected List<AdvancedPlayerAnimBone> top_bones;
 
     protected final AbstractClientPlayer player;
@@ -113,12 +110,6 @@ public class PlayerAnimationController extends AnimationController {
 
     public void registerTopPlayerAnimBone(String name) {
         this.top_bones.add(this.registerPlayerAnimBone(name));
-    }
-
-    @Override
-    protected Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
-        if (player == null) return null;
-        return this.player.playerAnimLib$getAnimProcessor().buildAnimationQueue(rawAnimation);
     }
 
     @Override

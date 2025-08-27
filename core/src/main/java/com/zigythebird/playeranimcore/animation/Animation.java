@@ -14,6 +14,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -190,6 +191,14 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
             data().put(ExtraAnimationData.UUID_KEY,  UUID.fromString(str));
         }
         return data().<UUID>get(ExtraAnimationData.UUID_KEY).orElseThrow();
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "Animation{" +
+                "data=" + data +
+                ", length=" + length +
+                '}';
     }
 
     @Override
