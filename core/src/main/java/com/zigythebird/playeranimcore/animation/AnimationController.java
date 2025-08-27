@@ -323,6 +323,7 @@ public abstract class AnimationController implements IAnimation {
 				this.tick = 0;
 				this.animationState = State.RUNNING;
 				this.currentAnimation = this.animationQueue.poll();
+				this.isLoopStarted = false;
 				setupNewAnimation();
 				this.needsAnimationReload = false;
 
