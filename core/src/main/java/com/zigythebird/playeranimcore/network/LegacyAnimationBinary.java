@@ -127,12 +127,13 @@ public final class LegacyAnimationBinary {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isItem = ITEM_BONE.test(name);
         boolean isBody = name.equals("body");
-        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, isBody, isItem);
+        boolean isCape = name.equals("cape");
+        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, isBody, isItem || isCape);
         writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, easeBefore, isBody, isItem || !isBody);
-        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, isBody, isItem);
-        writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, easeBefore, isItem);
+        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, isBody, isItem || isBody);
+        writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, easeBefore, isItem || isCape);
         writeKeyframes(buf, isItem ? part.rotationKeyFrames().zKeyframes() : part.rotationKeyFrames().yKeyframes(), version, easeBefore, isItem);
-        writeKeyframes(buf, isItem ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), version, easeBefore, isItem);
+        writeKeyframes(buf, isItem ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), version, easeBefore, isItem || isCape);
         if (BEND_BONE.test(name)) {
             //Marking the no longer supported Y axis bend keyframes as non-existent
             if (version >= 2) {
@@ -279,12 +280,13 @@ public final class LegacyAnimationBinary {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isBody = name.equals("body");
         boolean isItem = ITEM_BONE.test(name);
-        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, isBody, isItem);
+        boolean isCape = name.equals("cape");
+        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, isBody, isItem || isCape);
         readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize, isBody, isItem || !isBody);
-        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, isBody, isItem);
-        readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, keyframeSize, isItem);
+        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, isBody, isItem || isBody);
+        readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, keyframeSize, isItem || isCape);
         readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version, keyframeSize, isItem);
-        readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize, isItem);
+        readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize, isItem || isCape);
         if (BEND_BONE.test(name)) {
             readKeyframes(buf, new ArrayList<>(), version, keyframeSize, false); // Discarded since no Y axis bend support
             readKeyframes(buf, part.bendKeyFrames(), version, keyframeSize, false);
