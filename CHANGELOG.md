@@ -1,1 +1,2 @@
-Fixed bug where the vanilla cape anims are never applied.
+Player animator blender format fixes. (mainly loop related stuff)  
+Fixed the hold on last frame loop type.

@@ -23,6 +23,7 @@ import static com.zigythebird.playeranimcore.loading.UniversalAnimLoader.NO_KEYF
 
 public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
     public static final List<Expression> ZERO = Collections.singletonList(FloatExpression.ZERO);
+    public static final List<Expression> ONE = Collections.singletonList(FloatExpression.ONE);
     private static final int modVersion = 3;
 
     public static final Gson GSON = new GsonBuilder()
@@ -73,7 +74,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if(node.has("isLoop") && node.has("returnTick")) {
             boolean isLooped = node.get("isLoop").getAsBoolean();
-            int returnTick = node.get("returnTick").getAsInt();
+            int returnTick = Math.max(node.get("returnTick").getAsInt() - 1, 0);
             if (isLooped) {
                 if (returnTick > endTick || returnTick < 0) {
                     throw new JsonParseException("The returnTick has to be a non-negative value smaller than the endTick value");
@@ -89,7 +90,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         }
 
         boolean degrees = !node.has("degrees") || node.get("degrees").getAsBoolean();
-        Map<String, BoneAnimation> bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version);
+        Map<String, BoneAnimation> bones = moveDeserializer(node.getAsJsonArray("moves").asList(), degrees, version, endTick);
 
         //Also shifts all easings to the right by one if easeBeforeKeyframe is false
         //If easings are shifted in order for the last keyframe's easing to not be ignored a 0.001 tick long keyframe gets added at the end with that easing
@@ -140,7 +141,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             list.add(new Keyframe(0.001F, keyframe.endValue(), keyframe.endValue(), keyframe.easingType(), keyframe.easingArgs()));
     }
 
-    private Map<String, BoneAnimation> moveDeserializer(List<JsonElement> node, boolean degrees, int version) {
+    private Map<String, BoneAnimation> moveDeserializer(List<JsonElement> node, boolean degrees, int version, float endTick) {
         Map<String, BoneAnimation> bones = new TreeMap<>();
         node.sort((e1, e2) -> {
             final int i1 = e1.getAsJsonObject().get("tick").getAsInt();
@@ -150,6 +151,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         for (JsonElement n : node) {
             JsonObject obj = n.getAsJsonObject();
             float tick = obj.get("tick").getAsFloat();
+            if (tick > endTick) continue;
             EasingType easing = easingTypeFromString(obj.has("easing") ? obj.get("easing").getAsString() : "linear");
             int turn = obj.has("turn") ? obj.get("turn").getAsInt() : 0;
             for (Map.Entry<String, JsonElement> entry : obj.entrySet()){
@@ -203,7 +205,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         List<Expression> expressions = Collections.singletonList(FloatExpression.of(value));
         List<List<Expression>> emptyList = Collections.singletonList(new ObjectArrayList<>(0));
 
-        part.add(new Keyframe(delta, lastFrame == null ? ZERO : lastFrame.endValue(), expressions, easing, emptyList));
+        part.add(new Keyframe(delta, lastFrame == null ? (transformType == TransformType.SCALE ? ONE : ZERO) : lastFrame.endValue(), expressions, easing, emptyList));
     }
 
     private static float convertPlayerAnimValue(float def, float value, TransformType transformType, boolean degrees, boolean shouldNegate, int rotate) {

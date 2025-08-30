@@ -39,6 +39,17 @@ public record Keyframe(float length, List<Expression> startValue, List<Expressio
 		return (float) list.stream().mapToDouble(Keyframe::length).sum();
 	}
 
+	public static Keyframe getKeyframeAtTime(List<Keyframe> list, float tick) {
+		float totalFrameTime = 0;
+
+		for (Keyframe keyframe : list) {
+			totalFrameTime += keyframe.length;
+			if (totalFrameTime >= tick) return keyframe;
+		}
+
+		return list.getLast();
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.length, this.startValue, this.endValue, this.easingType.id, this.easingArgs);
