@@ -638,7 +638,7 @@ public abstract class AnimationController implements IAnimation {
 
 	public boolean hasEndTick() {
 		Animation animation = this.currentAnimation.animation();
-		return !animation.loopType().shouldPlayAgain(this, animation) && animation.data().has(ExtraAnimationData.END_TICK_KEY);
+		return !animation.loopType().shouldPlayAgain(null, animation) && animation.data().has(ExtraAnimationData.END_TICK_KEY);
 	}
 
 	public boolean isDisableAxisIfNotModified() {
