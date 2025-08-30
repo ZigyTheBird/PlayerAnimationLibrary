@@ -49,8 +49,8 @@ import java.util.function.Predicate;
  * one to control attacks, one to control size, etc.
  */
 public abstract class AnimationController implements IAnimation {
-	public static KeyframeLocation<Keyframe> EMPTY_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0), 0, 0);
-	public static KeyframeLocation<Keyframe> EMPTY_SCALE_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0, Collections.singletonList(FloatExpression.ONE), Collections.singletonList(FloatExpression.ONE)), 0, 0);
+	public static KeyframeLocation<Keyframe> EMPTY_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0), 0);
+	public static KeyframeLocation<Keyframe> EMPTY_SCALE_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0, Collections.singletonList(FloatExpression.ONE), Collections.singletonList(FloatExpression.ONE)), 0);
 	
 	protected final AnimationStateHandler stateHandler;
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
@@ -757,7 +757,7 @@ public abstract class AnimationController implements IAnimation {
 		Animation animation = this.currentAnimation.animation();
 		float endTick = animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()-1);
 
-		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick, type);
+		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick, type, this.isAnimationPlayerAnimatorFormat() && animation.loopType().shouldPlayAgain(animation), animation.length());
 		Keyframe currentFrame = location.keyframe();
 		float startValue = this.molangRuntime.eval(currentFrame.startValue());
 		float endValue = this.molangRuntime.eval(currentFrame.endValue());
@@ -792,21 +792,29 @@ public abstract class AnimationController implements IAnimation {
 	 * @param ageInTicks The current tick time
 	 * @return A new {@code KeyFrameLocation} containing the current {@code KeyFrame} and the tick time used to find it
 	 */
-	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, float ageInTicks, TransformType type) {
+	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, float ageInTicks, TransformType type, boolean isPlayerAnimatorLoop, float animTime) {
 		if (frames.isEmpty())
 			return type == TransformType.SCALE ? EMPTY_SCALE_KEYFRAME_LOCATION : EMPTY_KEYFRAME_LOCATION;
 
+		Keyframe firstFrame = frames.getFirst();
 		float totalFrameTime = 0;
 
 		for (Keyframe frame : frames) {
 			totalFrameTime += frame.length();
 
 			if (totalFrameTime > ageInTicks) {
-				return new KeyframeLocation<>(frame, (ageInTicks - (totalFrameTime - frame.length())), totalFrameTime);
+				if (isPlayerAnimatorLoop && isLoopStarted() && frame == firstFrame) {
+					float stopTickMinusLastKeyframe = animTime - Keyframe.getLastKeyframeTime(frames);
+					return new KeyframeLocation<>(new Keyframe(frame.length() + stopTickMinusLastKeyframe, frames.getLast().endValue(), frame.endValue(), frame.easingType(), frame.easingArgs()), ageInTicks + stopTickMinusLastKeyframe);
+				}
+				return new KeyframeLocation<>(frame, (ageInTicks - (totalFrameTime - frame.length())));
 			}
 		}
 
-		return new KeyframeLocation<>(frames.getLast(), ageInTicks, totalFrameTime);
+		if (isPlayerAnimatorLoop)
+			return new KeyframeLocation<>(new Keyframe(firstFrame.length() + animTime - totalFrameTime, frames.getLast().endValue(), firstFrame.endValue(), firstFrame.easingType(), firstFrame.easingArgs()), ageInTicks - totalFrameTime);
+
+		return new KeyframeLocation<>(frames.getLast(), ageInTicks);
 	}
 
 	/**
