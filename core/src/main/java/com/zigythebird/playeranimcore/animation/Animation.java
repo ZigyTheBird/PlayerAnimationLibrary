@@ -39,11 +39,7 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
     }
 
     public boolean isPlayingAt(float tick) {
-        return isPlayingAt(null, tick);
-    }
-
-    public boolean isPlayingAt(@Nullable AnimationController controller, float tick) {
-        return loopType.shouldPlayAgain(controller, this) || tick < length() && tick > 0;
+        return loopType.shouldPlayAgain(null, this) || tick < length() && tick > 0;
     }
 
     @Nullable
