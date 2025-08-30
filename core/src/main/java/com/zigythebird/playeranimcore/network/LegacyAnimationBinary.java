@@ -71,11 +71,12 @@ public final class LegacyAnimationBinary {
      */
     public static ByteBuffer write(Animation animation, ByteBuffer buf, int version) throws BufferOverflowException {
         buf.putInt(animation.data().<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).orElse(0F).intValue());
-        buf.putInt(animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()).intValue());
+        int endTick = animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()).intValue();
+        buf.putInt(endTick);
         buf.putInt((int) animation.length());
         if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
             putBoolean(buf, true);
-            buf.putInt((int) animation.length());
+            buf.putInt(endTick);
         } else {
             putBoolean(buf, animation.loopType().shouldPlayAgain(null, animation));
             buf.putInt((int)animation.loopType().restartFromTick(null, animation));
