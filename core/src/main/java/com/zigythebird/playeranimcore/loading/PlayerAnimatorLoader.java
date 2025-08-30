@@ -74,7 +74,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if(node.has("isLoop") && node.has("returnTick")) {
             boolean isLooped = node.get("isLoop").getAsBoolean();
-            int returnTick = node.get("returnTick").getAsInt();
+            int returnTick = Math.max(node.get("returnTick").getAsInt() - 1, 0);
             if (isLooped) {
                 if (returnTick > endTick || returnTick < 0) {
                     throw new JsonParseException("The returnTick has to be a non-negative value smaller than the endTick value");
