@@ -234,10 +234,10 @@ public final class LegacyAnimationBinary {
         int stopTick = buf.getInt();
 
         boolean isLooped = getBoolean(buf);
-        int returnTick = buf.getInt() - 1;
+        int returnTick = Math.max(0, buf.getInt() - 1);
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if (isLooped) {
-            if (returnTick > endTick || returnTick < 0) {
+            if (returnTick > endTick) {
                 throw new IOException("The returnTick has to be a non-negative value smaller than the endTick value");
             }
             if (returnTick == 0) loopType = Animation.LoopType.LOOP;
