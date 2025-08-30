@@ -172,24 +172,24 @@ public final class AnimationBinary {
         return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents);
     }
 
-    public static BoneAnimation readBoneAnimation(ByteBuf buf, boolean shouldStartFromZero) {
-        KeyframeStack rotationKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
-        KeyframeStack positionKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
-        KeyframeStack scaleKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
-        List<Keyframe> bendKeyFrames = readKeyframeList(buf, shouldStartFromZero);
+    public static BoneAnimation readBoneAnimation(ByteBuf buf, boolean shouldStartFromDefault) {
+        KeyframeStack rotationKeyFrames = readKeyframeStack(buf, shouldStartFromDefault, false);
+        KeyframeStack positionKeyFrames = readKeyframeStack(buf, shouldStartFromDefault, false);
+        KeyframeStack scaleKeyFrames = readKeyframeStack(buf, shouldStartFromDefault, true);
+        List<Keyframe> bendKeyFrames = readKeyframeList(buf, shouldStartFromDefault, false);
 
         return new BoneAnimation(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
 
-    public static KeyframeStack readKeyframeStack(ByteBuf buf, boolean shouldStartFromZero) {
-        List<Keyframe> xKeyframes = readKeyframeList(buf, shouldStartFromZero);
-        List<Keyframe> yKeyframes = readKeyframeList(buf, shouldStartFromZero);
-        List<Keyframe> zKeyframes = readKeyframeList(buf, shouldStartFromZero);
+    public static KeyframeStack readKeyframeStack(ByteBuf buf, boolean shouldStartFromDefault, boolean isScale) {
+        List<Keyframe> xKeyframes = readKeyframeList(buf, shouldStartFromDefault, isScale);
+        List<Keyframe> yKeyframes = readKeyframeList(buf, shouldStartFromDefault, isScale);
+        List<Keyframe> zKeyframes = readKeyframeList(buf, shouldStartFromDefault, isScale);
 
         return new KeyframeStack(xKeyframes, yKeyframes, zKeyframes);
     }
 
-    public static List<Keyframe> readKeyframeList(ByteBuf buf, boolean shouldStartFromZero) {
+    public static List<Keyframe> readKeyframeList(ByteBuf buf, boolean shouldStartFromDefault, boolean isScale) {
         int count = VarIntUtils.readVarInt(buf);
         List<Keyframe> list = new ArrayList<>(count);
 
@@ -197,7 +197,7 @@ public final class AnimationBinary {
             float length = buf.readFloat();
 
             List<Expression> endValue = ExprBytesUtils.readExpressions(buf);
-            List<Expression> startValue = list.isEmpty() ? (shouldStartFromZero ? PlayerAnimatorLoader.ZERO : endValue) : list.getLast().endValue();
+            List<Expression> startValue = list.isEmpty() ? (shouldStartFromDefault ?(isScale ? PlayerAnimatorLoader.ONE : PlayerAnimatorLoader.ZERO) : endValue) : list.getLast().endValue();
             EasingType easingType = EasingType.fromId(buf.readByte());
             List<List<Expression>> easingArgs = ProtocolUtils.readList(buf, ExprBytesUtils::readExpressions);
 
