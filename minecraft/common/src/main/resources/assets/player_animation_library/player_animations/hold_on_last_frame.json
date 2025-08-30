@@ -1,0 +1,21 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "hold_on_last_frame": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.25,
+      "bones": {
+        "head": {
+          "rotation": {
+            "0.0": {
+              "vector": [0, 0, 0]
+            },
+            "0.25": {
+              "vector": [-180, 0, 0]
+            }
+          }
+        }
+      }
+    }
+  }
+}
