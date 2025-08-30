@@ -43,8 +43,8 @@ public record Keyframe(float length, List<Expression> startValue, List<Expressio
 		float totalFrameTime = 0;
 
 		for (Keyframe keyframe : list) {
-			if (totalFrameTime >= tick) return keyframe;
 			totalFrameTime += keyframe.length;
+			if (totalFrameTime >= tick) return keyframe;
 		}
 
 		return list.getLast();
