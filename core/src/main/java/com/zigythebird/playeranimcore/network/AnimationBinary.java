@@ -40,12 +40,7 @@ public final class AnimationBinary {
         boolean applyBendToOtherBones = (boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, false);
         if (version < 3 && applyBendToOtherBones && animation.boneAnimations().containsKey("torso")
                 && !animation.boneAnimations().get("torso").bendKeyFrames().isEmpty()) {
-            throw new IllegalArgumentException(
-                    // This should be caught on Emotecraft's end
-                    // so a message can be sent to the target
-                    // telling them to update their mods.
-                    "Due to a crash bug animations that have torso bends cannot be sent to clients with a network version of less than 3."
-            );
+            applyBendToOtherBones = false;
         }
         buf.writeFloat(animation.length());
         boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(null, animation);
