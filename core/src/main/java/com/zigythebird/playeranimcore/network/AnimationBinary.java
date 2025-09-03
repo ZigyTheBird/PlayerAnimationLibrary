@@ -27,14 +27,26 @@ public final class AnimationBinary {
     /**
      * Version 1: Initial Release
      * Version 2: Added support for animations that don't apply the torso bend to other bones + easeBefore
+     * Version 3: No change client side, but the server won't send some animations to versions lower than 3 due to the possibility of a crash.
      */
-    public static final int CURRENT_VERSION = 2;
+    public static final int CURRENT_VERSION = 3;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
     }
 
     public static void write(ByteBuf buf, int version, Animation animation) {
+        Map<String, Object> data = animation.data().data();
+        boolean applyBendToOtherBones = (boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, false);
+        if (version < 3 && applyBendToOtherBones && animation.boneAnimations().containsKey("torso")
+                && !animation.boneAnimations().get("torso").bendKeyFrames().isEmpty()) {
+            throw new IllegalArgumentException(
+                    // This should be caught on Emotecraft's end
+                    // so a message can be sent to the target
+                    // telling them to update their mods.
+                    "Due to a crash bug animations that have torso bends cannot be sent to clients with a network version of less than 3."
+            );
+        }
         buf.writeFloat(animation.length());
         boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(null, animation);
         buf.writeBoolean(shouldPlayAgain);
@@ -46,12 +58,11 @@ public final class AnimationBinary {
                 buf.writeFloat(animation.loopType().restartFromTick(null, animation));
             }
         }
-        Map<String, Object> data = animation.data().data();
         buf.writeByte(((AnimationFormat)data.getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB)).id);
         buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.BEGIN_TICK_KEY, Float.NaN));
         buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.END_TICK_KEY, Float.NaN));
         if (version > 1) {
-            buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, false));
+            buf.writeBoolean(applyBendToOtherBones);
             buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.EASING_BEFORE_KEY, true));
         }
         NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
