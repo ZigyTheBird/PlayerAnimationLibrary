@@ -39,7 +39,7 @@ public class MirrorModifier extends AbstractModifier {
 
     @Override
     public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
-        if (!enabled) return bone;
+        if (!enabled) return super.get3DTransform(bone);
 
         String modelName = bone.getName();
         if (mirrorMap.containsKey(modelName)) modelName = mirrorMap.get(modelName);
@@ -65,9 +65,10 @@ public class MirrorModifier extends AbstractModifier {
     }
 
     protected void transformBone(PlayerAnimBone bone) {
-        bone.setPosX(-bone.getPosX());
-        bone.setRotY(-bone.getRotY());
-        bone.setBend(-bone.getBend());
+        bone.positionX *= -1;
+        bone.rotY *= -1;
+        bone.rotZ *= -1;
+        bone.bend *= -1;
     }
 
     static {
