@@ -157,6 +157,7 @@ public class AdjustmentModifier extends AbstractModifier {
 
     @Override
     public void setupAnim(AnimationData state) {
+        super.setupAnim(state);
         this.tickDelta = state.getPartialTick();
     }
 

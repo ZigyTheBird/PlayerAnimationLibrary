@@ -413,13 +413,15 @@ public class PlayerAnimBone {
 
 				if (animation.data().has(ExtraAnimationData.EASING_BEFORE_KEY) && !(boolean) animation.data().getRaw(ExtraAnimationData.EASING_BEFORE_KEY)) {
 					BoneAnimation boneAnimation = animation.getBone(getName());
-					KeyframeStack keyframeStack = null;
-					switch (type) {
-						case BEND -> easingType = boneAnimation.bendKeyFrames().getLast().easingType();
-						case ROTATION -> keyframeStack = boneAnimation.rotationKeyFrames();
-						case SCALE -> keyframeStack = boneAnimation.scaleKeyFrames();
-						default -> keyframeStack = boneAnimation.positionKeyFrames();
-					}
+					KeyframeStack keyframeStack = boneAnimation == null ? null : switch (type) {
+						case BEND -> {
+							easingType = boneAnimation.bendKeyFrames().getLast().easingType();
+							yield null;
+						}
+						case ROTATION -> boneAnimation.rotationKeyFrames();
+						case SCALE -> boneAnimation.scaleKeyFrames();
+						default -> boneAnimation.positionKeyFrames();
+					};
 					if (keyframeStack != null) {
 						switch (axis) {
 							case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();

@@ -1,2 +1,5 @@
-Player animator blender format fixes. (mainly loop related stuff)  
-Fixed the hold on last frame loop type.
+Fixed some parts of bones being enabled when they're supposed to be disabled while playing animations with torso bends.  
+Fixed bugs with the mirror modifier.  
+Fixed a bug with the adjustment modifier.  
+Added bedrock animation load fix https://github.com/bernie-g/geckolib/commit/c80aa13e49d08d4fdc5c65d1fea3523e789335ef  
+Fix crash as described by [Emotecraft issue #657](https://github.com/KosmX/emotes/issues/657)
