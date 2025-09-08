@@ -54,12 +54,11 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
         }
     }
     
-    @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;isBodyVisible(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Z"))
+    @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;scale(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
     private void doTranslations(S livingEntityRenderState, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
         if (livingEntityRenderState instanceof PlayerRenderState playerRenderState) {
             var animationPlayer = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimManager();
             if (animationPlayer != null && animationPlayer.isActive()) {
-                poseStack.translate(0.0F, 1.501F, 0.0F);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
                 //These are additive properties
@@ -72,7 +71,6 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
                 poseStack.translate(0, -0.75, 0);
 
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
-                poseStack.translate(0.0F, -1.501F, 0.0F);
             }
         }
     }
