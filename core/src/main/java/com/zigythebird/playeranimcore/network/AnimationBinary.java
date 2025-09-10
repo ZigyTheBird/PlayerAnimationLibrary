@@ -10,10 +10,13 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyf
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
+import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 import team.unnamed.mocha.parser.ast.Expression;
+import team.unnamed.mocha.parser.ast.FloatExpression;
+import team.unnamed.mocha.runtime.IsConstantExpression;
 import team.unnamed.mocha.util.ExprBytesUtils;
 import team.unnamed.mocha.util.network.ProtocolUtils;
 import team.unnamed.mocha.util.network.VarIntUtils;
@@ -28,8 +31,9 @@ public final class AnimationBinary {
      * Version 1: Initial Release
      * Version 2: Added support for animations that don't apply the torso bend to other bones + easeBefore
      * Version 3: No change client side, but the server won't send some animations to versions lower than 3 due to the possibility of a crash.
+     * Version 4: Fixed some issues with the body bone.
      */
-    public static final int CURRENT_VERSION = 3;
+    public static final int CURRENT_VERSION = 4;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
@@ -61,7 +65,12 @@ public final class AnimationBinary {
             buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.EASING_BEFORE_KEY, true));
         }
         NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
-        NetworkUtils.writeMap(buf, animation.boneAnimations(), ProtocolUtils::writeString, AnimationBinary::writeBoneAnimation);
+        boolean hasBodyBonesIssue = version < 4;
+        VarIntUtils.writeVarInt(buf, animation.boneAnimations().size());
+        for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
+            ProtocolUtils.writeString(buf, entry.getKey());
+            writeBoneAnimation(buf, entry.getValue(), hasBodyBonesIssue && entry.getKey().equals("body"));
+        }
 
         // Sounds
         VarIntUtils.writeVarInt(buf, animation.keyFrames().sounds().length);
@@ -90,16 +99,16 @@ public final class AnimationBinary {
         NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }
 
-    public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone) {
-        writeKeyframeStack(buf, bone.rotationKeyFrames());
-        writeKeyframeStack(buf, bone.positionKeyFrames());
-        writeKeyframeStack(buf, bone.scaleKeyFrames());
+    public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone, boolean isBody) {
+        writeKeyframeStack(buf, bone.rotationKeyFrames(), isBody, TransformType.POSITION);
+        writeKeyframeStack(buf, bone.positionKeyFrames(), isBody, TransformType.ROTATION);
+        writeKeyframeStack(buf, bone.scaleKeyFrames(), false, TransformType.SCALE);
         ProtocolUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
     }
 
-    public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack) {
-        ProtocolUtils.writeList(buf, stack.xKeyframes(), AnimationBinary::writeKeyframe);
-        ProtocolUtils.writeList(buf, stack.yKeyframes(), AnimationBinary::writeKeyframe);
+    public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack, boolean isBody, TransformType type) {
+        ProtocolUtils.writeList(buf, isBody ? fixBodyKeyframeExpressionsWrite(stack.xKeyframes()) : stack.xKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, isBody && type == TransformType.ROTATION ? fixBodyKeyframeExpressionsWrite(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
         ProtocolUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
     }
 
@@ -141,6 +150,13 @@ public final class AnimationBinary {
 
         data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, format == AnimationFormat.PLAYER_ANIMATOR));
+
+        if (version < 4 && boneAnimations.containsKey("body")) {
+            BoneAnimation body = boneAnimations.get("body");
+            body.positionKeyFrames().xKeyframes().forEach(AnimationBinary::fixBodyKeyframeExpressions);
+            body.rotationKeyFrames().xKeyframes().forEach(AnimationBinary::fixBodyKeyframeExpressions);
+            body.rotationKeyFrames().yKeyframes().forEach(AnimationBinary::fixBodyKeyframeExpressions);
+        }
 
         // Sounds
         int soundCount = VarIntUtils.readVarInt(buf);
@@ -211,5 +227,29 @@ public final class AnimationBinary {
         }
 
         return list;
+    }
+
+    public static List<Keyframe> fixBodyKeyframeExpressionsWrite(List<Keyframe> keyframes) {
+        keyframes = new ArrayList<>(keyframes);
+        keyframes.replaceAll(AnimationBinary::fixBodyKeyframeExpressionsWrite);
+        return keyframes;
+    }
+
+    public static Keyframe fixBodyKeyframeExpressionsWrite(Keyframe keyframe) {
+        keyframe = new Keyframe(keyframe.length(), new ArrayList<>(keyframe.startValue()), new ArrayList<>(keyframe.endValue()), keyframe.easingType(), keyframe.easingArgs());
+        fixBodyKeyframeExpressions(keyframe.startValue());
+        fixBodyKeyframeExpressions(keyframe.endValue());
+        return keyframe;
+    }
+
+    public static void fixBodyKeyframeExpressions(Keyframe keyframe) {
+        fixBodyKeyframeExpressions(keyframe.startValue());
+        fixBodyKeyframeExpressions(keyframe.endValue());
+    }
+
+    public static void fixBodyKeyframeExpressions(List<Expression> expressions) {
+        if (expressions.size() == 1 && IsConstantExpression.test(expressions.getFirst())) {
+            expressions.set(0, FloatExpression.of(-((FloatExpression)expressions.getFirst()).value()));
+        }
     }
 }
