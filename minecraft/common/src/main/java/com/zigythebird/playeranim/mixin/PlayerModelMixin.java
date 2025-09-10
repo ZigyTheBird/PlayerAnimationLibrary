@@ -30,7 +30,6 @@ import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Minecraft;
@@ -108,8 +107,6 @@ public class PlayerModelMixin<T extends LivingEntity> extends HumanoidModel<T> {
     private void setupPlayerAnimation(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (entity instanceof AbstractClientPlayer player && ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor() != null && ((IAnimatedPlayer)player).playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager emote = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
-            AnimationProcessor processor = ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor();
-            processor.handleAnimations(emote.getTickDelta(), false);
             ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
             RenderUtil.copyVanillaPart(this.head, pal$head);
