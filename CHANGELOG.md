@@ -1,1 +1,1 @@
-Fixed bug where the vanilla cape anims are never applied.
+Fixed bugs with the body bone while playing Blockbench format animations.

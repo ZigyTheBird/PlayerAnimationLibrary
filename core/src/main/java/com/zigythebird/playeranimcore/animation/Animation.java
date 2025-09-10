@@ -14,6 +14,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -39,7 +40,7 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
     }
 
     public boolean isPlayingAt(float tick) {
-        return loopType.shouldPlayAgain(this) || tick < length() && tick > 0;
+        return loopType.shouldPlayAgain(null, this) || tick < length() && tick > 0;
     }
 
     @Nullable
@@ -62,46 +63,51 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
 
         LoopType DEFAULT = new LoopType() {
             @Override
-            public boolean shouldPlayAgain(Animation currentAnimation) {
-                return currentAnimation.loopType().shouldPlayAgain(currentAnimation);
+            public boolean shouldPlayAgain(@Nullable AnimationController controller, Animation currentAnimation) {
+                return currentAnimation.loopType().shouldPlayAgain(controller, currentAnimation);
             }
 
             @Override
-            public float restartFromTick(Animation currentAnimation) {
-                return currentAnimation.loopType().restartFromTick(currentAnimation);
+            public float restartFromTick(@Nullable AnimationController controller, Animation currentAnimation) {
+                return currentAnimation.loopType().restartFromTick(controller, currentAnimation);
             }
         };
-        LoopType PLAY_ONCE = register("play_once", register("false", (currentAnimation) -> false));
-        LoopType HOLD_ON_LAST_FRAME = register("hold_on_last_frame", (currentAnimation) -> true);
-        LoopType LOOP = register("loop", register("true", (currentAnimation) -> true));
+        LoopType PLAY_ONCE = register("play_once", register("false", (controller, currentAnimation) -> false));
+        LoopType HOLD_ON_LAST_FRAME = register("hold_on_last_frame", (controller, currentAnimation) -> {
+            if (controller != null) controller.pause();
+            return true;
+        });
+        LoopType LOOP = register("loop", register("true", (controller, currentAnimation) -> true));
 
         /**
          * Override in a custom instance to dynamically decide whether an animation should repeat or stop
          *
+         * @param controller The {@link AnimationController} playing the current animation
          * @param currentAnimation The current animation that just played
          * @return Whether the animation should play again, or stop
          */
-        boolean shouldPlayAgain(Animation currentAnimation);
+        boolean shouldPlayAgain(@Nullable AnimationController controller, Animation currentAnimation);
 
         /**
          * Override in a custom instance to dynamically decide where an animation should start after looping.
          *
+         * @param controller The {@link AnimationController} playing the current animation
          * @param currentAnimation The current animation that just played
          * @return The tick the animation starts from after looping.
          */
-        default float restartFromTick(Animation currentAnimation) {
+        default float restartFromTick(@Nullable AnimationController controller, Animation currentAnimation) {
             return 0;
         }
 
         static LoopType returnToTickLoop(float tick) {
             return new LoopType() {
                 @Override
-                public boolean shouldPlayAgain(Animation currentAnimation) {
+                public boolean shouldPlayAgain(@Nullable AnimationController controller, Animation currentAnimation) {
                     return true;
                 }
 
                 @Override
-                public float restartFromTick(Animation currentAnimation) {
+                public float restartFromTick(@Nullable AnimationController controller, Animation currentAnimation) {
                     return tick;
                 }
             };
@@ -190,6 +196,14 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
             data().put(ExtraAnimationData.UUID_KEY,  UUID.fromString(str));
         }
         return data().<UUID>get(ExtraAnimationData.UUID_KEY).orElseThrow();
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "Animation{" +
+                "data=" + data +
+                ", length=" + length +
+                '}';
     }
 
     @Override

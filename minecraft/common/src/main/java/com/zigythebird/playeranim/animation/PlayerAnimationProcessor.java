@@ -40,7 +40,7 @@ public class PlayerAnimationProcessor extends AnimationProcessor {
 
         AnimationData animationData = new PlayerAnimationData(player, (float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f), partialTick);
 
-        if (fullTick) player.playerAnimLib$getAnimManager().tick(animationData.copy());
+        if (fullTick) animatableManager.tick(animationData.copy());
 
         if (!animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime())
             return;

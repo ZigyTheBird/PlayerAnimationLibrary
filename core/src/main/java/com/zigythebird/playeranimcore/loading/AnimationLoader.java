@@ -124,28 +124,36 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		throw new JsonParseException("Invalid object type provided to getTripletObj, got: " + element);
 	}
 
+	// Blockbench is just getting silly now
+	private static JsonArray extractBedrockKeyframe(JsonElement keyframe) {
+		if (keyframe.isJsonArray())
+			return keyframe.getAsJsonArray();
+
+		if (!keyframe.isJsonObject())
+			throw new JsonParseException("Invalid keyframe data - expected array or object, found " + keyframe);
+
+		JsonObject keyframeObj = keyframe.getAsJsonObject();
+
+		if (keyframeObj.has("vector"))
+			return keyframeObj.get("vector").getAsJsonArray();
+
+		if (keyframeObj.has("pre"))
+			return keyframeObj.get("pre").getAsJsonArray();
+
+		return keyframeObj.get("post").getAsJsonArray();
+	}
+
 	private static void addBedrockKeyframes(float timestamp, JsonObject keyframe, List<FloatObjectPair<JsonElement>> keyframes) {
 		boolean addedFrame = false;
 
 		if (keyframe.has("pre")) {
-			JsonElement pre = keyframe.get("pre");
 			addedFrame = true;
 
-			JsonArray value = pre.isJsonArray() ? pre.getAsJsonArray() : JsonUtil.getAsJsonArray(pre.getAsJsonObject(), "vector");
-			JsonObject result = null;
-			if (keyframe.has("easing")) {
-				result = new JsonObject();
-				result.add("vector", value);
-				result.add("easing", keyframe.get("easing"));
-				if (keyframe.has("easingArgs")) result.add("easingArgs", keyframe.get("easingArgs"));
-			}
-
-			keyframes.add(FloatObjectPair.of(timestamp == 0 ? timestamp : timestamp - 0.001f, result != null ? result : value));
+			keyframes.add(FloatObjectPair.of(timestamp == 0 ? timestamp : timestamp - 0.001f, extractBedrockKeyframe(keyframe.get("pre"))));
 		}
 
 		if (keyframe.has("post")) {
-			JsonElement post = keyframe.get("post");
-			JsonArray values = post.isJsonArray() ? post.getAsJsonArray() : JsonUtil.getAsJsonArray(post.getAsJsonObject(), "vector");
+			JsonArray values = extractBedrockKeyframe(keyframe.get("post"));
 
 			if (keyframe.has("lerp_mode")) {
 				JsonObject keyframeObj = new JsonObject();

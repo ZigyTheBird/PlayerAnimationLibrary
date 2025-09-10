@@ -19,6 +19,7 @@ import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
 import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.easing.EasingType;
+import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
@@ -30,6 +31,7 @@ import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
@@ -47,8 +49,8 @@ import java.util.function.Predicate;
  * one to control attacks, one to control size, etc.
  */
 public abstract class AnimationController implements IAnimation {
-	public static KeyframeLocation<Keyframe> EMPTY_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0), 0, 0);
-	public static KeyframeLocation<Keyframe> EMPTY_SCALE_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0, Collections.singletonList(FloatExpression.ONE), Collections.singletonList(FloatExpression.ONE)), 0, 0);
+	public static KeyframeLocation<Keyframe> EMPTY_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0), 0);
+	public static KeyframeLocation<Keyframe> EMPTY_SCALE_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0, Collections.singletonList(FloatExpression.ONE), Collections.singletonList(FloatExpression.ONE)), 0);
 	
 	protected final AnimationStateHandler stateHandler;
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
@@ -71,6 +73,7 @@ public abstract class AnimationController implements IAnimation {
 	protected int tick;
 	protected float startAnimFrom;
 	protected State animationState = State.STOPPED;
+	protected boolean isLoopStarted = false;
 	protected Consumer<Function<String, AdvancedPlayerAnimBone>> postAnimationSetupConsumer = function -> {};
 	protected Function<AnimationController, EasingType> overrideEasingTypeFunction = controller -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
@@ -176,6 +179,27 @@ public abstract class AnimationController implements IAnimation {
 		return this.currentAnimation;
 	}
 
+    @Nullable
+    public Animation getCurrentAnimationInstance() {
+        AnimationProcessor.QueuedAnimation queuedAnimation = getCurrentAnimation();
+        if (queuedAnimation != null) {
+            Animation animation = queuedAnimation.animation();
+            if (animation != null) {
+                return animation;
+            }
+        }
+
+        RawAnimation rawAnimation = getTriggeredAnimation();
+        if (rawAnimation != null) {
+            List<RawAnimation.Stage> stages = rawAnimation.getAnimationStages();
+            if (!stages.isEmpty()) {
+                return stages.getFirst().animation();
+            }
+        }
+
+        return null;
+    }
+
 	/**
 	 * Gets the currently playing {@link RawAnimation triggered animation}, if present
 	 */
@@ -189,6 +213,13 @@ public abstract class AnimationController implements IAnimation {
 	 */
 	public @NotNull State getAnimationState() {
 		return this.animationState;
+	}
+
+	/**
+	 * Has the animation looped at least once?
+	 */
+	public boolean isLoopStarted() {
+		return this.isLoopStarted;
 	}
 
 	@Override
@@ -306,7 +337,20 @@ public abstract class AnimationController implements IAnimation {
 		setAnimation(rawAnimation, 0);
 	}
 
-	protected abstract Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation);
+	protected Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
+		LinkedList<AnimationProcessor.QueuedAnimation> animations = new LinkedList<>();
+		for (RawAnimation.Stage stage : rawAnimation.getAnimationStages()) {
+			Animation animation;
+			if (stage.stage() == AnimationStage.WAIT) { // This is intentional. Do not change this or T̶s̶l̶a̶t̶ I will be unhappy!!!
+				animation = Animation.generateWaitAnimation(stage.additionalTicks());
+			} else {
+				animation = stage.animation();
+			}
+
+			if (animation != null) animations.add(new AnimationProcessor.QueuedAnimation(animation, stage.loopType()));
+		}
+		return animations;
+	}
 
 	/**
 	 * Main method used to set the currently playing animation.
@@ -457,17 +501,18 @@ public abstract class AnimationController implements IAnimation {
 		Animation animation = this.currentAnimation.animation();
 
 		if (adjustedTick >= animation.length()) {
-			if (this.currentAnimation.loopType().shouldPlayAgain(animation)) {
+			if (this.currentAnimation.loopType().shouldPlayAgain(this, animation)) {
 				if (this.animationState != State.PAUSED) {
 					this.tick = 0;
-					this.startAnimFrom = this.currentAnimation.loopType().restartFromTick(animation);
+					this.startAnimFrom = this.currentAnimation.loopType().restartFromTick(this, animation);
 					adjustedTick = this.startAnimFrom;
 					this.startAnimFrom -= animationData.getPartialTick();
 					resetEventKeyFrames();
+					this.isLoopStarted = true;
 				}
 			}
 			else {
-				AnimationProcessor.QueuedAnimation nextAnimation = this.animationQueue.peek();
+                AnimationProcessor.QueuedAnimation nextAnimation = this.animationQueue.peek();
 
 				resetEventKeyFrames();
 
@@ -638,7 +683,7 @@ public abstract class AnimationController implements IAnimation {
 
 	public boolean hasEndTick() {
 		Animation animation = this.currentAnimation.animation();
-		return !animation.loopType().shouldPlayAgain(animation) && animation.data().has(ExtraAnimationData.END_TICK_KEY);
+		return !animation.loopType().shouldPlayAgain(null, animation) && animation.data().has(ExtraAnimationData.END_TICK_KEY);
 	}
 
 	public boolean isDisableAxisIfNotModified() {
@@ -650,6 +695,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	protected void setupNewAnimation() {
+		this.isLoopStarted = false;
 		if (currentAnimation == null) return;
 		this.activeBones.clear();
 		resetEventKeyFrames();
@@ -711,7 +757,7 @@ public abstract class AnimationController implements IAnimation {
 		Animation animation = this.currentAnimation.animation();
 		float endTick = animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()-1);
 
-		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick, type);
+		KeyframeLocation<Keyframe> location = getCurrentKeyFrameLocation(frames, tick, type, this.isAnimationPlayerAnimatorFormat() && this.currentAnimation.loopType().shouldPlayAgain(null, animation), animation.length(), this.currentAnimation.loopType().restartFromTick(null, animation));
 		Keyframe currentFrame = location.keyframe();
 		float startValue = this.molangRuntime.eval(currentFrame.startValue());
 		float endValue = this.molangRuntime.eval(currentFrame.endValue());
@@ -746,21 +792,29 @@ public abstract class AnimationController implements IAnimation {
 	 * @param ageInTicks The current tick time
 	 * @return A new {@code KeyFrameLocation} containing the current {@code KeyFrame} and the tick time used to find it
 	 */
-	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, float ageInTicks, TransformType type) {
+	private KeyframeLocation<Keyframe> getCurrentKeyFrameLocation(List<Keyframe> frames, float ageInTicks, TransformType type, boolean isPlayerAnimatorLoop, float animTime, float returnToTick) {
 		if (frames.isEmpty())
 			return type == TransformType.SCALE ? EMPTY_SCALE_KEYFRAME_LOCATION : EMPTY_KEYFRAME_LOCATION;
 
+		Keyframe firstFrame = returnToTick == 0 ? frames.getFirst() : Keyframe.getKeyframeAtTime(frames, returnToTick);
 		float totalFrameTime = 0;
 
 		for (Keyframe frame : frames) {
 			totalFrameTime += frame.length();
 
 			if (totalFrameTime > ageInTicks) {
-				return new KeyframeLocation<>(frame, (ageInTicks - (totalFrameTime - frame.length())), totalFrameTime);
+				if (isPlayerAnimatorLoop && isLoopStarted() && frame == firstFrame) {
+					float stopTickMinusLastKeyframe = animTime - Keyframe.getLastKeyframeTime(frames);
+					return new KeyframeLocation<>(new Keyframe(frame.length() + stopTickMinusLastKeyframe, frames.getLast().endValue(), frame.endValue(), frame.easingType(), frame.easingArgs()), ageInTicks + stopTickMinusLastKeyframe);
+				}
+				return new KeyframeLocation<>(frame, (ageInTicks - (totalFrameTime - frame.length())));
 			}
 		}
 
-		return new KeyframeLocation<>(frames.getLast(), ageInTicks, totalFrameTime);
+		if (isPlayerAnimatorLoop)
+			return new KeyframeLocation<>(new Keyframe(firstFrame.length() + animTime - totalFrameTime, frames.getLast().endValue(), firstFrame.endValue(), firstFrame.easingType(), firstFrame.easingArgs()), ageInTicks - totalFrameTime);
+
+		return new KeyframeLocation<>(frames.getLast(), ageInTicks);
 	}
 
 	/**
@@ -849,6 +903,15 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	public abstract Vec3f getBonePosition(String name);
+
+	/**
+	 * PLEASE DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING.
+	 * THE {@link AnimationController#linkModifiers()} METHOD MUST BE CALLED EVERYTIME ANYTHING IN THE MODIFIER LIST IS CHANGED.
+	 */
+	@ApiStatus.Internal
+	public List<AbstractModifier> getModifiers() {
+		return modifiers;
+	}
 
 	public AnimationController addModifier(@NotNull AbstractModifier modifier, int idx) {
 		modifier.setHost(this);

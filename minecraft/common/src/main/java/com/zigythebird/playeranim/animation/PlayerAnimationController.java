@@ -4,11 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.AnimationController;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
+import com.zigythebird.playeranimcore.animation.AnimationData;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
-import com.zigythebird.playeranimcore.animation.RawAnimation;
 import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
-import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
@@ -20,11 +19,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 public class PlayerAnimationController extends AnimationController {
-    //Bone pivot point positions used to apply custom pivot point translations.
-    private static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
+    // Bone pivot point positions used to apply custom pivot point translations.
+    public static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
             "right_arm", new Vec3f(5, 22, 0),
             "left_arm", new Vec3f(-5, 22, 0),
             "left_leg", new Vec3f(-2f, 12, 0f),
@@ -36,10 +34,14 @@ public class PlayerAnimationController extends AnimationController {
             "elytra", new Vec3f(0, 24, 2)
     );
 
-    //Used for applying torso bend to bones like the head.
-    protected List<AdvancedPlayerAnimBone> top_bones;
+    // Used for applying torso bend to bones like the head.
+    protected List<String> top_bones;
 
     protected final AbstractClientPlayer player;
+    private float torsoBend;
+    private float torsoBendYPosMultiplier;
+    private float torsoBendZPosMultiplier;
+    private int torsoBendSign;
 
     /**
      * Instantiates a new {@code AnimationController}
@@ -112,35 +114,33 @@ public class PlayerAnimationController extends AnimationController {
     }
 
     public void registerTopPlayerAnimBone(String name) {
-        this.top_bones.add(this.registerPlayerAnimBone(name));
+        this.top_bones.add(name);
+        this.registerPlayerAnimBone(name);
     }
 
     @Override
-    protected Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
-        if (player == null) return null;
-        return this.player.playerAnimLib$getAnimProcessor().buildAnimationQueue(rawAnimation);
-    }
-
-    @Override
-    protected void applyCustomPivotPoints() {
-        float bend = bones.get("torso").getBend();
-        float absBend = Mth.abs(bend);
+    public void process(AnimationData state) {
+        super.process(state);
+        this.torsoBend = bones.get("torso").getBend();
+        float absBend = Mth.abs(this.torsoBend);
         if (absBend > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY) == Boolean.TRUE)) {
-            float h = -(1 - Mth.cos(absBend));
-            float i = 1 - Mth.sin(absBend);
-            int sign = Mth.sign(bend);
-            for (AdvancedPlayerAnimBone bone : top_bones) {
-                float offset = getBonePosition(bone.getName()).y() - 18;
-                this.activeBones.put(bone.getName(), bone);
-                bone.rotX += bend;
-                bone.positionZ += (offset * i - offset) * sign;
-                bone.positionY += offset * h;
-                bone.rotXEnabled = true;
-                bone.positionYEnabled = true;
-                bone.positionZEnabled = true;
-            }
+            this.torsoBendSign = Mth.sign(this.torsoBend);
+            this.torsoBendYPosMultiplier = -(1 - Mth.cos(absBend));
+            this.torsoBendZPosMultiplier = 1 - Mth.sin(absBend);
+        } else this.torsoBendSign = 0;
+    }
+
+    @Override
+    public PlayerAnimBone get3DTransformRaw(@NotNull PlayerAnimBone bone) {
+        bone = super.get3DTransformRaw(bone);
+        String name = bone.getName();
+        if (this.torsoBendSign != 0 && this.top_bones.contains(name)) {
+            float offset = getBonePosition(name).y() - 18;
+            bone.rotX += this.torsoBend;
+            bone.positionZ += (offset * this.torsoBendZPosMultiplier - offset) * this.torsoBendSign;
+            bone.positionY += offset * this.torsoBendYPosMultiplier;
         }
-        super.applyCustomPivotPoints();
+        return bone;
     }
 
     @Override

@@ -27,31 +27,37 @@ public final class AnimationBinary {
     /**
      * Version 1: Initial Release
      * Version 2: Added support for animations that don't apply the torso bend to other bones + easeBefore
+     * Version 3: No change client side, but the server won't send some animations to versions lower than 3 due to the possibility of a crash.
      */
-    public static final int CURRENT_VERSION = 2;
+    public static final int CURRENT_VERSION = 3;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
     }
 
     public static void write(ByteBuf buf, int version, Animation animation) {
+        Map<String, Object> data = animation.data().data();
+        boolean applyBendToOtherBones = (boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, false);
+        if (version < 3 && applyBendToOtherBones && animation.boneAnimations().containsKey("torso")
+                && !animation.boneAnimations().get("torso").bendKeyFrames().isEmpty()) {
+            applyBendToOtherBones = false;
+        }
         buf.writeFloat(animation.length());
-        boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(animation);
+        boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(null, animation);
         buf.writeBoolean(shouldPlayAgain);
         if (shouldPlayAgain) {
             if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
                 buf.writeBoolean(true);
             } else {
                 buf.writeBoolean(false);
-                buf.writeFloat(animation.loopType().restartFromTick(animation));
+                buf.writeFloat(animation.loopType().restartFromTick(null, animation));
             }
         }
-        Map<String, Object> data = animation.data().data();
         buf.writeByte(((AnimationFormat)data.getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB)).id);
         buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.BEGIN_TICK_KEY, Float.NaN));
         buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.END_TICK_KEY, Float.NaN));
         if (version > 1) {
-            buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, false));
+            buf.writeBoolean(applyBendToOtherBones);
             buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.EASING_BEFORE_KEY, true));
         }
         NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
@@ -172,24 +178,24 @@ public final class AnimationBinary {
         return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents);
     }
 
-    public static BoneAnimation readBoneAnimation(ByteBuf buf, boolean shouldStartFromZero) {
-        KeyframeStack rotationKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
-        KeyframeStack positionKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
-        KeyframeStack scaleKeyFrames = readKeyframeStack(buf, shouldStartFromZero);
-        List<Keyframe> bendKeyFrames = readKeyframeList(buf, shouldStartFromZero);
+    public static BoneAnimation readBoneAnimation(ByteBuf buf, boolean shouldStartFromDefault) {
+        KeyframeStack rotationKeyFrames = readKeyframeStack(buf, shouldStartFromDefault, false);
+        KeyframeStack positionKeyFrames = readKeyframeStack(buf, shouldStartFromDefault, false);
+        KeyframeStack scaleKeyFrames = readKeyframeStack(buf, shouldStartFromDefault, true);
+        List<Keyframe> bendKeyFrames = readKeyframeList(buf, shouldStartFromDefault, false);
 
         return new BoneAnimation(rotationKeyFrames, positionKeyFrames, scaleKeyFrames, bendKeyFrames);
     }
 
-    public static KeyframeStack readKeyframeStack(ByteBuf buf, boolean shouldStartFromZero) {
-        List<Keyframe> xKeyframes = readKeyframeList(buf, shouldStartFromZero);
-        List<Keyframe> yKeyframes = readKeyframeList(buf, shouldStartFromZero);
-        List<Keyframe> zKeyframes = readKeyframeList(buf, shouldStartFromZero);
+    public static KeyframeStack readKeyframeStack(ByteBuf buf, boolean shouldStartFromDefault, boolean isScale) {
+        List<Keyframe> xKeyframes = readKeyframeList(buf, shouldStartFromDefault, isScale);
+        List<Keyframe> yKeyframes = readKeyframeList(buf, shouldStartFromDefault, isScale);
+        List<Keyframe> zKeyframes = readKeyframeList(buf, shouldStartFromDefault, isScale);
 
         return new KeyframeStack(xKeyframes, yKeyframes, zKeyframes);
     }
 
-    public static List<Keyframe> readKeyframeList(ByteBuf buf, boolean shouldStartFromZero) {
+    public static List<Keyframe> readKeyframeList(ByteBuf buf, boolean shouldStartFromDefault, boolean isScale) {
         int count = VarIntUtils.readVarInt(buf);
         List<Keyframe> list = new ArrayList<>(count);
 
@@ -197,7 +203,7 @@ public final class AnimationBinary {
             float length = buf.readFloat();
 
             List<Expression> endValue = ExprBytesUtils.readExpressions(buf);
-            List<Expression> startValue = list.isEmpty() ? (shouldStartFromZero ? PlayerAnimatorLoader.ZERO : endValue) : list.getLast().endValue();
+            List<Expression> startValue = list.isEmpty() ? (shouldStartFromDefault ?(isScale ? PlayerAnimatorLoader.ONE : PlayerAnimatorLoader.ZERO) : endValue) : list.getLast().endValue();
             EasingType easingType = EasingType.fromId(buf.readByte());
             List<List<Expression>> easingArgs = ProtocolUtils.readList(buf, ExprBytesUtils::readExpressions);
 

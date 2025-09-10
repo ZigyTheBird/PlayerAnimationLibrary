@@ -71,10 +71,16 @@ public final class LegacyAnimationBinary {
      */
     public static ByteBuffer write(Animation animation, ByteBuffer buf, int version) throws BufferOverflowException {
         buf.putInt(animation.data().<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).orElse(0F).intValue());
-        buf.putInt(animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()).intValue());
+        int endTick = animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()).intValue();
+        buf.putInt(endTick);
         buf.putInt((int) animation.length());
-        putBoolean(buf, animation.loopType().shouldPlayAgain(animation));
-        buf.putInt((int)animation.loopType().restartFromTick(animation));
+        if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
+            putBoolean(buf, true);
+            buf.putInt(endTick);
+        } else {
+            putBoolean(buf, animation.loopType().shouldPlayAgain(null, animation));
+            buf.putInt((int)animation.loopType().restartFromTick(null, animation) + 1);
+        }
         boolean easeBefore = animation.data().<Boolean>get(ExtraAnimationData.EASING_BEFORE_KEY)
                 .orElse(animation.data().data().getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
         putBoolean(buf, easeBefore);
@@ -127,12 +133,13 @@ public final class LegacyAnimationBinary {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isItem = ITEM_BONE.test(name);
         boolean isBody = name.equals("body");
-        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, isBody, isItem);
+        boolean isCape = name.equals("cape");
+        writeKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, easeBefore, isBody, isItem || isCape || isBody);
         writeKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, easeBefore, isBody, isItem || !isBody);
-        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, isBody, isItem);
-        writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, easeBefore, isItem);
-        writeKeyframes(buf, isItem ? part.rotationKeyFrames().zKeyframes() : part.rotationKeyFrames().yKeyframes(), version, easeBefore, isItem);
-        writeKeyframes(buf, isItem ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), version, easeBefore, isItem);
+        writeKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, easeBefore, isBody, isItem || isBody);
+        writeKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, easeBefore, isItem || isCape || isBody);
+        writeKeyframes(buf, isItem ? part.rotationKeyFrames().zKeyframes() : part.rotationKeyFrames().yKeyframes(), version, easeBefore, isItem || isBody);
+        writeKeyframes(buf, isItem ? part.rotationKeyFrames().yKeyframes() : part.rotationKeyFrames().zKeyframes(), version, easeBefore, isItem || isCape);
         if (BEND_BONE.test(name)) {
             //Marking the no longer supported Y axis bend keyframes as non-existent
             if (version >= 2) {
@@ -227,10 +234,10 @@ public final class LegacyAnimationBinary {
         int stopTick = buf.getInt();
 
         boolean isLooped = getBoolean(buf);
-        int returnTick = buf.getInt();
+        int returnTick = Math.max(0, buf.getInt() - 1);
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if (isLooped) {
-            if (returnTick > endTick || returnTick < 0) {
+            if (returnTick > endTick) {
                 throw new IOException("The returnTick has to be a non-negative value smaller than the endTick value");
             }
             if (returnTick == 0) loopType = Animation.LoopType.LOOP;
@@ -279,20 +286,21 @@ public final class LegacyAnimationBinary {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isBody = name.equals("body");
         boolean isItem = ITEM_BONE.test(name);
-        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, isBody, isItem);
-        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize, isBody, isItem || !isBody);
-        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, isBody, isItem);
-        readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, keyframeSize, isItem);
-        readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version, keyframeSize, isItem);
-        readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize, isItem);
+        boolean isCape = name.equals("cape");
+        readKeyframes(buf, part.positionKeyFrames().xKeyframes(), def.x(), version, keyframeSize, isBody, isItem || isCape || isBody, PlayerAnimatorLoader.ZERO);
+        readKeyframes(buf, part.positionKeyFrames().yKeyframes(), def.y(), version, keyframeSize, isBody, isItem || !isBody, PlayerAnimatorLoader.ZERO);
+        readKeyframes(buf, part.positionKeyFrames().zKeyframes(), def.z(), version, keyframeSize, isBody, isItem || isBody, PlayerAnimatorLoader.ZERO);
+        readKeyframes(buf, part.rotationKeyFrames().xKeyframes(), version, keyframeSize, isItem || isCape || isBody, PlayerAnimatorLoader.ZERO);
+        readKeyframes(buf, part.rotationKeyFrames().yKeyframes(), version, keyframeSize, isItem || isBody, PlayerAnimatorLoader.ZERO);
+        readKeyframes(buf, part.rotationKeyFrames().zKeyframes(), version, keyframeSize, isItem || isCape, PlayerAnimatorLoader.ZERO);
         if (BEND_BONE.test(name)) {
-            readKeyframes(buf, new ArrayList<>(), version, keyframeSize, false); // Discarded since no Y axis bend support
-            readKeyframes(buf, part.bendKeyFrames(), version, keyframeSize, false);
+            readKeyframes(buf, new ArrayList<>(), version, keyframeSize, false, PlayerAnimatorLoader.ZERO); // Discarded since no Y axis bend support
+            readKeyframes(buf, part.bendKeyFrames(), version, keyframeSize, false, PlayerAnimatorLoader.ZERO);
         }
         if (version >= 3) {
-            readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, keyframeSize, false);
-            readKeyframes(buf, part.scaleKeyFrames().yKeyframes(), version, keyframeSize, false);
-            readKeyframes(buf, part.scaleKeyFrames().zKeyframes(), version, keyframeSize, false);
+            readKeyframes(buf, part.scaleKeyFrames().xKeyframes(), version, keyframeSize, false, PlayerAnimatorLoader.ONE);
+            readKeyframes(buf, part.scaleKeyFrames().yKeyframes(), version, keyframeSize, false, PlayerAnimatorLoader.ONE);
+            readKeyframes(buf, part.scaleKeyFrames().zKeyframes(), version, keyframeSize, false, PlayerAnimatorLoader.ONE);
         }
         if (!easeBefore) {
             PlayerAnimatorLoader.correctEasings(part.positionKeyFrames());
@@ -307,11 +315,11 @@ public final class LegacyAnimationBinary {
         return part;
     }
 
-    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, int version, int keyframeSize, boolean negate) {
-        readKeyframes(buf, part, (float) 0, version, keyframeSize, false, negate);
+    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, int version, int keyframeSize, boolean negate, List<Expression> fallback) {
+        readKeyframes(buf, part, (float) 0, version, keyframeSize, false, negate, fallback);
     }
 
-    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, float def, int version, int keyframeSize, boolean mul, boolean negate) {
+    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, float def, int version, int keyframeSize, boolean mul, boolean negate, List<Expression> fallback) {
         int length;
         boolean enabled;
         if (version >= 2) {
@@ -351,7 +359,7 @@ public final class LegacyAnimationBinary {
                 }
             }
 
-            part.add(new Keyframe(keyframeLength, prevKeyframe == null ? PlayerAnimatorLoader.ZERO : prevKeyframe.endValue(), expression, easingType,
+            part.add(new Keyframe(keyframeLength, prevKeyframe == null ? fallback : prevKeyframe.endValue(), expression, easingType,
                     easingArg == null ? Collections.singletonList(Collections.emptyList()) :
                             Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)))));
             buf.position(currentPos + keyframeSize);

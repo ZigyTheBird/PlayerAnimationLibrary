@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -112,5 +113,10 @@ public record ExtraAnimationData(Map<String, Object> data) {
 
     public boolean isAnimationPlayerAnimatorFormat() {
         return this.<AnimationFormat>get(ExtraAnimationData.FORMAT_KEY).orElse(null) == AnimationFormat.PLAYER_ANIMATOR;
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return this.data.toString();
     }
 }

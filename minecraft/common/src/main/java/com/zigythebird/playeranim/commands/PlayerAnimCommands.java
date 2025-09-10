@@ -54,7 +54,7 @@ public class PlayerAnimCommands {
     private static int executeLegacy(CommandContext<CommandSourceStack> context) {
         Animation animation = PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID"));
 
-        ByteBuffer byteBuffer = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation));
+        ByteBuffer byteBuffer = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation, 1));
         LegacyAnimationBinary.write(animation, byteBuffer, 1);
         byteBuffer.flip();
 
