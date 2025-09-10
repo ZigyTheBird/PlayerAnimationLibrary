@@ -1,1 +1,1 @@
-Fixed a bug with animations using the body/torso bone.
+Fixed bugs with the body bone while playing Blockbench format animations.
