@@ -1,0 +1,58 @@
+{
+    "version": 3,
+    "name": "axis_test_body_blender",
+    "author": "MineEmotes",
+    "description": "",
+    "comment": "Comission",
+    "bages": [],
+    "emote": {
+        "endTick": 80,
+        "isLoop": true,
+        "returnTick": 0,
+        "degrees": false,
+        "easeBeforeKeyframe": false,
+        "nsfw": false,
+        "moves": [
+            {
+                "tick": 0,
+                "body": {
+                    "pitch": 0.0,
+                    "roll": -0.0,
+                    "yaw": -0.0
+                }
+            },
+            {
+                "tick": 20,
+                "body": {
+                    "pitch": 0.0,
+					"roll": -0.0,
+					"yaw": -6.283
+                }
+            },
+            {
+                "tick": 40,
+                "body": {
+                    "pitch": 6.283,
+					"roll": -0.0,
+					"yaw": -6.283
+                }
+            },
+            {
+                "tick": 60,
+                "body": {
+                    "pitch": 0.0,
+                    "roll": -0.0,
+					"yaw": -6.283
+                }
+            },
+            {
+                "tick": 80,
+                "body": {
+                    "pitch": -0.0,
+                    "roll": -6.283,
+                    "yaw": -6.283
+                }
+            }
+        ]
+    }
+}

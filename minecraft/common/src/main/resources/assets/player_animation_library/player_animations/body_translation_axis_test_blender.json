@@ -1,0 +1,70 @@
+{
+    "version": 3,
+    "name": "body_translation_axis_test_blender",
+    "author": "MineEmotes",
+    "description": "",
+    "comment": "Comission",
+    "bages": [],
+    "emote": {
+        "endTick": 90,
+        "isLoop": true,
+        "returnTick": 0,
+        "degrees": false,
+        "easeBeforeKeyframe": false,
+        "nsfw": false,
+        "moves": [
+            {
+                "tick": 0,
+                "body": {
+                    "x": 0.0,
+                    "z": 0.0,
+                    "y": 0.0
+                }
+            },
+            {
+                "tick": 15,
+                "body": {
+                    "z": 0.403
+                }
+            },
+            {
+                "tick": 30,
+                "body": {
+                    "z": 0.0,
+                    "y": 0.0
+                }
+            },
+            {
+                "tick": 45,
+                "body": {
+                    "z": 0.0,
+                    "y": -0.466
+                }
+            },
+            {
+                "tick": 60,
+                "body": {
+                    "x": 0.0,
+                    "z": 0.0,
+                    "y": 0.0
+                }
+            },
+            {
+                "tick": 75,
+                "body": {
+                    "x": -0.522,
+                    "z": 0.0,
+                    "y": 0.0
+                }
+            },
+            {
+                "tick": 90,
+                "body": {
+                    "x": 0.0,
+                    "z": 0.0,
+                    "y": 0.0
+                }
+            }
+        ]
+    }
+}

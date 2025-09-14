@@ -100,15 +100,15 @@ public final class AnimationBinary {
     }
 
     public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone, boolean isBody) {
-        writeKeyframeStack(buf, bone.rotationKeyFrames(), isBody, TransformType.POSITION);
-        writeKeyframeStack(buf, bone.positionKeyFrames(), isBody, TransformType.ROTATION);
+        writeKeyframeStack(buf, bone.rotationKeyFrames(), isBody, TransformType.ROTATION);
+        writeKeyframeStack(buf, bone.positionKeyFrames(), isBody, TransformType.POSITION);
         writeKeyframeStack(buf, bone.scaleKeyFrames(), false, TransformType.SCALE);
         ProtocolUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
     }
 
     public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack, boolean isBody, TransformType type) {
-        ProtocolUtils.writeList(buf, isBody ? fixBodyKeyframeExpressionsWrite(stack.xKeyframes()) : stack.xKeyframes(), AnimationBinary::writeKeyframe);
-        ProtocolUtils.writeList(buf, isBody && type == TransformType.ROTATION ? fixBodyKeyframeExpressionsWrite(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, isBody ? fixBodyKeyframes(stack.xKeyframes()) : stack.xKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, isBody && type == TransformType.ROTATION ? fixBodyKeyframes(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
         ProtocolUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
     }
 
@@ -153,9 +153,9 @@ public final class AnimationBinary {
 
         if (version < 4 && boneAnimations.containsKey("body")) {
             BoneAnimation body = boneAnimations.get("body");
-            body.positionKeyFrames().xKeyframes().forEach(AnimationBinary::fixBodyKeyframeExpressions);
-            body.rotationKeyFrames().xKeyframes().forEach(AnimationBinary::fixBodyKeyframeExpressions);
-            body.rotationKeyFrames().yKeyframes().forEach(AnimationBinary::fixBodyKeyframeExpressions);
+            body.positionKeyFrames().xKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
+            body.rotationKeyFrames().xKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
+            body.rotationKeyFrames().yKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
         }
 
         // Sounds
@@ -229,22 +229,17 @@ public final class AnimationBinary {
         return list;
     }
 
-    public static List<Keyframe> fixBodyKeyframeExpressionsWrite(List<Keyframe> keyframes) {
+    public static List<Keyframe> fixBodyKeyframes(List<Keyframe> keyframes) {
         keyframes = new ArrayList<>(keyframes);
-        keyframes.replaceAll(AnimationBinary::fixBodyKeyframeExpressionsWrite);
+        keyframes.replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
         return keyframes;
     }
 
-    public static Keyframe fixBodyKeyframeExpressionsWrite(Keyframe keyframe) {
+    public static Keyframe fixBodyKeyframeExpressions(Keyframe keyframe) {
         keyframe = new Keyframe(keyframe.length(), new ArrayList<>(keyframe.startValue()), new ArrayList<>(keyframe.endValue()), keyframe.easingType(), keyframe.easingArgs());
         fixBodyKeyframeExpressions(keyframe.startValue());
         fixBodyKeyframeExpressions(keyframe.endValue());
         return keyframe;
-    }
-
-    public static void fixBodyKeyframeExpressions(Keyframe keyframe) {
-        fixBodyKeyframeExpressions(keyframe.startValue());
-        fixBodyKeyframeExpressions(keyframe.endValue());
     }
 
     public static void fixBodyKeyframeExpressions(List<Expression> expressions) {
