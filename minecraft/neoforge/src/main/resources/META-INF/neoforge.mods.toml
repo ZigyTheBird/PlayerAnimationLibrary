@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
+loaderVersion = "*"
 issueTrackerURL = "https://github.com/ZigyTheBird/PlayerAnimationLibrary/issues"
 license = "MIT License"
 
@@ -25,7 +25,7 @@ side = "BOTH"
 [[dependencies.player_animation_library]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.6,)"
+versionRange = "[1.21.7,)"
 ordering = "NONE"
 side = "BOTH"
 
