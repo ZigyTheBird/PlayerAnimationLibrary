@@ -25,8 +25,8 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
@@ -84,9 +84,6 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "RETURN"))
     private void setupPlayerAnimation(AvatarRenderState avatarRenderState, CallbackInfo ci) {
         if (avatarRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
-            ((IMutableModel)this).playerAnimLib$setAnimation(emote);
-
             RenderUtil.copyVanillaPart(this.head, pal$head);
             RenderUtil.copyVanillaPart(this.body, pal$torso);
             RenderUtil.copyVanillaPart(this.rightArm, pal$rightArm);
@@ -94,15 +91,13 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
             RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
             RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
 
+            PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
             emote.updatePart(this.head, pal$head);
             emote.updatePart(this.rightArm, pal$rightArm);
             emote.updatePart(this.leftArm, pal$leftArm);
             emote.updatePart(this.rightLeg, pal$rightLeg);
             emote.updatePart(this.leftLeg, pal$leftLeg);
             emote.updatePart(this.body, pal$torso);
-        }
-        else {
-            ((IMutableModel)this).playerAnimLib$setAnimation(null);
         }
 
         if (FirstPersonMode.isFirstPersonPass() && avatarRenderState instanceof IPlayerAnimationState state
@@ -140,8 +135,8 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
     }
 
     @WrapWithCondition(method = "translateToHand(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
-    private boolean translateToHand(ModelPart modelPart, PoseStack poseStack) {
-        if (((IMutableModel)this).playerAnimLib$getAnimation() != null && ((IMutableModel)this).playerAnimLib$getAnimation().isActive()) {
+    private boolean translateToHand(ModelPart modelPart, PoseStack poseStack, @Local(argsOnly = true) AvatarRenderState avatarRenderState) {
+        if (avatarRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager().isActive()) {
             poseStack.translate(modelPart.x / 16.0F, modelPart.y / 16.0F, modelPart.z / 16.0F);
             if (modelPart.xRot != 0.0F || modelPart.yRot != 0.0F || modelPart.zRot != 0.0F) {
                 RenderUtil.rotateZYX(poseStack.last(), modelPart.zRot, modelPart.yRot, modelPart.xRot);

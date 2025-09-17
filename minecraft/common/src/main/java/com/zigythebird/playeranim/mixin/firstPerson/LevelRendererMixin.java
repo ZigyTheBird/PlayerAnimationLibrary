@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelRenderer.class)
-public class LevelRendererMixin {
+public class LevelRendererMixin { // TODO 1.21.9 cause bytecode crash
     /*@ModifyExpressionValue(method = "extractVisibleEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z"))
     private boolean fakeThirdPersonMode(boolean original, @Local(argsOnly = true) Camera camera) {
         if (camera.getEntity() instanceof IAnimatedPlayer player && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL) {
