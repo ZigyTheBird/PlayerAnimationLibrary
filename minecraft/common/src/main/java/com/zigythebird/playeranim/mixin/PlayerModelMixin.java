@@ -36,7 +36,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -47,7 +47,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Function;
 
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
-public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
+public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
     @Unique
     private final PlayerAnimBone pal$head = new PlayerAnimBone("head");
     @Unique
@@ -76,14 +76,14 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
         this.leftLeg.resetPose();
     }
 
-    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "HEAD"))
-    private void setDefaultBeforeRender(PlayerRenderState playerRenderState, CallbackInfo ci){
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "HEAD"))
+    private void setDefaultBeforeRender(AvatarRenderState avatarRenderState, CallbackInfo ci){
         playerAnimLib$setToInitialPose(); //to not make everything wrong
     }
 
-    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "RETURN"))
-    private void setupPlayerAnimation(PlayerRenderState playerRenderState, CallbackInfo ci) {
-        if (playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "RETURN"))
+    private void setupPlayerAnimation(AvatarRenderState avatarRenderState, CallbackInfo ci) {
+        if (avatarRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
             ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
@@ -105,7 +105,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
             ((IMutableModel)this).playerAnimLib$setAnimation(null);
         }
 
-        if (FirstPersonMode.isFirstPersonPass() && playerRenderState instanceof IPlayerAnimationState state
+        if (FirstPersonMode.isFirstPersonPass() && avatarRenderState instanceof IPlayerAnimationState state
                 && state.playerAnimLib$isCameraEntity()) {
             var config = state.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
             // Hiding all parts, because they should not be visible in first person
@@ -139,7 +139,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
         //this.jacket.visible = visible;
     }
 
-    @WrapWithCondition(method = "translateToHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
+    @WrapWithCondition(method = "translateToHand(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
     private boolean translateToHand(ModelPart modelPart, PoseStack poseStack) {
         if (((IMutableModel)this).playerAnimLib$getAnimation() != null && ((IMutableModel)this).playerAnimLib$getAnimation().isActive()) {
             poseStack.translate(modelPart.x / 16.0F, modelPart.y / 16.0F, modelPart.z / 16.0F);

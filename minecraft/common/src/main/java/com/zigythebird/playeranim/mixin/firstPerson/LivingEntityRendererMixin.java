@@ -28,7 +28,7 @@ import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,10 +43,10 @@ public class LivingEntityRendererMixin {
     @Shadow @Final protected List<Object> layers;
 
     @Redirect(
-            method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
     at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;layers:Ljava/util/List;", opcode = Opcodes.GETFIELD))
     private List<Object> filterLayers(LivingEntityRenderer instance) {
-        if (instance instanceof PlayerRenderer && FirstPersonMode.isFirstPersonPass()) {
+        if (instance instanceof AvatarRenderer && FirstPersonMode.isFirstPersonPass()) {
             return layers.stream().filter(layer -> layer instanceof PlayerItemInHandLayer || layer instanceof HumanoidArmorLayer<?,?,?>).toList();
         } else return layers;
     }

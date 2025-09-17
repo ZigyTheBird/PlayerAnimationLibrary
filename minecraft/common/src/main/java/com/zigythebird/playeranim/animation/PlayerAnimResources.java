@@ -97,7 +97,8 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	}
 
 	@Override
-	public @NotNull CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager manager, Executor backgroundExecutor, Executor gameExecutor) {
-		return CompletableFuture.runAsync(() -> onResourceManagerReload(manager), backgroundExecutor).thenCompose(barrier::wait);
+	public @NotNull CompletableFuture<Void> reload(SharedState sharedState, Executor backgroundExecutor, PreparationBarrier barrier, Executor gameExecutor) {
+        ResourceManager manager = sharedState.resourceManager();
+        return CompletableFuture.runAsync(() -> onResourceManagerReload(manager), backgroundExecutor).thenCompose(barrier::wait);
 	}
 }

@@ -56,8 +56,8 @@ public abstract class HumanoidModelMixin<T extends HumanoidRenderState> extends 
         return this.playerAnimLib$animation;
     }
 
-    @Inject(method = "copyPropertiesTo", at = @At("RETURN"))
+    /*@Inject(method = "copyPropertiesTo", at = @At("RETURN")) TODO
     private void copyMutatedAttributes(HumanoidModel<T> bipedEntityModel, CallbackInfo ci){
         ((IMutableModel) bipedEntityModel).playerAnimLib$setAnimation(playerAnimLib$animation);
-    }
+    }*/
 }

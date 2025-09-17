@@ -3,13 +3,13 @@ package com.zigythebird.playeranim.mixin;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranimcore.animation.AnimationProcessor;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(PlayerRenderState.class)
-public class PlayerRenderStateMixin implements IPlayerAnimationState {
+@Mixin(AvatarRenderState.class)
+public class AvatarRenderStateMixin implements IPlayerAnimationState {
     @Unique
     boolean playerAnimLib$isCameraEntity = false;
 
