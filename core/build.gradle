@@ -1,7 +1,10 @@
 apply plugin: "java-library"
 
 dependencies {
-    implementation api("com.zigythebird:mochafloats:$rootProject.molang_version")
+    implementation api("com.zigythebird:mochafloats:$rootProject.molang_version") {
+        transitive = false
+    }
+    implementation api("org.javassist:javassist:$rootProject.javassist_version")
 
     // Minecraft libs
     implementation api("com.google.code.gson:gson:2.11.0")
