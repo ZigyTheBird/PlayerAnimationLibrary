@@ -62,7 +62,8 @@ public class MolangLoader {
 
     public static MochaEngine<?> createNewEngine() {
         MochaEngine<?> engine = MochaEngine.createStandard();
-        engine.handleParseExceptions(MolangLoader.HANDLER);;
+        engine.handleParseExceptions(MolangLoader.HANDLER);
+        engine.warnOnReflectiveFunctionUsage(true);
         return engine;
     }
 
