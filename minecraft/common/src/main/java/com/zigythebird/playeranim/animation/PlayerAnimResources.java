@@ -31,8 +31,18 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	 * @return animation, <code>null</code> if no animation
 	 */
 	public static @Nullable Animation getAnimation(ResourceLocation id) {
-		if (!ANIMATIONS.containsKey(id)) return null;
-		return ANIMATIONS.get(id);
+		return ANIMATIONS.getOrDefault(id, null);
+	}
+
+	/**
+	 * Get the ID of an animation from the registry.
+	 * @return id, <code>null</code> if no id
+	 */
+	public static @Nullable ResourceLocation getAnimationID(Animation animation) {
+		for (Map.Entry<ResourceLocation, Animation> entry : ANIMATIONS.entrySet()) {
+			if (entry.getValue() == animation) return entry.getKey();
+		}
+		return null;
 	}
 
 	/**
