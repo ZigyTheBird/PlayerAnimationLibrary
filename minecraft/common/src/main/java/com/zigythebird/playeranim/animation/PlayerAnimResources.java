@@ -1,10 +1,11 @@
 package com.zigythebird.playeranim.animation;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -24,15 +25,22 @@ import java.util.concurrent.Executor;
  */
 public class PlayerAnimResources implements ResourceManagerReloadListener {
 	public static final ResourceLocation KEY = PlayerAnimLibMod.id("animation");
-	private static final Map<ResourceLocation, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
+	private static final BiMap<ResourceLocation, Animation> ANIMATIONS = HashBiMap.create();
 
 	/**
 	 * Get an animation from the registry, using Identifier(mod_id, animation_name) as the key.
 	 * @return animation, <code>null</code> if no animation
 	 */
 	public static @Nullable Animation getAnimation(ResourceLocation id) {
-		if (!ANIMATIONS.containsKey(id)) return null;
-		return ANIMATIONS.get(id);
+		return ANIMATIONS.getOrDefault(id, null);
+	}
+
+	/**
+	 * Get the ID of an animation from the registry.
+	 * @return id, <code>null</code> if no id
+	 */
+	public static @Nullable ResourceLocation getAnimationID(Animation animation) {
+		return ANIMATIONS.inverse().getOrDefault(animation, null);
 	}
 
 	/**

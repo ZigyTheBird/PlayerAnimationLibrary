@@ -1,1 +1,1 @@
-Fixed bugs with the body bone while playing Blockbench format animations.
+You can now get an animation's ID from the PlayerAnimResources class.
