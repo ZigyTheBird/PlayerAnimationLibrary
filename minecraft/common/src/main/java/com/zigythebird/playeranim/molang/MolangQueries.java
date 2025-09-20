@@ -87,11 +87,11 @@ public final class MolangQueries {
     public static final String YAW_SPEED = "yaw_speed";
 
     public static void setDefaultQueryValues(ObjectValue binding) {
-        MolangLoader.setDoubleQuery(binding, ACTOR_COUNT, actor -> Minecraft.getInstance().levelRenderer.visibleEntityCount);
+        MolangLoader.setDoubleQuery(binding, ACTOR_COUNT, actor -> Minecraft.getInstance().levelRenderer.levelRenderState.entityRenderStates.size());
         MolangLoader.setDoubleQuery(binding, CARDINAL_PLAYER_FACING, actor -> ((PlayerAnimationController) actor).getPlayer().getDirection().ordinal());
         MolangLoader.setDoubleQuery(binding, DAY, actor -> ((PlayerAnimationController) actor).getPlayer().level().getGameTime() / 24000d);
         MolangLoader.setDoubleQuery(binding, FRAME_ALPHA, actor -> actor.getAnimationData().getPartialTick());
-        MolangLoader.setBoolQuery(binding, HAS_CAPE, actor -> ((PlayerAnimationController) actor).getPlayer().getSkin().capeTexture() != null);
+        MolangLoader.setBoolQuery(binding, HAS_CAPE, actor -> ((PlayerAnimationController) actor).getPlayer().getSkin().cape() != null);
         MolangLoader.setBoolQuery(binding, IS_FIRST_PERSON, actor -> ((PlayerAnimationController) actor).getPlayer().isLocalPlayer() && Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON);
         MolangLoader.setDoubleQuery(binding, LIFE_TIME, actor -> actor.isActive() ? actor.getAnimationTime() : 0);
         MolangLoader.setDoubleQuery(binding, MOON_BRIGHTNESS, actor -> ((PlayerAnimationController) actor).getPlayer().level().getMoonBrightness());
