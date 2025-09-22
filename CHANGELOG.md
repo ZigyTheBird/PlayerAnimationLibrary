@@ -1,1 +1,1 @@
-You can now get an animation's ID from the PlayerAnimResources class.
+Tiny player animator format fixes.
