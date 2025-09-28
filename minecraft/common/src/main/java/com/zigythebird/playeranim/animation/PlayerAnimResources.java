@@ -31,7 +31,6 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	 * @return animation, <code>null</code> if no animation
 	 */
 	public static @Nullable Animation getAnimation(ResourceLocation id) {
-		if (!ANIMATIONS.containsKey(id)) return null;
 		return ANIMATIONS.get(id);
 	}
 

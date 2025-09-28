@@ -307,10 +307,10 @@ public final class LegacyAnimationBinary {
             PlayerAnimatorLoader.correctEasings(part.rotationKeyFrames());
             PlayerAnimatorLoader.correctEasings(part.scaleKeyFrames());
             PlayerAnimatorLoader.correctEasings(part.bendKeyFrames());
-            if (isItem) {
-                PlayerAnimatorLoader.swapTheZYAxis(part.positionKeyFrames());
-                PlayerAnimatorLoader.swapTheZYAxis(part.rotationKeyFrames());
-            }
+        }
+        if (isItem) {
+            PlayerAnimatorLoader.swapTheZYAxis(part.positionKeyFrames());
+            PlayerAnimatorLoader.swapTheZYAxis(part.rotationKeyFrames());
         }
         return part;
     }
