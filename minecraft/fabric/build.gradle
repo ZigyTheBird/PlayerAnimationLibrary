@@ -24,9 +24,9 @@ dependencies {
 
     // Fabric API
     modImplementation fabricApi.module("fabric-command-api-v2", rootProject.fabric_api_version)
-    modImplementation fabricApi.module("fabric-resource-loader-v0", rootProject.fabric_api_version)
+    modImplementation fabricApi.module("fabric-resource-loader-v1", rootProject.fabric_api_version)
 
-    implementation shadowCommon("com.zigythebird:mochafloats:$rootProject.molang_version") {
+    implementation include("com.zigythebird:mochafloats:$rootProject.molang_version") {
         transitive = false
     }
     modRuntimeOnly include("org.javassist:javassist:$rootProject.javassist_version")
@@ -39,8 +39,6 @@ dependencies {
 shadowJar {
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = 'dev-shadow'
-
-    relocate 'team.unnamed.mocha', 'com.zigythebird.playeranim.lib.mochafloats'
     mergeServiceFiles()
 }
 

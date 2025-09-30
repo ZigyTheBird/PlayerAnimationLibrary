@@ -22,7 +22,7 @@ configurations {
 dependencies {
     neoForge "net.neoforged:neoforge:$rootProject.neoforge_version"
 
-    implementation forgeRuntimeLibrary(shadowCommon("com.zigythebird:mochafloats:$rootProject.molang_version")) {
+    implementation forgeRuntimeLibrary(include("com.zigythebird:mochafloats:$rootProject.molang_version")) {
         transitive = false
     }
     modRuntimeOnly forgeRuntimeLibrary(include("org.javassist:javassist:$rootProject.javassist_version"))
@@ -39,7 +39,6 @@ shadowJar {
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set "dev-shadow"
 
-    relocate 'team.unnamed.mocha', 'com.zigythebird.playeranim.lib.mochafloats'
     mergeServiceFiles()
 }
 
