@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 public final class PlayerAnimLibModNeo extends PlayerAnimLibMod {
     public PlayerAnimLibModNeo(IEventBus bus) {
         bus.addListener(this::onAddClientReloadListeners);
-        if (!FMLLoader.isProduction() || ModList.get().getModFileById(PlayerAnimLibMod.MOD_ID).versionString().contains("dev"))
+        if (!FMLLoader.getCurrent().isProduction() || ModList.get().getModFileById(PlayerAnimLibMod.MOD_ID).versionString().contains("dev"))
             NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
 
         super.init();
