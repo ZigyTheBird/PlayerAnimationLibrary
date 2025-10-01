@@ -1,1 +1,1 @@
-Some fixes
+Fixed crash on startup while player animator is present.

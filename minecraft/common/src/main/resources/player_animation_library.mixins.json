@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "com.zigythebird.playeranim.mixin",
+  "plugin": "com.zigythebird.playeranim.ModMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
@@ -18,7 +19,7 @@
     "firstPerson.EntityRenderDispatcherMixin",
     "firstPerson.ItemInHandRendererMixin",
     "firstPerson.LevelRendererMixin",
-    "firstPerson.LivingEntityRendererMixin"
+    "firstPerson.LivingEntityRendererMixin_noPA"
   ],
   "mixins": [],
   "injectors": {
