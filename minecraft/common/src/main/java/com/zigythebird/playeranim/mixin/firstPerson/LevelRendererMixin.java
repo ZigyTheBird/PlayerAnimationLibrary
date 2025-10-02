@@ -27,8 +27,8 @@ package com.zigythebird.playeranim.mixin.firstPerson;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
+import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
+import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -45,7 +45,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LevelRendererMixin {
     @ModifyExpressionValue(method = "extractVisibleEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z"))
     private boolean fakeThirdPersonMode(boolean original, @Local(argsOnly = true) Camera camera) {
-        if (camera.getEntity() instanceof IAnimatedPlayer player && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL) {
+        if (camera.getEntity() instanceof IAnimatedAvatar player && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL) {
             FirstPersonMode.setFirstPersonPass(!camera.isDetached() && (!(camera.getEntity() instanceof LivingEntity) || !((LivingEntity)camera.getEntity()).isSleeping())); // this will cause a lot of pain
             return true;
         }
@@ -54,7 +54,7 @@ public class LevelRendererMixin {
 
     @Inject(method = "submitEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;submit(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lnet/minecraft/client/renderer/state/CameraRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;)V"))
     private void dontRenderEntity_End(PoseStack matrices, LevelRenderState levelRenderState, SubmitNodeCollector submitNodeCollector, CallbackInfo ci, @Local EntityRenderState entityRenderState) {
-        if (entityRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$isCameraEntity()) {
+        if (entityRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$isCameraEntity()) {
             FirstPersonMode.setFirstPersonPass(false); // Unmark this render cycle
         }
     }

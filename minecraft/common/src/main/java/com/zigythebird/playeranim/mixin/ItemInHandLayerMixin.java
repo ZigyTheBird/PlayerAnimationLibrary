@@ -26,8 +26,8 @@ package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
+import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
@@ -49,8 +49,8 @@ public class ItemInHandLayerMixin {
 
     @Inject(method = "submitArmWithItem", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionfc;)V", ordinal = 0))
     private void changeItemLocation(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, HumanoidArm arm, PoseStack matrices, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
-        if (renderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
+        if (renderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
+            AvatarAnimManager anim = state.playerAnimLib$getAnimManager();
             if (anim == null) return;
             PlayerAnimBone bone;
 
@@ -66,8 +66,8 @@ public class ItemInHandLayerMixin {
 
     @Inject(method = "submitArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V"))
     private void changeItemRotationAndScale(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, CallbackInfo ci) {
-        if (renderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            PlayerAnimManager anim = state.playerAnimLib$getAnimManager();
+        if (renderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
+            AvatarAnimManager anim = state.playerAnimLib$getAnimManager();
             if (anim == null) return;
             PlayerAnimBone bone;
 

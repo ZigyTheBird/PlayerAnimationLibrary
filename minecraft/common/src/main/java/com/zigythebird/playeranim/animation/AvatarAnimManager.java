@@ -5,7 +5,6 @@ import com.zigythebird.playeranimcore.animation.layered.AnimationStack;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.player.AbstractClientPlayer;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -13,16 +12,10 @@ import org.jetbrains.annotations.ApiStatus;
  * <p>
  * Generally speaking, a single working-instance of a player will have a single instance of {@code PlayerAnimManager} associated with it
  */
-public class PlayerAnimManager extends AnimationStack {
-	private final AbstractClientPlayer player;
-
+public class AvatarAnimManager extends AnimationStack {
 	private float lastUpdateTime;
 	private boolean isFirstTick = true;
 	private float tickDelta;
-
-	public PlayerAnimManager(AbstractClientPlayer player) {
-		this.player = player;
-	}
 
 	public float getLastUpdateTime() {
 		return this.lastUpdateTime;
@@ -50,10 +43,6 @@ public class PlayerAnimManager extends AnimationStack {
 	@ApiStatus.Internal
 	public void setTickDelta(float tickDelta) {
 		this.tickDelta = tickDelta;
-	}
-
-	public AbstractClientPlayer getPlayer() {
-		return player;
 	}
 
 	public void updatePart(ModelPart part, PlayerAnimBone bone) {
