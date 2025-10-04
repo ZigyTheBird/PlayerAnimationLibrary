@@ -1,3 +1,5 @@
+import org.apache.commons.lang3.StringUtils
+
 plugins {
     id "dev.architectury.loom" version "1.11-SNAPSHOT" apply false
     id "architectury-plugin" version "3.4-SNAPSHOT" apply false
@@ -8,8 +10,8 @@ allprojects {
     apply plugin: "java"
     apply plugin: "maven-publish"
 
-    base.archivesName = rootProject.archives_base_name
-    version = "${rootProject.mod_version}+mc${rootProject.minecraft_version}"
+    base.archivesName = "${rootProject.archives_base_name}${StringUtils.capitalize(project.name)}"
+    version = "${rootProject.mod_version}+mc.${rootProject.minecraft_version}"
     group = rootProject.maven_group
 
     repositories {
