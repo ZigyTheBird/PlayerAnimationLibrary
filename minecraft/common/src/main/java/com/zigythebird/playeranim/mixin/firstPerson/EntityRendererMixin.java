@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.mixin.firstPerson;
 
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
+import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EntityRendererMixin {
     @Inject(method = "extractShadow", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderer;getShadowRadius(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;)F"), cancellable = true)
     private static void renderShadow_HEAD_PlayerAnimator(EntityRenderState entityRenderState, Minecraft minecraft, Level level, CallbackInfo ci) {
-        if (entityRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$isCameraEntity() && FirstPersonMode.isFirstPersonPass()) {
+        if (entityRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$isCameraEntity() && FirstPersonMode.isFirstPersonPass()) {
             // Shadow doesn't render in first person,
             // so we don't want to make it appear during first person animation
             ci.cancel();

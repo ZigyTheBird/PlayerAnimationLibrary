@@ -25,7 +25,7 @@
 package com.zigythebird.playeranim.mixin.firstPerson;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
+import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -43,7 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ItemInHandRendererMixin {
     @Inject(method = "renderHandsWithItems", at = @At("HEAD"), cancellable = true)
     private void disableDefaultItemIfNeeded(float f, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LocalPlayer localPlayer, int i, CallbackInfo ci) {
-        if (localPlayer instanceof IAnimatedPlayer player && (player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL)) {
+        if (localPlayer instanceof IAnimatedAvatar player && (player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL)) {
                 ci.cancel();
         }
     }
@@ -60,7 +60,7 @@ public class ItemInHandRendererMixin {
         if (entity != Minecraft.getInstance().getCameraEntity()) {
             return;
         }
-        if (FirstPersonMode.isFirstPersonPass() && entity instanceof IAnimatedPlayer player) {
+        if (FirstPersonMode.isFirstPersonPass() && entity instanceof IAnimatedAvatar player) {
             var config = player.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
             if (transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND) {
                 if (!config.isShowRightItem()) {

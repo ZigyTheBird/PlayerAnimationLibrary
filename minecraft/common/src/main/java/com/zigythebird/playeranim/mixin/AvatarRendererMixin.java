@@ -24,9 +24,9 @@
 
 package com.zigythebird.playeranim.mixin;
 
-import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
+import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
+import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -48,13 +48,13 @@ public abstract class AvatarRendererMixin extends LivingEntityRenderer<AbstractC
 
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("HEAD"))
     private void modifyRenderState(Avatar avatar, AvatarRenderState avatarRenderState, float f, CallbackInfo ci) {
-        if (avatar instanceof IAnimatedPlayer abstractClientPlayer) {
-            PlayerAnimManager animation = abstractClientPlayer.playerAnimLib$getAnimManager();
+        if (avatar instanceof IAnimatedAvatar abstractClientPlayer) {
+            AvatarAnimManager animation = abstractClientPlayer.playerAnimLib$getAnimManager();
             animation.setTickDelta(f);
 
-            ((IPlayerAnimationState)avatarRenderState).playerAnimLib$setAnimProcessor(abstractClientPlayer.playerAnimLib$getAnimProcessor());
-            ((IPlayerAnimationState)avatarRenderState).playerAnimLib$setAnimManager(animation);
-            ((IPlayerAnimationState)avatarRenderState).playerAnimLib$setCameraEntity(avatar == Minecraft.getInstance().getCameraEntity());
+            ((IAvatarAnimationState)avatarRenderState).playerAnimLib$setAnimProcessor(abstractClientPlayer.playerAnimLib$getAnimProcessor());
+            ((IAvatarAnimationState)avatarRenderState).playerAnimLib$setAnimManager(animation);
+            ((IAvatarAnimationState)avatarRenderState).playerAnimLib$setCameraEntity(avatar == Minecraft.getInstance().getCameraEntity());
         }
     }
 }

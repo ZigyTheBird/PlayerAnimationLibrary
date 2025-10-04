@@ -1,8 +1,8 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
+import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.EntityModel;
@@ -25,8 +25,8 @@ public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends 
 
     @Inject(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer;renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/resources/ResourceLocation;II)V"))
     private void inject(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, S humanoidRenderState, float f, float g, CallbackInfo ci) {
-        if (humanoidRenderState instanceof IPlayerAnimationState animationState) {
-            PlayerAnimManager emote = animationState.playerAnimLib$getAnimManager();
+        if (humanoidRenderState instanceof IAvatarAnimationState animationState) {
+            AvatarAnimManager emote = animationState.playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive() && this.renderer instanceof AvatarRenderer<?> playerRenderer) {
                 playerRenderer.getModel().body.translateAndRotate(poseStack);
                 poseStack.translate(0, 0, 0.125);

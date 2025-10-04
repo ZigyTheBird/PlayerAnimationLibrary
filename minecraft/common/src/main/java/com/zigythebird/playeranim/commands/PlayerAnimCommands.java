@@ -19,7 +19,9 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Avatar;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,6 +49,14 @@ public class PlayerAnimCommands {
                         .suggests(new AnimationArgumentProvider<>())
                         .then(Commands.argument("version", IntegerArgumentType.integer(1, AnimationBinary.CURRENT_VERSION))
                                 .executes(PlayerAnimCommands::executeBinary)
+                        )
+                )
+        );
+        dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testMannequin")
+                .then(Commands.argument("animationID", ResourceLocationArgument.id())
+                        .suggests(new AnimationArgumentProvider<>())
+                        .then(Commands.argument("mannequin", UuidArgument.uuid())
+                                .executes(PlayerAnimCommands::executeMannequin)
                         )
                 )
         );
@@ -85,6 +95,18 @@ public class PlayerAnimCommands {
     private static int playAnimation(Animation animation) {
         AnimationController controller = (AnimationController) PlayerAnimationAccess.getPlayerAnimationLayer(
                 Objects.requireNonNull(Minecraft.getInstance().player), PlayerAnimLibMod.ANIMATION_LAYER_ID
+        );
+        if (controller == null) return 0;
+        controller.triggerAnimation(RawAnimation.begin().thenPlay(animation));
+        return 1;
+    }
+
+    private static int executeMannequin(CommandContext<CommandSourceStack> context) {
+        Animation animation = Objects.requireNonNull(PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID")));
+        Avatar avatar = (Avatar) Objects.requireNonNull(Minecraft.getInstance().level.getEntity(UuidArgument.getUuid(context, "mannequin")));
+
+        AnimationController controller = (AnimationController) PlayerAnimationAccess.getPlayerAnimationLayer(
+                avatar, PlayerAnimLibMod.ANIMATION_LAYER_ID
         );
         if (controller == null) return 0;
         controller.triggerAnimation(RawAnimation.begin().thenPlay(animation));

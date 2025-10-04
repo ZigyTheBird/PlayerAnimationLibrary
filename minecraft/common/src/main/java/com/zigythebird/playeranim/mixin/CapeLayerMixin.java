@@ -3,8 +3,8 @@ package com.zigythebird.playeranim.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.ICapeLayer;
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
+import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
@@ -42,7 +42,7 @@ public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, Play
     private void render(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, AvatarRenderState playerRenderState, float f, float g, CallbackInfo ci) {
         if (model instanceof CapeModelAccessor capeLayer) {
             ModelPart part = capeLayer.getCape();
-            PlayerAnimManager emote = ((IPlayerAnimationState)playerRenderState).playerAnimLib$getAnimManager();
+            AvatarAnimManager emote = ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive()) {
                 ModelPart torso = this.getParentModel().body;
 
