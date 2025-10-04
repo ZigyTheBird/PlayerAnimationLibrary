@@ -5,29 +5,29 @@ import com.zigythebird.playeranimcore.animation.AnimationData;
 import net.minecraft.world.entity.Avatar;
 
 public class AvatarAnimationData extends AnimationData {
-    private final Avatar player;
+    private final Avatar avatar;
 
-    public AvatarAnimationData(Avatar player, float velocity, float partialTick) {
+    public AvatarAnimationData(Avatar avatar, float velocity, float partialTick) {
         super(velocity, partialTick);
-        this.player = player;
+        this.avatar = avatar;
     }
 
     /**
-     * Gets the current player being animated
+     * Gets the current avatar being animated
      */
-    public Avatar getPlayer() {
-        return this.player;
+    public Avatar getAvatar() {
+        return this.avatar;
     }
 
     /**
-     * Gets the current player animation manager
+     * Gets the current avatar animation manager
      */
-    public AvatarAnimManager getPlayerAnimManager() {
-        return ((IAnimatedAvatar) getPlayer()).playerAnimLib$getAnimManager();
+    public AvatarAnimManager getAnimManager() {
+        return ((IAnimatedAvatar) getAvatar()).playerAnimLib$getAnimManager();
     }
 
     @Override
     public AvatarAnimationData copy() {
-        return new AvatarAnimationData(getPlayer(), getVelocity(), getPartialTick());
+        return new AvatarAnimationData(getAvatar(), getVelocity(), getPartialTick());
     }
 }

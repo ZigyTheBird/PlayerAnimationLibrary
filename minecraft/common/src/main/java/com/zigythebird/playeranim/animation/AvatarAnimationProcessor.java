@@ -12,9 +12,9 @@ public class AvatarAnimationProcessor extends AnimationProcessor {
     private final Avatar avatar;
 
     /**
-     * Each AnimationProcessor must be bound to a player
+     * Each AnimationProcessor must be bound to a avatar
      *
-     * @param avatar The player to whom this processor is bound
+     * @param avatar The avatar to whom this processor is bound
      */
     public AvatarAnimationProcessor(Avatar avatar) {
         super();
