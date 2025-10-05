@@ -410,7 +410,7 @@ public class PlayerAnimBone {
 			startValue = endValue;
 			endValue = temp;
 
-			if (transitionLength == null) transitionLength = animation.length() - (float) animation.data().get(ExtraAnimationData.END_TICK_KEY).get();
+			if (transitionLength == null) transitionLength = animation.length() - (float) animation.data().getRaw(ExtraAnimationData.END_TICK_KEY);
 
 			if (animation.data().has(ExtraAnimationData.EASING_BEFORE_KEY) && !(boolean) animation.data().getRaw(ExtraAnimationData.EASING_BEFORE_KEY)) {
 				BoneAnimation boneAnimation = animation.getBone(getName());
