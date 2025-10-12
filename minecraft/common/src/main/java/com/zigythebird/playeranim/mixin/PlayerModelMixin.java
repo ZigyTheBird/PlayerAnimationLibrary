@@ -136,7 +136,7 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
 
     @WrapWithCondition(method = "translateToHand(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
     private boolean translateToHand(ModelPart modelPart, PoseStack poseStack, @Local(argsOnly = true) AvatarRenderState avatarRenderState) {
-        if (avatarRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager().isActive()) {
+        if (avatarRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             poseStack.translate(modelPart.x / 16.0F, modelPart.y / 16.0F, modelPart.z / 16.0F);
             if (modelPart.xRot != 0.0F || modelPart.yRot != 0.0F || modelPart.zRot != 0.0F) {
                 RenderUtil.rotateZYX(poseStack.last(), modelPart.zRot, modelPart.yRot, modelPart.xRot);
