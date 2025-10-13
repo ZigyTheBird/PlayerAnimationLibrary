@@ -23,11 +23,11 @@ public class MatrixUtil {
     }
 
     public static void translateToPivotPoint(ModMatrix4f matrix, Vec3f pivot) {
-        matrix.translate(pivot.x(), pivot.y(), pivot.z());
+        matrix.translate(-pivot.x(), pivot.y(), -pivot.z());
     }
 
     public static void translateAwayFromPivotPoint(ModMatrix4f matrix, Vec3f pivot) {
-        matrix.translate(-pivot.x(), -pivot.y(), -pivot.z());
+        matrix.translate(pivot.x(), -pivot.y(), pivot.z());
     }
 
     public static void prepMatrixForBone(ModMatrix4f matrix, PlayerAnimBone bone, Vec3f pivot) {

@@ -404,36 +404,38 @@ public class PlayerAnimBone {
 	}
 	
 	private float beginOrEndTickLerp(float startValue, float endValue, Float transitionLength, float animTime, Animation animation, TransformType type, Axis axis) {
-		if (transitionLength != null) {
-			EasingType easingType = EasingType.EASE_IN_OUT_SINE;
-			if (animation != null) {
-				float temp = startValue;
-				startValue = endValue;
-				endValue = temp;
+		EasingType easingType = EasingType.EASE_IN_OUT_SINE;
+		if (animation != null) {
+			float temp = startValue;
+			startValue = endValue;
+			endValue = temp;
 
-				if (animation.data().has(ExtraAnimationData.EASING_BEFORE_KEY) && !(boolean) animation.data().getRaw(ExtraAnimationData.EASING_BEFORE_KEY)) {
-					BoneAnimation boneAnimation = animation.getBone(getName());
-					KeyframeStack keyframeStack = boneAnimation == null ? null : switch (type) {
-						case BEND -> {
-							easingType = boneAnimation.bendKeyFrames().getLast().easingType();
-							yield null;
-						}
-						case ROTATION -> boneAnimation.rotationKeyFrames();
-						case SCALE -> boneAnimation.scaleKeyFrames();
-						default -> boneAnimation.positionKeyFrames();
-					};
-					if (keyframeStack != null) {
-						switch (axis) {
-							case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
-							case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
-							default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
-						}
+			if (transitionLength == null) transitionLength = animation.length() - (float) animation.data().getRaw(ExtraAnimationData.END_TICK_KEY);
+
+			if (animation.data().has(ExtraAnimationData.EASING_BEFORE_KEY) && !(boolean) animation.data().getRaw(ExtraAnimationData.EASING_BEFORE_KEY)) {
+				BoneAnimation boneAnimation = animation.getBone(getName());
+				KeyframeStack keyframeStack = boneAnimation == null ? null : switch (type) {
+					case BEND -> {
+						easingType = boneAnimation.bendKeyFrames().getLast().easingType();
+						yield null;
+					}
+					case ROTATION -> boneAnimation.rotationKeyFrames();
+					case SCALE -> boneAnimation.scaleKeyFrames();
+					default -> boneAnimation.positionKeyFrames();
+				};
+				if (keyframeStack != null) {
+					switch (axis) {
+						case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
+						case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
+						default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
 					}
 				}
 			}
-			return easingType.apply(startValue, endValue, animTime / transitionLength);
+			if (easingType == EasingType.BEZIER || easingType == EasingType.BEZIER_AFTER || easingType == EasingType.CATMULLROM)
+				easingType = EasingType.EASE_IN_OUT_SINE;
 		}
-		return endValue;
+		if (transitionLength == null) return endValue;
+		return easingType.apply(startValue, endValue, animTime / transitionLength);
 	}
 
 	public void copySnapshot(BoneSnapshot snapshot) {
