@@ -68,4 +68,12 @@ public class SpeedModifier extends AbstractModifier {
         super.setupAnim(state);
         this.shiftedDelta = delta;
     }
+
+    @Override
+    public String toString() {
+        return "SpeedModifier{" +
+                "speed=" + speed +
+                ", anim=" + anim +
+                '}';
+    }
 }

@@ -1064,4 +1064,13 @@ public abstract class AnimationController implements IAnimation {
 			return this.anim.get3DTransformRaw(bone);
 		}
 	}
+
+    @Override
+    public String toString() {
+        return "AnimationController{" +
+                "currentAnimation=" + getCurrentAnimationInstance() +
+                ", tick=" + getAnimationTicks() +
+                ", modifiers=" + modifiers +
+                '}';
+    }
 }

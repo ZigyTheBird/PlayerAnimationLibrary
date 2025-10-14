@@ -177,4 +177,12 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
         } else if (animation != null) return animation.getFirstPersonConfiguration();
         return IAnimation.super.getFirstPersonConfiguration();
     }
+
+    @Override
+    public String toString() {
+        return "ModifierLayer{" +
+                "modifiers=" + modifiers +
+                ", animation=" + animation +
+                '}';
+    }
 }
