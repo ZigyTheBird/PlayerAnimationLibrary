@@ -698,7 +698,8 @@ public abstract class AnimationController implements IAnimation {
 	 * tick + tick delta
 	 */
 	public float getAnimationTicks() {
-		return this.tick + this.startAnimFrom + animationData.getPartialTick();
+		if (this.animationData == null) return 0F;
+		return this.tick + this.startAnimFrom + this.animationData.getPartialTick();
 	}
 
 	public boolean hasBeginTick() {
