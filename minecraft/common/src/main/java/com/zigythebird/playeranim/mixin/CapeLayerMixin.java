@@ -2,11 +2,8 @@ package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.zigythebird.playeranim.accessors.ICapeLayer;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
-import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -23,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CapeLayer.class)
-public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, PlayerModel> implements ICapeLayer {
+public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, PlayerModel> {
     @Shadow
     @Final
     private HumanoidModel<AvatarRenderState> model;
@@ -33,36 +30,16 @@ public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, Play
     }
 
     @Inject(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IIILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"))
-    private void resetPose(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, AvatarRenderState renderState, float yRot, float xRot, CallbackInfo ci) {
-        if (model instanceof CapeModelAccessor capeLayer)
-            capeLayer.getCape().resetPose(); //Just to be sure
-    }
-
-    @Inject(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IIILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"))
-    private void render(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, AvatarRenderState playerRenderState, float f, float g, CallbackInfo ci) {
+    private void render(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, AvatarRenderState avatarRenderState, float f, float g, CallbackInfo ci) {
         if (model instanceof CapeModelAccessor capeLayer) {
-            ModelPart part = capeLayer.getCape();
-            AvatarAnimManager emote = ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimManager();
+            AvatarAnimManager emote = ((IAvatarAnimationState)avatarRenderState).playerAnimLib$getAnimManager();
             if (emote != null && emote.isActive()) {
                 ModelPart torso = this.getParentModel().body;
 
                 torso.translateAndRotate(poseStack);
 
                 poseStack.translate(0.0F, 0.0F, 0.125F);
-                poseStack.mulPose(Axis.YP.rotation(3.14159f));
-
-                PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("cape"));
-
-                bone.positionX *= -1;
-                bone.positionZ *= -1;
-                bone.rotX *= -1;
-                bone.rotZ *= -1;
-
-                RenderUtil.translatePartToBone(part, bone);
-
-                this.applyBend(part, torso, bone.getBend());
             }
-            else this.resetBend(part);
         }
     }
 }

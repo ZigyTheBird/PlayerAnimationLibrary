@@ -9,10 +9,6 @@ import com.zigythebird.playeranimcore.math.Vec3f;
  * Used for applying custom pivot bones to player bones
  */
 public class MatrixUtil {
-    public static void translateMatrixToBone(ModMatrix4f matrix, PlayerAnimBone bone) {
-        matrix.translate(bone.getPosX(), bone.getPosY(), bone.getPosZ());
-    }
-
     public static void rotateMatrixAroundBone(ModMatrix4f matrix, PlayerAnimBone bone) {
         if (bone.getRotZ() != 0 || bone.getRotY() != 0 || bone.getRotX() != 0)
             matrix.rotateZ(bone.getRotZ()).rotateY(bone.getRotY()).rotateX(bone.getRotX());
@@ -23,15 +19,14 @@ public class MatrixUtil {
     }
 
     public static void translateToPivotPoint(ModMatrix4f matrix, Vec3f pivot) {
-        matrix.translate(-pivot.x(), pivot.y(), -pivot.z());
+        matrix.translate(pivot.x(), pivot.y(), pivot.z());
     }
 
     public static void translateAwayFromPivotPoint(ModMatrix4f matrix, Vec3f pivot) {
-        matrix.translate(pivot.x(), -pivot.y(), pivot.z());
+        matrix.translate(-pivot.x(), -pivot.y(), -pivot.z());
     }
 
     public static void prepMatrixForBone(ModMatrix4f matrix, PlayerAnimBone bone, Vec3f pivot) {
-        translateMatrixToBone(matrix, bone);
         translateToPivotPoint(matrix, pivot);
         rotateMatrixAroundBone(matrix, bone);
         scaleMatrixForBone(matrix, bone);
