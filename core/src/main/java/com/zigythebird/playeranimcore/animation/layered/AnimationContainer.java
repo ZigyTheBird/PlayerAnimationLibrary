@@ -88,4 +88,11 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
     public @NotNull FirstPersonConfiguration getFirstPersonConfiguration() {
         return anim != null ? anim.getFirstPersonConfiguration() : IAnimation.super.getFirstPersonConfiguration();
     }
+
+    @Override
+    public String toString() {
+        return "AnimationContainer{" +
+                "anim=" + anim +
+                '}';
+    }
 }

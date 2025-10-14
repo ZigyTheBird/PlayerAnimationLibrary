@@ -81,4 +81,12 @@ public class MirrorModifier extends AbstractModifier {
         partMap.put("right_item", "left_item");
         mirrorMap = Collections.unmodifiableMap(partMap);
     }
+
+    @Override
+    public String toString() {
+        return "MirrorModifier{" +
+                "anim=" + anim +
+                ", enabled=" + enabled +
+                '}';
+    }
 }

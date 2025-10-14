@@ -219,4 +219,13 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
     public interface EasingFunction {
         float ease(String boneName, float value);
     }
+
+    @Override
+    public String toString() {
+        return "AbstractFadeModifier{" +
+                "anim=" + anim +
+                ", length=" + length +
+                ", transitionAnimation=" + transitionAnimation +
+                '}';
+    }
 }

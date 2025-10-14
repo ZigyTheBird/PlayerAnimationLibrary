@@ -19,4 +19,11 @@ public record AnimationSnapshot(Map<String, AdvancedBoneSnapshot> snapshots) imp
         }
         return bone;
     }
+
+    @Override
+    public @NotNull String toString() {
+        return "AnimationSnapshot{" +
+                "snapshots=" + snapshots +
+                '}';
+    }
 }
