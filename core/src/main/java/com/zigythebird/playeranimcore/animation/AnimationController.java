@@ -113,10 +113,11 @@ public abstract class AnimationController implements IAnimation {
 	 * Instantiates a new {@code AnimationController}
 	 *
 	 * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
+	 * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
 	 */
-	public AnimationController(AnimationStateHandler animationHandler) {
+	public AnimationController(AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
 		this.stateHandler = animationHandler;
-		this.molangRuntime = MolangLoader.createNewEngine(this);
+		this.molangRuntime = molangRuntime.apply(this);
 
 		registerBones();
 	}
@@ -654,16 +655,18 @@ public abstract class AnimationController implements IAnimation {
 
 				for (PivotBone pivotBone : parents) {
 					MatrixUtil.prepMatrixForBone(matrix, pivotBone, pivotBone.getPivot());
+					bone.addPos(pivotBone.getPosX(), pivotBone.getPosY(), pivotBone.getPosZ());
 				}
 
 				Vec3f defaultPos = getBonePosition(bone.getName());
-				ModVector4f pos = new ModVector4f(defaultPos.x(), defaultPos.y(), defaultPos.z(), 1).mul(matrix);
-				bone.setPosX(-pos.x + defaultPos.x() + bone.getPosX());
-				bone.setPosY(pos.y - defaultPos.y() + bone.getPosY());
-				bone.setPosZ(-pos.z + defaultPos.z() + bone.getPosZ());
+				matrix.translate(defaultPos.x(), defaultPos.y(), defaultPos.z());
+				MatrixUtil.rotateMatrixAroundBone(matrix, bone);
+				bone.setPosX(-matrix.m30() + defaultPos.x() + bone.getPosX());
+				bone.setPosY(matrix.m31() - defaultPos.y() + bone.getPosY());
+				bone.setPosZ(-matrix.m32() - defaultPos.z() + bone.getPosZ());
 
 				Vec3f rotation = matrix.getEulerRotation();
-				bone.addRot(rotation.x(), rotation.y(), rotation.z());
+				bone.updateRotation(rotation.x(), rotation.y(), rotation.z());
 
 				bone.mulScale(matrix.getColumnScale(0), matrix.getColumnScale(1), matrix.getColumnScale(2));
 			}

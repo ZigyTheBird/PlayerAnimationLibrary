@@ -106,24 +106,34 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
             // Hiding all parts, because they should not be visible in first person
             playerAnimLib$setAllPartsVisible(false);
             // Showing arms based on configuration
-            var showRightArm = config.isShowRightArm();
-            var showLeftArm = config.isShowLeftArm();
-            this.rightArm.visible = showRightArm;
-            this.leftArm.visible = showLeftArm;
+            var skipRightArm = !config.isShowRightArm();
+            var skipLeftArm = !config.isShowLeftArm();
+            this.rightArm.skipDraw = skipRightArm;
+            this.leftArm.skipDraw = skipLeftArm;
+
             // These are children of those ^^^
-            //this.rightSleeve.visible = showRightArm;
-            //this.leftSleeve.visible = showLeftArm;
+            // this.rightSleeve.skipDraw = skipRightArm;
+            // this.leftSleeve.skipDraw = skipLeftArm;
+        } else {
+            playerAnimLib$setAllPartsVisible(true);
         }
     }
 
     @Unique
     private void playerAnimLib$setAllPartsVisible(boolean visible) {
-        this.head.visible = visible;
-        this.body.visible = visible;
-        this.leftLeg.visible = visible;
-        this.rightLeg.visible = visible;
-        this.rightArm.visible = visible;
-        this.leftArm.visible = visible;
+        var skip = !visible;
+        this.head.skipDraw = skip;
+        this.head.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.body.skipDraw = skip;
+        this.body.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.leftLeg.skipDraw = skip;
+        this.leftLeg.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.rightLeg.skipDraw = skip;
+        this.rightLeg.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.rightArm.skipDraw = skip;
+        this.rightArm.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.leftArm.skipDraw = skip;
+        this.leftArm.getAllParts().forEach(p -> p.skipDraw = skip);
 
         // These are children of those ^^^
         //this.hat.visible = visible;

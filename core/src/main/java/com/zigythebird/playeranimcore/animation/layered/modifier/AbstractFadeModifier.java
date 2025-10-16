@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class AbstractFadeModifier extends AbstractModifier {
     protected int length;
-    protected float time;
+    protected int time;
     protected float tickDelta;
 
     public void setTransitionAnimation(@Nullable IAnimation transitionAnimation) {

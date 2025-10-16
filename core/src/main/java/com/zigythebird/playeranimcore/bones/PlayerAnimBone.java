@@ -262,8 +262,8 @@ public class PlayerAnimBone {
 
 	public PlayerAnimBone addPos(float x, float y, float z) {
 		this.positionX += x;
-		this.positionY += x;
-		this.positionZ += x;
+		this.positionY += y;
+		this.positionZ += z;
 
 		return this;
 	}
