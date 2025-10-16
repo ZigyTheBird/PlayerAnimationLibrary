@@ -113,10 +113,11 @@ public abstract class AnimationController implements IAnimation {
 	 * Instantiates a new {@code AnimationController}
 	 *
 	 * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
+	 * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
 	 */
-	public AnimationController(AnimationStateHandler animationHandler) {
+	public AnimationController(AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
 		this.stateHandler = animationHandler;
-		this.molangRuntime = MolangLoader.createNewEngine(this);
+		this.molangRuntime = molangRuntime.apply(this);
 
 		registerBones();
 	}
