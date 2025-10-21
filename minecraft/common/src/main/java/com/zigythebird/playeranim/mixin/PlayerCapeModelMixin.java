@@ -1,6 +1,5 @@
 package com.zigythebird.playeranim.mixin;
 
-import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.accessors.ICapeLayer;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
@@ -17,24 +16,30 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerCapeModel.class)
-public class CapeModelMixin implements ICapeLayer {
-    @Shadow @Final private ModelPart cape;
+public class PlayerCapeModelMixin implements ICapeLayer {
+    @Shadow
+    @Final
+    private ModelPart cape;
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
     private void setupAnim(AvatarRenderState avatarRenderState, CallbackInfo ci) {
         AvatarAnimManager emote = ((IAvatarAnimationState)avatarRenderState).playerAnimLib$getAnimManager();
         if (emote != null && emote.isActive()) {
-            ModelPart torso = ((PlayerCapeModel)(Object)this).body;
-            PlayerAnimBone bone = emote.get3DTransform(RenderUtil.copyVanillaPart(this.cape, new PlayerAnimBone("cape")));
+            PlayerAnimBone bone = RenderUtil.copyVanillaPart(this.cape, new PlayerAnimBone("cape"));
 
-            bone.positionX *= -1;
-            bone.positionZ *= -1;
+            bone.rotY += (float) -Math.PI;
             bone.rotX *= -1;
-            bone.rotZ *= -1;
+            bone = emote.get3DTransform(bone);
+            bone.rotY += (float) Math.PI;
+            bone.rotX *= -1;
 
-            RenderUtil.translatePartToBone(this.cape, bone);
+            // bone.positionX *= -1;
+            // bone.positionZ *= -1;
+            // bone.rotZ *= -1;
 
-            this.applyBend(this.cape, torso, bone.getBend());
+            RenderUtil.translatePartToCape(this.cape, bone, this.cape.getInitialPose());
+
+            this.applyBend(this.cape, bone.getBend());
         }
         else this.resetBend(this.cape);
     }
