@@ -25,10 +25,10 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranim.accessors.IMutableModel;
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
-import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
+import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
@@ -36,7 +36,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -47,7 +47,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Function;
 
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
-public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
+public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
     @Unique
     private final PlayerAnimBone pal$head = new PlayerAnimBone("head");
     @Unique
@@ -76,17 +76,14 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
         this.leftLeg.resetPose();
     }
 
-    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "HEAD"))
-    private void setDefaultBeforeRender(PlayerRenderState playerRenderState, CallbackInfo ci){
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "HEAD"))
+    private void setDefaultBeforeRender(AvatarRenderState avatarRenderState, CallbackInfo ci){
         playerAnimLib$setToInitialPose(); //to not make everything wrong
     }
 
-    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "RETURN"))
-    private void setupPlayerAnimation(PlayerRenderState playerRenderState, CallbackInfo ci) {
-        if (playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
-            ((IMutableModel)this).playerAnimLib$setAnimation(emote);
-
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "RETURN"))
+    private void setupPlayerAnimation(AvatarRenderState avatarRenderState, CallbackInfo ci) {
+        if (avatarRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             RenderUtil.copyVanillaPart(this.head, pal$head);
             RenderUtil.copyVanillaPart(this.body, pal$torso);
             RenderUtil.copyVanillaPart(this.rightArm, pal$rightArm);
@@ -94,6 +91,7 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
             RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
             RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
 
+            AvatarAnimManager emote = state.playerAnimLib$getAnimManager();
             emote.updatePart(this.head, pal$head);
             emote.updatePart(this.rightArm, pal$rightArm);
             emote.updatePart(this.leftArm, pal$leftArm);
@@ -101,34 +99,41 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
             emote.updatePart(this.leftLeg, pal$leftLeg);
             emote.updatePart(this.body, pal$torso);
         }
-        else {
-            ((IMutableModel)this).playerAnimLib$setAnimation(null);
-        }
 
-        if (FirstPersonMode.isFirstPersonPass() && playerRenderState instanceof IPlayerAnimationState state
+        if (FirstPersonMode.isFirstPersonPass() && avatarRenderState instanceof IAvatarAnimationState state
                 && state.playerAnimLib$isCameraEntity()) {
             var config = state.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
             // Hiding all parts, because they should not be visible in first person
             playerAnimLib$setAllPartsVisible(false);
             // Showing arms based on configuration
-            var showRightArm = config.isShowRightArm();
-            var showLeftArm = config.isShowLeftArm();
-            this.rightArm.visible = showRightArm;
-            this.leftArm.visible = showLeftArm;
+            var skipRightArm = !config.isShowRightArm();
+            var skipLeftArm = !config.isShowLeftArm();
+            this.rightArm.skipDraw = skipRightArm;
+            this.leftArm.skipDraw = skipLeftArm;
+
             // These are children of those ^^^
-            //this.rightSleeve.visible = showRightArm;
-            //this.leftSleeve.visible = showLeftArm;
+            // this.rightSleeve.skipDraw = skipRightArm;
+            // this.leftSleeve.skipDraw = skipLeftArm;
+        } else {
+            playerAnimLib$setAllPartsVisible(true);
         }
     }
 
     @Unique
     private void playerAnimLib$setAllPartsVisible(boolean visible) {
-        this.head.visible = visible;
-        this.body.visible = visible;
-        this.leftLeg.visible = visible;
-        this.rightLeg.visible = visible;
-        this.rightArm.visible = visible;
-        this.leftArm.visible = visible;
+        var skip = !visible;
+        this.head.skipDraw = skip;
+        this.head.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.body.skipDraw = skip;
+        this.body.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.leftLeg.skipDraw = skip;
+        this.leftLeg.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.rightLeg.skipDraw = skip;
+        this.rightLeg.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.rightArm.skipDraw = skip;
+        this.rightArm.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.leftArm.skipDraw = skip;
+        this.leftArm.getAllParts().forEach(p -> p.skipDraw = skip);
 
         // These are children of those ^^^
         //this.hat.visible = visible;
@@ -139,9 +144,9 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
         //this.jacket.visible = visible;
     }
 
-    @WrapWithCondition(method = "translateToHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
-    private boolean translateToHand(ModelPart modelPart, PoseStack poseStack) {
-        if (((IMutableModel)this).playerAnimLib$getAnimation() != null && ((IMutableModel)this).playerAnimLib$getAnimation().isActive()) {
+    @WrapWithCondition(method = "translateToHand(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
+    private boolean translateToHand(ModelPart modelPart, PoseStack poseStack, @Local(argsOnly = true) AvatarRenderState avatarRenderState) {
+        if (avatarRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             poseStack.translate(modelPart.x / 16.0F, modelPart.y / 16.0F, modelPart.z / 16.0F);
             if (modelPart.xRot != 0.0F || modelPart.yRot != 0.0F || modelPart.zRot != 0.0F) {
                 RenderUtil.rotateZYX(poseStack.last(), modelPart.zRot, modelPart.yRot, modelPart.xRot);
