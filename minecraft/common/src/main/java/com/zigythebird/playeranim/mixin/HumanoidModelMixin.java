@@ -26,10 +26,9 @@ package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
-import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -38,13 +37,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HumanoidModel.class)
-public abstract class HumanoidModelMixin<T extends HumanoidRenderState> extends EntityModel<T> implements IMutableModel {
+public abstract class HumanoidModelMixin<T extends LivingEntity> extends AgeableListModel<T> implements IMutableModel {
     @Unique
     private PlayerAnimManager playerAnimLib$animation = null;
-
-    private HumanoidModelMixin(ModelPart modelPart) {
-        super(modelPart);
-    }
 
     @Override
     public void playerAnimLib$setAnimation(@Nullable PlayerAnimManager emoteSupplier){

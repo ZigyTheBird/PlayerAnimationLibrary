@@ -26,19 +26,24 @@ package com.zigythebird.playeranim.mixin;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
 import com.zigythebird.playeranim.accessors.IMutableModel;
-import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,7 +52,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Function;
 
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
-public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
+public class PlayerModelMixin<T extends LivingEntity> extends HumanoidModel<T> {
+    @Shadow @Final public ModelPart rightSleeve;
+
+    @Shadow @Final public ModelPart leftSleeve;
+
+    @Shadow @Final public ModelPart leftPants;
+
+    @Shadow @Final public ModelPart rightPants;
+
+    @Shadow @Final public ModelPart jacket;
+
     @Unique
     private final PlayerAnimBone pal$head = new PlayerAnimBone("head");
     @Unique
@@ -60,8 +75,8 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
     private final PlayerAnimBone pal$rightLeg = new PlayerAnimBone("right_leg");
     @Unique
     private final PlayerAnimBone pal$leftLeg = new PlayerAnimBone("left_leg");
-    
-    
+
+
     public PlayerModelMixin(ModelPart modelPart, Function<ResourceLocation, RenderType> function) {
         super(modelPart, function);
     }
@@ -74,17 +89,24 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
         this.leftArm.resetPose();
         this.rightLeg.resetPose();
         this.leftLeg.resetPose();
+
+        this.hat.resetPose();
+        this.jacket.resetPose();
+        this.rightSleeve.resetPose();
+        this.leftSleeve.resetPose();
+        this.rightPants.resetPose();
+        this.leftPants.resetPose();
     }
 
-    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "HEAD"))
-    private void setDefaultBeforeRender(PlayerRenderState playerRenderState, CallbackInfo ci){
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V", at = @At(value = "HEAD"))
+    private void setDefaultBeforeRender(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci){
         playerAnimLib$setToInitialPose(); //to not make everything wrong
     }
 
-    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "RETURN"))
-    private void setupPlayerAnimation(PlayerRenderState playerRenderState, CallbackInfo ci) {
-        if (playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V", at = @At(value = "RETURN"))
+    private void setupPlayerAnimation(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
+        if (entity instanceof AbstractClientPlayer player && ((IAnimatedPlayer)player).playerAnimLib$getAnimProcessor() != null && ((IAnimatedPlayer)player).playerAnimLib$getAnimManager().isActive()) {
+            PlayerAnimManager emote = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager();
             ((IMutableModel)this).playerAnimLib$setAnimation(emote);
 
             RenderUtil.copyVanillaPart(this.head, pal$head);
@@ -94,20 +116,20 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
             RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
             RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
 
-            emote.updatePart(this.head, pal$head);
-            emote.updatePart(this.rightArm, pal$rightArm);
-            emote.updatePart(this.leftArm, pal$leftArm);
-            emote.updatePart(this.rightLeg, pal$rightLeg);
-            emote.updatePart(this.leftLeg, pal$leftLeg);
-            emote.updatePart(this.body, pal$torso);
+            emote.updatePart(this.head, this.hat, pal$head);
+            emote.updatePart(this.rightArm, this.rightSleeve, pal$rightArm);
+            emote.updatePart(this.leftArm, this.leftSleeve, pal$leftArm);
+            emote.updatePart(this.rightLeg, this.rightPants, pal$rightLeg);
+            emote.updatePart(this.leftLeg, this.leftPants, pal$leftLeg);
+            emote.updatePart(this.body, this.jacket, pal$torso);
         }
         else {
             ((IMutableModel)this).playerAnimLib$setAnimation(null);
         }
 
-        if (FirstPersonMode.isFirstPersonPass() && playerRenderState instanceof IPlayerAnimationState state
-                && state.playerAnimLib$isCameraEntity()) {
-            var config = state.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
+        if (FirstPersonMode.isFirstPersonPass() && entity instanceof AbstractClientPlayer player
+                && player == Minecraft.getInstance().cameraEntity) {
+            var config = ((IAnimatedPlayer)player).playerAnimLib$getAnimManager().getFirstPersonConfiguration();
             // Hiding all parts, because they should not be visible in first person
             playerAnimLib$setAllPartsVisible(false);
             // Showing arms based on configuration
@@ -140,13 +162,12 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
         this.leftArm.skipDraw = skip;
         this.leftArm.getAllParts().forEach(p -> p.skipDraw = skip);
 
-        // These are children of those ^^^
-        //this.hat.visible = visible;
-        //this.leftSleeve.visible = visible;
-        //this.rightSleeve.visible = visible;
-        //this.leftPants.visible = visible;
-        //this.rightPants.visible = visible;
-        //this.jacket.visible = visible;
+        this.hat.visible = visible;
+        this.leftSleeve.visible = visible;
+        this.rightSleeve.visible = visible;
+        this.leftPants.visible = visible;
+        this.rightPants.visible = visible;
+        this.jacket.visible = visible;
     }
 
     @WrapWithCondition(method = "translateToHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))

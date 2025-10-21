@@ -111,7 +111,7 @@ public final class MolangQueries {
     public static final String YAW_SPEED = "yaw_speed";
 
     public static void setDefaultQueryValues(ObjectValue binding) {
-        MolangLoader.setDoubleQuery(binding, ACTOR_COUNT, actor -> Minecraft.getInstance().levelRenderer.visibleEntityCount);
+        MolangLoader.setDoubleQuery(binding, ACTOR_COUNT, actor -> Minecraft.getInstance().levelRenderer.renderedEntities);
         MolangLoader.setDoubleQuery(binding, CARDINAL_PLAYER_FACING, actor -> ((PlayerAnimationController) actor).getPlayer().getDirection().ordinal());
         MolangLoader.setDoubleQuery(binding, DAY, actor -> ((PlayerAnimationController) actor).getPlayer().level().getGameTime() / 24000d);
         MolangLoader.setDoubleQuery(binding, FRAME_ALPHA, actor -> actor.getAnimationData().getPartialTick());
@@ -142,7 +142,7 @@ public final class MolangQueries {
         MolangLoader.setDoubleQuery(binding, EQUIPMENT_COUNT, actor -> ((PlayerAnimationController) actor).getPlayer() instanceof EquipmentUser armorable ? Arrays.stream(EquipmentSlot.values()).filter(EquipmentSlot::isArmor).filter(slot -> !armorable.getItemBySlot(slot).isEmpty()).count() : 0);
         MolangLoader.setBoolQuery(binding, HAS_COLLISION, actor -> !((PlayerAnimationController) actor).getPlayer().noPhysics);
         MolangLoader.setBoolQuery(binding, HAS_GRAVITY, actor -> !((PlayerAnimationController) actor).getPlayer().isNoGravity());
-        MolangLoader.setBoolQuery(binding, HAS_OWNER, actor -> ((PlayerAnimationController) actor).getPlayer() instanceof OwnableEntity ownable && ownable.getOwnerReference() != null);
+        MolangLoader.setBoolQuery(binding, HAS_OWNER, actor -> ((PlayerAnimationController) actor).getPlayer() instanceof OwnableEntity ownable && ownable.getOwner() != null);
         MolangLoader.setBoolQuery(binding, HAS_PLAYER_RIDER, actor -> ((PlayerAnimationController) actor).getPlayer().hasPassenger(Player.class::isInstance));
         MolangLoader.setBoolQuery(binding, HAS_RIDER, actor -> ((PlayerAnimationController) actor).getPlayer().isVehicle());
         MolangLoader.setBoolQuery(binding, IS_ALIVE, actor -> ((PlayerAnimationController) actor).getPlayer().isAlive());
@@ -159,12 +159,12 @@ public final class MolangQueries {
         MolangLoader.setBoolQuery(binding, IS_ON_FIRE, actor -> ((PlayerAnimationController) actor).getPlayer().isOnFire());
         MolangLoader.setBoolQuery(binding, IS_ON_GROUND, actor -> ((PlayerAnimationController) actor).getPlayer().onGround());
         MolangLoader.setBoolQuery(binding, IS_RIDING, actor -> ((PlayerAnimationController) actor).getPlayer().isPassenger());
-        MolangLoader.setBoolQuery(binding, IS_SADDLED, actor -> ((PlayerAnimationController) actor).getPlayer() instanceof EquipmentUser saddleable && !saddleable.getItemBySlot(EquipmentSlot.SADDLE).isEmpty());
+//        MolangLoader.setBoolQuery(binding, IS_SADDLED, actor -> ((PlayerAnimationController) actor).getPlayer() instanceof EquipmentUser saddleable && !saddleable.getItemBySlot(EquipmentSlot.SADDLE).isEmpty());
         MolangLoader.setBoolQuery(binding, IS_SILENT, actor -> ((PlayerAnimationController) actor).getPlayer().isSilent());
         MolangLoader.setBoolQuery(binding, IS_SNEAKING, actor -> ((PlayerAnimationController) actor).getPlayer().isCrouching());
         MolangLoader.setBoolQuery(binding, IS_SPRINTING, actor -> ((PlayerAnimationController) actor).getPlayer().isSprinting());
         MolangLoader.setBoolQuery(binding, IS_SWIMMING, actor -> ((PlayerAnimationController) actor).getPlayer().isSwimming());
-        MolangLoader.setDoubleQuery(binding, MOVEMENT_DIRECTION, actor -> actor.getAnimationData().isMoving() ? Direction.getApproximateNearest(((PlayerAnimationController) actor).getPlayer().getDeltaMovement()).get3DDataValue() : 6);
+        MolangLoader.setDoubleQuery(binding, MOVEMENT_DIRECTION, actor -> actor.getAnimationData().isMoving() ? Direction.getNearest(((PlayerAnimationController) actor).getPlayer().getDeltaMovement()).get3DDataValue() : 6);
         MolangLoader.setDoubleQuery(binding, RIDER_BODY_X_ROTATION, actor -> ((PlayerAnimationController) actor).getPlayer().isVehicle() ? ((PlayerAnimationController) actor).getPlayer().getFirstPassenger() instanceof LivingEntity ? 0 : ((PlayerAnimationController) actor).getPlayer().getFirstPassenger().getViewXRot(actor.getAnimationData().getPartialTick()) : 0);
         MolangLoader.setDoubleQuery(binding, RIDER_BODY_Y_ROTATION, actor -> ((PlayerAnimationController) actor).getPlayer().isVehicle() ? ((PlayerAnimationController) actor).getPlayer().getFirstPassenger() instanceof LivingEntity living ? Mth.lerp(actor.getAnimationData().getPartialTick(), living.yBodyRotO, living.yBodyRot) : ((PlayerAnimationController) actor).getPlayer().getFirstPassenger().getViewYRot(actor.getAnimationData().getPartialTick()) : 0);
         MolangLoader.setDoubleQuery(binding, RIDER_HEAD_X_ROTATION, actor -> ((PlayerAnimationController) actor).getPlayer().getFirstPassenger() instanceof LivingEntity living ? living.getViewXRot(actor.getAnimationData().getPartialTick()) : 0);

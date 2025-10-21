@@ -31,12 +31,12 @@ public final class RenderUtil {
      * Initial pose only applied to yRot and position because that's all that's needed for vanilla parts.
      */
     public static void translatePartToBone(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
-        part.x = bone.getPosX() + initialPose.x();
-        part.y = -bone.getPosY() + initialPose.y();
-        part.z = bone.getPosZ() + initialPose.z();
+        part.x = bone.getPosX() + initialPose.x;
+        part.y = -bone.getPosY() + initialPose.y;
+        part.z = bone.getPosZ() + initialPose.z;
 
         part.xRot = bone.getRotX();
-        part.yRot = bone.getRotY() + initialPose.yRot();
+        part.yRot = bone.getRotY() + initialPose.yRot;
         part.zRot = bone.getRotZ();
 
         part.xScale = bone.getScaleX();
@@ -53,9 +53,9 @@ public final class RenderUtil {
 	public static PlayerAnimBone copyVanillaPart(ModelPart part, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 
-		bone.setPosX(part.x - initialPose.x());
-		bone.setPosY(-(part.y - initialPose.y()));
-		bone.setPosZ(part.z - initialPose.z());
+		bone.setPosX(part.x - initialPose.x);
+		bone.setPosY(-(part.y - initialPose.y));
+		bone.setPosZ(part.z - initialPose.z);
 
 		bone.setRotX(part.xRot);
 		bone.setRotY(part.yRot);

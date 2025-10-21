@@ -6,8 +6,10 @@ import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,7 +98,7 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	}
 
 	@Override
-	public @NotNull CompletableFuture<Void> reload(PreparationBarrier barrier, ResourceManager manager, Executor backgroundExecutor, Executor gameExecutor) {
-		return CompletableFuture.runAsync(() -> onResourceManagerReload(manager), backgroundExecutor).thenCompose(barrier::wait);
+	public @NotNull CompletableFuture<Void> reload(PreparableReloadListener.PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
+		return CompletableFuture.runAsync(() -> onResourceManagerReload(resourceManager), backgroundExecutor).thenCompose(preparationBarrier::wait);
 	}
 }
