@@ -85,7 +85,7 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
     }
 
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
-    @Inject(method = {"tick", "method_5773"}, at = @At("TAIL"))
+    @Inject(method = {"tick", "method_5773"}, at = @At("TAIL"), remap = false)
     private void tick(CallbackInfo ci) {
         this.playerAnimLib$animationProcessor.handleAnimations(0, true);
     }

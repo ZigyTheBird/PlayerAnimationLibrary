@@ -13,10 +13,13 @@ public final class RenderUtil {
 		rotateZYX(poseStack.last(), bone.getRotZ(), bone.getRotY(), bone.getRotX());
 	}
 
-	public static void translatePartToBone(ModelPart part, PlayerAnimBone bone) {
-		part.x = bone.getPosX();
-		part.y = -bone.getPosY();
-		part.z = bone.getPosZ();
+	/**
+	 * Here we do nothing with rotation because it is unnecessary.
+	 */
+	public static void translatePartToCape(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
+		part.x = bone.getPosX() + initialPose.x();
+		part.y = -(bone.getPosY() + initialPose.y());
+		part.z = bone.getPosZ() + initialPose.z();
 
 		part.xRot = bone.getRotX();
 		part.yRot = bone.getRotY();
@@ -27,7 +30,9 @@ public final class RenderUtil {
 		part.zScale = bone.getScaleZ();
 	}
 
-	//Initial pose only applied to yRot and position because that's all that's needed for vanilla parts.
+    /**
+     * Initial pose only applied to yRot and position because that's all that's needed for vanilla parts.
+     */
     public static void translatePartToBone(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
         part.x = bone.getPosX() + initialPose.x();
         part.y = -bone.getPosY() + initialPose.y();
@@ -48,7 +53,7 @@ public final class RenderUtil {
 		poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 	}
 
-	public static void copyVanillaPart(ModelPart part, PlayerAnimBone bone) {
+	public static PlayerAnimBone copyVanillaPart(ModelPart part, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 
 		bone.setPosX(part.x - initialPose.x());
@@ -64,7 +69,9 @@ public final class RenderUtil {
 		bone.setScaleZ(part.zScale);
 
 		bone.setBend(0);
-	}
+
+        return bone;
+    }
 
 	public static void rotateZYX(PoseStack.Pose matrices, float angleZ, float angleY, float angleX) {
 		matrices.pose().rotateZYX(angleZ, angleY, angleX);
