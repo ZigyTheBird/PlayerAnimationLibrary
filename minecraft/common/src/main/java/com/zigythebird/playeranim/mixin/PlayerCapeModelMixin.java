@@ -28,12 +28,13 @@ public class PlayerCapeModelMixin implements ICapeLayer {
             PlayerAnimBone bone = RenderUtil.copyVanillaPart(this.cape, new PlayerAnimBone("cape"));
 
             bone.rotY += (float) -Math.PI;
+            bone.rotX *= -1;
             bone = emote.get3DTransform(bone);
             bone.rotY += (float) Math.PI;
+            bone.rotX *= -1;
 
             // bone.positionX *= -1;
             // bone.positionZ *= -1;
-            bone.rotX *= -1;
             // bone.rotZ *= -1;
 
             RenderUtil.translatePartToCape(this.cape, bone, this.cape.getInitialPose());
