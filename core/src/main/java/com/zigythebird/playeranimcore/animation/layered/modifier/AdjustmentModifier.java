@@ -225,4 +225,12 @@ public class AdjustmentModifier extends AbstractModifier {
         bone.updateRotation(rot.x() + bone.getRotX(), rot.y() + bone.getRotY(), rot.z() + bone.getRotZ());
         bone.updateScale(scale.x() + bone.getScaleX(), scale.y() + bone.getScaleY(), scale.z() + bone.getScaleZ());
     }
+
+    @Override
+    public String toString() {
+        return "AdjustmentModifier{" +
+                "anim=" + anim +
+                ", enabled=" + enabled +
+                '}';
+    }
 }

@@ -184,4 +184,12 @@ public abstract class PlayerAnimationFrame implements IAnimation {
             return bone;
         }
     }
+
+    @Override
+    public String toString() {
+        return "PlayerAnimationFrame{" +
+                "isActive=" + isActive +
+                ", parts=" + parts +
+                '}';
+    }
 }

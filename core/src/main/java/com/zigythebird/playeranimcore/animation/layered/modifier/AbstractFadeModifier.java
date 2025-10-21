@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class AbstractFadeModifier extends AbstractModifier {
     protected int length;
-    protected float time;
+    protected int time;
     protected float tickDelta;
 
     public void setTransitionAnimation(@Nullable IAnimation transitionAnimation) {
@@ -218,5 +218,14 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
     @FunctionalInterface
     public interface EasingFunction {
         float ease(String boneName, float value);
+    }
+
+    @Override
+    public String toString() {
+        return "AbstractFadeModifier{" +
+                "anim=" + anim +
+                ", length=" + length +
+                ", transitionAnimation=" + transitionAnimation +
+                '}';
     }
 }

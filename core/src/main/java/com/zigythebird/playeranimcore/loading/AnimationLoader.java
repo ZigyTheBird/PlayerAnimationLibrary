@@ -173,7 +173,16 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		if (keyframe.has("pre")) {
 			addedFrame = true;
 
-			keyframes.add(FloatObjectPair.of(timestamp == 0 ? timestamp : timestamp - 0.001f, extractBedrockKeyframe(keyframe.get("pre"))));
+			JsonArray value = extractBedrockKeyframe(keyframe.get("pre"));
+			JsonObject result = null;
+			if (keyframe.has("easing")) {
+				result = new JsonObject();
+				result.add("vector", value);
+				result.add("easing", keyframe.get("easing"));
+				if (keyframe.has("easingArgs")) result.add("easingArgs", keyframe.get("easingArgs"));
+			}
+
+			keyframes.add(FloatObjectPair.of(timestamp == 0 ? timestamp : timestamp - 0.001f, result != null ? result : value));
 		}
 
 		if (keyframe.has("post")) {

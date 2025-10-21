@@ -47,6 +47,7 @@ public class MolangLoader {
     public static MochaEngine<AnimationController> createNewEngine(AnimationController controller) {
         MochaEngine<AnimationController> engine = MochaEngine.createStandard(controller);
         engine.handleParseExceptions(MolangLoader.HANDLER);
+        engine.warnOnReflectiveFunctionUsage(true);
 
         MutableObjectBinding queryBinding = new QueryBinding<>(controller);
         setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimationTime);
