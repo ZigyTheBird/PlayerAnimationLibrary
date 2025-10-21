@@ -122,4 +122,11 @@ public class AnimationStack implements IAnimation {
         }
         return priority;
     }
+
+    @Override
+    public String toString() {
+        return "AnimationStack{" +
+                "layers=" + layers +
+                '}';
+    }
 }
