@@ -10,9 +10,9 @@ import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeMod
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +40,7 @@ public class PlayerAnimationController extends AnimationController {
     // Used for applying torso bend to bones like the head.
     protected List<String> top_bones;
 
-    protected final Avatar avatar;
+    protected final AbstractClientPlayer player;
     private float torsoBend;
     private float torsoBendYPosMultiplier;
     private float torsoBendZPosMultiplier;
@@ -49,27 +49,27 @@ public class PlayerAnimationController extends AnimationController {
     /**
      * Instantiates a new {@code AnimationController}
      *
-     * @param avatar           The object that will be animated by this controller
+     * @param player           The object that will be animated by this controller
      * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
      */
-    public PlayerAnimationController(Avatar avatar, AnimationStateHandler animationHandler) {
-        this(avatar, animationHandler, MolangLoader::createNewEngine);
+    public PlayerAnimationController(AbstractClientPlayer player, AnimationStateHandler animationHandler) {
+        this(player, animationHandler, MolangLoader::createNewEngine);
     }
 
     /**
      * Instantiates a new {@code AnimationController}
      *
-     * @param avatar           The object that will be animated by this controller
+     * @param player           The object that will be animated by this controller
      * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
      * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
      */
-    public PlayerAnimationController(Avatar avatar, AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
+    public PlayerAnimationController(AbstractClientPlayer player, AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
         super(animationHandler, molangRuntime);
-        this.avatar = avatar;
+        this.player = player;
     }
 
-    public Avatar getAvatar() {
-        return this.avatar;
+    public AbstractClientPlayer getPlayer() {
+        return this.player;
     }
 
     public boolean triggerAnimation(ResourceLocation newAnimation, float startAnimFrom) {
@@ -103,9 +103,9 @@ public class PlayerAnimationController extends AnimationController {
         if (!this.activeBones.containsKey(name)) return null;
         PoseStack poseStack = new PoseStack();
         Vec3f pivot = getBonePosition(name);
-        Vec3 position = avatar.getPosition(tickDelta).subtract(cameraPos).add(pivot.x(), pivot.y(), pivot.z());
+        Vec3 position = player.getPosition(tickDelta).subtract(cameraPos).add(pivot.x(), pivot.y(), pivot.z());
         poseStack.translate(position.x(), position.y(), position.z());
-        poseStack.mulPose(Axis.YP.rotationDegrees(180 - Mth.lerp(tickDelta, avatar.yBodyRotO, avatar.yBodyRot)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180 - Mth.lerp(tickDelta, player.yBodyRotO, player.yBodyRot)));
         RenderUtil.translateMatrixToBone(poseStack, this.activeBones.get(name));
         return poseStack;
     }
