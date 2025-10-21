@@ -39,8 +39,8 @@ public class PlayerCapeModelMixin implements ICapeLayer {
 
             RenderUtil.translatePartToCape(this.cape, bone, this.cape.getInitialPose());
 
-            this.applyBend(this.cape, bone.getBend());
+            this.applyBend(emote, bone.getBend());
         }
-        else this.resetBend(this.cape);
+        else this.resetBend();
     }
 }
