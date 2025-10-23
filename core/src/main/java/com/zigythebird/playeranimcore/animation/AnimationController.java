@@ -911,12 +911,12 @@ public abstract class AnimationController implements IAnimation {
 
 	@Override
 	public void tick(AnimationData state) {
-		for (int i = 0; i < modifiers.size(); i++) {
-			if (modifiers.get(i).canRemove()) {
-				removeModifier(i--);
-			}
-		}
 		if (!modifiers.isEmpty()) {
+			for (int i = 0; i < modifiers.size(); i++) {
+				if (modifiers.get(i).canRemove()) {
+					removeModifier(i--);
+				}
+			}
 			modifiers.getFirst().tick(state);
 		}
 		else if (this.animationState == State.RUNNING) tick += 1;
