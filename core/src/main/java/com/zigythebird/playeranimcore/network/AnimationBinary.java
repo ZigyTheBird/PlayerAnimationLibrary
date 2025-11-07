@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.zigythebird.playeranimcore.molang.MolangLoader.MOCHA_ENGINE;
+
 @SuppressWarnings("unused")
 public final class AnimationBinary {
     /**
@@ -244,7 +246,7 @@ public final class AnimationBinary {
 
     public static void fixBodyKeyframeExpressions(List<Expression> expressions) {
         if (expressions.size() == 1 && IsConstantExpression.test(expressions.getFirst())) {
-            expressions.set(0, FloatExpression.of(-((FloatExpression)expressions.getFirst()).value()));
+            expressions.set(0, FloatExpression.of(-MOCHA_ENGINE.eval(expressions)));
         }
     }
 }

@@ -26,13 +26,18 @@ import java.util.function.ToDoubleFunction;
 public class MolangLoader {
     private static final Consumer<ParseException> HANDLER = e -> PlayerAnimLib.LOGGER.warn("Failed to parse!", e);
 
+    /**
+     * Common compiler, use only for compiling constants!
+     */
+    public static final MochaEngine<?> MOCHA_ENGINE = MolangLoader.createNewEngine();
+
     public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
         List<Expression> expressions;
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
             List<Expression> expressions1 = parser.parseAll();
             if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
                 expressions = new ArrayList<>();
-                expressions.add(FloatExpression.of(Math.toRadians(((FloatExpression) expressions1.getFirst()).value())));
+                expressions.add(FloatExpression.of(Math.toRadians(MOCHA_ENGINE.eval(expressions1))));
             } else {
                 expressions = expressions1;
             }
