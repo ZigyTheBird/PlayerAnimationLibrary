@@ -78,7 +78,9 @@ public class PlayerRawAnimationBuilder {
      * @param loopType The loop type handler for the animation, overriding the default value set in the animation json
      */
     public PlayerRawAnimationBuilder then(ResourceLocation animation, Animation.LoopType loopType) {
-        rawAnimation.then(PlayerAnimResources.getAnimation(animation), loopType);
+        Animation instance = PlayerAnimResources.getAnimation(animation);
+        if (instance == null) throw new IllegalArgumentException("Could not find animation with name: " + animation);
+        rawAnimation.then(instance, loopType);
 
         return this;
     }
