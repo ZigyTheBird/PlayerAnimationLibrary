@@ -1,11 +1,11 @@
 package com.zigythebird.playeranimcore.easing;
 
 import com.zigythebird.playeranimcore.animation.keyframe.AnimationPoint;
-import com.zigythebird.playeranimcore.math.MathHelper;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.ast.Expression;
+import team.unnamed.mocha.runtime.standard.MochaMath;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class CatmullRomEasing implements EasingTypeTransformer {
         List<List<Expression>> easingArgs = animationPoint.easingArgs();
 
         if (easingArgs.size() < 2)
-            return MathHelper.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
+            return MochaMath.lerp(animationPoint.animationStartValue(), animationPoint.animationEndValue(), buildTransformer(easingValue).apply(lerpValue));
 
         return getPointOnSpline(lerpValue, env.eval(easingArgs.get(0)), animationPoint.animationStartValue(), animationPoint.animationEndValue(), env.eval(easingArgs.get(1)));
     }
