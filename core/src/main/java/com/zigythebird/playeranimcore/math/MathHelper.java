@@ -1,7 +1,5 @@
 package com.zigythebird.playeranimcore.math;
 
-import static team.unnamed.mocha.runtime.standard.MochaMath.sqrt;
-
 /**
  * Some casts to {@link float} to make my life easier.
  */
