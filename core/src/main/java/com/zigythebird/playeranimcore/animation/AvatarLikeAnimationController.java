@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class AvatarAnimationController extends AnimationController {
+public class AvatarLikeAnimationController extends AnimationController {
     /**
      * Bone pivot point positions used to apply custom pivot point translations.
      */
@@ -67,7 +67,7 @@ public class AvatarAnimationController extends AnimationController {
      * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
      * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
      */
-    public AvatarAnimationController(AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
+    public AvatarLikeAnimationController(AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
         this(animationHandler, BONE_POSITIONS, molangRuntime);
     }
 
@@ -78,7 +78,7 @@ public class AvatarAnimationController extends AnimationController {
      * @param bonePositions    Map of bones and their pivots
      * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
      */
-    public AvatarAnimationController(AnimationStateHandler animationHandler, Map<String, Vec3f> bonePositions, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
+    public AvatarLikeAnimationController(AnimationStateHandler animationHandler, Map<String, Vec3f> bonePositions, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
         super(animationHandler, bonePositions, molangRuntime);
     }
 

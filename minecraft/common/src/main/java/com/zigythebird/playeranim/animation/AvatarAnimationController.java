@@ -5,7 +5,7 @@ import com.mojang.math.Axis;
 import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.AnimationController;
-import com.zigythebird.playeranimcore.animation.AvatarAnimationController;
+import com.zigythebird.playeranimcore.animation.AvatarLikeAnimationController;
 import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
@@ -19,7 +19,7 @@ import team.unnamed.mocha.MochaEngine;
 
 import java.util.function.Function;
 
-public class PlayerAnimationController extends AvatarAnimationController {
+public class AvatarAnimationController extends AvatarLikeAnimationController {
     protected final Avatar avatar;
 
     /**
@@ -28,7 +28,7 @@ public class PlayerAnimationController extends AvatarAnimationController {
      * @param avatar           The object that will be animated by this controller
      * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
      */
-    public PlayerAnimationController(Avatar avatar, AnimationStateHandler animationHandler) {
+    public AvatarAnimationController(Avatar avatar, AnimationStateHandler animationHandler) {
         this(avatar, animationHandler, MolangLoader::createNewEngine);
     }
 
@@ -39,7 +39,7 @@ public class PlayerAnimationController extends AvatarAnimationController {
      * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
      * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
      */
-    public PlayerAnimationController(Avatar avatar, AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
+    public AvatarAnimationController(Avatar avatar, AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
         super(animationHandler, molangRuntime);
         this.avatar = avatar;
     }
