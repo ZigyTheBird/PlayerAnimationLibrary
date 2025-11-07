@@ -56,6 +56,7 @@ public class MolangLoader {
         MolangEvent.MOLANG_EVENT.invoker().registerMolangQueries(controller, engine, queryBinding);
         queryBinding.block(); // make immutable
 
+        engine.scope().set("math", new MochaMathExtensions(engine.scope().getProperty("math")));
         engine.scope().set("query", queryBinding);
         engine.scope().set("q", queryBinding);
         return engine;
@@ -65,6 +66,8 @@ public class MolangLoader {
         MochaEngine<?> engine = MochaEngine.createStandard();
         engine.handleParseExceptions(MolangLoader.HANDLER);
         engine.warnOnReflectiveFunctionUsage(true);
+
+        engine.scope().set("math", new MochaMathExtensions(engine.scope().getProperty("math")));
         return engine;
     }
 
