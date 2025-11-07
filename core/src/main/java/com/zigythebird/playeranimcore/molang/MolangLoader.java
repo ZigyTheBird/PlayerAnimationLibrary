@@ -45,9 +45,7 @@ public class MolangLoader {
     }
 
     public static MochaEngine<AnimationController> createNewEngine(AnimationController controller) {
-        MochaEngine<AnimationController> engine = MochaEngine.createStandard(controller);
-        engine.handleParseExceptions(MolangLoader.HANDLER);
-        engine.warnOnReflectiveFunctionUsage(true);
+        MochaEngine<AnimationController> engine = createBaseEngine(controller);
 
         MutableObjectBinding queryBinding = new QueryBinding<>(controller);
         setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimationTime);
@@ -56,14 +54,17 @@ public class MolangLoader {
         MolangEvent.MOLANG_EVENT.invoker().registerMolangQueries(controller, engine, queryBinding);
         queryBinding.block(); // make immutable
 
-        engine.scope().set("math", new MochaMathExtensions(engine.scope().getProperty("math")));
         engine.scope().set("query", queryBinding);
         engine.scope().set("q", queryBinding);
         return engine;
     }
 
     public static MochaEngine<?> createNewEngine() {
-        MochaEngine<?> engine = MochaEngine.createStandard();
+        return createNewEngine(null);
+    }
+
+    public static <T> MochaEngine<T> createBaseEngine(T entity) {
+        MochaEngine<T> engine = MochaEngine.createStandard(entity);
         engine.handleParseExceptions(MolangLoader.HANDLER);
         engine.warnOnReflectiveFunctionUsage(true);
 
