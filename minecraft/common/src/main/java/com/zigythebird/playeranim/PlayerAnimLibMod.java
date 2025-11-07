@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim;
 
-import com.zigythebird.playeranim.animation.PlayerAnimationController;
+import com.zigythebird.playeranim.animation.AvatarAnimationController;
 import com.zigythebird.playeranim.animation.keyframe.event.builtin.AutoPlayingSoundKeyframeHandler;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
 import com.zigythebird.playeranim.molang.MolangQueries;
@@ -19,7 +19,7 @@ public abstract class PlayerAnimLibMod extends PlayerAnimLib {
 
     protected void init() {
         PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(ANIMATION_LAYER_ID, 1000,
-                player -> new PlayerAnimationController(player,
+                player -> new AvatarAnimationController(player,
                         (controller, state, animSetter) -> PlayState.STOP
                 )
         );

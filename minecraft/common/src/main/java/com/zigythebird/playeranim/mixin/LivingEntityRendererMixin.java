@@ -59,7 +59,7 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
         if (livingEntityRenderState instanceof AvatarRenderState playerRenderState) {
             var animationPlayer = ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimManager();
             if (animationPlayer != null && animationPlayer.isActive()) {
-                ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().handleAnimations(animationPlayer.getTickDelta(), false);
+                ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimManager().handleAnimations(animationPlayer.getTickDelta(), false);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
                 //These are additive properties
