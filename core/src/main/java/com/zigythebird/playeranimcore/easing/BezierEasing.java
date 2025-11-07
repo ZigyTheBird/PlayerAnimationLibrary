@@ -1,6 +1,7 @@
 package com.zigythebird.playeranimcore.easing;
 
 import com.zigythebird.playeranimcore.animation.keyframe.AnimationPoint;
+import com.zigythebird.playeranimcore.math.MathHelper;
 import com.zigythebird.playeranimcore.math.ModVector2d;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +24,7 @@ abstract class BezierEasing implements EasingTypeTransformer {
     public float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue) {
         List<List<Expression>> easingArgs = animationPoint.easingArgs();
         if (easingArgs.isEmpty())
-            return MochaMath.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
+            return MathHelper.lerp(buildTransformer(easingValue).apply(lerpValue), animationPoint.animationStartValue(), animationPoint.animationEndValue());
 
         float rightValue = isEasingBefore() ? 0 : env.eval(easingArgs.getFirst());
         float rightTime = isEasingBefore() ? 0.1f : env.eval(easingArgs.get(1));
@@ -71,7 +72,7 @@ abstract class BezierEasing implements EasingTypeTransformer {
                 second_closest.set(point);
             }
         }
-        return MochaMath.lerp(Math.clamp(MochaMath.lerp(time, closest.x, second_closest.x), 0, 1), closest.y, second_closest.y);
+        return MathHelper.lerp(Math.clamp(MathHelper.lerp(time, closest.x, second_closest.x), 0, 1), closest.y, second_closest.y);
     }
 }
 

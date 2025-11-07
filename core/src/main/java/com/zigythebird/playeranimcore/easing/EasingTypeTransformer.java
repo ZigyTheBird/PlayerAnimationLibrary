@@ -1,10 +1,10 @@
 package com.zigythebird.playeranimcore.easing;
 
 import com.zigythebird.playeranimcore.animation.keyframe.AnimationPoint;
+import com.zigythebird.playeranimcore.math.MathHelper;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
-import team.unnamed.mocha.runtime.standard.MochaMath;
 import team.unnamed.mocha.runtime.value.ObjectValue;
 
 @FunctionalInterface
@@ -35,6 +35,6 @@ public interface EasingTypeTransformer extends ObjectValue.FloatFunction3 {
     }
 
     default float apply(float startValue, float endValue, @Nullable Float easingValue, float lerpValue) {
-        return MochaMath.lerp(buildTransformer(easingValue).apply(lerpValue), startValue, endValue);
+        return MathHelper.lerp(buildTransformer(easingValue).apply(lerpValue), startValue, endValue);
     }
 }
