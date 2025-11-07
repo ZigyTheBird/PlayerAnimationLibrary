@@ -1,12 +1,12 @@
 package com.zigythebird.playeranimcore.bones;
 
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
+import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import it.unimi.dsi.fastutil.Pair;
 
 /**
- * Transformations applied to the bone are monitored by the {@link AnimationProcessor}
+ * Transformations applied to the bone are monitored by the {@link AnimationController}
  * in the course of animations, and stored here for monitoring.
  */
 public class BoneSnapshot {
