@@ -8,6 +8,7 @@ import com.zigythebird.playeranimcore.math.MathHelper;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
+import team.unnamed.mocha.runtime.standard.MochaMath;
 
 import java.util.Locale;
 import java.util.Map;
@@ -219,7 +220,7 @@ public enum EasingType implements EasingTypeTransformer {
 	 * <a href="http://easings.net/#easeInSine">Easings.net#easeInSine</a>
 	 */
 	public static float sine(float n) {
-		return 1 - MathHelper.cos(n * MathHelper.PI / 2f);
+		return 1 - MathHelper.cos(n * MochaMath.PI / 2f);
 	}
 
 	/**
@@ -230,7 +231,7 @@ public enum EasingType implements EasingTypeTransformer {
 	 * <a href="http://easings.net/#easeInCirc">Easings.net#easeInCirc</a>
 	 */
 	public static float circle(float n) {
-		return 1 - MathHelper.sqrt(1 - n * n);
+		return 1 - MochaMath.sqrt(1 - n * n);
 	}
 
 	/**
@@ -241,7 +242,7 @@ public enum EasingType implements EasingTypeTransformer {
 	 * <a href="http://easings.net/#easeInExpo">Easings.net#easeInExpo</a>
 	 */
 	public static float exp(float n) {
-		return MathHelper.pow(2, 10 * (n - 1));
+		return MochaMath.pow(2, 10 * (n - 1));
 	}
 
 	// ---> Easing Curve Functions <--- //
@@ -258,7 +259,7 @@ public enum EasingType implements EasingTypeTransformer {
 	public static Float2FloatFunction elastic(Float n) {
 		float n2 = n == null ? 1 : n;
 
-		return t -> 1 - MathHelper.pow(MathHelper.cos(t * MathHelper.PI / 2f), 3) * MathHelper.cos(t * n2 * MathHelper.PI);
+		return t -> 1 - MochaMath.pow(MathHelper.cos(t * MochaMath.PI / 2f), 3) * MathHelper.cos(t * n2 * MochaMath.PI);
 	}
 
 	/**
@@ -274,9 +275,9 @@ public enum EasingType implements EasingTypeTransformer {
 		final float n2 = n == null ? 0.5f : n;
 
 		Float2FloatFunction one = x -> 121f / 16f * x * x;
-		Float2FloatFunction two = x -> 121f / 4f * n2 * MathHelper.pow(x - 6f / 11f, 2) + 1 - n2;
-		Float2FloatFunction three = x -> 121 * n2 * n2 * MathHelper.pow(x - 9f / 11f, 2) + 1 - n2 * n2;
-		Float2FloatFunction four = x -> 484 * n2 * n2 * n2 * MathHelper.pow(x - 10.5f / 11f, 2) + 1 - n2 * n2 * n2;
+		Float2FloatFunction two = x -> 121f / 4f * n2 * MochaMath.pow(x - 6f / 11f, 2) + 1 - n2;
+		Float2FloatFunction three = x -> 121 * n2 * n2 * MochaMath.pow(x - 9f / 11f, 2) + 1 - n2 * n2;
+		Float2FloatFunction four = x -> 484 * n2 * n2 * n2 * MochaMath.pow(x - 10.5f / 11f, 2) + 1 - n2 * n2 * n2;
 
 		return t -> Math.min(Math.min(one.apply(t), two.apply(t)), Math.min(three.apply(t), four.apply(t)));
 	}
@@ -302,7 +303,7 @@ public enum EasingType implements EasingTypeTransformer {
 	 * @param n The exponent
 	 */
 	public static Float2FloatFunction pow(float n) {
-		return t -> MathHelper.pow(t, n);
+		return t -> MochaMath.pow(t, n);
 	}
 
 	// The MIT license notice below applies to the function step

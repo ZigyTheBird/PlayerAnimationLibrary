@@ -9,12 +9,12 @@ import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
-import com.zigythebird.playeranimcore.math.MathHelper;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
+import team.unnamed.mocha.runtime.standard.MochaMath;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -213,8 +213,8 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         if (transformType == null) value -= def;
         if (shouldNegate) value *= -1;
         if (transformType == TransformType.ROTATION) {
-            if (degrees) value = MathHelper.toRadians(value);
-            value += (float) (Math.PI * 2 * rotate);
+            if (degrees) value = MochaMath.d2r(value);
+            value += MochaMath.PI * 2F * rotate;
         }
         if (transformType == TransformType.POSITION) value *= 16;
 

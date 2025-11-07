@@ -26,13 +26,18 @@ import java.util.function.ToDoubleFunction;
 public class MolangLoader {
     private static final Consumer<ParseException> HANDLER = e -> PlayerAnimLib.LOGGER.warn("Failed to parse!", e);
 
+    /**
+     * Common compiler, use only for compiling constants!
+     */
+    public static final MochaEngine<?> MOCHA_ENGINE = MolangLoader.createNewEngine();
+
     public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
         List<Expression> expressions;
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
             List<Expression> expressions1 = parser.parseAll();
             if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
                 expressions = new ArrayList<>();
-                expressions.add(FloatExpression.of(Math.toRadians(((FloatExpression) expressions1.getFirst()).value())));
+                expressions.add(FloatExpression.of(Math.toRadians(MOCHA_ENGINE.eval(expressions1))));
             } else {
                 expressions = expressions1;
             }
@@ -45,9 +50,7 @@ public class MolangLoader {
     }
 
     public static MochaEngine<AnimationController> createNewEngine(AnimationController controller) {
-        MochaEngine<AnimationController> engine = MochaEngine.createStandard(controller);
-        engine.handleParseExceptions(MolangLoader.HANDLER);
-        engine.warnOnReflectiveFunctionUsage(true);
+        MochaEngine<AnimationController> engine = createBaseEngine(controller);
 
         MutableObjectBinding queryBinding = new QueryBinding<>(controller);
         setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimationTime);
@@ -62,9 +65,15 @@ public class MolangLoader {
     }
 
     public static MochaEngine<?> createNewEngine() {
-        MochaEngine<?> engine = MochaEngine.createStandard();
+        return createNewEngine(null);
+    }
+
+    public static <T> MochaEngine<T> createBaseEngine(T entity) {
+        MochaEngine<T> engine = MochaEngine.createStandard(entity);
         engine.handleParseExceptions(MolangLoader.HANDLER);
         engine.warnOnReflectiveFunctionUsage(true);
+
+        engine.scope().set("math", new MochaMathExtensions(engine.scope().getProperty("math")));
         return engine;
     }
 

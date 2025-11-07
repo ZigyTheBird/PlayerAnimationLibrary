@@ -33,8 +33,6 @@ import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import com.zigythebird.playeranimcore.molang.MolangLoader;
-import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -45,6 +43,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Predicate;
 
+import static com.zigythebird.playeranimcore.molang.MolangLoader.MOCHA_ENGINE;
+
 /**
  * Utility class to convert animation data to a binary format.
  * Includes a size predictor, using {@link java.nio.ByteBuffer}
@@ -52,7 +52,6 @@ import java.util.function.Predicate;
  */
 @SuppressWarnings("unused")
 public final class LegacyAnimationBinary {
-    private static final MochaEngine<?> MOCHA_ENGINE = MolangLoader.createNewEngine();
     public static final Predicate<String> BEND_BONE = name -> !name.equals("head") && !name.equals("left_item") && !name.equals("right_item");
     public static final Predicate<String> ITEM_BONE = name -> name.equals("left_item") || name.equals("right_item");
 
