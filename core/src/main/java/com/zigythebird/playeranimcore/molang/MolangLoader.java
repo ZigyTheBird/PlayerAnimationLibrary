@@ -4,6 +4,9 @@ import com.google.gson.JsonElement;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.event.MolangEvent;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.MolangParser;
 import team.unnamed.mocha.parser.ParseException;
@@ -31,7 +34,15 @@ public class MolangLoader {
      */
     public static final MochaEngine<?> MOCHA_ENGINE = MolangLoader.createNewEngine();
 
-    public static List<Expression> parseJson(boolean isForRotation, JsonElement element, Expression defaultValue) {
+    @Contract("_, null, _ -> new; _, !null, _ -> new")
+    public static List<Expression> parseJson(boolean isForRotation, @Nullable JsonElement element, @NotNull Expression defaultValue) {
+        return parseJson(isForRotation, element, Collections.singletonList(defaultValue));
+    }
+
+    @Contract("_, null, _ -> param3; _, !null, _ -> !null")
+    public static List<Expression> parseJson(boolean isForRotation, @Nullable JsonElement element, @NotNull List<Expression> defaultValue) {
+        if (element == null) return defaultValue;
+
         List<Expression> expressions;
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
             List<Expression> expressions1 = parser.parseAll();
@@ -43,8 +54,7 @@ public class MolangLoader {
             }
         } catch (IOException e) {
             PlayerAnimLib.LOGGER.error("Failed to compile molang '{}'!", element, e);
-            if (defaultValue == null) return null;
-            return Collections.singletonList(defaultValue);
+            return defaultValue;
         }
         return expressions;
     }
