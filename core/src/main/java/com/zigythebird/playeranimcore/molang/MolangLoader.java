@@ -13,9 +13,7 @@ import team.unnamed.mocha.parser.ParseException;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 import team.unnamed.mocha.runtime.IsConstantExpression;
-import team.unnamed.mocha.runtime.value.MutableObjectBinding;
 import team.unnamed.mocha.runtime.value.NumberValue;
-import team.unnamed.mocha.runtime.value.ObjectValue;
 import team.unnamed.mocha.runtime.value.Value;
 
 import java.io.IOException;
@@ -62,7 +60,7 @@ public class MolangLoader {
     public static MochaEngine<AnimationController> createNewEngine(AnimationController controller) {
         MochaEngine<AnimationController> engine = createBaseEngine(controller);
 
-        MutableObjectBinding queryBinding = new QueryBinding<>(controller);
+        QueryBinding<AnimationController> queryBinding = new QueryBinding<>(controller);
         setDoubleQuery(queryBinding, "anim_time", AnimationController::getAnimationTime);
         setDoubleQuery(queryBinding, "controller_speed", AnimationController::getAnimationSpeed);
 
@@ -87,19 +85,19 @@ public class MolangLoader {
         return engine;
     }
 
-    public static boolean setDoubleQuery(ObjectValue binding, String name, ToDoubleFunction<AnimationController> value) {
+    public static <T> boolean setDoubleQuery(QueryBinding<T> binding, String name, ToDoubleFunction<T> value) {
         return setControllerQuery(binding, name, controller -> NumberValue.of(value.applyAsDouble(controller)));
     }
 
-    public static boolean setBoolQuery(ObjectValue binding, String name, Function<AnimationController, Boolean> value) {
+    public static <T> boolean setBoolQuery(QueryBinding<T> binding, String name, Function<T, Boolean> value) {
         return setControllerQuery(binding, name, controller -> Value.of((boolean) value.apply(controller)));
     }
 
     /**
      * some shit code
      */
-    public static boolean setControllerQuery(ObjectValue binding, String name, Function<AnimationController, Value> value) {
-        return binding.set(name, (team.unnamed.mocha.runtime.value.Function<AnimationController>)
+    public static <T> boolean setControllerQuery(QueryBinding<T> binding, String name, Function<T, Value> value) {
+        return binding.set(name, (team.unnamed.mocha.runtime.value.Function<T>)
                 (ctx, args) -> value.apply(ctx.entity())
         );
     }
