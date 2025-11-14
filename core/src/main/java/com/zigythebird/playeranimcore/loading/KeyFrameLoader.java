@@ -6,9 +6,12 @@ import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyframeData;
+import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.JsonUtil;
+import team.unnamed.mocha.parser.ast.Expression;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +48,7 @@ public class KeyFrameLoader implements JsonDeserializer<Animation.Keyframes> {
 			JsonObject obj = entry.getValue().getAsJsonObject();
 			String effect = JsonUtil.getAsString(obj, "effect", "");
 			String locator = JsonUtil.getAsString(obj, "locator", "");
-			String script = JsonUtil.getAsString(obj, "pre_effect_script", "");
+			List<Expression> script = MolangLoader.parseJson(false, obj.get("pre_effect_script"), Collections.emptyList());
 
 			particles[index] = new ParticleKeyframeData(Float.parseFloat(entry.getKey()) * 20f, effect, locator, script);
 			index++;

@@ -39,10 +39,15 @@ public class MolangLoader {
 
     @Contract("_, null, _ -> param3; _, !null, _ -> !null")
     public static List<Expression> parseJson(boolean isForRotation, @Nullable JsonElement element, @NotNull List<Expression> defaultValue) {
-        if (element == null) return defaultValue;
+        return parseJson(isForRotation, element == null ? null : element.getAsString(), defaultValue);
+    }
+
+    @Contract("_, null, _ -> param3; _, !null, _ -> !null")
+    public static List<Expression> parseJson(boolean isForRotation, @Nullable String string, @NotNull List<Expression> defaultValue) {
+        if (string == null) return defaultValue;
 
         List<Expression> expressions;
-        try (MolangParser parser = MolangParser.parser(element.getAsString())) {
+        try (MolangParser parser = MolangParser.parser(string)) {
             List<Expression> expressions1 = parser.parseAll();
             if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
                 expressions = new ArrayList<>();
@@ -51,7 +56,7 @@ public class MolangLoader {
                 expressions = expressions1;
             }
         } catch (IOException e) {
-            PlayerAnimLib.LOGGER.error("Failed to compile molang '{}'!", element, e);
+            PlayerAnimLib.LOGGER.error("Failed to compile molang '{}'!", string, e);
             return defaultValue;
         }
         return expressions;

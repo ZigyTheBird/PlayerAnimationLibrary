@@ -13,15 +13,18 @@ import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
+import com.zigythebird.playeranimcore.molang.MolangLoader;
 import io.netty.buffer.ByteBuf;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 import team.unnamed.mocha.runtime.IsConstantExpression;
 import team.unnamed.mocha.util.ExprBytesUtils;
+import team.unnamed.mocha.util.ExpressionListUtils;
 import team.unnamed.mocha.util.network.ProtocolUtils;
 import team.unnamed.mocha.util.network.VarIntUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +38,7 @@ public final class AnimationBinary {
      * Version 3: No change client side, but the server won't send some animations to versions lower than 3 due to the possibility of a crash.
      * Version 4: Fixed some issues with the body bone.
      */
-    public static final int CURRENT_VERSION = 4;
+    public static final int CURRENT_VERSION = 5;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
@@ -87,7 +90,11 @@ public final class AnimationBinary {
             buf.writeFloat(particleKeyframe.getStartTick());
             ProtocolUtils.writeString(buf, particleKeyframe.getEffect());
             ProtocolUtils.writeString(buf, particleKeyframe.getLocator());
-            ProtocolUtils.writeString(buf, particleKeyframe.script());
+            if (version >= 5) {
+                ExprBytesUtils.writeExpressions(particleKeyframe.script(), buf);
+            } else {
+                ProtocolUtils.writeString(buf, ExpressionListUtils.toString(particleKeyframe.script()));
+            }
         }
 
         // Instructions
@@ -176,7 +183,12 @@ public final class AnimationBinary {
             float startTick = buf.readFloat();
             String effect = ProtocolUtils.readString(buf);
             String locator = ProtocolUtils.readString(buf);
-            String script = ProtocolUtils.readString(buf);
+            List<Expression> script;
+            if (version >= 5) {
+                script = ExprBytesUtils.readExpressions(buf);
+            } else {
+                script = MolangLoader.parseJson(false, ProtocolUtils.readString(buf), Collections.emptyList());
+            }
             particles[i] = new ParticleKeyframeData(startTick, effect, locator, script);
         }
 

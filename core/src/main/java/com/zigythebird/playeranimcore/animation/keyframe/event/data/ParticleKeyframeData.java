@@ -25,7 +25,9 @@
 package com.zigythebird.playeranimcore.animation.keyframe.event.data;
 
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
+import team.unnamed.mocha.parser.ast.Expression;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,9 +36,9 @@ import java.util.Objects;
 public class ParticleKeyframeData extends KeyFrameData {
 	private final String effect;
 	private final String locator;
-	private final String script;
+	private final List<Expression> script;
 
-	public ParticleKeyframeData(float startTick, String effect, String locator, String script) {
+	public ParticleKeyframeData(float startTick, String effect, String locator, List<Expression> script) {
 		super(startTick);
 
 		this.script = script;
@@ -61,7 +63,7 @@ public class ParticleKeyframeData extends KeyFrameData {
 	/**
 	 * Gets the script string given by the {@link Keyframe} instruction from the {@code animation.json}
 	 */
-	public String script() {
+	public List<Expression> script() {
 		return this.script;
 	}
 
