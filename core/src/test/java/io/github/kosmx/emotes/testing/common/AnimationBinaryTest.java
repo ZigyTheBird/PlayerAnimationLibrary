@@ -36,7 +36,7 @@ public class AnimationBinaryTest {
 
         for (int version = 1; version <= LegacyAnimationBinary.getCurrentVersion(); version++) {
             int len = LegacyAnimationBinary.calculateSize(animation, version);
-            ByteBuf byteBuf = Unpooled.buffer();
+            ByteBuf byteBuf = Unpooled.buffer(len);
             LegacyAnimationBinary.write(animation, byteBuf, version);
             Assertions.assertEquals(len, byteBuf.writerIndex(), "Incorrect size calculator!");
 
