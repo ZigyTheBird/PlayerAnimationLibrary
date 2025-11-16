@@ -22,6 +22,6 @@ public class PlayerAnimLib {
             .registerTypeAdapter(Animation.Keyframes.class, new KeyFrameLoader())
             .registerTypeAdapter(Animation.class, new AnimationLoader())
             .registerTypeAdapter(ANIMATIONS_MAP_TYPE, new UniversalAnimLoader())
-            .setPrettyPrinting()
+            .disableHtmlEscaping()
             .create();
 }
