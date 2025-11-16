@@ -9,7 +9,8 @@ public class ParticleEffectUtils {
     }
 
     public static String getIdentifier(JsonObject obj) {
-        if (obj.has("particle_effect")) obj = obj.getAsJsonObject("particle_effect");
-        return obj.getAsJsonObject("description").get("identifier").getAsString();
+        return obj.getAsJsonObject("particle_effect")
+                .getAsJsonObject("description")
+                .get("identifier").getAsString();
     }
 }
