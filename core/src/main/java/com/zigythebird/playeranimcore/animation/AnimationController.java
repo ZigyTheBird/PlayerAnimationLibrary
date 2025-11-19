@@ -94,7 +94,6 @@ public abstract class AnimationController implements IAnimation {
 	protected float startAnimFrom;
 	protected State animationState = State.STOPPED;
 	protected boolean isLoopStarted = false;
-	//TODO Maybe make the function return a BoneModifier instance instead.
 	protected Consumer<Function<String, AdvancedPlayerAnimBone>> postAnimationSetupConsumer = function -> {};
 	protected Function<AnimationController, EasingType> overrideEasingTypeFunction = controller -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
