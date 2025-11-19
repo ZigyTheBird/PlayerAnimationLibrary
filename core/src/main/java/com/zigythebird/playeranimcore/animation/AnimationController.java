@@ -191,18 +191,6 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * Allows you to get a bone from the controller.
-	 * This is used so you can disable/enable bone axes mid-animation,
-	 * and you probably shouldn't touch anything other than that.
-	 *
-	 * @param name Name of the bone you want to get.
-	 * @return The requested bone.
-	 */
-	public @Nullable AdvancedPlayerAnimBone getBone(String name) {
-		return this.bones.get(name);
-	}
-
-	/**
 	 * Gets the currently loaded {@link Animation}, if present
 	 * <p>
 	 * An animation returned here does not guarantee it is currently playing, just that it is the currently loaded animation for this controller
@@ -1020,6 +1008,18 @@ public abstract class AnimationController implements IAnimation {
 	public AdvancedPlayerAnimBone registerPlayerAnimBone(AdvancedPlayerAnimBone bone) {
 		this.bones.put(bone.getName(), bone);
 		return bone;
+	}
+
+	/**
+	 * Allows you to get a bone from the controller.
+	 * This is used so you can disable/enable bone axes mid-animation,
+	 * and you probably shouldn't touch anything other than that.
+	 *
+	 * @param name Name of the bone you want to get.
+	 * @return The requested bone.
+	 */
+	public @Nullable AdvancedPlayerAnimBone getBone(String name) {
+		return this.bones.get(name);
 	}
 
 	/**

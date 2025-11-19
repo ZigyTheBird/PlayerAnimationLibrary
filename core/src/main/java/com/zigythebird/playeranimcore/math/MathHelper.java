@@ -6,8 +6,6 @@ import team.unnamed.mocha.runtime.standard.MochaMath;
  * Some casts to {@link float} to make my life easier.
  */
 public class MathHelper {
-    public static final float PI = 3.1415927f;
-
     public static float cos(float a) {
         return (float) Math.cos(a);
     }
