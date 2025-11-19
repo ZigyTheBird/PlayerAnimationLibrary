@@ -38,10 +38,7 @@ import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractModifie
 import com.zigythebird.playeranimcore.animation.layered.modifier.SpeedModifier;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranimcore.bones.AdvancedBoneSnapshot;
-import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
-import com.zigythebird.playeranimcore.bones.PivotBone;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.bones.*;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.enums.PlayState;
@@ -98,6 +95,7 @@ public abstract class AnimationController implements IAnimation {
 	protected float startAnimFrom;
 	protected State animationState = State.STOPPED;
 	protected boolean isLoopStarted = false;
+	//TODO Maybe make the function return a BoneModifier instance instead.
 	protected Consumer<Function<String, AdvancedPlayerAnimBone>> postAnimationSetupConsumer = function -> {};
 	protected Function<AnimationController, EasingType> overrideEasingTypeFunction = controller -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
@@ -192,6 +190,15 @@ public abstract class AnimationController implements IAnimation {
 		this.handlingTriggeredAnimations = true;
 
 		return this;
+	}
+
+	/**
+	 * @param name Name of the bone you want to modify.
+	 * @return A BoneModifier instance that allows you to enable/disable axes.
+	 */
+	public @Nullable BoneModifier getModifierForBone(String name) {
+		AdvancedPlayerAnimBone bone = this.bones.get(name);
+		return bone == null ? null : new BoneModifier(bone);
 	}
 
 	/**
