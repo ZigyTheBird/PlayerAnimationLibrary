@@ -46,7 +46,6 @@ import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.event.EventResult;
 import com.zigythebird.playeranimcore.math.ModMatrix4f;
-import com.zigythebird.playeranimcore.math.ModVector4f;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
@@ -193,12 +192,15 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	/**
-	 * @param name Name of the bone you want to modify.
-	 * @return A BoneModifier instance that allows you to enable/disable axes.
+	 * Allows you to get a bone from the controller.
+	 * This is used so you can disable/enable bone axes mid-animation,
+	 * and you probably shouldn't touch anything other than that.
+	 *
+	 * @param name Name of the bone you want to get.
+	 * @return The requested bone.
 	 */
-	public @Nullable BoneModifier getModifierForBone(String name) {
-		AdvancedPlayerAnimBone bone = this.bones.get(name);
-		return bone == null ? null : new BoneModifier(bone);
+	public @Nullable AdvancedPlayerAnimBone getBone(String name) {
+		return this.bones.get(name);
 	}
 
 	/**
