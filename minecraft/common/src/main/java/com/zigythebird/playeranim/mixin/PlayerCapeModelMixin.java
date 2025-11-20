@@ -14,12 +14,20 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import team.unnamed.mocha.runtime.standard.MochaMath;
 
-@Mixin(PlayerCapeModel.class)
+//Set the priority high cause why not!
+@Mixin(value = PlayerCapeModel.class, priority = 2001)
 public class PlayerCapeModelMixin implements ICapeLayer {
     @Shadow
     @Final
     private ModelPart cape;
+
+    //Make sure nothing from the previous frame remains.
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("HEAD"))
+    private void resetPose(AvatarRenderState renderState, CallbackInfo ci) {
+        this.cape.resetPose();
+    }
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
     private void setupAnim(AvatarRenderState avatarRenderState, CallbackInfo ci) {
@@ -27,15 +35,15 @@ public class PlayerCapeModelMixin implements ICapeLayer {
         if (emote != null && emote.isActive()) {
             PlayerAnimBone bone = RenderUtil.copyVanillaPart(this.cape, new PlayerAnimBone("cape"));
 
-            bone.rotY += (float) -Math.PI;
+            bone.rotX -= MochaMath.PI;
+            bone.rotZ -= MochaMath.PI;
             bone.rotX *= -1;
+            bone.rotY *= -1;
             bone = emote.get3DTransform(bone);
-            bone.rotY += (float) Math.PI;
             bone.rotX *= -1;
-
-            // bone.positionX *= -1;
-            // bone.positionZ *= -1;
-            // bone.rotZ *= -1;
+            bone.rotY *= -1;
+            bone.rotX += MochaMath.PI;
+            bone.rotZ += MochaMath.PI;
 
             RenderUtil.translatePartToCape(this.cape, bone, this.cape.getInitialPose());
 
