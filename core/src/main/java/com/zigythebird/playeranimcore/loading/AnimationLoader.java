@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 
 public class AnimationLoader implements JsonDeserializer<Animation> {
+	public static String OVERRIDE_PREVIOUS_ANIMATION = "override_previous_animation";
+
 	private static final List<List<Expression>> ZERO_ARRAY;
 	private static final List<List<Expression>> ZERO_POINT_ONE_ARRAY;
 	private static final List<List<Expression>> MINUS_ZERO_POINT_ONE_ARRAY;
@@ -68,6 +70,12 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 
 		// Extra data
 		ExtraAnimationData extraData = new ExtraAnimationData();
+		if (animationObj.has(OVERRIDE_PREVIOUS_ANIMATION)) {
+			if (animationObj.get(OVERRIDE_PREVIOUS_ANIMATION) instanceof JsonPrimitive primitive && primitive.isBoolean() && primitive.getAsBoolean()) {
+				extraData.put(ExtraAnimationData.DISABLE_AXIS_IF_NOT_MODIFIED, false);
+			}
+			else throw new JsonParseException("Expected boolean value for override_previous_animation, but got " + animationObj.get(OVERRIDE_PREVIOUS_ANIMATION));
+		}
 		if (animationObj.has(PlayerAnimLib.MOD_ID)) {
 			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID), false);
 		}
@@ -152,6 +160,15 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 	private static JsonArray extractBedrockKeyframe(JsonElement keyframe) {
 		if (keyframe.isJsonArray())
 			return keyframe.getAsJsonArray();
+
+		//For bends
+		if (keyframe.isJsonPrimitive()) {
+			JsonArray array = new JsonArray(3);
+			array.add(keyframe.getAsFloat());
+			array.add(0);
+			array.add(0);
+			return array;
+		}
 
 		if (!keyframe.isJsonObject())
 			throw new JsonParseException("Invalid keyframe data - expected array or object, found " + keyframe);
@@ -264,10 +281,28 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			prevEntry = entry;
 		}
 
-		return new KeyframeStack(addArgsForKeyframes(xFrames), addArgsForKeyframes(yFrames), addArgsForKeyframes(zFrames));
+		return new KeyframeStack(finalKeyframeModifications(xFrames), finalKeyframeModifications(yFrames), finalKeyframeModifications(zFrames));
 	}
 
-	private static List<Keyframe> addArgsForKeyframes(List<Keyframe> frames) {
+	private static List<Keyframe> finalKeyframeModifications(List<Keyframe> frames) {
+		boolean isAllMoLangThis = true;
+		for (Keyframe keyframe : frames) {
+			if (isNotAllMoLangThis(keyframe.startValue()) || isNotAllMoLangThis(keyframe.endValue())) {
+				isAllMoLangThis = false;
+				break;
+			}
+		}
+		if (isAllMoLangThis) return Collections.emptyList();
+
+		boolean isAllTheSame = true;
+		for (Keyframe keyframe : frames) {
+			if (!keyframe.startValue().equals(keyframe.endValue())) {
+				isAllTheSame = false;
+				break;
+			}
+		}
+		if (isAllTheSame) return Collections.singletonList(new Keyframe(0, frames.getFirst().startValue(), frames.getFirst().startValue()));
+
 		if (frames.size() == 1) {
 			Keyframe frame = frames.getFirst();
 
@@ -304,6 +339,11 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		}
 
 		return frames;
+	}
+
+	public static boolean isNotAllMoLangThis(List<Expression> expressions) {
+		if (expressions.size() > 1) return true;
+		return !(expressions.isEmpty() || expressions.getFirst() == MolangLoader.THIS);
 	}
 
 	public static float calculateAnimationLength(Map<String, BoneAnimation> boneAnimations) {
