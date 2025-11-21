@@ -5,29 +5,20 @@
 			"loop": true,
 			"bones": {
 				"torso": {
-					"bend": {
-						"vector": 60
-					}
+					"bend": 60
 				},
 				"right_arm": {
 					"bend": {
-						"vector": -62.5
+						"value": -62.5
 					}
 				},
 				"left_arm": {
 					"bend": {
-						"vector": -47.5
-					}
-				},
-				"head": {
-					"bend": {
-						"vector": 30
+						"value": -47.5
 					}
 				},
 				"left_leg": {
-					"bend": {
-						"vector": -35
-					}
+					"bend": -35
 				}
 			}
 		}

@@ -61,6 +61,9 @@ public class MolangLoader {
                 else if (isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
                     expressions.add(FloatExpression.of(Math.toRadians(MOCHA_ENGINE.eval(expressions1))));
                 }
+                else {
+                    expressions = expressions1;
+                }
             } else {
                 expressions = expressions1;
             }

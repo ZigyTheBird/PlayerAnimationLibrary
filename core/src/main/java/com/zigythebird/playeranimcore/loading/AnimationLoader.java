@@ -133,6 +133,15 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			if (obj.has("vector"))
 				return ObjectArrayList.of(FloatObjectPair.of(0, obj));
 
+			if (obj.has("value")) {
+				JsonArray array = new JsonArray(3);
+				array.add(obj.get("value").getAsFloat());
+				array.add(0);
+				array.add(0);
+				obj.add("vector", array);
+				return ObjectArrayList.of(FloatObjectPair.of(0, obj));
+			}
+
 			List<FloatObjectPair<JsonElement>> list = new ObjectArrayList<>();
 
 			for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
@@ -141,10 +150,19 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 				if (timestamp == 0 && !list.isEmpty())
 					throw new JsonParseException("Invalid keyframe data - multiple starting keyframes?" + entry.getKey());
 
-				if (entry.getValue() instanceof JsonObject entryObj && !entryObj.has("vector")) {
-					addBedrockKeyframes(timestamp, entryObj, list);
-
-					continue;
+				if (entry.getValue() instanceof JsonObject entryObj) {
+					if (entryObj.has("value")) {
+						JsonArray array = new JsonArray(3);
+						array.add(entryObj.get("value").getAsFloat());
+						array.add(0);
+						array.add(0);
+						entryObj.add("vector", array);
+						list.add(FloatObjectPair.of(timestamp, entryObj));
+					}
+					else if (!entryObj.has("vector")) {
+						addBedrockKeyframes(timestamp, entryObj, list);
+						continue;
+					}
 				}
 
 				list.add(FloatObjectPair.of(timestamp, entry.getValue()));
@@ -294,6 +312,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		}
 		if (isAllMoLangThis) return Collections.emptyList();
 
+		//TODO We can probably do better optimization than this
 		boolean isAllTheSame = true;
 		for (Keyframe keyframe : frames) {
 			if (!keyframe.startValue().equals(keyframe.endValue())) {
