@@ -32,6 +32,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.easing.EasingType;
+import com.zigythebird.playeranimcore.enums.Axis;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
@@ -270,28 +271,12 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			List<Expression> zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
-			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
-			List<List<Expression>> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
-					JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsFloat()))) :
-					new ObjectArrayList<>();
+			EasingType easingType = getEasingForAxis(entryObj, null);
+			List<List<Expression>> easingArgs = getEasingArgsForAxis(entryObj, null);
 
-			boolean isBezier = EasingType.BEZIER == easingType;
-
-			List<List<Expression>> leftValues = null;
-			List<List<Expression>> rightValues = null;
-			List<List<Expression>> leftTimes = null;
-			List<List<Expression>> rightTimes = null;
-
-			if (isBezier) {
-				leftValues = entryObj.has("left") ? JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "left"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsDouble()))) : ZERO_ARRAY;
-				rightValues = entryObj.has("right") ? JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "right"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsDouble()))) : ZERO_ARRAY;
-				leftTimes = entryObj.has("left_time") ? JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "left_time"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsDouble()))) : MINUS_ZERO_POINT_ONE_ARRAY;
-				rightTimes = entryObj.has("right_time") ? JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "right_time"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsDouble()))) : ZERO_POINT_ONE_ARRAY;
-			}
-
-			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, isBezier ? ObjectArrayList.of(leftValues.get(0), leftTimes.get(0), rightValues.get(0), rightTimes.get(0)) : easingArgs));
-			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, isBezier ? ObjectArrayList.of(leftValues.get(1), leftTimes.get(1), rightValues.get(1), rightTimes.get(1)) : easingArgs));
-			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, isBezier ? ObjectArrayList.of(leftValues.get(2), leftTimes.get(2), rightValues.get(2), rightTimes.get(2)) : easingArgs));
+			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, getEasingForAxis(entryObj, Axis.X, easingType), getEasingArgsForAxis(entryObj, Axis.X, easingArgs)));
+			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, getEasingForAxis(entryObj, Axis.Y, easingType), getEasingArgsForAxis(entryObj, Axis.Y, easingArgs)));
+			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, getEasingForAxis(entryObj, Axis.Z, easingType), getEasingArgsForAxis(entryObj, Axis.Z, easingArgs)));
 			
 			xPrev = xValue;
 			yPrev = yValue;
@@ -300,6 +285,28 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		}
 
 		return new KeyframeStack(finalKeyframeModifications(xFrames), finalKeyframeModifications(yFrames), finalKeyframeModifications(zFrames));
+	}
+
+	public static EasingType getEasingForAxis(JsonObject entryObj, Axis axis, EasingType easingType) {
+		EasingType axisEasingType = getEasingForAxis(entryObj, axis);
+		return axisEasingType == null ? easingType : axisEasingType;
+	}
+
+	public static EasingType getEasingForAxis(JsonObject entryObj, Axis axis) {
+		String memberName = "easing" + Axis.toString(axis);
+		return entryObj != null && entryObj.has(memberName) ? EasingType.fromJson(entryObj.get(memberName)) : null;
+	}
+
+	public static List<List<Expression>> getEasingArgsForAxis(JsonObject entryObj, Axis axis, List<List<Expression>> easingArg) {
+		List<List<Expression>> axisEasingArgs = getEasingArgsForAxis(entryObj, axis);
+		return axisEasingArgs == null ? easingArg : axisEasingArgs;
+	}
+
+	public static List<List<Expression>> getEasingArgsForAxis(JsonObject entryObj, Axis axis) {
+		String memberName = "easingArgs" + Axis.toString(axis);
+		return entryObj != null && entryObj.has(memberName) ?
+				JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, memberName), ele -> Collections.singletonList(FloatExpression.of(ele.getAsFloat()))) :
+				null;
 	}
 
 	private static List<Keyframe> finalKeyframeModifications(List<Keyframe> frames) {
