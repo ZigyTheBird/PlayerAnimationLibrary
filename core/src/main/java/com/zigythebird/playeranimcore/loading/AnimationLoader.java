@@ -51,10 +51,6 @@ import java.util.Map;
 public class AnimationLoader implements JsonDeserializer<Animation> {
 	public static String OVERRIDE_PREVIOUS_ANIMATION = "override_previous_animation";
 
-	private static final List<List<Expression>> ZERO_ARRAY;
-	private static final List<List<Expression>> ZERO_POINT_ONE_ARRAY;
-	private static final List<List<Expression>> MINUS_ZERO_POINT_ONE_ARRAY;
-
 	@Override
 	public Animation deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 		JsonObject animationObj = json.getAsJsonObject();
@@ -390,15 +386,5 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		} catch (Throwable th) {
 			return 0;
 		}
-	}
-
-	static {
-		List<Expression> ZERO = Collections.singletonList(FloatExpression.of(0));
-		List<Expression> ZERO_POINT_ONE = Collections.singletonList(FloatExpression.of(0.1));
-		List<Expression> MINUS_ZERO_POINT_ONE = Collections.singletonList(FloatExpression.of(-0.1));
-
-		ZERO_ARRAY = ObjectArrayList.of(ZERO, ZERO, ZERO);
-		ZERO_POINT_ONE_ARRAY = ObjectArrayList.of(ZERO_POINT_ONE, ZERO_POINT_ONE, ZERO_POINT_ONE);
-		MINUS_ZERO_POINT_ONE_ARRAY = ObjectArrayList.of(MINUS_ZERO_POINT_ONE, MINUS_ZERO_POINT_ONE, MINUS_ZERO_POINT_ONE);
 	}
 }
