@@ -745,17 +745,6 @@ public abstract class AnimationController implements IAnimation {
 					bone.scaleZEnabled = !boneAnimation.scaleKeyFrames().zKeyframes().isEmpty();
 
 					bone.bendEnabled = !boneAnimation.bendKeyFrames().isEmpty();
-					
-					if (!this.isAnimationPlayerAnimatorFormat()) {
-						if (bone.positionXEnabled || bone.positionYEnabled || bone.positionZEnabled)
-							bone.setPositionEnabled(true);
-
-						if (bone.rotXEnabled || bone.rotYEnabled || bone.rotZEnabled)
-							bone.setRotEnabled(true);
-
-						if (bone.scaleXEnabled || bone.scaleYEnabled || bone.scaleZEnabled)
-							bone.setScaleEnabled(true);
-					}
 				} else bone.setEnabled(true);
 			}
 			else if (pivotBones.containsKey(entry.getKey()))
