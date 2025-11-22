@@ -268,8 +268,8 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			List<Expression> zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
-			EasingType easingType = getEasingForAxis(entryObj, null);
-			List<List<Expression>> easingArgs = getEasingArgsForAxis(entryObj, null);
+			EasingType easingType = getEasingForAxis(entryObj, null, EasingType.LINEAR);
+			List<List<Expression>> easingArgs = getEasingArgsForAxis(entryObj, null, new ObjectArrayList<>());
 
 			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, getEasingForAxis(entryObj, Axis.X, easingType), getEasingArgsForAxis(entryObj, Axis.X, easingArgs)));
 			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, getEasingForAxis(entryObj, Axis.Y, easingType), getEasingArgsForAxis(entryObj, Axis.Y, easingArgs)));
@@ -284,28 +284,18 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		return new KeyframeStack(finalKeyframeModifications(xFrames), finalKeyframeModifications(yFrames), finalKeyframeModifications(zFrames));
 	}
 
-	public static EasingType getEasingForAxis(JsonObject entryObj, Axis axis, EasingType easingType) {
-		EasingType axisEasingType = getEasingForAxis(entryObj, axis);
-		return axisEasingType == null ? easingType : axisEasingType;
-	}
-
-	public static EasingType getEasingForAxis(JsonObject entryObj, Axis axis) {
+	private static EasingType getEasingForAxis(JsonObject entryObj, Axis axis, EasingType easingType) {
 		String memberName = "easing";
 		if (axis != null) memberName += axis.name();
-		return entryObj != null && entryObj.has(memberName) ? EasingType.fromJson(entryObj.get(memberName)) : null;
+		return entryObj != null && entryObj.has(memberName) ? EasingType.fromJson(entryObj.get(memberName)) : easingType;
 	}
 
-	public static List<List<Expression>> getEasingArgsForAxis(JsonObject entryObj, Axis axis, List<List<Expression>> easingArg) {
-		List<List<Expression>> axisEasingArgs = getEasingArgsForAxis(entryObj, axis);
-		return axisEasingArgs == null ? easingArg : axisEasingArgs;
-	}
-
-	public static List<List<Expression>> getEasingArgsForAxis(JsonObject entryObj, Axis axis) {
+	private static List<List<Expression>> getEasingArgsForAxis(JsonObject entryObj, Axis axis, List<List<Expression>> easingArg) {
 		String memberName = "easingArgs";
 		if (axis != null) memberName += axis.name();
 		return entryObj != null && entryObj.has(memberName) ?
 				JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, memberName), ele -> Collections.singletonList(FloatExpression.of(ele.getAsFloat()))) :
-				null;
+				easingArg;
 	}
 
 	private static List<Keyframe> finalKeyframeModifications(List<Keyframe> frames) {
