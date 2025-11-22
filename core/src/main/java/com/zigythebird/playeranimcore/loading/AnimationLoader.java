@@ -41,6 +41,7 @@ import it.unimi.dsi.fastutil.floats.FloatObjectPair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
+import team.unnamed.mocha.parser.ast.IdentifierExpression;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -289,7 +290,8 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 	}
 
 	public static EasingType getEasingForAxis(JsonObject entryObj, Axis axis) {
-		String memberName = "easing" + Axis.toString(axis);
+		String memberName = "easing";
+		if (axis != null) memberName += axis.name();
 		return entryObj != null && entryObj.has(memberName) ? EasingType.fromJson(entryObj.get(memberName)) : null;
 	}
 
@@ -299,7 +301,8 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 	}
 
 	public static List<List<Expression>> getEasingArgsForAxis(JsonObject entryObj, Axis axis) {
-		String memberName = "easingArgs" + Axis.toString(axis);
+		String memberName = "easingArgs";
+		if (axis != null) memberName += axis.name();
 		return entryObj != null && entryObj.has(memberName) ?
 				JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, memberName), ele -> Collections.singletonList(FloatExpression.of(ele.getAsFloat()))) :
 				null;
@@ -365,7 +368,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 
 	public static boolean isNotAllMoLangThis(List<Expression> expressions) {
 		if (expressions.size() > 1) return true;
-		return !(expressions.isEmpty() || expressions.getFirst() == MolangLoader.THIS);
+		return !(expressions.isEmpty() || expressions.getFirst() instanceof IdentifierExpression identifierExpression && "this".equals(identifierExpression.name()));
 	}
 
 	public static float calculateAnimationLength(Map<String, BoneAnimation> boneAnimations) {

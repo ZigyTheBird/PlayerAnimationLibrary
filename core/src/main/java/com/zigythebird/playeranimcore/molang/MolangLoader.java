@@ -12,7 +12,6 @@ import team.unnamed.mocha.parser.MolangParser;
 import team.unnamed.mocha.parser.ParseException;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
-import team.unnamed.mocha.parser.ast.IdentifierExpression;
 import team.unnamed.mocha.runtime.IsConstantExpression;
 import team.unnamed.mocha.runtime.value.NumberValue;
 import team.unnamed.mocha.runtime.value.Value;
@@ -27,7 +26,6 @@ import java.util.function.ToDoubleFunction;
 
 public class MolangLoader {
     private static final Consumer<ParseException> HANDLER = e -> PlayerAnimLib.LOGGER.warn("Failed to parse!", e);
-    public static final IdentifierExpression THIS = new IdentifierExpression("this");
 
     /**
      * Common compiler, use only for compiling constants!
@@ -46,24 +44,9 @@ public class MolangLoader {
         List<Expression> expressions;
         try (MolangParser parser = MolangParser.parser(element.getAsString())) {
             List<Expression> expressions1 = parser.parseAll();
-            if (expressions1.size() == 1) {
+            if (expressions1.size() == 1 && isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
                 expressions = new ArrayList<>();
-                //TODO Move this to Mocha
-                //There should be a single static instance of all Bedrock identifier expressions,
-                // just like how float expressions have a static zero and one.
-                //Also there is this weird bug or maybe even intended behavior with Blockbench,
-                // where this gets exported as -this instead so this code fails
-                //The best option is to get Blockbench to fix that,
-                // but IDK how likely that is to happen.
-                if (expressions1.getFirst() instanceof IdentifierExpression identifierExpression && "this".equals(identifierExpression.name())) {
-                    expressions.add(THIS);
-                }
-                else if (isForRotation && IsConstantExpression.test(expressions1.getFirst())) {
-                    expressions.add(FloatExpression.of(Math.toRadians(MOCHA_ENGINE.eval(expressions1))));
-                }
-                else {
-                    expressions = expressions1;
-                }
+                expressions.add(FloatExpression.of(Math.toRadians(MOCHA_ENGINE.eval(expressions1))));
             } else {
                 expressions = expressions1;
             }
