@@ -174,7 +174,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		if (keyframe.isJsonArray())
 			return keyframe.getAsJsonArray();
 
-		//For bends
+		// For bends
 		if (keyframe.isJsonPrimitive()) {
 			JsonArray array = new JsonArray(3);
 			array.add(keyframe.getAsFloat());
