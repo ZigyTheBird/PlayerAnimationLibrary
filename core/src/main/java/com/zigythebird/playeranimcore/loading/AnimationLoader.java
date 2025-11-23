@@ -278,7 +278,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			prevEntry = entry;
 		}
 
-		return new KeyframeStack(finalKeyframeModifications(xFrames), finalKeyframeModifications(yFrames), finalKeyframeModifications(zFrames));
+		return new KeyframeStack(addArgsForKeyframes(xFrames), addArgsForKeyframes(yFrames), addArgsForKeyframes(zFrames));
 	}
 
 	private static EasingType getEasingForAxis(JsonObject entryObj, Axis axis, EasingType easingType) {
@@ -295,7 +295,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 				easingArg;
 	}
 
-	private static List<Keyframe> finalKeyframeModifications(List<Keyframe> frames) {
+	private static List<Keyframe> addArgsForKeyframes(List<Keyframe> frames) {
 		boolean isAllMoLangThis = true;
 		for (Keyframe keyframe : frames) {
 			if (isNotAllMoLangThis(keyframe.startValue()) || isNotAllMoLangThis(keyframe.endValue())) {
