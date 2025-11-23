@@ -68,11 +68,8 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 
 		// Extra data
 		ExtraAnimationData extraData = new ExtraAnimationData();
-		if (animationObj.has(OVERRIDE_PREVIOUS_ANIMATION)) {
-			if (animationObj.get(OVERRIDE_PREVIOUS_ANIMATION) instanceof JsonPrimitive primitive && primitive.isBoolean() && primitive.getAsBoolean()) {
-				extraData.put(ExtraAnimationData.DISABLE_AXIS_IF_NOT_MODIFIED, false);
-			}
-			else throw new JsonParseException("Expected boolean value for override_previous_animation, but got " + animationObj.get(OVERRIDE_PREVIOUS_ANIMATION));
+		if (JsonUtil.getAsBoolean(animationObj, OVERRIDE_PREVIOUS_ANIMATION, false)) {
+			extraData.put(ExtraAnimationData.DISABLE_AXIS_IF_NOT_MODIFIED, false);
 		}
 		if (animationObj.has(PlayerAnimLib.MOD_ID)) {
 			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID), false);
