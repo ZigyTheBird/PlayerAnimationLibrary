@@ -295,7 +295,8 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 
 	private static List<Keyframe> addArgsForKeyframes(List<Keyframe> frames) {
 		if (frames.getFirst().startValue().getFirst() instanceof AccessExpression accessExpression
-				&& "disabled".equals(accessExpression.property()))
+				&& "disabled".equals(accessExpression.property()) && accessExpression.object() instanceof IdentifierExpression identifierExpression
+				&& "pal".equals(identifierExpression.name()))
 			return Collections.emptyList();
 
 		if (frames.size() == 1) {
