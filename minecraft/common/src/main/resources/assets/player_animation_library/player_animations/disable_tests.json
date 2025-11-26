@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"no_this": {
+		"no_disable": {
 			"loop": true,
 			"animation_length": 2,
 			"bones": {
@@ -20,20 +20,20 @@
 				}
 			}
 		},
-		"this_test": {
+		"disable_test": {
 			"loop": true,
 			"animation_length": 2,
 			"bones": {
 				"left_arm": {
 					"rotation": {
 						"0.0": {
-							"vector": ["this", "this", 0]
+							"vector": ["pal.disabled", "pal.disabled", 0]
 						},
 						"1.0": {
-							"vector": ["this", "this", -40]
+							"vector": [0, 0, -40]
 						},
 						"2.0": {
-							"vector": ["this", "this", 0]
+							"vector": [0, 0, 0]
 						}
 					}
 				}

@@ -39,6 +39,7 @@ import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.JsonUtil;
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import team.unnamed.mocha.parser.ast.AccessExpression;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 import team.unnamed.mocha.parser.ast.IdentifierExpression;
@@ -68,9 +69,6 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 
 		// Extra data
 		ExtraAnimationData extraData = new ExtraAnimationData();
-		if (JsonUtil.getAsBoolean(animationObj, OVERRIDE_PREVIOUS_ANIMATION, false)) {
-			extraData.put(ExtraAnimationData.DISABLE_AXIS_IF_NOT_MODIFIED, false);
-		}
 		if (animationObj.has(PlayerAnimLib.MOD_ID)) {
 			extraData.fromJson(animationObj.getAsJsonObject(PlayerAnimLib.MOD_ID), false);
 		}
@@ -296,24 +294,9 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 	}
 
 	private static List<Keyframe> addArgsForKeyframes(List<Keyframe> frames) {
-		boolean isAllMoLangThis = true;
-		for (Keyframe keyframe : frames) {
-			if (isNotAllMoLangThis(keyframe.startValue()) || isNotAllMoLangThis(keyframe.endValue())) {
-				isAllMoLangThis = false;
-				break;
-			}
-		}
-		if (isAllMoLangThis) return Collections.emptyList();
-
-		//TODO We can probably do better optimization than this
-		boolean isAllTheSame = true;
-		for (Keyframe keyframe : frames) {
-			if (!keyframe.startValue().equals(keyframe.endValue())) {
-				isAllTheSame = false;
-				break;
-			}
-		}
-		if (isAllTheSame) return Collections.singletonList(new Keyframe(0, frames.getFirst().startValue(), frames.getFirst().startValue()));
+		if (frames.getFirst().startValue().getFirst() instanceof AccessExpression accessExpression
+				&& "disabled".equals(accessExpression.property()))
+			return Collections.emptyList();
 
 		if (frames.size() == 1) {
 			Keyframe frame = frames.getFirst();
@@ -351,11 +334,6 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		}
 
 		return frames;
-	}
-
-	public static boolean isNotAllMoLangThis(List<Expression> expressions) {
-		if (expressions.size() > 1) return true;
-		return !(expressions.isEmpty() || expressions.getFirst() instanceof IdentifierExpression identifierExpression && "this".equals(identifierExpression.name()));
 	}
 
 	public static float calculateAnimationLength(Map<String, BoneAnimation> boneAnimations) {
