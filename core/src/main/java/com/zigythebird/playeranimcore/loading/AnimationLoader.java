@@ -51,8 +51,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AnimationLoader implements JsonDeserializer<Animation> {
-	public static String OVERRIDE_PREVIOUS_ANIMATION = "override_previous_animation";
-
 	@Override
 	public Animation deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 		JsonObject animationObj = json.getAsJsonObject();
