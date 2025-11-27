@@ -1,9 +1,9 @@
 package com.zigythebird.playeranim.api;
 
-import com.zigythebird.playeranim.animation.AvatarAnimManager;
+import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Avatar;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,12 +24,12 @@ public interface PlayerAnimationFactory {
 
     FactoryHolder ANIMATION_DATA_FACTORY = new FactoryHolder();
 
-    @Nullable IAnimation invoke(@NotNull Avatar player);
+    @Nullable IAnimation invoke(@NotNull AbstractClientPlayer player);
 
     class FactoryHolder {
         private FactoryHolder() {}
 
-        private static final List<Function<Avatar, DataHolder>> factories = new ArrayList<>();
+        private static final List<Function<AbstractClientPlayer, DataHolder>> factories = new ArrayList<>();
 
         /**
          * Animation factory
@@ -45,8 +45,8 @@ public interface PlayerAnimationFactory {
         private record DataHolder(@Nullable ResourceLocation id, int priority, @NotNull IAnimation animation) {}
 
         @ApiStatus.Internal
-        public void prepareAnimations(Avatar player, AvatarAnimManager playerStack, Map<ResourceLocation, IAnimation> animationMap) {
-            for (Function<Avatar, DataHolder> factory: factories) {
+        public void prepareAnimations(AbstractClientPlayer player, PlayerAnimManager playerStack, Map<ResourceLocation, IAnimation> animationMap) {
+            for (Function<AbstractClientPlayer, DataHolder> factory: factories) {
                 DataHolder dataHolder = factory.apply(player);
                 if (dataHolder != null) {
                     playerStack.addAnimLayer(dataHolder.priority(), dataHolder.animation());

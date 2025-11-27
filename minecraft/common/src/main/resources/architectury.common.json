@@ -1,10 +1,10 @@
 {
   "injected_interfaces": {
-    "net/minecraft/class_11890": [
-      "com/zigythebird/playeranim/accessors/IAnimatedAvatar"
+    "net/minecraft/class_742": [
+      "com/zigythebird/playeranim/accessors/IAnimatedPlayer"
     ],
     "net/minecraft/class_10055": [
-      "com/zigythebird/playeranim/accessors/IAvatarAnimationState"
+      "com/zigythebird/playeranim/accessors/IPlayerAnimationState"
     ]
   },
   "accessWidener": "player_animation_library.accesswidener"

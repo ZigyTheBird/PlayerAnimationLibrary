@@ -52,7 +52,7 @@ import java.util.Optional;
 public class AutoPlayingSoundKeyframeHandler implements CustomKeyFrameEvents.CustomKeyFrameHandler<SoundKeyframeData> {
     @Override
     public EventResult handle(float animationTick, AnimationController controller, SoundKeyframeData keyFrameData, AnimationData animationData) {
-        Vec3 position = controller instanceof PlayerAnimationController player ? player.getAvatar().position() : null;
+        Vec3 position = controller instanceof PlayerAnimationController player ? player.getPlayer().position() : null;
         if (position == null) return EventResult.PASS;
 
         String[] segments = keyFrameData.getSound().split("\\|");
