@@ -6,15 +6,17 @@ import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
+import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
-import com.zigythebird.playeranimcore.math.MathHelper;
 import com.zigythebird.playeranimcore.math.Vec3f;
+import com.zigythebird.playeranimcore.util.ParticleEffectUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
+import team.unnamed.mocha.runtime.standard.MochaMath;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -108,7 +110,15 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
             }
         }
 
-        return new Animation(extra, endTick, loopType, bones, NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
+        Animation.Keyframes keyframes = NO_KEYFRAMES;
+        if (extra.has(ExtraAnimationData.PARTICLE_EFFECTS_KEY)) {
+            String identifier = ParticleEffectUtils.parseIdentifier((String) extra.getRaw(ExtraAnimationData.PARTICLE_EFFECTS_KEY));
+            keyframes = new Animation.Keyframes(keyframes.sounds(), new ParticleKeyframeData[] {
+                    new ParticleKeyframeData(beginTick, identifier, "body", "")
+            }, keyframes.customInstructions());
+        }
+
+        return new Animation(extra, endTick, loopType, bones, keyframes, new HashMap<>(), new HashMap<>());
     }
 
     public static void swapTheZYAxis(KeyframeStack rotationStack) {
@@ -213,8 +223,8 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         if (transformType == null) value -= def;
         if (shouldNegate) value *= -1;
         if (transformType == TransformType.ROTATION) {
-            if (degrees) value = MathHelper.toRadians(value);
-            value += (float) (Math.PI * 2 * rotate);
+            if (degrees) value = MochaMath.d2r(value);
+            value += MochaMath.PI * 2F * rotate;
         }
         if (transformType == TransformType.POSITION) value *= 16;
 

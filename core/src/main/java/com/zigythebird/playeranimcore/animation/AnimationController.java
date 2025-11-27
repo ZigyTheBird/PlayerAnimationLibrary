@@ -38,10 +38,7 @@ import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractModifie
 import com.zigythebird.playeranimcore.animation.layered.modifier.SpeedModifier;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranimcore.bones.AdvancedBoneSnapshot;
-import com.zigythebird.playeranimcore.bones.AdvancedPlayerAnimBone;
-import com.zigythebird.playeranimcore.bones.PivotBone;
-import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.bones.*;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.enums.PlayState;
@@ -49,7 +46,6 @@ import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.event.EventResult;
 import com.zigythebird.playeranimcore.math.ModMatrix4f;
-import com.zigythebird.playeranimcore.math.ModVector4f;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
@@ -749,17 +745,6 @@ public abstract class AnimationController implements IAnimation {
 					bone.scaleZEnabled = !boneAnimation.scaleKeyFrames().zKeyframes().isEmpty();
 
 					bone.bendEnabled = !boneAnimation.bendKeyFrames().isEmpty();
-					
-					if (!this.isAnimationPlayerAnimatorFormat()) {
-						if (bone.positionXEnabled || bone.positionYEnabled || bone.positionZEnabled)
-							bone.setPositionEnabled(true);
-
-						if (bone.rotXEnabled || bone.rotYEnabled || bone.rotZEnabled)
-							bone.setRotEnabled(true);
-
-						if (bone.scaleXEnabled || bone.scaleYEnabled || bone.scaleZEnabled)
-							bone.setScaleEnabled(true);
-					}
 				} else bone.setEnabled(true);
 			}
 			else if (pivotBones.containsKey(entry.getKey()))
@@ -911,12 +896,12 @@ public abstract class AnimationController implements IAnimation {
 
 	@Override
 	public void tick(AnimationData state) {
-		for (int i = 0; i < modifiers.size(); i++) {
-			if (modifiers.get(i).canRemove()) {
-				removeModifier(i--);
-			}
-		}
 		if (!modifiers.isEmpty()) {
+			for (int i = 0; i < modifiers.size(); i++) {
+				if (modifiers.get(i).canRemove()) {
+					removeModifier(i--);
+				}
+			}
 			modifiers.getFirst().tick(state);
 		}
 		else if (this.animationState == State.RUNNING) tick += 1;
@@ -1012,6 +997,18 @@ public abstract class AnimationController implements IAnimation {
 	public AdvancedPlayerAnimBone registerPlayerAnimBone(AdvancedPlayerAnimBone bone) {
 		this.bones.put(bone.getName(), bone);
 		return bone;
+	}
+
+	/**
+	 * Allows you to get a bone from the controller.
+	 * This is used so you can disable/enable bone axes mid-animation,
+	 * and you probably shouldn't touch anything other than that.
+	 *
+	 * @param name Name of the bone you want to get.
+	 * @return The requested bone.
+	 */
+	public @Nullable AdvancedPlayerAnimBone getBone(String name) {
+		return this.bones.get(name);
 	}
 
 	/**

@@ -13,10 +13,13 @@ public final class RenderUtil {
 		rotateZYX(poseStack.last(), bone.getRotZ(), bone.getRotY(), bone.getRotX());
 	}
 
-	public static void translatePartToBone(ModelPart part, PlayerAnimBone bone) {
-		part.x = bone.getPosX();
-		part.y = -bone.getPosY();
-		part.z = bone.getPosZ();
+	/**
+	 * Here we do nothing with rotation because it is unnecessary.
+	 */
+	public static void translatePartToCape(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
+		part.x = bone.getPosX() + initialPose.x();
+		part.y = -(bone.getPosY() + initialPose.y());
+		part.z = bone.getPosZ() + initialPose.z();
 
 		part.xRot = bone.getRotX();
 		part.yRot = bone.getRotY();

@@ -33,17 +33,16 @@ import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import com.zigythebird.playeranimcore.molang.MolangLoader;
-import team.unnamed.mocha.MochaEngine;
+import io.netty.buffer.ByteBuf;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
 import java.io.IOException;
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Predicate;
+
+import static com.zigythebird.playeranimcore.molang.MolangLoader.MOCHA_ENGINE;
 
 /**
  * Utility class to convert animation data to a binary format.
@@ -52,7 +51,6 @@ import java.util.function.Predicate;
  */
 @SuppressWarnings("unused")
 public final class LegacyAnimationBinary {
-    private static final MochaEngine<?> MOCHA_ENGINE = MolangLoader.createNewEngine();
     public static final Predicate<String> BEND_BONE = name -> !name.equals("head") && !name.equals("left_item") && !name.equals("right_item");
     public static final Predicate<String> ITEM_BONE = name -> name.equals("left_item") || name.equals("right_item");
 
@@ -65,29 +63,26 @@ public final class LegacyAnimationBinary {
      * @param animation animation
      * @param buf       target byteBuf
      * @param version   Binary version
-     * @return          target byteBuf for chaining
-     *
-     * @throws java.nio.BufferOverflowException if can't write into ByteBuf
      */
-    public static ByteBuffer write(Animation animation, ByteBuffer buf, int version) throws BufferOverflowException {
-        buf.putInt(animation.data().<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).orElse(0F).intValue());
+    public static void write(Animation animation, ByteBuf buf, int version) {
+        buf.writeInt(animation.data().<Float>get(ExtraAnimationData.BEGIN_TICK_KEY).orElse(0F).intValue());
         int endTick = animation.data().<Float>get(ExtraAnimationData.END_TICK_KEY).orElse(animation.length()).intValue();
-        buf.putInt(endTick);
-        buf.putInt((int) animation.length());
+        buf.writeInt(endTick);
+        buf.writeInt((int) animation.length());
         if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
             putBoolean(buf, true);
-            buf.putInt(endTick);
+            buf.writeInt(endTick);
         } else {
             putBoolean(buf, animation.loopType().shouldPlayAgain(null, animation));
-            buf.putInt((int)animation.loopType().restartFromTick(null, animation) + 1);
+            buf.writeInt((int)animation.loopType().restartFromTick(null, animation) + 1);
         }
         boolean easeBefore = animation.data().<Boolean>get(ExtraAnimationData.EASING_BEFORE_KEY)
                 .orElse(animation.data().data().getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB) == AnimationFormat.GECKOLIB);
         putBoolean(buf, easeBefore);
         putBoolean(buf, false); //NSFW tag
-        buf.put(keyframeSize(version));
+        buf.writeByte(keyframeSize(version));
         if (version >= 2) {
-            buf.putInt(animation.boneAnimations().size());
+            buf.writeInt(animation.boneAnimations().size());
             for (Map.Entry<String, BoneAnimation> part : animation.boneAnimations().entrySet()) {
                 putString(buf, UniversalAnimLoader.restorePlayerBoneName(part.getKey()));
                 writePart(buf, part.getKey(), part.getValue(), version, easeBefore);
@@ -100,24 +95,19 @@ public final class LegacyAnimationBinary {
             writePart(buf, "right_leg", animation.getBone("right_leg"), version, easeBefore);
             writePart(buf, "left_leg", animation.getBone("left_leg"), version, easeBefore);
         }
-        buf.putLong(animation.uuid().getMostSignificantBits());
-        buf.putLong(animation.uuid().getLeastSignificantBits());
-
-        return buf;
+        NetworkUtils.writeUuid(buf, animation.uuid());
     }
 
     /**
      * Write the animation into the ByteBuffer using the latest format version
      * @param animation animation
      * @param buf       target byteBuf
-     * @return          target byteBuf for chaining
-     * @throws BufferOverflowException if can't write into byteBuf
      */
-    public static ByteBuffer write(Animation animation, ByteBuffer buf) throws BufferOverflowException {
-        return write(animation, buf, getCurrentVersion());
+    public static void write(Animation animation, ByteBuf buf) {
+        write(animation, buf, getCurrentVersion());
     }
 
-    private static void writePart(ByteBuffer buf, String name, BoneAnimation part, int version, boolean easeBefore) {
+    private static void writePart(ByteBuf buf, String name, BoneAnimation part, int version, boolean easeBefore) {
         if (part == null) {
             int i = 6;
             if (BEND_BONE.test(name)) i += 2;
@@ -125,8 +115,8 @@ public final class LegacyAnimationBinary {
             for (; i > 0; i--) {
                 if (version >= 2) {
                     putBoolean(buf, false);
-                    buf.putInt(0);
-                } else buf.putInt(-1);
+                    buf.writeInt(0);
+                } else buf.writeInt(-1);
             }
             return;
         }
@@ -144,9 +134,9 @@ public final class LegacyAnimationBinary {
             //Marking the no longer supported Y axis bend keyframes as non-existent
             if (version >= 2) {
                 putBoolean(buf, false);
-                buf.putInt(0);
+                buf.writeInt(0);
             } else {
-                buf.putInt(-1);
+                buf.writeInt(-1);
             }
             writeKeyframes(buf, part.bendKeyFrames(), version, easeBefore, false);
         }
@@ -157,18 +147,18 @@ public final class LegacyAnimationBinary {
         }
     }
 
-    private static void writeKeyframes(ByteBuffer buf, List<Keyframe> part, int version, boolean easeBefore, boolean negate) {
+    private static void writeKeyframes(ByteBuf buf, List<Keyframe> part, int version, boolean easeBefore, boolean negate) {
         writeKeyframes(buf, part, 0f, version, easeBefore, false, negate);
     }
 
-    private static void writeKeyframes(ByteBuffer buf, List<Keyframe> part, float def, int version, boolean easeBefore, boolean div, boolean negate) {
+    private static void writeKeyframes(ByteBuf buf, List<Keyframe> part, float def, int version, boolean easeBefore, boolean div, boolean negate) {
         if (version >= 2) {
             putBoolean(buf, !part.isEmpty());
         }
 
         int keyframeCount = part.size();
         if (!easeBefore) keyframeCount -= 1;
-        buf.putInt(keyframeCount);
+        buf.writeInt(keyframeCount);
         if (keyframeCount <= 0) return;
 
         float tickAccumulator = 0;
@@ -176,9 +166,9 @@ public final class LegacyAnimationBinary {
             Keyframe move = part.get(i);
 
             tickAccumulator += move.length();
-            buf.putInt((int) Math.floor(tickAccumulator));
+            buf.writeInt((int) Math.floor(tickAccumulator));
 
-            buf.putFloat(((MOCHA_ENGINE.eval(move.endValue()) * (negate ? -1 : 1)) + def) / (div ? 16f : 1f));
+            buf.writeFloat(((MOCHA_ENGINE.eval(move.endValue()) * (negate ? -1 : 1)) + def) / (div ? 16f : 1f));
 
             EasingType easingToWrite;
             List<Expression> easingArgsToWrite = Collections.emptyList();
@@ -196,19 +186,19 @@ public final class LegacyAnimationBinary {
                 }
             }
 
-            buf.put(easingToWrite.id);
+            buf.writeByte(easingToWrite.id);
 
             if (version >= 4) {
                 if (easingArgsToWrite != null && !easingArgsToWrite.isEmpty()) {
-                    buf.putFloat(MOCHA_ENGINE.eval(easingArgsToWrite));
+                    buf.writeFloat(MOCHA_ENGINE.eval(easingArgsToWrite));
                 } else {
-                    buf.putFloat(Float.NaN);
+                    buf.writeFloat(Float.NaN);
                 }
             }
         }
     }
 
-    public static Animation read(ByteBuffer buf) throws IOException {
+    public static Animation read(ByteBuf buf) throws IOException {
         return read(buf, getCurrentVersion());
     }
 
@@ -218,23 +208,22 @@ public final class LegacyAnimationBinary {
      * @param buf       byteBuf
      * @param version   format version (not stored in binary)
      * @return          KeyframeAnimation
-     * @throws java.nio.BufferUnderflowException if there is not enough data in ByteBuffer
      * @throws IOException if encounters invalid data
      */
-    public static Animation read(ByteBuffer buf, int version) throws IOException {
+    public static Animation read(ByteBuf buf, int version) throws IOException {
         ExtraAnimationData data = new ExtraAnimationData();
 
-        int beginTick = buf.getInt();
+        int beginTick = buf.readInt();
         data.put(ExtraAnimationData.BEGIN_TICK_KEY, (float) beginTick);
 
-        int endTick = Math.max(buf.getInt(), beginTick + 1);
+        int endTick = Math.max(buf.readInt(), beginTick + 1);
         if (endTick <= 0) throw new IOException("endTick must be bigger than 0");
         data.put(ExtraAnimationData.END_TICK_KEY, (float) endTick);
 
-        int stopTick = buf.getInt();
+        int stopTick = buf.readInt();
 
         boolean isLooped = getBoolean(buf);
-        int returnTick = Math.max(0, buf.getInt() - 1);
+        int returnTick = Math.max(0, buf.readInt() - 1);
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if (isLooped) {
             if (returnTick > endTick) {
@@ -250,11 +239,11 @@ public final class LegacyAnimationBinary {
         boolean easeBefore = getBoolean(buf);
         data.put(ExtraAnimationData.EASING_BEFORE_KEY, easeBefore);
         getBoolean(buf); //Ignored NSFW tag
-        int keyframeSize = buf.get();
+        int keyframeSize = buf.readByte();
         if (keyframeSize <= 0) throw new IOException("keyframe size must be greater than 0, current: " + keyframeSize);
         Map<String, BoneAnimation> boneAnimations = new HashMap<>();
         if (version >= 2) {
-            int count = buf.getInt();
+            int count = buf.readInt();
             for (int i = 0; i < count; i++) {
                 String name = UniversalAnimLoader.getCorrectPlayerBoneName(getString(buf));
                 boneAnimations.put(name, readPart(buf, name, new BoneAnimation(), version, keyframeSize, easeBefore));
@@ -274,15 +263,13 @@ public final class LegacyAnimationBinary {
             body.bendKeyFrames().clear();
             data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
         }
-        long msb = buf.getLong();
-        long lsb = buf.getLong();
-        data.put(ExtraAnimationData.UUID_KEY, new UUID(msb, lsb));
+        data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf));
         data.put(ExtraAnimationData.FORMAT_KEY, AnimationFormat.PLAYER_ANIMATOR);
 
         return new Animation(data, endTick, loopType, boneAnimations, UniversalAnimLoader.NO_KEYFRAMES, new HashMap<>(), new HashMap<>());
     }
 
-    private static BoneAnimation readPart(ByteBuffer buf, String name, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {
+    private static BoneAnimation readPart(ByteBuf buf, String name, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {
         Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isBody = name.equals("body");
         boolean isItem = ITEM_BONE.test(name);
@@ -315,24 +302,24 @@ public final class LegacyAnimationBinary {
         return part;
     }
 
-    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, int version, int keyframeSize, boolean negate, List<Expression> fallback) {
+    private static void readKeyframes(ByteBuf buf, List<Keyframe> part, int version, int keyframeSize, boolean negate, List<Expression> fallback) {
         readKeyframes(buf, part, (float) 0, version, keyframeSize, false, negate, fallback);
     }
 
-    private static void readKeyframes(ByteBuffer buf, List<Keyframe> part, float def, int version, int keyframeSize, boolean mul, boolean negate, List<Expression> fallback) {
+    private static void readKeyframes(ByteBuf buf, List<Keyframe> part, float def, int version, int keyframeSize, boolean mul, boolean negate, List<Expression> fallback) {
         int length;
         boolean enabled;
         if (version >= 2) {
             enabled = getBoolean(buf);
-            length = buf.getInt();
+            length = buf.readInt();
         } else {
-            length = buf.getInt();
+            length = buf.readInt();
             enabled = length >= 0;
         }
 
         if (!enabled) {
             if (length > 0) {
-                buf.position(buf.position() + length * keyframeSize);
+                buf.readerIndex(buf.readerIndex() + length * keyframeSize);
             }
             part.clear();
             return;
@@ -341,18 +328,18 @@ public final class LegacyAnimationBinary {
         int lastTick = 0;
         for (int i = 0; i < length; i++) {
             Keyframe prevKeyframe = part.isEmpty() ? null : part.getLast();
-            int currentPos = buf.position();
+            int currentPos = buf.readerIndex();
 
-            int tick = buf.getInt();
+            int tick = buf.readInt();
             float keyframeLength = (float)tick - lastTick;
             lastTick = tick;
 
-            List<Expression> expression = Collections.singletonList(FloatExpression.of((buf.getFloat() - def) * (mul ? 16 : 1) * (negate ? -1 : 1)));
-            EasingType easingType = EasingType.fromId(buf.get());
+            List<Expression> expression = Collections.singletonList(FloatExpression.of((buf.readFloat() - def) * (mul ? 16 : 1) * (negate ? -1 : 1)));
+            EasingType easingType = EasingType.fromId(buf.readByte());
             Float easingArg = null;
 
             if (version >= 4) {
-                easingArg = buf.getFloat();
+                easingArg = buf.readFloat();
 
                 if (Float.isNaN(easingArg)) {
                     easingArg = null;
@@ -362,7 +349,7 @@ public final class LegacyAnimationBinary {
             part.add(new Keyframe(keyframeLength, prevKeyframe == null ? fallback : prevKeyframe.endValue(), expression, easingType,
                     easingArg == null ? Collections.singletonList(Collections.emptyList()) :
                             Collections.singletonList(Collections.singletonList(FloatExpression.of(easingArg)))));
-            buf.position(currentPos + keyframeSize);
+            buf.readerIndex(currentPos + keyframeSize);
         }
     }
 
@@ -449,8 +436,8 @@ public final class LegacyAnimationBinary {
      * @param byteBuffer buf
      * @param bl         bool
      */
-    public static void putBoolean(ByteBuffer byteBuffer, boolean bl){
-        byteBuffer.put((byte) (bl ? 1 : 0));
+    public static void putBoolean(ByteBuf byteBuffer, boolean bl){
+        byteBuffer.writeByte((byte) (bl ? 1 : 0));
     }
 
     /**
@@ -458,8 +445,8 @@ public final class LegacyAnimationBinary {
      * @param buf buf
      * @return    bool
      */
-    public static boolean getBoolean(ByteBuffer buf) {
-        return buf.get() != (byte) 0;
+    public static boolean getBoolean(ByteBuf buf) {
+        return buf.readByte() != (byte) 0;
     }
 
     /**
@@ -468,21 +455,21 @@ public final class LegacyAnimationBinary {
      * @param buf buf
      * @param str str
      */
-    public static void putString(ByteBuffer buf, String str) {
+    public static void putString(ByteBuf buf, String str) {
         byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
-        buf.putInt(bytes.length);
-        buf.put(bytes);
+        buf.writeInt(bytes.length);
+        buf.writeBytes(bytes);
     }
 
     /**
-     * Reads string from buf, see {@link LegacyAnimationBinary#putString(ByteBuffer, String)}
+     * Reads string from buf, see {@link LegacyAnimationBinary#putString(ByteBuf, String)}
      * @param buf buf
      * @return str
      */
-    public static String getString(ByteBuffer buf) {
-        int len = buf.getInt();
+    public static String getString(ByteBuf buf) {
+        int len = buf.readInt();
         byte[] bytes = new byte[len];
-        buf.get(bytes);
+        buf.readBytes(bytes);
         return new String(bytes, StandardCharsets.UTF_8);
     }
 }

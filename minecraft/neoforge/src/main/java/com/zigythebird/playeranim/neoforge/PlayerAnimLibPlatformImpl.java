@@ -1,9 +1,9 @@
 package com.zigythebird.playeranim.neoforge;
 
-import net.neoforged.fml.loading.LoadingModList;
+import net.neoforged.fml.loading.FMLLoader;
 
 public class PlayerAnimLibPlatformImpl {
     public static boolean isModLoaded(String id) {
-        return LoadingModList.get().getModFileById(id) != null;
+        return FMLLoader.getCurrent().getLoadingModList().getModFileById(id) != null;
     }
 }
