@@ -39,6 +39,18 @@ public final class JsonUtil {
         return json.has(memberName) ? convertToString(json.get(memberName), memberName) : fallback;
     }
 
+    public static boolean convertToBoolean(JsonElement json, String memberName) {
+        if (json.isJsonPrimitive()) {
+            return json.getAsBoolean();
+        } else {
+            throw new JsonSyntaxException("Expected " + memberName + " to be a Boolean, was " + getType(json));
+        }
+    }
+
+    public static boolean getAsBoolean(JsonObject json, String memberName, boolean fallback) {
+        return json.has(memberName) ? convertToBoolean(json.get(memberName), memberName) : fallback;
+    }
+
     public static float convertToFloat(JsonElement json, String memberName) {
         if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isNumber()) {
             return json.getAsFloat();
