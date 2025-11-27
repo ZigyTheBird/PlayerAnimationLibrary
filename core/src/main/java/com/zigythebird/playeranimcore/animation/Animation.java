@@ -229,4 +229,9 @@ public record Animation(ExtraAnimationData data, float length, LoopType loopType
     public UUID get() {
         return uuid();
     }
+
+    @NotNull
+    public String getNameOrId() {
+        return Objects.requireNonNullElseGet(data().name(), () -> uuid().toString());
+    }
 }
