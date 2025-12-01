@@ -1,9 +1,8 @@
 package com.zigythebird.playeranim.accessors;
 
-import com.zigythebird.playeranim.animation.AvatarAnimManager;
+import net.minecraft.client.model.geom.ModelPart;
 
-@SuppressWarnings("unused")
 public interface ICapeLayer {
-    default void applyBend(AvatarAnimManager manager, float bend) {}
-    default void resetBend() {}
+    default void applyBend(ModelPart cape, ModelPart torso, float bend) {}
+    default void resetBend(ModelPart cape) {}
 }

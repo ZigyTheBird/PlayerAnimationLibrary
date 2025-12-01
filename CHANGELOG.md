@@ -1,6 +1,15 @@
-Fixed various bugs with custom pivot points.  
-Fixed GeckoLib format bezier and smooth keyframes causing issues with begin/end tick.
-Fixed legacy binary write issue with items.  
-Fixed first-person animation visibility conflict with Iris Shaders. (Thanks to ZsoltMolnarrr)  
-Fixed possible crash after calling the `getAnimationTicks` method of the `AnimationController`.  
-Added toString overrides to various library classes.  
+## IMPORTANT!!
+Remove the following line from your build.gradle if you're on NeoForge:  
+`additionalRuntimeClasspath "org.javassist:javassist:3.30.2-GA"`
+
+## Changes
+Added a method for getting bones from the controller called `getBone`. (This allows you to enable/disable bone axes mid-animation)  
+Blender animations now support particles keyframes.  
+You can now disable an axis on Bedrock format animations by setting the first keyframe to "pal.disabled". (Look at disable_tests.json for an example.)
+
+## Bug Fixes & Small Changes
+Fixed an issue where you can't use Mocha (our Molang engine) classes without causing a crash.
+Miscellaneous very minor performance improvements.  
+Better logging when an animation is not found.  
+Updated molang compiler.  
+Fixed an issue with the mod's events and registries causing a crash on NeoForge.

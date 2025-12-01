@@ -22,7 +22,6 @@ import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Objects;
 
 @SuppressWarnings({"unchecked","unused"})
@@ -61,14 +60,15 @@ public class PlayerAnimCommands {
         Animation animation = Objects.requireNonNull(PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID")));
         int version = IntegerArgumentType.getInteger(context, "version");
 
-        ByteBuffer byteBuffer = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation, version));
+        ByteBuf byteBuffer = Unpooled.buffer(LegacyAnimationBinary.calculateSize(animation, version));
         LegacyAnimationBinary.write(animation, byteBuffer, version);
-        byteBuffer.flip();
 
         try {
             return playAnimation(LegacyAnimationBinary.read(byteBuffer, version));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            byteBuffer.release();
         }
     }
 

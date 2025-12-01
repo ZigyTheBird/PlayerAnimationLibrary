@@ -24,19 +24,15 @@
 
 package com.zigythebird.playeranim.mixin;
 
-import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
-import com.zigythebird.playeranim.animation.AvatarAnimManager;
-import com.zigythebird.playeranim.animation.AvatarAnimationProcessor;
+import com.zigythebird.playeranim.accessors.IAnimatedPlayer;
+import com.zigythebird.playeranim.animation.PlayerAnimManager;
+import com.zigythebird.playeranim.animation.PlayerAnimationProcessor;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
 import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Avatar;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -46,29 +42,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 import java.util.Map;
 
-@Mixin(Avatar.class)
-public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvatar {
+@Mixin(AbstractClientPlayer.class)
+public abstract class AbstractClientPlayerMixin implements IAnimatedPlayer {
     @Unique
     private final Map<ResourceLocation, IAnimation> playerAnimLib$modAnimationData = new HashMap<>();
     @Unique
-    private final AvatarAnimManager playerAnimLib$animationManager = playerAnimLib$createAnimationStack();
+    private final PlayerAnimManager playerAnimLib$animationManager = playerAnimLib$createAnimationStack();
     @Unique
-    private final AnimationProcessor playerAnimLib$animationProcessor = new AvatarAnimationProcessor((Avatar) (Object) this);
-
-    protected AvatarMixin(EntityType<? extends LivingEntity> entityType, Level level) {
-        super(entityType, level);
-    }
+    private final AnimationProcessor playerAnimLib$animationProcessor = new PlayerAnimationProcessor((AbstractClientPlayer) (Object) this);
 
     @Unique
-    private AvatarAnimManager playerAnimLib$createAnimationStack() {
-        AvatarAnimManager manager = new AvatarAnimManager();
-        PlayerAnimationFactory.ANIMATION_DATA_FACTORY.prepareAnimations((Avatar) (Object) this, manager, playerAnimLib$modAnimationData);
-        PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.invoker().registerAnimation((Avatar) (Object) this, manager);
+    private PlayerAnimManager playerAnimLib$createAnimationStack() {
+        PlayerAnimManager manager = new PlayerAnimManager((AbstractClientPlayer)(Object)this);
+        PlayerAnimationFactory.ANIMATION_DATA_FACTORY.prepareAnimations((AbstractClientPlayer)(Object) this, manager, playerAnimLib$modAnimationData);
+        PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.invoker().registerAnimation((AbstractClientPlayer)(Object) this, manager);
         return manager;
     }
 
     @Override
-    public AvatarAnimManager playerAnimLib$getAnimManager() {
+    public PlayerAnimManager playerAnimLib$getAnimManager() {
         return playerAnimLib$animationManager;
     }
 
@@ -78,14 +70,7 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
         return null;
     }
 
-    @Intrinsic
-    @Override
-    public void tick() {
-        super.tick();
-    }
-
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
-    @Inject(method = {"tick", "method_5773"}, at = @At("TAIL"), remap = false)
+    @Inject(method = "tick", at = @At("TAIL"))
     private void tick(CallbackInfo ci) {
         this.playerAnimLib$animationProcessor.handleAnimations(0, true);
     }

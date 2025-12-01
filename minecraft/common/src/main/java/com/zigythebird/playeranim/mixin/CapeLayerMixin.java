@@ -9,6 +9,7 @@ import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -46,7 +47,7 @@ public abstract class CapeLayerMixin<T extends LivingEntity, M extends HumanoidM
                 bone.rotX *= -1;
                 bone.rotZ *= -1;
 
-                RenderUtil.translatePartToBone(part, bone);
+                RenderUtil.translatePartToBone(part, bone, PartPose.ZERO);
 
                 this.applyBend(part, torso, bone.getBend());
             }

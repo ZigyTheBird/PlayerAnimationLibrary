@@ -25,7 +25,9 @@
 package com.zigythebird.playeranim.molang;
 
 import com.zigythebird.playeranim.animation.PlayerAnimationController;
+import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
+import com.zigythebird.playeranimcore.molang.QueryBinding;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
@@ -33,7 +35,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
-import team.unnamed.mocha.runtime.value.ObjectValue;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -110,7 +111,7 @@ public final class MolangQueries {
     public static final String VERTICAL_SPEED = "vertical_speed";
     public static final String YAW_SPEED = "yaw_speed";
 
-    public static void setDefaultQueryValues(ObjectValue binding) {
+    public static void setDefaultQueryValues(QueryBinding<AnimationController> binding) {
         MolangLoader.setDoubleQuery(binding, ACTOR_COUNT, actor -> Minecraft.getInstance().levelRenderer.renderedEntities);
         MolangLoader.setDoubleQuery(binding, CARDINAL_PLAYER_FACING, actor -> ((PlayerAnimationController) actor).getPlayer().getDirection().ordinal());
         MolangLoader.setDoubleQuery(binding, DAY, actor -> ((PlayerAnimationController) actor).getPlayer().level().getGameTime() / 24000d);
@@ -128,7 +129,7 @@ public final class MolangQueries {
         setDefaultLivingEntityQueryValues(binding);
     }
 
-    private static void setDefaultEntityQueryValues(ObjectValue binding) {
+    private static void setDefaultEntityQueryValues(QueryBinding<AnimationController> binding) {
         MolangLoader.setDoubleQuery(binding, BODY_X_ROTATION, actor -> ((PlayerAnimationController) actor).getPlayer().getViewXRot(actor.getAnimationData().getPartialTick()));
         MolangLoader.setDoubleQuery(binding, BODY_Y_ROTATION, actor -> ((PlayerAnimationController) actor).getPlayer() instanceof LivingEntity living ? Mth.lerp(actor.getAnimationData().getPartialTick(), living.yBodyRotO, living.yBodyRot) : ((PlayerAnimationController) actor).getPlayer().getViewYRot(actor.getAnimationData().getPartialTick()));
         MolangLoader.setDoubleQuery(binding, CARDINAL_FACING, actor -> ((PlayerAnimationController) actor).getPlayer().getDirection().get3DDataValue());
@@ -173,7 +174,7 @@ public final class MolangQueries {
         MolangLoader.setDoubleQuery(binding, YAW_SPEED, actor -> ((PlayerAnimationController) actor).getPlayer().getYRot() - ((PlayerAnimationController) actor).getPlayer().yRotO);
     }
 
-    private static void setDefaultLivingEntityQueryValues(ObjectValue binding) {
+    private static void setDefaultLivingEntityQueryValues(QueryBinding<AnimationController> binding) {
         MolangLoader.setBoolQuery(binding, BLOCKING, actor -> ((PlayerAnimationController) actor).getPlayer().isBlocking());
         MolangLoader.setDoubleQuery(binding, DEATH_TICKS, actor -> ((PlayerAnimationController) actor).getPlayer().deathTime == 0 ? 0 : ((PlayerAnimationController) actor).getPlayer().deathTime + actor.getAnimationData().getPartialTick());
         MolangLoader.setDoubleQuery(binding, GROUND_SPEED, actor -> ((PlayerAnimationController) actor).getPlayer().getDeltaMovement().horizontalDistance());
