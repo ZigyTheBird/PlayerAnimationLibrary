@@ -40,7 +40,6 @@ shadowJar {
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = 'dev-shadow'
 
-    relocate 'team.unnamed.mocha', 'com.zigythebird.playeranim.lib.mochafloats'
     mergeServiceFiles()
 }
 
