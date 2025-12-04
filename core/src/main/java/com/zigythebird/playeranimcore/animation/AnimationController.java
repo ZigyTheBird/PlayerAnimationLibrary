@@ -896,14 +896,13 @@ public abstract class AnimationController implements IAnimation {
 
 	@Override
 	public void tick(AnimationData state) {
-		if (!modifiers.isEmpty()) {
-			for (int i = 0; i < modifiers.size(); i++) {
-				if (modifiers.get(i).canRemove()) {
-					removeModifier(i--);
-				}
+		for (int i = 0; i < modifiers.size(); i++) {
+			if (modifiers.get(i).canRemove()) {
+				removeModifier(i--);
 			}
-			modifiers.getFirst().tick(state);
 		}
+		if (!modifiers.isEmpty())
+			modifiers.getFirst().tick(state);
 		else if (this.animationState == State.RUNNING) tick += 1;
 	}
 
