@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
  * Test network data sending and receiving
@@ -37,16 +36,16 @@ public class AnimationBinaryTest {
 
         for (int version = 1; version <= LegacyAnimationBinary.getCurrentVersion(); version++) {
             int len = LegacyAnimationBinary.calculateSize(animation, version);
-            ByteBuffer byteBuf = ByteBuffer.allocate(len);
+            ByteBuf byteBuf = Unpooled.buffer(len);
             LegacyAnimationBinary.write(animation, byteBuf, version);
-            Assertions.assertEquals(len, byteBuf.position(), "Incorrect size calculator!");
-            byteBuf.flip();
+            Assertions.assertEquals(len, byteBuf.writerIndex(), "Incorrect size calculator!");
 
-            Assertions.assertTrue(byteBuf.hasRemaining(), "animation reads incorrectly at version " + version);
+            Assertions.assertTrue(byteBuf.readableBytes() > 0, "animation reads incorrectly at version " + version);
 
             Animation readed = LegacyAnimationBinary.read(byteBuf, version);
             // Assertions.assertEquals(animation.boneAnimations(), readed.boneAnimations(), "animation reads incorrectly at version " + version);
             Assertions.assertNotNull(readed, "animation reads incorrectly at version " + version); // TODO Not working correctly (zigy, please fix)
+            byteBuf.release();
         }
     }
 }

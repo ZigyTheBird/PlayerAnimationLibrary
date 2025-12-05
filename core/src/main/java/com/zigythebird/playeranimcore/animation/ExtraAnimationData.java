@@ -18,6 +18,8 @@ public record ExtraAnimationData(Map<String, Object> data) {
     public static final String END_TICK_KEY = "endTick";
     public static final String EASING_BEFORE_KEY = "easeBeforeKeyframe";
     public static final String APPLY_BEND_TO_OTHER_BONES_KEY = "applyBendToOtherBones";
+    public static final String PARTICLE_EFFECTS_KEY = "particleEffects";
+    public static final String DISABLE_AXIS_IF_NOT_MODIFIED = "disableAxisIfNotModified";
 
     public ExtraAnimationData(String key, Object value) {
         this(new HashMap<>(Collections.singletonMap(key, value)));
@@ -108,7 +110,7 @@ public record ExtraAnimationData(Map<String, Object> data) {
     }
 
     public boolean isDisableAxisIfNotModified() {
-        return this.<Boolean>get("disableAxisIfNotModified").orElse(true);
+        return this.<Boolean>get(DISABLE_AXIS_IF_NOT_MODIFIED).orElse(true);
     }
 
     public boolean isAnimationPlayerAnimatorFormat() {

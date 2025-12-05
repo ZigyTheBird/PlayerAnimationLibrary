@@ -10,6 +10,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.util.JsonUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +35,7 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
         }
     }
 
-    public static Map<String, Animation> loadAnimations(JsonObject json) {
+    public static Map<@NotNull String, Animation> loadAnimations(JsonObject json) {
         if (json.has("animations")) {
             Map<String, Animation> animationMap = PlayerAnimLib.GSON.fromJson(json.get("animations"), PlayerAnimLib.ANIMATIONS_MAP_TYPE);
             if (json.has("parents") && json.has("model")) {
@@ -52,7 +53,7 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
             return animationMap;
         } else {
             Animation animation = PlayerAnimatorLoader.GSON.fromJson(json, Animation.class);
-            return Collections.singletonMap(animation.data().name(), animation);
+            return Collections.singletonMap(animation.getNameOrId(), animation);
         }
     }
 

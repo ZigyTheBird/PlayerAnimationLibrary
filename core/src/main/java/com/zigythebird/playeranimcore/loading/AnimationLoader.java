@@ -32,14 +32,17 @@ import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.easing.EasingType;
+import com.zigythebird.playeranimcore.enums.Axis;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.JsonUtil;
 import it.unimi.dsi.fastutil.floats.FloatObjectPair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import team.unnamed.mocha.parser.ast.AccessExpression;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
+import team.unnamed.mocha.parser.ast.IdentifierExpression;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -48,10 +51,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AnimationLoader implements JsonDeserializer<Animation> {
-	private static final List<List<Expression>> ZERO_ARRAY;
-	private static final List<List<Expression>> ZERO_POINT_ONE_ARRAY;
-	private static final List<List<Expression>> MINUS_ZERO_POINT_ONE_ARRAY;
-
 	@Override
 	public Animation deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 		JsonObject animationObj = json.getAsJsonObject();
@@ -125,6 +124,15 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			if (obj.has("vector"))
 				return ObjectArrayList.of(FloatObjectPair.of(0, obj));
 
+			if (obj.has("value")) {
+				JsonArray array = new JsonArray(3);
+				array.add(obj.get("value").getAsFloat());
+				array.add(0);
+				array.add(0);
+				obj.add("vector", array);
+				return ObjectArrayList.of(FloatObjectPair.of(0, obj));
+			}
+
 			List<FloatObjectPair<JsonElement>> list = new ObjectArrayList<>();
 
 			for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
@@ -133,10 +141,19 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 				if (timestamp == 0 && !list.isEmpty())
 					throw new JsonParseException("Invalid keyframe data - multiple starting keyframes?" + entry.getKey());
 
-				if (entry.getValue() instanceof JsonObject entryObj && !entryObj.has("vector")) {
-					addBedrockKeyframes(timestamp, entryObj, list);
-
-					continue;
+				if (entry.getValue() instanceof JsonObject entryObj) {
+					if (entryObj.has("value")) {
+						JsonArray array = new JsonArray(3);
+						array.add(entryObj.get("value").getAsFloat());
+						array.add(0);
+						array.add(0);
+						entryObj.add("vector", array);
+						list.add(FloatObjectPair.of(timestamp, entryObj));
+					}
+					else if (!entryObj.has("vector")) {
+						addBedrockKeyframes(timestamp, entryObj, list);
+						continue;
+					}
 				}
 
 				list.add(FloatObjectPair.of(timestamp, entry.getValue()));
@@ -152,6 +169,15 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 	private static JsonArray extractBedrockKeyframe(JsonElement keyframe) {
 		if (keyframe.isJsonArray())
 			return keyframe.getAsJsonArray();
+
+		// For bends
+		if (keyframe.isJsonPrimitive()) {
+			JsonArray array = new JsonArray(3);
+			array.add(keyframe.getAsFloat());
+			array.add(0);
+			array.add(0);
+			return array;
+		}
 
 		if (!keyframe.isJsonObject())
 			throw new JsonParseException("Invalid keyframe data - expected array or object, found " + keyframe);
@@ -235,28 +261,12 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 			List<Expression> zValue = MolangLoader.parseJson(isForRotation, keyFrameVector.get(2), defaultValue);
 
 			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
-			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
-			List<List<Expression>> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
-					JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "easingArgs"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsFloat()))) :
-					new ObjectArrayList<>();
+			EasingType easingType = getEasingForAxis(entryObj, null, EasingType.LINEAR);
+			List<List<Expression>> easingArgs = getEasingArgsForAxis(entryObj, null, new ObjectArrayList<>());
 
-			boolean isBezier = EasingType.BEZIER == easingType;
-
-			List<List<Expression>> leftValues = null;
-			List<List<Expression>> rightValues = null;
-			List<List<Expression>> leftTimes = null;
-			List<List<Expression>> rightTimes = null;
-
-			if (isBezier) {
-				leftValues = entryObj.has("left") ? JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "left"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsDouble()))) : ZERO_ARRAY;
-				rightValues = entryObj.has("right") ? JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "right"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsDouble()))) : ZERO_ARRAY;
-				leftTimes = entryObj.has("left_time") ? JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "left_time"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsDouble()))) : MINUS_ZERO_POINT_ONE_ARRAY;
-				rightTimes = entryObj.has("right_time") ? JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, "right_time"), ele -> Collections.singletonList(FloatExpression.of(ele.getAsDouble()))) : ZERO_POINT_ONE_ARRAY;
-			}
-
-			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, isBezier ? ObjectArrayList.of(leftValues.get(0), leftTimes.get(0), rightValues.get(0), rightTimes.get(0)) : easingArgs));
-			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, isBezier ? ObjectArrayList.of(leftValues.get(1), leftTimes.get(1), rightValues.get(1), rightTimes.get(1)) : easingArgs));
-			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, isBezier ? ObjectArrayList.of(leftValues.get(2), leftTimes.get(2), rightValues.get(2), rightTimes.get(2)) : easingArgs));
+			xFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, getEasingForAxis(entryObj, Axis.X, easingType), getEasingArgsForAxis(entryObj, Axis.X, easingArgs)));
+			yFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, getEasingForAxis(entryObj, Axis.Y, easingType), getEasingArgsForAxis(entryObj, Axis.Y, easingArgs)));
+			zFrames.add(new Keyframe(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, getEasingForAxis(entryObj, Axis.Z, easingType), getEasingArgsForAxis(entryObj, Axis.Z, easingArgs)));
 			
 			xPrev = xValue;
 			yPrev = yValue;
@@ -267,7 +277,26 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		return new KeyframeStack(addArgsForKeyframes(xFrames), addArgsForKeyframes(yFrames), addArgsForKeyframes(zFrames));
 	}
 
+	private static EasingType getEasingForAxis(JsonObject entryObj, Axis axis, EasingType easingType) {
+		String memberName = "easing";
+		if (axis != null) memberName += axis.name();
+		return entryObj != null && entryObj.has(memberName) ? EasingType.fromJson(entryObj.get(memberName)) : easingType;
+	}
+
+	private static List<List<Expression>> getEasingArgsForAxis(JsonObject entryObj, Axis axis, List<List<Expression>> easingArg) {
+		String memberName = "easingArgs";
+		if (axis != null) memberName += axis.name();
+		return entryObj != null && entryObj.has(memberName) ?
+				JsonUtil.jsonArrayToList(JsonUtil.getAsJsonArray(entryObj, memberName), ele -> Collections.singletonList(FloatExpression.of(ele.getAsFloat()))) :
+				easingArg;
+	}
+
 	private static List<Keyframe> addArgsForKeyframes(List<Keyframe> frames) {
+		if (frames.getFirst().startValue().getFirst() instanceof AccessExpression accessExpression
+				&& "disabled".equals(accessExpression.property()) && accessExpression.object() instanceof IdentifierExpression identifierExpression
+				&& "pal".equals(identifierExpression.name()))
+			return Collections.emptyList();
+
 		if (frames.size() == 1) {
 			Keyframe frame = frames.getFirst();
 
@@ -324,15 +353,5 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		} catch (Throwable th) {
 			return 0;
 		}
-	}
-
-	static {
-		List<Expression> ZERO = Collections.singletonList(FloatExpression.of(0));
-		List<Expression> ZERO_POINT_ONE = Collections.singletonList(FloatExpression.of(0.1));
-		List<Expression> MINUS_ZERO_POINT_ONE = Collections.singletonList(FloatExpression.of(-0.1));
-
-		ZERO_ARRAY = ObjectArrayList.of(ZERO, ZERO, ZERO);
-		ZERO_POINT_ONE_ARRAY = ObjectArrayList.of(ZERO_POINT_ONE, ZERO_POINT_ONE, ZERO_POINT_ONE);
-		MINUS_ZERO_POINT_ONE_ARRAY = ObjectArrayList.of(MINUS_ZERO_POINT_ONE, MINUS_ZERO_POINT_ONE, MINUS_ZERO_POINT_ONE);
 	}
 }

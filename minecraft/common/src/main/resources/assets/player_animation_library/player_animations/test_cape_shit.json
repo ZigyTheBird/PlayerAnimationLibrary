@@ -1,0 +1,32 @@
+{
+    "version": 3,
+    "name": "test_cape_shit",
+    "author": "MineEmotes",
+    "description": "",
+    "comment": "Comission",
+    "bages": [],
+    "emote": {
+        "endTick": 89,
+        "isLoop": true,
+        "returnTick": 59,
+        "degrees": false,
+        "easeBeforeKeyframe": false,
+        "nsfw": false,
+        "moves": [
+            {
+                "tick": 0,
+                "cape": {
+                    "pitch": 0
+                }
+            },
+			{
+                "tick": 89,
+                "cape": {
+                    "pitch": 0
+                }
+            }
+            
+            
+        ]
+    }
+}

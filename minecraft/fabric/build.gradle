@@ -28,7 +28,7 @@ dependencies {
     // Deprecated, used to fix resource loading
     modRuntimeOnly fabricApi.module("fabric-resource-loader-v0", rootProject.fabric_api_version)
 
-    implementation include("com.zigythebird:mochafloats:$rootProject.molang_version") {
+    implementation api(include("com.zigythebird:mochafloats:$rootProject.molang_version")) {
         transitive = false
     }
     modRuntimeOnly include("org.javassist:javassist:$rootProject.javassist_version")

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public class BinarySizeTest {
     /**
@@ -40,13 +39,13 @@ public class BinarySizeTest {
         Animation animation = EmoteDataHashingTest.loadAnimation();
 
         for (int version = 1; version <= LegacyAnimationBinary.getCurrentVersion(); version++) {
-            ByteBuffer byteBuf = ByteBuffer.allocate(LegacyAnimationBinary.calculateSize(animation, version));
+            ByteBuf byteBuf = Unpooled.buffer(LegacyAnimationBinary.calculateSize(animation, version));
             LegacyAnimationBinary.write(animation, byteBuf, version);
-            byteBuf.flip();
 
-            int size = byteBuf.remaining();
+            int size = byteBuf.readableBytes();
             System.out.println("[LEGACY] in version " + version + " size " + size);
             Assertions.assertTrue(size < MAX_PACKET_SIZE, "size exceeds");
+            byteBuf.release();
         }
     }
 }
