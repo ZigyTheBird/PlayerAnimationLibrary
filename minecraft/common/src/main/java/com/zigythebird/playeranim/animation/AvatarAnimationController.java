@@ -5,7 +5,7 @@ import com.mojang.math.Axis;
 import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.AnimationController;
-import com.zigythebird.playeranimcore.animation.AvatarLikeAnimationController;
+import com.zigythebird.playeranimcore.animation.HumanoidAnimationController;
 import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
@@ -19,7 +19,7 @@ import team.unnamed.mocha.MochaEngine;
 
 import java.util.function.Function;
 
-public class AvatarAnimationController extends AvatarLikeAnimationController {
+public class AvatarAnimationController extends HumanoidAnimationController {
     protected final Avatar avatar;
 
     /**
