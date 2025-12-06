@@ -29,7 +29,7 @@ import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,7 +47,7 @@ import java.util.Map;
 @Mixin(Avatar.class)
 public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvatar {
     @Unique
-    private final Map<ResourceLocation, IAnimation> playerAnimLib$modAnimationData = new HashMap<>();
+    private final Map<Identifier, IAnimation> playerAnimLib$modAnimationData = new HashMap<>();
     @Unique
     private final AvatarAnimManager playerAnimLib$animationManager = playerAnimLib$createAnimationStack();
 
@@ -69,7 +69,7 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
     }
 
     @Override
-    public IAnimation playerAnimLib$getAnimation(ResourceLocation id) {
+    public IAnimation playerAnimLib$getAnimation(Identifier id) {
         if (playerAnimLib$modAnimationData.containsKey(id)) return playerAnimLib$modAnimationData.get(id);
         return null;
     }

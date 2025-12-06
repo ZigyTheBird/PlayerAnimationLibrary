@@ -8,13 +8,13 @@ import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.keyframe.event.CustomKeyFrameEvents;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.event.MolangEvent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class PlayerAnimLibMod extends PlayerAnimLib {
-    public static final ResourceLocation ANIMATION_LAYER_ID = PlayerAnimLibMod.id("factory");
+    public static final Identifier ANIMATION_LAYER_ID = PlayerAnimLibMod.id("factory");
 
-    public static ResourceLocation id(String name) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+    public static Identifier id(String name) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, name);
     }
 
     protected void init() {

@@ -8,10 +8,10 @@ dependencies {
     compileOnlyApi("org.jetbrains:annotations:26.0.2")
 
     // Minecraft libs
-    implementation api("com.google.code.gson:gson:2.11.0")
-    implementation api("org.slf4j:slf4j-api:2.0.16")
-    implementation api("it.unimi.dsi:fastutil:8.5.15")
-    implementation api("io.netty:netty-buffer:4.1.118.Final")
+    implementation api("com.google.code.gson:gson:2.13.2")
+    implementation api("org.slf4j:slf4j-api:2.0.17")
+    implementation api("it.unimi.dsi:fastutil:8.5.18")
+    implementation api("io.netty:netty-buffer:4.2.7.Final")
 
     // Testing
     testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.1")

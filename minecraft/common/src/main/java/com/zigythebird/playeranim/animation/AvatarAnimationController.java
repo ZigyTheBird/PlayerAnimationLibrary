@@ -9,7 +9,7 @@ import com.zigythebird.playeranimcore.animation.HumanoidAnimationController;
 import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.phys.Vec3;
@@ -48,7 +48,7 @@ public class AvatarAnimationController extends HumanoidAnimationController {
         return this.avatar;
     }
 
-    public boolean triggerAnimation(ResourceLocation newAnimation, float startAnimFrom) {
+    public boolean triggerAnimation(Identifier newAnimation, float startAnimFrom) {
         if (PlayerAnimResources.hasAnimation(newAnimation)) {
             triggerAnimation(PlayerAnimResources.getAnimation(newAnimation), startAnimFrom);
             return true;
@@ -57,11 +57,11 @@ public class AvatarAnimationController extends HumanoidAnimationController {
         return false;
     }
 
-    public boolean triggerAnimation(ResourceLocation newAnimation) {
+    public boolean triggerAnimation(Identifier newAnimation) {
         return triggerAnimation(newAnimation, 0);
     }
 
-    public boolean replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable ResourceLocation newAnimation, boolean fadeFromNothing) {
+    public boolean replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable Identifier newAnimation, boolean fadeFromNothing) {
         if (PlayerAnimResources.hasAnimation(newAnimation)) {
             replaceAnimationWithFade(fadeModifier, PlayerAnimResources.getAnimation(newAnimation), fadeFromNothing);
             return true;
@@ -69,7 +69,7 @@ public class AvatarAnimationController extends HumanoidAnimationController {
         return false;
     }
 
-    public boolean replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable ResourceLocation newAnimation) {
+    public boolean replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable Identifier newAnimation) {
         return replaceAnimationWithFade(fadeModifier, newAnimation, true);
     }
 
