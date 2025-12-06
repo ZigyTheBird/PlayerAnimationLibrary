@@ -18,9 +18,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.UuidArgument;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
 
 import java.io.IOException;
@@ -30,13 +30,13 @@ import java.util.Objects;
 public class PlayerAnimCommands {
     public static <T> void register(CommandDispatcher<T> dispatcher, CommandBuildContext registryAccess) {
         dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testPlayerAnimation")
-                .then(Commands.argument("animationID", ResourceLocationArgument.id())
+                .then(Commands.argument("animationID", IdentifierArgument.id())
                         .suggests(new AnimationArgumentProvider<>())
                         .executes(PlayerAnimCommands::execute)
                 )
         );
         dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testLegacyAnimationBinary")
-                .then(Commands.argument("animationID", ResourceLocationArgument.id())
+                .then(Commands.argument("animationID", IdentifierArgument.id())
                         .suggests(new AnimationArgumentProvider<>())
                         .then(Commands.argument("version", IntegerArgumentType.integer(1, LegacyAnimationBinary.getCurrentVersion()))
                                 .executes(PlayerAnimCommands::executeLegacy)
@@ -44,7 +44,7 @@ public class PlayerAnimCommands {
                 )
         );
         dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testAnimationBinary")
-                .then(Commands.argument("animationID", ResourceLocationArgument.id())
+                .then(Commands.argument("animationID", IdentifierArgument.id())
                         .suggests(new AnimationArgumentProvider<>())
                         .then(Commands.argument("version", IntegerArgumentType.integer(1, AnimationBinary.CURRENT_VERSION))
                                 .executes(PlayerAnimCommands::executeBinary)
@@ -52,7 +52,7 @@ public class PlayerAnimCommands {
                 )
         );
         dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testMannequin")
-                .then(Commands.argument("animationID", ResourceLocationArgument.id())
+                .then(Commands.argument("animationID", IdentifierArgument.id())
                         .suggests(new AnimationArgumentProvider<>())
                         .then(Commands.argument("mannequin", UuidArgument.uuid())
                                 .executes(PlayerAnimCommands::executeMannequin)
@@ -62,12 +62,12 @@ public class PlayerAnimCommands {
     }
 
     private static int execute(CommandContext<CommandSourceStack> context) {
-        ResourceLocation animation = ResourceLocationArgument.getId(context, "animationID");
+        Identifier animation = IdentifierArgument.getId(context, "animationID");
         return playAnimation(PlayerAnimResources.getAnimation(animation));
     }
 
     private static int executeLegacy(CommandContext<CommandSourceStack> context) {
-        Animation animation = Objects.requireNonNull(PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID")));
+        Animation animation = Objects.requireNonNull(PlayerAnimResources.getAnimation(IdentifierArgument.getId(context, "animationID")));
         int version = IntegerArgumentType.getInteger(context, "version");
 
         ByteBuf byteBuffer = Unpooled.buffer(LegacyAnimationBinary.calculateSize(animation, version));
@@ -83,7 +83,7 @@ public class PlayerAnimCommands {
     }
 
     private static int executeBinary(CommandContext<CommandSourceStack> context) {
-        Animation animation = Objects.requireNonNull(PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID")));
+        Animation animation = Objects.requireNonNull(PlayerAnimResources.getAnimation(IdentifierArgument.getId(context, "animationID")));
         int version = IntegerArgumentType.getInteger(context, "version");
 
         ByteBuf byteBuf = Unpooled.buffer();
@@ -102,7 +102,7 @@ public class PlayerAnimCommands {
     }
 
     private static int executeMannequin(CommandContext<CommandSourceStack> context) {
-        Animation animation = Objects.requireNonNull(PlayerAnimResources.getAnimation(ResourceLocationArgument.getId(context, "animationID")));
+        Animation animation = Objects.requireNonNull(PlayerAnimResources.getAnimation(IdentifierArgument.getId(context, "animationID")));
         Avatar avatar = (Avatar) Objects.requireNonNull(Minecraft.getInstance().level.getEntity(UuidArgument.getUuid(context, "mannequin")));
 
         AnimationController controller = (AnimationController) PlayerAnimationAccess.getPlayerAnimationLayer(

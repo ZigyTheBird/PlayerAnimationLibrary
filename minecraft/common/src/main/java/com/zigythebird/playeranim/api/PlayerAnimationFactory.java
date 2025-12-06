@@ -2,7 +2,7 @@ package com.zigythebird.playeranim.api;
 
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -37,15 +37,15 @@ public interface PlayerAnimationFactory {
          * @param priority animation priority
          * @param factory  animation factory
          */
-        public void registerFactory(@Nullable ResourceLocation id, int priority, @NotNull PlayerAnimationFactory factory) {
+        public void registerFactory(@Nullable Identifier id, int priority, @NotNull PlayerAnimationFactory factory) {
             factories.add(player -> Optional.ofNullable(factory.invoke(player)).map(animation -> new DataHolder(id, priority, animation)).orElse(null));
         }
 
         @ApiStatus.Internal
-        private record DataHolder(@Nullable ResourceLocation id, int priority, @NotNull IAnimation animation) {}
+        private record DataHolder(@Nullable Identifier id, int priority, @NotNull IAnimation animation) {}
 
         @ApiStatus.Internal
-        public void prepareAnimations(Avatar player, AvatarAnimManager playerStack, Map<ResourceLocation, IAnimation> animationMap) {
+        public void prepareAnimations(Avatar player, AvatarAnimManager playerStack, Map<Identifier, IAnimation> animationMap) {
             for (Function<Avatar, DataHolder> factory: factories) {
                 DataHolder dataHolder = factory.apply(player);
                 if (dataHolder != null) {

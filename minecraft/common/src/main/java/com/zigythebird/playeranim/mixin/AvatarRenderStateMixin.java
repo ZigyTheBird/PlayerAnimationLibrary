@@ -2,7 +2,6 @@ package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
-import com.zigythebird.playeranimcore.animation.AnimationProcessor;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,9 +14,6 @@ public class AvatarRenderStateMixin implements IAvatarAnimationState {
 
     @Unique
     AvatarAnimManager playerAnimLib$avatarAnimManager = null;
-
-    @Unique
-    AnimationProcessor playerAnimLib$playerAnimProcessor = null;
 
     @Override
     public boolean playerAnimLib$isCameraEntity() {
@@ -37,16 +33,6 @@ public class AvatarRenderStateMixin implements IAvatarAnimationState {
     @Override
     public @NotNull AvatarAnimManager playerAnimLib$getAnimManager() {
         return this.playerAnimLib$avatarAnimManager;
-    }
-
-    @Override
-    public void playerAnimLib$setAnimProcessor(AnimationProcessor processor) {
-        this.playerAnimLib$playerAnimProcessor = processor;
-    }
-
-    @Override
-    public AnimationProcessor playerAnimLib$getAnimProcessor() {
-        return this.playerAnimLib$playerAnimProcessor;
     }
 }
 

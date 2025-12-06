@@ -30,7 +30,7 @@ import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -59,7 +59,7 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M exte
         if (livingEntityRenderState instanceof AvatarRenderState playerRenderState) {
             var animationPlayer = ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimManager();
             if (animationPlayer != null && animationPlayer.isActive()) {
-                ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimProcessor().handleAnimations(animationPlayer.getTickDelta(), false);
+                ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimManager().handleAnimations(animationPlayer.getTickDelta(), false);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
                 //These are additive properties

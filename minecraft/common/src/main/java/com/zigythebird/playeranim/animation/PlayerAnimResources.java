@@ -5,7 +5,7 @@ import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.jetbrains.annotations.NotNull;
@@ -23,14 +23,14 @@ import java.util.concurrent.Executor;
  * Cache class for holding loaded {@link Animation Animations}
  */
 public class PlayerAnimResources implements ResourceManagerReloadListener {
-	public static final ResourceLocation KEY = PlayerAnimLibMod.id("animation");
-	private static final Map<ResourceLocation, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
+	public static final Identifier KEY = PlayerAnimLibMod.id("animation");
+	private static final Map<Identifier, Animation> ANIMATIONS = new Object2ObjectOpenHashMap<>();
 
 	/**
 	 * Get an animation from the registry, using Identifier(mod_id, animation_name) as the key.
 	 * @return animation, <code>null</code> if no animation
 	 */
-	public static @Nullable Animation getAnimation(ResourceLocation id) {
+	public static @Nullable Animation getAnimation(Identifier id) {
 		return ANIMATIONS.get(id);
 	}
 
@@ -40,14 +40,14 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	 * @return Optional animation
 	 */
 	@NotNull
-	public static Optional<Animation> getAnimationOptional(@NotNull ResourceLocation identifier) {
+	public static Optional<Animation> getAnimationOptional(@NotNull Identifier identifier) {
 		return Optional.ofNullable(getAnimation(identifier));
 	}
 
 	/**
 	 * @return an unmodifiable map of all the animations
 	 */
-	public static Map<ResourceLocation, Animation> getAnimations() {
+	public static Map<Identifier, Animation> getAnimations() {
 		return Collections.unmodifiableMap(ANIMATIONS);
 	}
 
@@ -59,7 +59,7 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	@NotNull
 	public static Map<String, Animation> getModAnimations(@NotNull String modid) {
 		HashMap<String, Animation> map = new HashMap<>();
-		for (Map.Entry<ResourceLocation, Animation> entry: ANIMATIONS.entrySet()) {
+		for (Map.Entry<Identifier, Animation> entry: ANIMATIONS.entrySet()) {
 			if (entry.getKey().getNamespace().equals(modid)) {
 				map.put(entry.getKey().getPath(), entry.getValue());
 			}
@@ -71,7 +71,7 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	 * @param id ID of the desired animation.
 	 * @return Returns true if that animation is available.
 	 */
-	public static boolean hasAnimation(ResourceLocation id) {
+	public static boolean hasAnimation(Identifier id) {
 		return ANIMATIONS.containsKey(id);
 	}
 
@@ -87,7 +87,7 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 			String namespace = resource.getKey().getNamespace();
 			try (InputStream is = resource.getValue().open()) {
 				for (var entry : UniversalAnimLoader.loadAnimations(is).entrySet()) {
-					ANIMATIONS.put(ResourceLocation.fromNamespaceAndPath(namespace, entry.getKey()), entry.getValue());
+					ANIMATIONS.put(Identifier.fromNamespaceAndPath(namespace, entry.getKey()), entry.getValue());
 				}
 			} catch (Exception e) {
 				PlayerAnimLib.LOGGER.error("Player Animation Library failed to load animation {} because:", resource.getKey(), e);
