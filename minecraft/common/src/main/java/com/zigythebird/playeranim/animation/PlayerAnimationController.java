@@ -19,7 +19,7 @@ import team.unnamed.mocha.MochaEngine;
 
 import java.util.function.Function;
 
-public class AvatarAnimationController extends HumanoidAnimationController {
+public class PlayerAnimationController extends HumanoidAnimationController {
     protected final Avatar avatar;
 
     /**
@@ -28,7 +28,7 @@ public class AvatarAnimationController extends HumanoidAnimationController {
      * @param avatar           The object that will be animated by this controller
      * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
      */
-    public AvatarAnimationController(Avatar avatar, AnimationStateHandler animationHandler) {
+    public PlayerAnimationController(Avatar avatar, AnimationStateHandler animationHandler) {
         this(avatar, animationHandler, MolangLoader::createNewEngine);
     }
 
@@ -39,7 +39,7 @@ public class AvatarAnimationController extends HumanoidAnimationController {
      * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
      * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
      */
-    public AvatarAnimationController(Avatar avatar, AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
+    public PlayerAnimationController(Avatar avatar, AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
         super(animationHandler, molangRuntime);
         this.avatar = avatar;
     }

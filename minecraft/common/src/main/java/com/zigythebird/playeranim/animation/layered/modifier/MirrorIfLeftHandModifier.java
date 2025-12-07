@@ -1,6 +1,6 @@
 package com.zigythebird.playeranim.animation.layered.modifier;
 
-import com.zigythebird.playeranim.animation.AvatarAnimationController;
+import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranimcore.animation.layered.modifier.MirrorModifier;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.Minecraft;
@@ -15,7 +15,7 @@ public class MirrorIfLeftHandModifier extends MirrorModifier {
 
     @Override
     public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
-        if (getController() instanceof AvatarAnimationController controller && controller.getAvatar() == Minecraft.getInstance().player && Minecraft.getInstance().options.mainHand().get() == HumanoidArm.LEFT) return bone;
+        if (getController() instanceof PlayerAnimationController controller && controller.getAvatar() == Minecraft.getInstance().player && Minecraft.getInstance().options.mainHand().get() == HumanoidArm.LEFT) return bone;
         return super.get3DTransform(bone);
     }
 }

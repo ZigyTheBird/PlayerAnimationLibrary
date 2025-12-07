@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranim.animation.keyframe.event.builtin;
 
-import com.zigythebird.playeranim.animation.AvatarAnimationController;
+import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranim.util.ClientUtil;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.AnimationData;
@@ -52,7 +52,7 @@ import java.util.Optional;
 public class AutoPlayingSoundKeyframeHandler implements CustomKeyFrameEvents.CustomKeyFrameHandler<SoundKeyframeData> {
     @Override
     public EventResult handle(float animationTick, AnimationController controller, SoundKeyframeData keyFrameData, AnimationData animationData) {
-        Vec3 position = controller instanceof AvatarAnimationController player ? player.getAvatar().position() : null;
+        Vec3 position = controller instanceof PlayerAnimationController player ? player.getAvatar().position() : null;
         if (position == null) return EventResult.PASS;
 
         String[] segments = keyFrameData.getSound().split("\\|");
