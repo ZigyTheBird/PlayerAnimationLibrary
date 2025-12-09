@@ -2,7 +2,7 @@ package com.zigythebird.playeranim.animation;
 
 import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.RawAnimation;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Makes a RawAnimation using resource locations instead of full animations
@@ -20,7 +20,7 @@ public class PlayerRawAnimationBuilder {
      *
      * @param animation The id of the animation to play once
      */
-    public PlayerRawAnimationBuilder thenPlay(ResourceLocation animation) {
+    public PlayerRawAnimationBuilder thenPlay(Identifier animation) {
         return then(animation, Animation.LoopType.DEFAULT);
     }
 
@@ -29,7 +29,7 @@ public class PlayerRawAnimationBuilder {
      *
      * @param animation The id of the animation to play on a loop
      */
-    public PlayerRawAnimationBuilder thenLoop(ResourceLocation animation) {
+    public PlayerRawAnimationBuilder thenLoop(Identifier animation) {
         return then(animation, Animation.LoopType.LOOP);
     }
 
@@ -52,7 +52,7 @@ public class PlayerRawAnimationBuilder {
      *
      * @param animation The id of the animation to play and hold
      */
-    public PlayerRawAnimationBuilder thenPlayAndHold(ResourceLocation animation) {
+    public PlayerRawAnimationBuilder thenPlayAndHold(Identifier animation) {
         return then(animation, Animation.LoopType.HOLD_ON_LAST_FRAME);
     }
 
@@ -63,7 +63,7 @@ public class PlayerRawAnimationBuilder {
      * @param animation The id of the animation to play X times
      * @param playCount The number of times to repeat the animation before proceeding
      */
-    public PlayerRawAnimationBuilder thenPlayXTimes(ResourceLocation animation, int playCount) {
+    public PlayerRawAnimationBuilder thenPlayXTimes(Identifier animation, int playCount) {
         for (int i = 0; i < playCount; i++) {
             then(animation, i == playCount - 1 ? Animation.LoopType.DEFAULT : Animation.LoopType.PLAY_ONCE);
         }
@@ -77,7 +77,7 @@ public class PlayerRawAnimationBuilder {
      * @param animation The id of the animation to play. <u>MUST</u> match the name of the animation in the <code>.animation.json</code> file.
      * @param loopType The loop type handler for the animation, overriding the default value set in the animation json
      */
-    public PlayerRawAnimationBuilder then(ResourceLocation animation, Animation.LoopType loopType) {
+    public PlayerRawAnimationBuilder then(Identifier animation, Animation.LoopType loopType) {
         Animation instance = PlayerAnimResources.getAnimation(animation);
         if (instance == null) throw new IllegalArgumentException("Could not find animation with name: " + animation);
         rawAnimation.then(instance, loopType);

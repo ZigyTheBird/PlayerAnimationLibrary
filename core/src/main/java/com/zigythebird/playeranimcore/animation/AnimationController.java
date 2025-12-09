@@ -71,12 +71,13 @@ import java.util.function.Predicate;
 public abstract class AnimationController implements IAnimation {
 	public static KeyframeLocation<Keyframe> EMPTY_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0), 0);
 	public static KeyframeLocation<Keyframe> EMPTY_SCALE_KEYFRAME_LOCATION = new KeyframeLocation<>(new Keyframe(0, Collections.singletonList(FloatExpression.ONE), Collections.singletonList(FloatExpression.ONE)), 0);
-	
+
 	protected final AnimationStateHandler stateHandler;
+	protected final Map<String, Vec3f> bonePositions;
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PlayerAnimBone> activeBones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PivotBone> pivotBones = new Object2ObjectOpenHashMap<>();
-	protected Queue<AnimationProcessor.QueuedAnimation> animationQueue = new LinkedList<>();
+	protected Queue<QueuedAnimation> animationQueue = new LinkedList<>();
 	protected final MochaEngine<AnimationController> molangRuntime;
 
 	protected boolean needsAnimationReload = false;
@@ -89,7 +90,7 @@ public abstract class AnimationController implements IAnimation {
 	protected boolean handlingTriggeredAnimations = false;
 
 	protected RawAnimation currentRawAnimation;
-	protected AnimationProcessor.QueuedAnimation currentAnimation;
+	protected QueuedAnimation currentAnimation;
 	protected int tick;
 	protected float startAnimFrom;
 	protected State animationState = State.STOPPED;
@@ -109,10 +110,12 @@ public abstract class AnimationController implements IAnimation {
 	 * Instantiates a new {@code AnimationController}
 	 *
 	 * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
+	 * @param bonePositions    Map of bones and their pivots
 	 * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
 	 */
-	public AnimationController(AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
+	public AnimationController(AnimationStateHandler animationHandler, Map<String, Vec3f> bonePositions, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
 		this.stateHandler = animationHandler;
+		this.bonePositions = bonePositions;
 		this.molangRuntime = molangRuntime.apply(this);
 
 		registerBones();
@@ -196,13 +199,13 @@ public abstract class AnimationController implements IAnimation {
 	 * An animation returned here does not guarantee it is currently playing, just that it is the currently loaded animation for this controller
 	 */
 	@Nullable
-	public AnimationProcessor.QueuedAnimation getCurrentAnimation() {
+	public QueuedAnimation getCurrentAnimation() {
 		return this.currentAnimation;
 	}
 
     @Nullable
     public Animation getCurrentAnimationInstance() {
-        AnimationProcessor.QueuedAnimation queuedAnimation = getCurrentAnimation();
+        QueuedAnimation queuedAnimation = getCurrentAnimation();
         if (queuedAnimation != null) {
             Animation animation = queuedAnimation.animation();
             if (animation != null) {
@@ -335,7 +338,7 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		if (this.needsAnimationReload || !rawAnimation.equals(this.currentRawAnimation)) {
-			Queue<AnimationProcessor.QueuedAnimation> animations = getQueuedAnimations(rawAnimation);
+			Queue<QueuedAnimation> animations = getQueuedAnimations(rawAnimation);
 
 			if (animations != null) {
 				this.animationQueue = animations;
@@ -358,8 +361,8 @@ public abstract class AnimationController implements IAnimation {
 		setAnimation(rawAnimation, 0);
 	}
 
-	protected Queue<AnimationProcessor.QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
-		LinkedList<AnimationProcessor.QueuedAnimation> animations = new LinkedList<>();
+	protected Queue<QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
+		LinkedList<QueuedAnimation> animations = new LinkedList<>();
 		for (RawAnimation.Stage stage : rawAnimation.getAnimationStages()) {
 			Animation animation;
 			if (stage.stage() == AnimationStage.WAIT) { // This is intentional. Do not change this or T̶s̶l̶a̶t̶ I will be unhappy!!!
@@ -368,7 +371,7 @@ public abstract class AnimationController implements IAnimation {
 				animation = stage.animation();
 			}
 
-			if (animation != null) animations.add(new AnimationProcessor.QueuedAnimation(animation, stage.loopType()));
+			if (animation != null) animations.add(new QueuedAnimation(animation, stage.loopType()));
 		}
 		return animations;
 	}
@@ -533,7 +536,7 @@ public abstract class AnimationController implements IAnimation {
 				}
 			}
 			else {
-                AnimationProcessor.QueuedAnimation nextAnimation = this.animationQueue.peek();
+				QueuedAnimation nextAnimation = this.animationQueue.peek();
 
 				resetEventKeyFrames();
 
@@ -914,7 +917,11 @@ public abstract class AnimationController implements IAnimation {
 		else process(state);
 	}
 
-	public abstract Vec3f getBonePosition(String name);
+	public Vec3f getBonePosition(String name) {
+		if (bonePositions.containsKey(name)) return bonePositions.get(name);
+		if (pivotBones.containsKey(name)) return pivotBones.get(name).getPivot();
+		return Vec3f.ZERO;
+	}
 
 	/**
 	 * PLEASE DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING.

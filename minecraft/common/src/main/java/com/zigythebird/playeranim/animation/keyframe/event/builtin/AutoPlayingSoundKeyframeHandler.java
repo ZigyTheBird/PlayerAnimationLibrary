@@ -33,7 +33,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.event.EventResult;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
@@ -56,7 +56,7 @@ public class AutoPlayingSoundKeyframeHandler implements CustomKeyFrameEvents.Cus
         if (position == null) return EventResult.PASS;
 
         String[] segments = keyFrameData.getSound().split("\\|");
-        ResourceLocation rl = ResourceLocation.tryParse(segments[0]);
+        Identifier rl = Identifier.tryParse(segments[0]);
         if (rl == null) return EventResult.PASS;
 
         Optional<Holder.Reference<SoundEvent>> soundEvent = BuiltInRegistries.SOUND_EVENT.get(rl);

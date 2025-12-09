@@ -35,6 +35,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 
@@ -137,8 +138,14 @@ public final class MolangQueries {
             }
         });
         MolangLoader.setDoubleQuery(binding, LIFE_TIME, actor -> actor.isActive() ? actor.getAnimationTime() : 0);
-        MolangLoader.setDoubleQuery(binding, MOON_BRIGHTNESS, actor -> ((PlayerAnimationController) actor).getAvatar().level().getMoonBrightness());
-        MolangLoader.setDoubleQuery(binding, MOON_PHASE, actor -> ((PlayerAnimationController) actor).getAvatar().level().getMoonPhase());
+        MolangLoader.setDoubleQuery(binding, MOON_BRIGHTNESS, actor -> {
+            Avatar avatar = ((PlayerAnimationController) actor).getAvatar();
+            return avatar.level().environmentAttributes().getValue(EnvironmentAttributes.STAR_BRIGHTNESS, avatar.position());
+        });
+        MolangLoader.setDoubleQuery(binding, MOON_PHASE, actor -> {
+            Avatar avatar = ((PlayerAnimationController) actor).getAvatar();
+            return avatar.level().environmentAttributes().getValue(EnvironmentAttributes.MOON_PHASE, avatar.position()).index();
+        });
         MolangLoader.setDoubleQuery(binding, PLAYER_LEVEL, actor -> {
             Avatar avatar = ((PlayerAnimationController) actor).getAvatar();
             if (avatar instanceof AbstractClientPlayer player) {
@@ -163,7 +170,7 @@ public final class MolangQueries {
 
             return directionId < 2 ? 6 : directionId;
         });
-        MolangLoader.setDoubleQuery(binding, DISTANCE_FROM_CAMERA, actor -> Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().distanceTo(((PlayerAnimationController) actor).getAvatar().position()));
+        MolangLoader.setDoubleQuery(binding, DISTANCE_FROM_CAMERA, actor -> Minecraft.getInstance().gameRenderer.getMainCamera().position().distanceTo(((PlayerAnimationController) actor).getAvatar().position()));
         MolangLoader.setDoubleQuery(binding, GET_ACTOR_INFO_ID, actor -> ((PlayerAnimationController) actor).getAvatar().getId());
         MolangLoader.setDoubleQuery(binding, EQUIPMENT_COUNT, actor -> ((PlayerAnimationController) actor).getAvatar() instanceof EquipmentUser armorable ? Arrays.stream(EquipmentSlot.values()).filter(EquipmentSlot::isArmor).filter(slot -> !armorable.getItemBySlot(slot).isEmpty()).count() : 0);
         MolangLoader.setBoolQuery(binding, HAS_COLLISION, actor -> !((PlayerAnimationController) actor).getAvatar().noPhysics);

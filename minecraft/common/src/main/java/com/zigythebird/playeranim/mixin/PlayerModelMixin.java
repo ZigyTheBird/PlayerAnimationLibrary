@@ -33,11 +33,11 @@ import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -60,10 +60,9 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
     private final PlayerAnimBone pal$rightLeg = new PlayerAnimBone("right_leg");
     @Unique
     private final PlayerAnimBone pal$leftLeg = new PlayerAnimBone("left_leg");
-    
-    
-    public PlayerModelMixin(ModelPart modelPart, Function<ResourceLocation, RenderType> function) {
-        super(modelPart, function);
+
+    public PlayerModelMixin(ModelPart root, Function<Identifier, RenderType> renderType) {
+        super(root, renderType);
     }
 
     @Unique

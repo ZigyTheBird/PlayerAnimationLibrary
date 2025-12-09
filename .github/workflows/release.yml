@@ -116,12 +116,11 @@ jobs:
           files: |
             ./minecraft/fabric/build/libs/!(*-@(dev|sources|javadoc|all|dev-shadow)).jar
             ./minecraft/fabric/build/libs/*-@(dev|sources|javadoc|all|dev-shadow).jar
-          version-type: release
+          version-type: alpha
 
           loaders: fabric
           game-versions: |
             ${{ steps.gradle_properties.outputs.minecraft_version }}
-            1.21.10
 
           changelog-file: CHANGELOG.md
 
@@ -148,12 +147,11 @@ jobs:
           files: |
             ./minecraft/neoforge/build/libs/!(*-@(dev|sources|javadoc|all|dev-shadow)).jar
             ./minecraft/neoforge/build/libs/*-@(dev|sources|javadoc|all|dev-shadow).jar
-          version-type: release
+          version-type: alpha
 
           loaders: neoforge
           game-versions: |
             ${{ steps.gradle_properties.outputs.minecraft_version }}
-            1.21.10
 
           changelog-file: CHANGELOG.md
 
