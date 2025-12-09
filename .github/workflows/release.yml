@@ -116,7 +116,7 @@ jobs:
           files: |
             ./minecraft/fabric/build/libs/!(*-@(dev|sources|javadoc|all|dev-shadow)).jar
             ./minecraft/fabric/build/libs/*-@(dev|sources|javadoc|all|dev-shadow).jar
-          version-type: release
+          version-type: alpha
 
           loaders: fabric
           game-versions: |
@@ -147,7 +147,7 @@ jobs:
           files: |
             ./minecraft/neoforge/build/libs/!(*-@(dev|sources|javadoc|all|dev-shadow)).jar
             ./minecraft/neoforge/build/libs/*-@(dev|sources|javadoc|all|dev-shadow).jar
-          version-type: release
+          version-type: alpha
 
           loaders: neoforge
           game-versions: |
