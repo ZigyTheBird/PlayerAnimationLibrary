@@ -14,19 +14,33 @@ public class AvatarRenderStateMixin implements IAvatarAnimationState {
     boolean playerAnimLib$isCameraEntity = false;
 
     @Unique
+    boolean playerAnimLib$isFirstPersonPass = false;
+
+    @Unique
     AvatarAnimManager playerAnimLib$avatarAnimManager = null;
 
     @Unique
     AnimationProcessor playerAnimLib$playerAnimProcessor = null;
 
     @Override
+    @SuppressWarnings("removal")
     public boolean playerAnimLib$isCameraEntity() {
-        return playerAnimLib$isCameraEntity;
+        return this.playerAnimLib$isCameraEntity;
     }
 
     @Override
     public void playerAnimLib$setCameraEntity(boolean value) {
-        playerAnimLib$isCameraEntity = value;
+        this.playerAnimLib$isCameraEntity = value;
+    }
+
+    @Override
+    public boolean playerAnimLib$isFirstPersonPass() {
+        return playerAnimLib$isFirstPersonPass;
+    }
+
+    @Override
+    public void playerAnimLib$setFirstPersonPass(boolean value) {
+        playerAnimLib$isFirstPersonPass = value;
     }
 
     @Override

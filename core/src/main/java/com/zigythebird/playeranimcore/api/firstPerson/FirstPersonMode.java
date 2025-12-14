@@ -44,6 +44,7 @@ public enum FirstPersonMode {
     /**
      * @return is the current render pass a first-person pass
      */
+    @Deprecated(forRemoval = true)
     public static boolean isFirstPersonPass() {
         return firstPersonPass.get();
     }

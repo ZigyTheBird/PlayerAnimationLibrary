@@ -43,7 +43,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ItemInHandRendererMixin {
     @Inject(method = "renderHandsWithItems", at = @At("HEAD"), cancellable = true)
     private void disableDefaultItemIfNeeded(float f, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LocalPlayer localPlayer, int i, CallbackInfo ci) {
-        if (localPlayer instanceof IAnimatedAvatar player && (player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL)) {
+        if (localPlayer instanceof IAnimatedAvatar player && player.playerAnimLib$getAnimManager().isActive()
+                && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL) {
                 ci.cancel();
         }
     }
@@ -57,10 +58,9 @@ public class ItemInHandRendererMixin {
 
     @Inject(method = "renderItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V"), cancellable = true)
     private void cancelItemRender(LivingEntity entity, ItemStack itemStack, ItemDisplayContext transformType, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
-        if (entity != Minecraft.getInstance().getCameraEntity()) {
-            return;
-        }
-        if (FirstPersonMode.isFirstPersonPass() && entity instanceof IAnimatedAvatar player) {
+        if (entity instanceof IAnimatedAvatar player && player.playerAnimLib$getAnimManager().isActive() && entity == Minecraft.getInstance().getCameraEntity()
+                && !Minecraft.getInstance().gameRenderer.getMainCamera().isDetached()
+                && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL) {
             var config = player.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
             if (transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND) {
                 if (!config.isShowRightItem()) {
