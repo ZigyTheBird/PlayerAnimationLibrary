@@ -10,6 +10,9 @@ public interface IPlayerAnimationState {
     boolean playerAnimLib$isCameraEntity();
     void playerAnimLib$setCameraEntity(boolean value);
 
+    boolean playerAnimLib$isFirstPersonPass();
+    void playerAnimLib$setFirstPersonPass(boolean value);
+
     // AnimationApplier animationApplier
     void playerAnimLib$setAnimManager(PlayerAnimManager manager);
     PlayerAnimManager playerAnimLib$getAnimManager();

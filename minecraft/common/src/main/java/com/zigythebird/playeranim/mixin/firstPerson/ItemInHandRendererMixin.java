@@ -42,8 +42,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandRenderer.class)
 public class ItemInHandRendererMixin {
     @Inject(method = "renderHandsWithItems", at = @At("HEAD"), cancellable = true)
-    private void disableDefaultItemIfNeeded(float f, PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LocalPlayer localPlayer, int i, CallbackInfo ci) {
-        if (localPlayer instanceof IAnimatedPlayer player && (player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL)) {
+    private void disableDefaultItemIfNeeded(float partialTicks, PoseStack poseStack, MultiBufferSource.BufferSource buffer, LocalPlayer playerEntity, int combinedLight, CallbackInfo ci) {
+        if (playerEntity instanceof IAnimatedPlayer player && player.playerAnimLib$getAnimManager().isActive()
+                && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL) {
                 ci.cancel();
         }
     }
@@ -56,11 +57,10 @@ public class ItemInHandRendererMixin {
     }*/
 
     @Inject(method = "renderItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V"), cancellable = true)
-    private void cancelItemRender(LivingEntity entity, ItemStack itemStack, ItemDisplayContext transformType, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
-        if (entity != Minecraft.getInstance().getCameraEntity()) {
-            return;
-        }
-        if (FirstPersonMode.isFirstPersonPass() && entity instanceof IAnimatedPlayer player) {
+    private void cancelItemRender(LivingEntity entity, ItemStack stack, ItemDisplayContext transformType, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
+        if (entity instanceof IAnimatedPlayer player && player.playerAnimLib$getAnimManager().isActive() && entity == Minecraft.getInstance().getCameraEntity()
+                && !Minecraft.getInstance().gameRenderer.getMainCamera().isDetached()
+                && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL) {
             var config = player.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
             if (transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND) {
                 if (!config.isShowRightItem()) {

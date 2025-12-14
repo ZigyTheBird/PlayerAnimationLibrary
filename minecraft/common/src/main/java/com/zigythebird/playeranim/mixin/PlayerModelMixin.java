@@ -30,7 +30,6 @@ import com.zigythebird.playeranim.accessors.IMutableModel;
 import com.zigythebird.playeranim.accessors.IPlayerAnimationState;
 import com.zigythebird.playeranim.animation.PlayerAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -78,75 +77,42 @@ public class PlayerModelMixin extends HumanoidModel<PlayerRenderState> {
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "HEAD"))
     private void setDefaultBeforeRender(PlayerRenderState playerRenderState, CallbackInfo ci){
-        playerAnimLib$setToInitialPose(); //to not make everything wrong
+        playerAnimLib$setToInitialPose(); //To not make everything wrong
+        this.head.visible = true; //For some reason only the head doesn't get reset
     }
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;)V", at = @At(value = "RETURN"))
     private void setupPlayerAnimation(PlayerRenderState playerRenderState, CallbackInfo ci) {
-        if (playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
-            ((IMutableModel)this).playerAnimLib$setAnimation(emote);
+        if (playerRenderState instanceof IPlayerAnimationState state && state.playerAnimLib$getAnimManager() != null) {
+            if (state.playerAnimLib$getAnimManager().isActive()) {
+                RenderUtil.copyVanillaPart(this.head, pal$head);
+                RenderUtil.copyVanillaPart(this.body, pal$torso);
+                RenderUtil.copyVanillaPart(this.rightArm, pal$rightArm);
+                RenderUtil.copyVanillaPart(this.leftArm, pal$leftArm);
+                RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
+                RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
 
-            RenderUtil.copyVanillaPart(this.head, pal$head);
-            RenderUtil.copyVanillaPart(this.body, pal$torso);
-            RenderUtil.copyVanillaPart(this.rightArm, pal$rightArm);
-            RenderUtil.copyVanillaPart(this.leftArm, pal$leftArm);
-            RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
-            RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
+                PlayerAnimManager emote = state.playerAnimLib$getAnimManager();
+                emote.updatePart(this.head, pal$head);
+                emote.updatePart(this.rightArm, pal$rightArm);
+                emote.updatePart(this.leftArm, pal$leftArm);
+                emote.updatePart(this.rightLeg, pal$rightLeg);
+                emote.updatePart(this.leftLeg, pal$leftLeg);
+                emote.updatePart(this.body, pal$torso);
+            }
 
-            emote.updatePart(this.head, pal$head);
-            emote.updatePart(this.rightArm, pal$rightArm);
-            emote.updatePart(this.leftArm, pal$leftArm);
-            emote.updatePart(this.rightLeg, pal$rightLeg);
-            emote.updatePart(this.leftLeg, pal$leftLeg);
-            emote.updatePart(this.body, pal$torso);
+            if (state.playerAnimLib$isFirstPersonPass()) {
+                var config = state.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
+                // Hiding all parts, because they should not be visible in first person
+                this.head.visible = false;
+                this.body.visible = false;
+                this.leftLeg.visible = false;
+                this.rightLeg.visible = false;
+                // Showing arms based on configuration
+                this.rightArm.visible = config.isShowRightArm();
+                this.leftArm.visible = config.isShowLeftArm();
+            }
         }
-        else {
-            ((IMutableModel)this).playerAnimLib$setAnimation(null);
-        }
-
-        if (FirstPersonMode.isFirstPersonPass() && playerRenderState instanceof IPlayerAnimationState state
-                && state.playerAnimLib$isCameraEntity()) {
-            var config = state.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
-            // Hiding all parts, because they should not be visible in first person
-            playerAnimLib$setAllPartsVisible(false);
-            // Showing arms based on configuration
-            var skipRightArm = !config.isShowRightArm();
-            var skipLeftArm = !config.isShowLeftArm();
-            this.rightArm.skipDraw = skipRightArm;
-            this.leftArm.skipDraw = skipLeftArm;
-
-            // These are children of those ^^^
-            // this.rightSleeve.skipDraw = skipRightArm;
-            // this.leftSleeve.skipDraw = skipLeftArm;
-        } else {
-            playerAnimLib$setAllPartsVisible(true);
-        }
-    }
-
-    @Unique
-    private void playerAnimLib$setAllPartsVisible(boolean visible) {
-        var skip = !visible;
-        this.head.skipDraw = skip;
-        this.head.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.body.skipDraw = skip;
-        this.body.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.leftLeg.skipDraw = skip;
-        this.leftLeg.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.rightLeg.skipDraw = skip;
-        this.rightLeg.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.rightArm.skipDraw = skip;
-        this.rightArm.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.leftArm.skipDraw = skip;
-        this.leftArm.getAllParts().forEach(p -> p.skipDraw = skip);
-
-        // These are children of those ^^^
-        //this.hat.visible = visible;
-        //this.leftSleeve.visible = visible;
-        //this.rightSleeve.visible = visible;
-        //this.leftPants.visible = visible;
-        //this.rightPants.visible = visible;
-        //this.jacket.visible = visible;
     }
 
     @WrapWithCondition(method = "translateToHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))

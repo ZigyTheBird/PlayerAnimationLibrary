@@ -8,17 +8,17 @@
     "CapeLayerMixin",
     "CapeModelAccessor",
     "ElytraLayerMixin",
-    "HumanoidArmorLayerMixin",
     "HumanoidModelMixin",
     "ItemInHandLayerMixin",
     "LivingEntityRendererMixin",
     "PlayerModelMixin",
     "PlayerRendererMixin",
     "PlayerRenderStateMixin",
-    "firstPerson.EntityRenderDispatcherMixin",
+    "firstPerson.HumanoidArmorLayerMixin",
     "firstPerson.ItemInHandRendererMixin",
     "firstPerson.LevelRendererMixin",
-    "firstPerson.LivingEntityRendererMixin"
+    "firstPerson.LivingEntityRendererMixin",
+    "firstPerson.EntityRenderDispatcherMixin"
   ],
   "mixins": [],
   "injectors": {
