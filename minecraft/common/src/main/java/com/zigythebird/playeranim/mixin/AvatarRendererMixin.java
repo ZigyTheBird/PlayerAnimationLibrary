@@ -53,7 +53,6 @@ public abstract class AvatarRendererMixin extends LivingEntityRenderer<AbstractC
             animation.setTickDelta(f);
 
             ((IAvatarAnimationState)avatarRenderState).playerAnimLib$setAnimManager(animation);
-            ((IAvatarAnimationState)avatarRenderState).playerAnimLib$setCameraEntity(avatar == Minecraft.getInstance().getCameraEntity());
         }
     }
 }

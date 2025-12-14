@@ -6,8 +6,8 @@ import com.zigythebird.playeranim.animation.AvatarAnimManager;
  * Extension of PlayerRenderState
  */
 public interface IAvatarAnimationState {
-    boolean playerAnimLib$isCameraEntity();
-    void playerAnimLib$setCameraEntity(boolean value);
+    boolean playerAnimLib$isFirstPersonPass();
+    void playerAnimLib$setFirstPersonPass(boolean value);
 
     // AnimationApplier animationApplier
     void playerAnimLib$setAnimManager(AvatarAnimManager manager);

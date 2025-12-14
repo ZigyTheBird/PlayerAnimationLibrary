@@ -1,2 +1,1 @@
-- Port to 1.21.11
-- Some refactor...
+Fixed various bugs with first person animations.

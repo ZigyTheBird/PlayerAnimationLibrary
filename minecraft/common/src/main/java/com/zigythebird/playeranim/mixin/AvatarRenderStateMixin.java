@@ -10,19 +10,19 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(AvatarRenderState.class)
 public class AvatarRenderStateMixin implements IAvatarAnimationState {
     @Unique
-    boolean playerAnimLib$isCameraEntity = false;
+    boolean playerAnimLib$isFirstPersonPass = false;
 
     @Unique
     AvatarAnimManager playerAnimLib$avatarAnimManager = null;
 
     @Override
-    public boolean playerAnimLib$isCameraEntity() {
-        return playerAnimLib$isCameraEntity;
+    public boolean playerAnimLib$isFirstPersonPass() {
+        return playerAnimLib$isFirstPersonPass;
     }
 
     @Override
-    public void playerAnimLib$setCameraEntity(boolean value) {
-        playerAnimLib$isCameraEntity = value;
+    public void playerAnimLib$setFirstPersonPass(boolean value) {
+        playerAnimLib$isFirstPersonPass = value;
     }
 
     @Override

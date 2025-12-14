@@ -1,7 +1,5 @@
 package com.zigythebird.playeranimcore.api.firstPerson;
 
-import org.jetbrains.annotations.ApiStatus;
-
 public enum FirstPersonMode {
 
     /**
@@ -34,22 +32,5 @@ public enum FirstPersonMode {
 
     FirstPersonMode(boolean enabled) {
         this.enabled = enabled;
-    }
-
-
-
-    private static final ThreadLocal<Boolean> firstPersonPass = ThreadLocal.withInitial(() -> false);
-
-
-    /**
-     * @return is the current render pass a first-person pass
-     */
-    public static boolean isFirstPersonPass() {
-        return firstPersonPass.get();
-    }
-
-    @ApiStatus.Internal
-    public static void setFirstPersonPass(boolean newValue) {
-        firstPersonPass.set(newValue);
     }
 }
