@@ -1,1 +1,1 @@
-Fixed crash when using certain modifiers. (Thanks to PROHitman for reporting the bug.)
+Fixed various bugs with first person animations.

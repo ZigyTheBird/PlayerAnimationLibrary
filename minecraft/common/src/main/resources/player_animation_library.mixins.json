@@ -1,7 +1,6 @@
 {
   "required": true,
   "package": "com.zigythebird.playeranim.mixin",
-  "plugin": "com.zigythebird.playeranim.ModMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
@@ -9,17 +8,16 @@
     "CameraAccessor",
     "CapeLayerMixin",
     "ElytraLayerMixin",
-    "HumanoidArmorLayerMixin",
+    "firstPerson.HumanoidArmorLayerMixin",
     "HumanoidModelMixin",
     "ItemInHandLayerMixin",
-    "LivingEntityRendererMixin",
     "PlayerModelAccessor",
     "PlayerModelMixin",
     "PlayerRendererMixin",
     "firstPerson.EntityRenderDispatcherMixin",
     "firstPerson.ItemInHandRendererMixin",
     "firstPerson.LevelRendererMixin",
-    "firstPerson.LivingEntityRendererMixin_noPA"
+    "firstPerson.LivingEntityRendererMixin"
   ],
   "mixins": [],
   "injectors": {
