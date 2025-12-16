@@ -57,11 +57,7 @@ public class MirrorModifier extends AbstractModifier {
     public @NotNull FirstPersonConfiguration getFirstPersonConfiguration() {
         FirstPersonConfiguration configuration = super.getFirstPersonConfiguration();
         if (!enabled) return configuration;
-        return new FirstPersonConfiguration()
-                .setShowLeftArm(configuration.isShowRightArm())
-                .setShowRightArm(configuration.isShowLeftArm())
-                .setShowLeftItem(configuration.isShowRightItem())
-                .setShowRightItem(configuration.isShowLeftItem());
+        return configuration.mirrored();
     }
 
     protected void transformBone(PlayerAnimBone bone) {
