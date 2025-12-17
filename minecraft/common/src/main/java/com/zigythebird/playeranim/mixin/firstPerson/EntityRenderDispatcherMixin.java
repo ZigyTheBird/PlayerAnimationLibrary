@@ -24,10 +24,13 @@ public class EntityRenderDispatcherMixin {
     @Inject(method = "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V"))
     private <E extends Entity, S extends EntityRenderState> void isFirstPersonPass(E entity, double xOffset, double yOffset, double zOffset, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, EntityRenderer<? super E, S> renderer, CallbackInfo ci, @Local S entityRenderState) {
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        if (entity == camera.getEntity() && camera.getEntity() instanceof IAnimatedPlayer player && player.playerAnimLib$getAnimManager().isActive()
-                && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL && !camera.isDetached()
-                    && (!(camera.getEntity() instanceof LivingEntity) || !((LivingEntity)camera.getEntity()).isSleeping())) {
-                ((IPlayerAnimationState) entityRenderState).playerAnimLib$setFirstPersonPass(true);
+        if (entityRenderState instanceof IPlayerAnimationState playerAnimationState) {
+            playerAnimationState.playerAnimLib$setFirstPersonPass(
+                    entity == camera.getEntity() && camera.getEntity() instanceof IAnimatedPlayer player &&
+                    player.playerAnimLib$getAnimManager().isActive()
+                    && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL
+                    && !camera.isDetached()
+                    && (!(camera.getEntity() instanceof LivingEntity) || !((LivingEntity) camera.getEntity()).isSleeping()));
         }
     }
 

@@ -59,6 +59,6 @@ public abstract class HumanoidArmorLayerMixin<T extends HumanoidRenderState, A e
                 humanoidModel.rightArm.visible = emote.getFirstPersonConfiguration().isShowRightArm();
                 humanoidModel.leftArm.visible = emote.getFirstPersonConfiguration().isShowLeftArm();
             } else ci.cancel();
-        } else humanoidModel.head.visible = true; //For some reason only the head doesn't get reset //TODO Try to reduce potential compat issues here
+        }
     }
 }
