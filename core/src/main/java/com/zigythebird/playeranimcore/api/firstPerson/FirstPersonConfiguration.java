@@ -66,4 +66,10 @@ public class FirstPersonConfiguration {
         this.showRightArm = showRightArm;
         return this;
     }
+
+    public FirstPersonConfiguration mirrored() {
+        return new FirstPersonConfiguration(
+                this.isShowLeftArm(), this.isShowRightArm(), this.isShowLeftItem(), this.isShowRightItem(), this.isShowArmor()
+        );
+    }
 }
