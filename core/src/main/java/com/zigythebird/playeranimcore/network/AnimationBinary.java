@@ -34,7 +34,7 @@ public final class AnimationBinary {
      * Version 2: Added support for animations that don't apply the torso bend to other bones + easeBefore
      * Version 3: No change client side, but the server won't send some animations to versions lower than 3 due to the possibility of a crash.
      * Version 4: Fixed some issues with the body bone.
-     * Version 5: Fixed the Z position axis on items being negated.
+     * Version 5: Fixed the Y position axis on items being negated.
      */
     public static final int CURRENT_VERSION = 4;
 
@@ -163,9 +163,9 @@ public final class AnimationBinary {
 
         if (version < 5) {
             if (boneAnimations.containsKey("right_item"))
-                boneAnimations.get("right_item").positionKeyFrames().zKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+                boneAnimations.get("right_item").positionKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
             if (boneAnimations.containsKey("left_item"))
-                boneAnimations.get("left_item").positionKeyFrames().zKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+                boneAnimations.get("left_item").positionKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
         }
 
         // Sounds

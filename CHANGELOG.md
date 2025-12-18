@@ -1,1 +1,1 @@
-Fixed the item Z pos axis being negated for Blockbench animations.
+Fixed the item Y pos axis being negated for Blockbench animations.
