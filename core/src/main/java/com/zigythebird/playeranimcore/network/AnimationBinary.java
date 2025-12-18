@@ -34,6 +34,7 @@ public final class AnimationBinary {
      * Version 2: Added support for animations that don't apply the torso bend to other bones + easeBefore
      * Version 3: No change client side, but the server won't send some animations to versions lower than 3 due to the possibility of a crash.
      * Version 4: Fixed some issues with the body bone.
+     * Version 5: Fixed the Z position axis on items being negated.
      */
     public static final int CURRENT_VERSION = 4;
 
@@ -109,8 +110,8 @@ public final class AnimationBinary {
     }
 
     public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack, boolean isBody, TransformType type) {
-        ProtocolUtils.writeList(buf, isBody ? fixBodyKeyframes(stack.xKeyframes()) : stack.xKeyframes(), AnimationBinary::writeKeyframe);
-        ProtocolUtils.writeList(buf, isBody && type == TransformType.ROTATION ? fixBodyKeyframes(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, isBody ? negateKeyframes(stack.xKeyframes()) : stack.xKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, isBody && type == TransformType.ROTATION ? negateKeyframes(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
         ProtocolUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
     }
 
@@ -155,9 +156,16 @@ public final class AnimationBinary {
 
         if (version < 4 && boneAnimations.containsKey("body")) {
             BoneAnimation body = boneAnimations.get("body");
-            body.positionKeyFrames().xKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
-            body.rotationKeyFrames().xKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
-            body.rotationKeyFrames().yKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
+            body.positionKeyFrames().xKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            body.rotationKeyFrames().xKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            body.rotationKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+        }
+
+        if (version < 5) {
+            if (boneAnimations.containsKey("right_item"))
+                boneAnimations.get("right_item").positionKeyFrames().zKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            if (boneAnimations.containsKey("left_item"))
+                boneAnimations.get("left_item").positionKeyFrames().zKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
         }
 
         // Sounds
@@ -231,20 +239,20 @@ public final class AnimationBinary {
         return list;
     }
 
-    public static List<Keyframe> fixBodyKeyframes(List<Keyframe> keyframes) {
+    private static List<Keyframe> negateKeyframes(List<Keyframe> keyframes) {
         keyframes = new ArrayList<>(keyframes);
-        keyframes.replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
+        keyframes.replaceAll(AnimationBinary::negateKeyframeExpressions);
         return keyframes;
     }
 
-    public static Keyframe fixBodyKeyframeExpressions(Keyframe keyframe) {
+    private static Keyframe negateKeyframeExpressions(Keyframe keyframe) {
         keyframe = new Keyframe(keyframe.length(), new ArrayList<>(keyframe.startValue()), new ArrayList<>(keyframe.endValue()), keyframe.easingType(), keyframe.easingArgs());
-        fixBodyKeyframeExpressions(keyframe.startValue());
-        fixBodyKeyframeExpressions(keyframe.endValue());
+        negateKeyframeExpressions(keyframe.startValue());
+        negateKeyframeExpressions(keyframe.endValue());
         return keyframe;
     }
 
-    public static void fixBodyKeyframeExpressions(List<Expression> expressions) {
+    private static void negateKeyframeExpressions(List<Expression> expressions) {
         if (expressions.size() == 1 && IsConstantExpression.test(expressions.getFirst())) {
             expressions.set(0, FloatExpression.of(-MOCHA_ENGINE.eval(expressions)));
         }

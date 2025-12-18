@@ -1,5 +1,5 @@
 {
-    "name": "item_pos_axis_test_blender",
+    "name": "item_pos_axis_test2_blender",
     "author": "Your name",
     "description": "description",
     "emote":{
@@ -10,15 +10,6 @@
         "stopTick":61,
         "degrees":false,
         "moves":[
-            
-            {
-                "tick":1,
-                "easing": "EASEINOUTQUAD",
-                "turn": 0,
-                "rightArm":{
-                    "pitch":-1.5707963705062866
-                }
-            },
             {
                 "tick":20,
                 "easing": "LINEAR",
