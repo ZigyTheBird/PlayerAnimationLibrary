@@ -11,6 +11,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
+import com.zigythebird.playeranimcore.loading.AnimationLoader;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
@@ -36,7 +37,7 @@ public final class AnimationBinary {
      * Version 4: Fixed some issues with the body bone.
      * Version 5: Fixed the Y position axis on items being negated.
      */
-    public static final int CURRENT_VERSION = 4;
+    public static final int CURRENT_VERSION = 5;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
@@ -68,11 +69,10 @@ public final class AnimationBinary {
             buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.EASING_BEFORE_KEY, true));
         }
         NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
-        boolean hasBodyBonesIssue = version < 4;
         VarIntUtils.writeVarInt(buf, animation.boneAnimations().size());
         for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
             ProtocolUtils.writeString(buf, entry.getKey());
-            writeBoneAnimation(buf, entry.getValue(), hasBodyBonesIssue && entry.getKey().equals("body"));
+            writeBoneAnimation(buf, entry.getValue(), version < 4 && entry.getKey().equals("body"), version < 5 && LegacyAnimationBinary.ITEM_BONE.test(entry.getKey()));
         }
 
         // Sounds
@@ -102,16 +102,16 @@ public final class AnimationBinary {
         NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }
 
-    public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone, boolean isBody) {
-        writeKeyframeStack(buf, bone.rotationKeyFrames(), isBody, TransformType.ROTATION);
-        writeKeyframeStack(buf, bone.positionKeyFrames(), isBody, TransformType.POSITION);
-        writeKeyframeStack(buf, bone.scaleKeyFrames(), false, TransformType.SCALE);
+    public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone, boolean isBody, boolean isItem) {
+        writeKeyframeStack(buf, bone.rotationKeyFrames(), isBody, false, TransformType.ROTATION);
+        writeKeyframeStack(buf, bone.positionKeyFrames(), isBody, isItem, TransformType.POSITION);
+        writeKeyframeStack(buf, bone.scaleKeyFrames(), false, false, TransformType.SCALE);
         ProtocolUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
     }
 
-    public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack, boolean isBody, TransformType type) {
+    public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack, boolean isBody, boolean isItem, TransformType type) {
         ProtocolUtils.writeList(buf, isBody ? negateKeyframes(stack.xKeyframes()) : stack.xKeyframes(), AnimationBinary::writeKeyframe);
-        ProtocolUtils.writeList(buf, isBody && type == TransformType.ROTATION ? negateKeyframes(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, isItem || (isBody && type == TransformType.ROTATION) ? negateKeyframes(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
         ProtocolUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
     }
 
