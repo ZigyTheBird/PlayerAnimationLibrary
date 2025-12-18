@@ -5,7 +5,7 @@ import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import com.zigythebird.playeranimcore.event.Event;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +29,7 @@ public final class PlayerAnimationAccess {
      * @throws IllegalArgumentException if the given argument is not a player, or api mixins have failed (normally never)
      * @implNote data is stored in the player object (using mixins), using it is more efficient than any objectMap as objectMap solution does not know when to delete the data.
      */
-    public static @Nullable IAnimation getPlayerAnimationLayer(@NotNull Avatar avatar, @NotNull ResourceLocation id) {
+    public static @Nullable IAnimation getPlayerAnimationLayer(@NotNull Avatar avatar, @NotNull Identifier id) {
         if (avatar instanceof IAnimatedAvatar animatedPlayer) {
             return animatedPlayer.playerAnimLib$getAnimation(id);
         } else throw new IllegalArgumentException(avatar + " is not a player or library mixins failed");

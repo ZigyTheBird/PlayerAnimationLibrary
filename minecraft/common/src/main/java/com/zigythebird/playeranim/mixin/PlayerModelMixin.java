@@ -30,14 +30,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -60,10 +59,9 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
     private final PlayerAnimBone pal$rightLeg = new PlayerAnimBone("right_leg");
     @Unique
     private final PlayerAnimBone pal$leftLeg = new PlayerAnimBone("left_leg");
-    
-    
-    public PlayerModelMixin(ModelPart modelPart, Function<ResourceLocation, RenderType> function) {
-        super(modelPart, function);
+
+    public PlayerModelMixin(ModelPart root, Function<Identifier, RenderType> renderType) {
+        super(root, renderType);
     }
 
     @Unique
@@ -78,70 +76,42 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "HEAD"))
     private void setDefaultBeforeRender(AvatarRenderState avatarRenderState, CallbackInfo ci){
-        playerAnimLib$setToInitialPose(); //to not make everything wrong
+        playerAnimLib$setToInitialPose(); //To not make everything wrong
+        this.head.visible = true; //For some reason only the head doesn't get reset
     }
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "RETURN"))
     private void setupPlayerAnimation(AvatarRenderState avatarRenderState, CallbackInfo ci) {
-        if (avatarRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            RenderUtil.copyVanillaPart(this.head, pal$head);
-            RenderUtil.copyVanillaPart(this.body, pal$torso);
-            RenderUtil.copyVanillaPart(this.rightArm, pal$rightArm);
-            RenderUtil.copyVanillaPart(this.leftArm, pal$leftArm);
-            RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
-            RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
+        if (avatarRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null) {
+            if (state.playerAnimLib$getAnimManager().isActive()) {
+                RenderUtil.copyVanillaPart(this.head, pal$head);
+                RenderUtil.copyVanillaPart(this.body, pal$torso);
+                RenderUtil.copyVanillaPart(this.rightArm, pal$rightArm);
+                RenderUtil.copyVanillaPart(this.leftArm, pal$leftArm);
+                RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
+                RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
 
-            AvatarAnimManager emote = state.playerAnimLib$getAnimManager();
-            emote.updatePart(this.head, pal$head);
-            emote.updatePart(this.rightArm, pal$rightArm);
-            emote.updatePart(this.leftArm, pal$leftArm);
-            emote.updatePart(this.rightLeg, pal$rightLeg);
-            emote.updatePart(this.leftLeg, pal$leftLeg);
-            emote.updatePart(this.body, pal$torso);
+                AvatarAnimManager emote = state.playerAnimLib$getAnimManager();
+                emote.updatePart(this.head, pal$head);
+                emote.updatePart(this.rightArm, pal$rightArm);
+                emote.updatePart(this.leftArm, pal$leftArm);
+                emote.updatePart(this.rightLeg, pal$rightLeg);
+                emote.updatePart(this.leftLeg, pal$leftLeg);
+                emote.updatePart(this.body, pal$torso);
+            }
+
+            if (state.playerAnimLib$isFirstPersonPass()) {
+                var config = state.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
+                // Hiding all parts, because they should not be visible in first person
+                this.head.visible = false;
+                this.body.visible = false;
+                this.leftLeg.visible = false;
+                this.rightLeg.visible = false;
+                // Showing arms based on configuration
+                this.rightArm.visible = config.isShowRightArm();
+                this.leftArm.visible = config.isShowLeftArm();
+            }
         }
-
-        if (FirstPersonMode.isFirstPersonPass() && avatarRenderState instanceof IAvatarAnimationState state
-                && state.playerAnimLib$isCameraEntity()) {
-            var config = state.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
-            // Hiding all parts, because they should not be visible in first person
-            playerAnimLib$setAllPartsVisible(false);
-            // Showing arms based on configuration
-            var skipRightArm = !config.isShowRightArm();
-            var skipLeftArm = !config.isShowLeftArm();
-            this.rightArm.skipDraw = skipRightArm;
-            this.leftArm.skipDraw = skipLeftArm;
-
-            // These are children of those ^^^
-            // this.rightSleeve.skipDraw = skipRightArm;
-            // this.leftSleeve.skipDraw = skipLeftArm;
-        } else {
-            playerAnimLib$setAllPartsVisible(true);
-        }
-    }
-
-    @Unique
-    private void playerAnimLib$setAllPartsVisible(boolean visible) {
-        var skip = !visible;
-        this.head.skipDraw = skip;
-        this.head.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.body.skipDraw = skip;
-        this.body.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.leftLeg.skipDraw = skip;
-        this.leftLeg.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.rightLeg.skipDraw = skip;
-        this.rightLeg.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.rightArm.skipDraw = skip;
-        this.rightArm.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.leftArm.skipDraw = skip;
-        this.leftArm.getAllParts().forEach(p -> p.skipDraw = skip);
-
-        // These are children of those ^^^
-        //this.hat.visible = visible;
-        //this.leftSleeve.visible = visible;
-        //this.rightSleeve.visible = visible;
-        //this.leftPants.visible = visible;
-        //this.rightPants.visible = visible;
-        //this.jacket.visible = visible;
     }
 
     @WrapWithCondition(method = "translateToHand(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
