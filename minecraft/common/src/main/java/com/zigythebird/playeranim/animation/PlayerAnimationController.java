@@ -2,6 +2,7 @@ package com.zigythebird.playeranim.animation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.zigythebird.playeranim.PlayerAnimLibMod;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.AnimationData;
@@ -77,6 +78,7 @@ public class PlayerAnimationController extends AnimationController {
             triggerAnimation(PlayerAnimResources.getAnimation(newAnimation), startAnimFrom);
             return true;
         }
+        PlayerAnimLibMod.LOGGER.error("Could not find animation with the name:" + newAnimation);
         return false;
     }
 

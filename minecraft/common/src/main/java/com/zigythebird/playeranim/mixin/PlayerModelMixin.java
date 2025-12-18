@@ -133,34 +133,21 @@ public class PlayerModelMixin<T extends LivingEntity> extends HumanoidModel<T> {
             // Hiding all parts, because they should not be visible in first person
             playerAnimLib$setAllPartsVisible(false);
             // Showing arms based on configuration
-            var skipRightArm = !config.isShowRightArm();
-            var skipLeftArm = !config.isShowLeftArm();
-            this.rightArm.skipDraw = skipRightArm;
-            this.leftArm.skipDraw = skipLeftArm;
-
-            // These are children of those ^^^
-            // this.rightSleeve.skipDraw = skipRightArm;
-            // this.leftSleeve.skipDraw = skipLeftArm;
-        } else {
-            playerAnimLib$setAllPartsVisible(true);
+            this.rightArm.visible = config.isShowRightArm();
+            this.leftArm.visible = !config.isShowLeftArm();
+            this.rightSleeve.visible = config.isShowRightArm();
+            this.leftSleeve.visible = !config.isShowLeftArm();
         }
     }
 
     @Unique
     private void playerAnimLib$setAllPartsVisible(boolean visible) {
-        var skip = !visible;
-        this.head.skipDraw = skip;
-        this.head.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.body.skipDraw = skip;
-        this.body.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.leftLeg.skipDraw = skip;
-        this.leftLeg.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.rightLeg.skipDraw = skip;
-        this.rightLeg.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.rightArm.skipDraw = skip;
-        this.rightArm.getAllParts().forEach(p -> p.skipDraw = skip);
-        this.leftArm.skipDraw = skip;
-        this.leftArm.getAllParts().forEach(p -> p.skipDraw = skip);
+        this.head.visible = visible;
+        this.body.visible = visible;
+        this.leftLeg.visible = visible;
+        this.rightLeg.visible = visible;
+        this.rightArm.visible = visible;
+        this.leftArm.visible = visible;
 
         this.hat.visible = visible;
         this.leftSleeve.visible = visible;
