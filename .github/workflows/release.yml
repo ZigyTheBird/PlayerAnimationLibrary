@@ -170,20 +170,20 @@ jobs:
 
             # --- Fabric ---
             if [ -n "${{ steps.publish_fabric.outputs.modrinth-url }}" ]; then
-              echo "Fabric (Modrinth)|${{ steps.publish_fabric.outputs.modrinth-url }}|MODRINTH"
+              echo "Modrinth (Fabric)|${{ steps.publish_fabric.outputs.modrinth-url }}|MODRINTH"
             fi
             if [ -n "${{ steps.publish_fabric.outputs.curseforge-url }}" ]; then
-              echo "Fabric (CurseForge)|${{ steps.publish_fabric.outputs.curseforge-url }}|CURSEFORGE"
+              echo "CurseForge (Fabric)|${{ steps.publish_fabric.outputs.curseforge-url }}|CURSEFORGE"
             fi
 
             echo ""
 
             # --- NeoForge ---
             if [ -n "${{ steps.publish_forge.outputs.modrinth-url }}" ]; then
-              echo "NeoForge (Modrinth)|${{ steps.publish_forge.outputs.modrinth-url }}|MODRINTH"
+              echo "Modrinth (NeoForge)|${{ steps.publish_forge.outputs.modrinth-url }}|MODRINTH"
             fi
             if [ -n "${{ steps.publish_forge.outputs.curseforge-url }}" ]; then
-              echo "NeoForge (CurseForge)|${{ steps.publish_forge.outputs.curseforge-url }}|CURSEFORGE"
+              echo "CurseForge (NeoForge)|${{ steps.publish_forge.outputs.curseforge-url }}|CURSEFORGE"
             fi
 
             echo 'EOF'
