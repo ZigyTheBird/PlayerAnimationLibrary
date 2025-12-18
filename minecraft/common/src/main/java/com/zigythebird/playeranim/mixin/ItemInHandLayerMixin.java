@@ -70,10 +70,8 @@ public class ItemInHandLayerMixin {
     }
 
     @Inject(method = "submitArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V"))
-    private void changeItemRotationAndScale(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, CallbackInfo ci) {
+    private void changeItemRotationAndScale(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, CallbackInfo ci, @Share("pal_active") LocalBooleanRef active) {
         if (active.get()) {
-            AvatarAnimManager anim = state.playerAnimLib$getAnimManager();
-            if (anim == null) return;
             PlayerAnimBone bone;
 
             if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
