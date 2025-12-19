@@ -48,9 +48,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LevelRendererMixin {
     @ModifyExpressionValue(method = "extractVisibleEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z"))
     private boolean fakeThirdPersonMode(boolean original, @Local(argsOnly = true) Camera camera, @Share("firstPerson") LocalBooleanRef isFirstPerson) {
-        if (camera.entity() instanceof IAnimatedAvatar player && player.playerAnimLib$getAnimManager().isActive()
+        if (!original && camera.entity() instanceof IAnimatedAvatar player && player.playerAnimLib$getAnimManager().isActive()
                 && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL
-            && !camera.isDetached() && (!(camera.entity() instanceof LivingEntity) || !((LivingEntity)camera.entity()).isSleeping())) {
+                && (!(camera.entity() instanceof LivingEntity) || !((LivingEntity)camera.entity()).isSleeping())) {
             isFirstPerson.set(true);
             return true;
         }
@@ -60,12 +60,9 @@ public class LevelRendererMixin {
     @Inject(method = "extractVisibleEntities", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"))
     private void setRenderStateToFirstPerson(Camera camera, Frustum frustum, DeltaTracker deltaTracker, LevelRenderState renderState, CallbackInfo ci, @Local Entity entity, @Local EntityRenderState entityRenderState, @Share("firstPerson") LocalBooleanRef isFirstPerson) {
         if (entity == camera.entity() && isFirstPerson.get()) {
-            if (!camera.isDetached()
-                    && (!(camera.entity() instanceof LivingEntity) || !((LivingEntity)camera.entity()).isSleeping())) {
-                ((IAvatarAnimationState) entityRenderState).playerAnimLib$setFirstPersonPass(true);
-                entityRenderState.shadowPieces.clear();
-                entityRenderState.shadowRadius = 0;
-            }
+            ((IAvatarAnimationState) entityRenderState).playerAnimLib$setFirstPersonPass(true);
+            entityRenderState.shadowPieces.clear();
+            entityRenderState.shadowRadius = 0;
         }
     }
 }

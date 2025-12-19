@@ -26,11 +26,8 @@ package com.zigythebird.playeranim.mixin.firstPerson;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
-import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
@@ -53,6 +50,6 @@ public abstract class HumanoidArmorLayerMixin<T extends HumanoidRenderState, A e
                 humanoidModel.rightArm.visible = emote.getFirstPersonConfiguration().isShowRightArm();
                 humanoidModel.leftArm.visible = emote.getFirstPersonConfiguration().isShowLeftArm();
             } else ci.cancel();
-        } else humanoidModel.head.visible = true; //For some reason only the head doesn't get reset //TODO Try to reduce potential compat issues here
+        }
     }
 }
