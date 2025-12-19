@@ -1,5 +1,7 @@
 package com.zigythebird.playeranimcore.math;
 
+import team.unnamed.mocha.runtime.standard.MochaMath;
+
 public class ModMatrix4f {
     int properties;
     float m00;
@@ -356,44 +358,29 @@ public class ModMatrix4f {
     }
 
     public Vec3f getEulerRotation() {
-        float tr = m00 + m11 + m22;
         float x;
         float y;
         float z;
-        float w;
-        if (tr >= 0.0F) {
-            float t = (float) Math.sqrt(tr + 1.0F);
-            w = t * 0.5F;
-            t = 0.5F / t;
-            x = (m12 - m21) * t;
-            y = (m20 - m02) * t;
-            z = (m01 - m10) * t;
-        } else if (m00 >= m11 && m00 >= m22) {
-            float t = (float) Math.sqrt(m00 - (m11 + m22) + 1.0F);
-            x = t * 0.5F;
-            t = 0.5F / t;
-            y = (m10 + m01) * t;
-            z = (m02 + m20) * t;
-            w = (m12 - m21) * t;
-        } else if (m11 > m22) {
-            float t = (float) Math.sqrt(m11 - (m22 + m00) + 1.0F);
-            y = t * 0.5F;
-            t = 0.5F / t;
-            z = (m21 + m12) * t;
-            x = (m10 + m01) * t;
-            w = (m20 - m02) * t;
-        } else {
-            float t = (float) Math.sqrt(m22 - (m00 + m11) + 1.0F);
-            z = t * 0.5F;
-            t = 0.5F / t;
-            x = (m02 + m20) * t;
-            y = (m21 + m12) * t;
-            w = (m01 - m10) * t;
+
+        if (m02 < 1) {
+            if (m02 > -1) {
+                y = (float) Math.asin(-m02);
+                z = (float) Math.atan2(m01, m00);
+                x = (float) Math.atan2(m12, m22);
+            }
+            else {
+                y = (float) (Math.PI/2);
+                z = (float) -Math.atan2(-m21, m11);
+                x = 0;
+            }
+        }
+        else {
+            y = -(float) (Math.PI/2);
+            z = (float) Math.atan2(-m21, m11);
+            x = 0;
         }
 
-        return new Vec3f((float) Math.atan2(y * z + w * x, 0.5F - x * x - y * y),
-                MathHelper.safeAsin(-2.0F * (x * z - w * y)),
-                (float) Math.atan2(x * y + w * z, 0.5F - y * y - z * z));
+        return new Vec3f(x, y, z);
     }
 
     public float getColumnScale(int i) {
