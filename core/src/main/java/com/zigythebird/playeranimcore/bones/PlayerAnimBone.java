@@ -416,7 +416,8 @@ public class PlayerAnimBone {
 				BoneAnimation boneAnimation = animation.getBone(getName());
 				KeyframeStack keyframeStack = boneAnimation == null ? null : switch (type) {
 					case BEND -> {
-						easingType = boneAnimation.bendKeyFrames().getLast().easingType();
+						if (!boneAnimation.bendKeyFrames().isEmpty())
+							easingType = boneAnimation.bendKeyFrames().getLast().easingType();
 						yield null;
 					}
 					case ROTATION -> boneAnimation.rotationKeyFrames();
@@ -425,9 +426,18 @@ public class PlayerAnimBone {
 				};
 				if (keyframeStack != null) {
 					switch (axis) {
-						case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
-						case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
-						default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
+						case X -> {
+							if (!keyframeStack.xKeyframes().isEmpty())
+								easingType = keyframeStack.xKeyframes().getLast().easingType();
+						}
+						case Y -> {
+							if (!keyframeStack.yKeyframes().isEmpty())
+								easingType = keyframeStack.yKeyframes().getLast().easingType();
+						}
+						default -> {
+							if (!keyframeStack.zKeyframes().isEmpty())
+								easingType = keyframeStack.zKeyframes().getLast().easingType();
+						}
 					}
 				}
 			}
