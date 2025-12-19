@@ -1,1 +1,1 @@
-Fixed various bugs with first person animations.
+Fixed the item Y pos axis being negated for Blockbench animations.

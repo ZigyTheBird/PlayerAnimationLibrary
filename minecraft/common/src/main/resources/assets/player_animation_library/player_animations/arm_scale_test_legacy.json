@@ -1,22 +1,29 @@
 {
-    "version": 3,
-    "name": "arm_scale_test_legacy",
+    "name": "Three Quarters Size",
+    "author": "ZigyTheBird",
     "emote": {
-        "endTick": 1,
-        "isLoop": true,
+        "isLoop": "true",
+        "beginTick": 0,
         "returnTick": 0,
+        "endTick": 9,
+        "stopTick": 10,
         "moves": [
             {
                 "tick": 0,
-                "rightArm": {
-                    "scaleX": 0,
-                    "scaleZ": 0,
-                    "scaleY": 0
-                },
-                "rightItem": {
-                    "scaleX": 5,
-                    "scaleZ": 5,
-                    "scaleY": 5
+                "body": {
+                    "scaleX": 0.75,
+                    "scaleZ": 0.75,
+                    "scaleY": 0.75,
+                    "y": -0.25
+                }
+            },
+            {
+                "tick": 9,
+                "body": {
+                    "scaleX": 0.75,
+                    "scaleZ": 0.75,
+                    "scaleY": 0.75,
+                    "y": -0.25
                 }
             }
         ]

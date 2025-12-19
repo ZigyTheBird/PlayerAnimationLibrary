@@ -11,6 +11,7 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
+import com.zigythebird.playeranimcore.loading.AnimationLoader;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
@@ -34,8 +35,9 @@ public final class AnimationBinary {
      * Version 2: Added support for animations that don't apply the torso bend to other bones + easeBefore
      * Version 3: No change client side, but the server won't send some animations to versions lower than 3 due to the possibility of a crash.
      * Version 4: Fixed some issues with the body bone.
+     * Version 5: Fixed the Y position axis on items being negated.
      */
-    public static final int CURRENT_VERSION = 4;
+    public static final int CURRENT_VERSION = 5;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
@@ -67,11 +69,10 @@ public final class AnimationBinary {
             buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.EASING_BEFORE_KEY, true));
         }
         NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
-        boolean hasBodyBonesIssue = version < 4;
         VarIntUtils.writeVarInt(buf, animation.boneAnimations().size());
         for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
             ProtocolUtils.writeString(buf, entry.getKey());
-            writeBoneAnimation(buf, entry.getValue(), hasBodyBonesIssue && entry.getKey().equals("body"));
+            writeBoneAnimation(buf, entry.getValue(), version < 4 && entry.getKey().equals("body"), version < 5 && LegacyAnimationBinary.ITEM_BONE.test(entry.getKey()));
         }
 
         // Sounds
@@ -101,16 +102,16 @@ public final class AnimationBinary {
         NetworkUtils.writeMap(buf, animation.parents(), ProtocolUtils::writeString, ProtocolUtils::writeString);
     }
 
-    public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone, boolean isBody) {
-        writeKeyframeStack(buf, bone.rotationKeyFrames(), isBody, TransformType.ROTATION);
-        writeKeyframeStack(buf, bone.positionKeyFrames(), isBody, TransformType.POSITION);
-        writeKeyframeStack(buf, bone.scaleKeyFrames(), false, TransformType.SCALE);
+    public static void writeBoneAnimation(ByteBuf buf, BoneAnimation bone, boolean isBody, boolean isItem) {
+        writeKeyframeStack(buf, bone.rotationKeyFrames(), isBody, false, TransformType.ROTATION);
+        writeKeyframeStack(buf, bone.positionKeyFrames(), isBody, isItem, TransformType.POSITION);
+        writeKeyframeStack(buf, bone.scaleKeyFrames(), false, false, TransformType.SCALE);
         ProtocolUtils.writeList(buf, bone.bendKeyFrames(), AnimationBinary::writeKeyframe);
     }
 
-    public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack, boolean isBody, TransformType type) {
-        ProtocolUtils.writeList(buf, isBody ? fixBodyKeyframes(stack.xKeyframes()) : stack.xKeyframes(), AnimationBinary::writeKeyframe);
-        ProtocolUtils.writeList(buf, isBody && type == TransformType.ROTATION ? fixBodyKeyframes(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
+    public static void writeKeyframeStack(ByteBuf buf, KeyframeStack stack, boolean isBody, boolean isItem, TransformType type) {
+        ProtocolUtils.writeList(buf, isBody ? negateKeyframes(stack.xKeyframes()) : stack.xKeyframes(), AnimationBinary::writeKeyframe);
+        ProtocolUtils.writeList(buf, isItem || (isBody && type == TransformType.ROTATION) ? negateKeyframes(stack.yKeyframes()) : stack.yKeyframes(), AnimationBinary::writeKeyframe);
         ProtocolUtils.writeList(buf, stack.zKeyframes(), AnimationBinary::writeKeyframe);
     }
 
@@ -155,9 +156,16 @@ public final class AnimationBinary {
 
         if (version < 4 && boneAnimations.containsKey("body")) {
             BoneAnimation body = boneAnimations.get("body");
-            body.positionKeyFrames().xKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
-            body.rotationKeyFrames().xKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
-            body.rotationKeyFrames().yKeyframes().replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
+            body.positionKeyFrames().xKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            body.rotationKeyFrames().xKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            body.rotationKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+        }
+
+        if (version < 5) {
+            if (boneAnimations.containsKey("right_item"))
+                boneAnimations.get("right_item").positionKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            if (boneAnimations.containsKey("left_item"))
+                boneAnimations.get("left_item").positionKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
         }
 
         // Sounds
@@ -231,20 +239,20 @@ public final class AnimationBinary {
         return list;
     }
 
-    public static List<Keyframe> fixBodyKeyframes(List<Keyframe> keyframes) {
+    private static List<Keyframe> negateKeyframes(List<Keyframe> keyframes) {
         keyframes = new ArrayList<>(keyframes);
-        keyframes.replaceAll(AnimationBinary::fixBodyKeyframeExpressions);
+        keyframes.replaceAll(AnimationBinary::negateKeyframeExpressions);
         return keyframes;
     }
 
-    public static Keyframe fixBodyKeyframeExpressions(Keyframe keyframe) {
+    private static Keyframe negateKeyframeExpressions(Keyframe keyframe) {
         keyframe = new Keyframe(keyframe.length(), new ArrayList<>(keyframe.startValue()), new ArrayList<>(keyframe.endValue()), keyframe.easingType(), keyframe.easingArgs());
-        fixBodyKeyframeExpressions(keyframe.startValue());
-        fixBodyKeyframeExpressions(keyframe.endValue());
+        negateKeyframeExpressions(keyframe.startValue());
+        negateKeyframeExpressions(keyframe.endValue());
         return keyframe;
     }
 
-    public static void fixBodyKeyframeExpressions(List<Expression> expressions) {
+    private static void negateKeyframeExpressions(List<Expression> expressions) {
         if (expressions.size() == 1 && IsConstantExpression.test(expressions.getFirst())) {
             expressions.set(0, FloatExpression.of(-MOCHA_ENGINE.eval(expressions)));
         }

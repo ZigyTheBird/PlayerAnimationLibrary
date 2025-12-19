@@ -24,6 +24,8 @@
 
 package com.zigythebird.playeranim.mixin;
 
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
@@ -49,10 +51,11 @@ public class ItemInHandLayerMixin {
     private final PlayerAnimBone playerAnimLib$leftItem = new PlayerAnimBone("left_item");
 
     @Inject(method = "submitArmWithItem", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionfc;)V", ordinal = 0))
-    private void changeItemLocation(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack matrices, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
+    private void changeItemLocation(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack matrices, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci, @Share("pal_active") LocalBooleanRef active) {
         if (renderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
             AvatarAnimManager anim = state.playerAnimLib$getAnimManager();
-            if (anim == null) return;
+            active.set(true);
+
             PlayerAnimBone bone;
 
             if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
@@ -61,15 +64,14 @@ public class ItemInHandLayerMixin {
             bone.setToInitialPose();
             anim.get3DTransform(bone);
 
-            matrices.translate(bone.getPosX()/16, bone.getPosY()/16, bone.getPosZ()/16);
+            matrices.translate(bone.getPosX()/16, -bone.getPosY()/16, bone.getPosZ()/16);
         }
+        else active.set(false);
     }
 
     @Inject(method = "submitArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V"))
-    private void changeItemRotationAndScale(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, CallbackInfo ci) {
-        if (renderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null && state.playerAnimLib$getAnimManager().isActive()) {
-            AvatarAnimManager anim = state.playerAnimLib$getAnimManager();
-            if (anim == null) return;
+    private void changeItemRotationAndScale(ArmedEntityRenderState renderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, CallbackInfo ci, @Share("pal_active") LocalBooleanRef active) {
+        if (active.get()) {
             PlayerAnimBone bone;
 
             if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
