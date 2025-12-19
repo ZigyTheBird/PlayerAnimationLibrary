@@ -190,19 +190,19 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
 
     private void addBodyPartIfExists(String boneName, BoneAnimation bone, JsonElement node, boolean degrees, float tick, EasingType easing, int turn) {
         JsonObject partNode = node.getAsJsonObject();
-        boolean shouldNegate = boneName.equals("right_item") || boneName.equals("left_item");
+        boolean isItem = boneName.equals("right_item") || boneName.equals("left_item");
         boolean isCape = boneName.equals("cape");
         boolean isBody = boneName.equals("body");
-        fillKeyframeStack(bone.positionKeyFrames(), getDefaultValues(boneName), isBody ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, shouldNegate, isCape, isBody);
-        fillKeyframeStack(bone.rotationKeyFrames(), Vec3f.ZERO, TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, shouldNegate, isCape, isBody);
+        fillKeyframeStack(bone.positionKeyFrames(), getDefaultValues(boneName), isBody ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, isItem, isCape, isBody);
+        fillKeyframeStack(bone.rotationKeyFrames(), Vec3f.ZERO, TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, isItem, isCape, isBody);
         fillKeyframeStack(bone.scaleKeyFrames(), Vec3f.ZERO, TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false, false, false);
         addPartIfExists(Keyframe.getLastKeyframeTime(bone.bendKeyFrames()), bone.bendKeyFrames(), 0, TransformType.BEND, "bend", partNode, degrees, tick, easing, turn, false);
     }
 
-    private void fillKeyframeStack(KeyframeStack stack, Vec3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn, boolean shouldNegate, boolean isCape, boolean isBody) {
-        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn, shouldNegate || isCape || isBody);
-        addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, turn, shouldNegate || transformType == null || (isBody && transformType == TransformType.ROTATION));
-        addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn, shouldNegate || isCape);
+    private void fillKeyframeStack(KeyframeStack stack, Vec3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn, boolean isItem, boolean isCape, boolean isBody) {
+        addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn, isItem || isCape || isBody);
+        addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, turn, isItem || transformType == null || (isBody && transformType == TransformType.ROTATION));
+        addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn, (isItem && transformType == TransformType.ROTATION) || isCape);
     }
 
     private void addPartIfExists(float lastTick, List<Keyframe> part, float def, TransformType transformType, String name, JsonObject node, boolean degrees, float tick, EasingType easing, int rotate, boolean shouldNegate) {

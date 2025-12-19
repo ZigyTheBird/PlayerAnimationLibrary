@@ -1,2 +1,1 @@
-Fixed model parts being visible when they shouldn't be in spectator mode.  
-More logs when an animation is not found.
+Fixed the item Y pos axis being negated for Blockbench animations.

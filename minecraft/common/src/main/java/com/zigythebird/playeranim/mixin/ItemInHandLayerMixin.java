@@ -62,7 +62,7 @@ public class ItemInHandLayerMixin {
             bone.setToInitialPose();
             anim.get3DTransform(bone);
 
-            poseStack.translate(bone.getPosX()/16, bone.getPosY()/16, bone.getPosZ()/16);
+            poseStack.translate(bone.getPosX()/16, -bone.getPosY()/16, bone.getPosZ()/16);
         }
     }
 
