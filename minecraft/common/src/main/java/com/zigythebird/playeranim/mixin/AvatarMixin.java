@@ -28,6 +28,7 @@ import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
+import com.zigythebird.playeranimcore.animation.AnimationData;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
@@ -50,6 +51,10 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
     private final Map<Identifier, IAnimation> playerAnimLib$modAnimationData = new HashMap<>();
     @Unique
     private final AvatarAnimManager playerAnimLib$animationManager = playerAnimLib$createAnimationStack();
+    @Unique
+    private final AnimationData playerAnimLib$data = new AnimationData();
+    @Unique
+    private boolean playerAnimLib$awaitingTick = false;
 
     protected AvatarMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
@@ -57,7 +62,7 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
 
     @Unique
     private AvatarAnimManager playerAnimLib$createAnimationStack() {
-        AvatarAnimManager manager = new AvatarAnimManager((Avatar) (Object) this);
+        AvatarAnimManager manager = new AvatarAnimManager();
         PlayerAnimationFactory.ANIMATION_DATA_FACTORY.prepareAnimations((Avatar) (Object) this, manager, playerAnimLib$modAnimationData);
         PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.invoker().registerAnimation((Avatar) (Object) this, manager);
         return manager;
@@ -74,6 +79,18 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
         return null;
     }
 
+    @Override
+    public AnimationData playerAnimlib$getAnimData() {
+        return this.playerAnimLib$data;
+    }
+
+    @Override
+    public boolean playerAnimLib$isAwaitingTick() {
+        boolean value = this.playerAnimLib$awaitingTick;
+        this.playerAnimLib$awaitingTick = false;
+        return value;
+    }
+
     @Intrinsic
     @Override
     public void tick() {
@@ -81,8 +98,8 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
     }
 
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
-    @Inject(method = {"tick", "method_5773"}, at = @At("TAIL"), remap = false)
+    @Inject(method = {"tick", "method_5773"}, at = @At("HEAD"), remap = false)
     private void tick(CallbackInfo ci) {
-        this.playerAnimLib$animationManager.handleAnimations(0, true);
+        this.playerAnimLib$awaitingTick = true;
     }
 }

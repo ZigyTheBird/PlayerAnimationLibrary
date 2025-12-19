@@ -28,11 +28,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,13 +38,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntityRenderer.class)
-public class LivingEntityRendererMixin<S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
+public class LivingEntityRendererMixin<S extends LivingEntityRenderState> {
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;scale(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
     private void doTranslations(S livingEntityRenderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState cameraRenderState, CallbackInfo ci) {
-        if (livingEntityRenderState instanceof AvatarRenderState playerRenderState) {
-            var animationPlayer = ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimManager();
+        if (livingEntityRenderState instanceof IAvatarAnimationState animationRenderState) {
+            var animationPlayer = ((IAvatarAnimationState)animationRenderState).playerAnimLib$getAnimManager();
             if (animationPlayer != null && animationPlayer.isActive()) {
-                ((IAvatarAnimationState)playerRenderState).playerAnimLib$getAnimManager().handleAnimations(animationPlayer.getTickDelta(), false);
+                animationPlayer.handleAnimations(animationRenderState, true);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
                 //These are additive properties
