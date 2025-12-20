@@ -24,6 +24,7 @@
 
 package com.zigythebird.playeranimcore.animation.keyframe;
 
+import com.zigythebird.playeranimcore.enums.Axis;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.List;
@@ -55,6 +56,14 @@ public record KeyframeStack(List<Keyframe> xKeyframes, List<Keyframe> yKeyframes
 
 	public float getLastZAxisKeyframeTime() {
 		return Keyframe.getLastKeyframeTime(zKeyframes);
+	}
+
+	public List<Keyframe> getKeyFramesForAxis(Axis axis) {
+		return switch (axis) {
+			case X -> xKeyframes();
+			case Y -> yKeyframes();
+			case Z -> zKeyframes();
+		};
 	}
 
 	public boolean hasKeyframes() {
