@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -135,17 +136,22 @@ public class AdjustmentModifier extends AbstractModifier {
     public boolean fadeOut = true;
     /// Whether the adjustment should be applied at all
     public boolean enabled = true;
-    private float tickDelta;
+    private AnimationData data;
 
-    protected Function<String, Optional<PartModifier>> source;
+    protected BiFunction<String, AnimationData, Optional<PartModifier>> source;
 
     public AdjustmentModifier(Function<String, Optional<PartModifier>> source) {
+        this((name, data) -> source.apply(name));
+    }
+
+    public AdjustmentModifier(BiFunction<String, AnimationData, Optional<PartModifier>> source) {
         this.source = source;
     }
 
     @Override
     public void tick(AnimationData state) {
         super.tick(state);
+        this.data = state;
 
         if (remainingFadeout > 0) {
             remainingFadeout -= 1;
@@ -158,7 +164,7 @@ public class AdjustmentModifier extends AbstractModifier {
     @Override
     public void setupAnim(AnimationData state) {
         super.setupAnim(state);
-        this.tickDelta = state.getPartialTick();
+        this.data = state;
     }
 
     protected int instructedFadeout = 0;
@@ -206,9 +212,9 @@ public class AdjustmentModifier extends AbstractModifier {
             return super.get3DTransform(bone);
         }
 
-        Optional<PartModifier> partModifier = source.apply(bone.getName());
+        Optional<PartModifier> partModifier = source.apply(bone.getName(), data);
 
-        float fade = getFadeIn() * getFadeOut(tickDelta);
+        float fade = getFadeIn() * getFadeOut(data.getPartialTick());
         if (partModifier.isPresent()) {
             super.get3DTransform(bone);
             transformBone(bone, partModifier.get(), fade);

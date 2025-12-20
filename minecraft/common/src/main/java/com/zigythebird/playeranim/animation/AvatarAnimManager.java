@@ -81,7 +81,7 @@ public class AvatarAnimManager extends AnimationStack {
 		RenderUtil.translatePartToBone(part, bone, initialPose);
 	}
 
-	public void handleAnimations(float partialTick, boolean fullTick) {
+	public void handleAnimations(float partialTick, boolean fullTick, boolean isFirstPersonPass) {
 		Vec3 velocity = avatar.getDeltaMovement();
 
 		AvatarAnimManager animatableManager = ((IAnimatedAvatar)avatar).playerAnimLib$getAnimManager();
@@ -89,7 +89,7 @@ public class AvatarAnimManager extends AnimationStack {
 
 		float currentFrameTime = currentTick + partialTick;
 
-		AnimationData animationData = new AnimationData((float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f), partialTick);
+		AnimationData animationData = new AnimationData((float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f), partialTick, isFirstPersonPass);
 
 		if (fullTick) animatableManager.tick(animationData.copy());
 
