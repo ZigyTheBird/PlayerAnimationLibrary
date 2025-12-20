@@ -1,8 +1,11 @@
 package com.zigythebird.playeranimcore.util;
 
+import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.ModMatrix4f;
 import com.zigythebird.playeranimcore.math.Vec3f;
+
+import java.util.function.Function;
 
 /**
  * Does NOT divide pos 16.
@@ -31,5 +34,27 @@ public class MatrixUtil {
         rotateMatrixAroundBone(matrix, bone);
         scaleMatrixForBone(matrix, bone);
         translateAwayFromPivotPoint(matrix, pivot);
+    }
+
+    public static void applyParentsToChild(PlayerAnimBone child, Iterable<? extends PlayerAnimBone> parents, Function<String, Vec3f> positions) {
+        ModMatrix4f matrix = new ModMatrix4f();
+
+        for (PlayerAnimBone parent : parents) {
+            Vec3f pivot = parent instanceof PivotBone pivotBone ? pivotBone.getPivot() : positions.apply(parent.getName());
+            MatrixUtil.prepMatrixForBone(matrix, parent, pivot);
+            child.addPos(parent.getPosX(), parent.getPosY(), parent.getPosZ());
+        }
+
+        Vec3f defaultPos = positions.apply(child.getName());
+        matrix.translate(defaultPos.x(), defaultPos.y(), defaultPos.z());
+        MatrixUtil.rotateMatrixAroundBone(matrix, child);
+        child.setPosX(-matrix.m30() + defaultPos.x() + child.getPosX());
+        child.setPosY(matrix.m31() - defaultPos.y() + child.getPosY());
+        child.setPosZ(-matrix.m32() - defaultPos.z() + child.getPosZ());
+
+        Vec3f rotation = matrix.getEulerRotation();
+        child.updateRotation(rotation.x(), rotation.y(), rotation.z());
+
+        child.mulScale(matrix.getColumnScale(0), matrix.getColumnScale(1), matrix.getColumnScale(2));
     }
 }
