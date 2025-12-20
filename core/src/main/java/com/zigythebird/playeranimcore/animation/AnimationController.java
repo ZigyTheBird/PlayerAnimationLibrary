@@ -865,20 +865,28 @@ public abstract class AnimationController implements IAnimation {
 		return IAnimation.DEFAULT_FIRST_PERSON_CONFIG;
 	}
 
-	public void setFirstPersonMode(FirstPersonMode mode) {
+	public AnimationController setFirstPersonMode(FirstPersonMode mode) {
 		firstPersonMode = (controller) -> mode;
+
+		return this;
 	}
 
-	public void setFirstPersonModeHandler(Function<AnimationController, FirstPersonMode> modeHandler) {
+	public AnimationController setFirstPersonModeHandler(Function<AnimationController, FirstPersonMode> modeHandler) {
 		firstPersonMode = modeHandler;
+
+		return this;
 	}
 
-	public void setFirstPersonConfiguration(FirstPersonConfiguration config) {
+	public AnimationController setFirstPersonConfiguration(FirstPersonConfiguration config) {
 		firstPersonConfiguration = (controller) -> config;
+
+		return this;
 	}
 
-	public void setFirstPersonConfigurationHandler(Function<AnimationController, FirstPersonConfiguration> configHandler) {
+	public AnimationController setFirstPersonConfigurationHandler(Function<AnimationController, FirstPersonConfiguration> configHandler) {
 		firstPersonConfiguration = configHandler;
+
+		return this;
 	}
 
 	@Override
@@ -890,7 +898,12 @@ public abstract class AnimationController implements IAnimation {
 		}
 		if (!modifiers.isEmpty())
 			modifiers.getFirst().tick(state);
-		else if (this.animationState == State.RUNNING) tick += 1;
+		else {
+			handleAnimation(state);
+			if (this.animationState == State.RUNNING) {
+				tick += 1;
+			}
+		}
 	}
 
 	@Override
@@ -1042,6 +1055,7 @@ public abstract class AnimationController implements IAnimation {
 
 		@Override
 		public void tick(AnimationData state) {
+			this.anim.handleAnimation(state);
 			if (this.anim.animationState == State.RUNNING) this.anim.tick += 1;
 		}
 
