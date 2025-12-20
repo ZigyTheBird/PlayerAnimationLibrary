@@ -57,6 +57,12 @@ jobs:
       - name: Checkout Branch
         uses: actions/checkout@v3
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: 21
+
       - name: Get Artifact Id
         uses: actions/github-script@v5
         env:
