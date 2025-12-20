@@ -85,6 +85,6 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
     @Inject(method = {"tick", "method_5773"}, at = @At("TAIL"), remap = false)
     private void tick(CallbackInfo ci) {
         if (!this.level().isClientSide()) return;
-        this.playerAnimLib$animationManager.handleAnimations(0, true, ClientUtil.shouldBeRenderPass());
+        this.playerAnimLib$animationManager.handleAnimations(0, true, ClientUtil.shouldBeFirstPersonPass());
     }
 }
