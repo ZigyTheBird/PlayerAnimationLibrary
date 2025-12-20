@@ -10,26 +10,26 @@ public class MathHelper {
         return (float) Math.cos(a);
     }
 
-    public static float cosFromSin(float sin, float angle) {
-        float cos = MochaMath.sqrt(1.0F - sin * sin);
-        float a = angle + (MochaMath.PI / 2F);
-        float b = a - (float)((int)(a / (MochaMath.PI * 2F))) * (MochaMath.PI * 2F);
-        if ((double)b < (double)0.0F) {
-            b += (MochaMath.PI * 2F);
+    public static double cosFromSin(double sin, double angle) {
+        double cos = Math.sqrt(1.0F - sin * sin);
+        double a = angle + (Math.PI / 2F);
+        double b = a - ((int)(a / (Math.PI * 2))) * (Math.PI * 2);
+        if (b < 0) {
+            b += (Math.PI * 2F);
         }
 
-        return b >= MochaMath.PI ? -cos : cos;
+        return b >= Math.PI ? -cos : cos;
     }
 
-    public static boolean absEqualsOne(float r) {
-        return (Float.floatToRawIntBits(r) & Integer.MAX_VALUE) == 1065353216;
-    }
-
-    public static float safeAsin(float r) {
-        return r <= -1.0F ? (-MochaMath.PI / 2F) : (float) (r >= 1.0F ? (MochaMath.PI / 2F) : Math.asin(r));
+    public static boolean absEqualsOne(double r) {
+        return (Double.doubleToRawLongBits(r) & 0x7FFFFFFFFFFFFFFFL) == 0x3FF0000000000000L;
     }
     
     public static float length(float x, float y, float z, float w) {
         return MochaMath.sqrt(Math.fma(x, x, Math.fma(y, y, Math.fma(z, z, w * w))));
+    }
+
+    public static double length(double x, double y, double z, double w) {
+        return Math.sqrt(Math.fma(x, x, Math.fma(y, y, Math.fma(z, z, w * w))));
     }
 }

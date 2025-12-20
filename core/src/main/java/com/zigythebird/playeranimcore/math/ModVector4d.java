@@ -1,19 +1,19 @@
 package com.zigythebird.playeranimcore.math;
 
-public class ModVector4f {
-    public float x;
-    public float y;
-    public float z;
-    public float w;
+public class ModVector4d {
+    public double x;
+    public double y;
+    public double z;
+    public double w;
 
-    public ModVector4f(float x, float y, float z, float w) {
+    public ModVector4d(double x, double y, double z, double w) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
     }
 
-    public ModVector4f mul(ModMatrix4f mat) {
+    public ModVector4d mul(ModMatrix4d mat) {
         int prop = mat.properties();
         if ((prop & 4) != 0) {
             return this;
@@ -24,11 +24,11 @@ public class ModVector4f {
         }
     }
 
-    public ModVector4f mulAffine(ModMatrix4f mat) {
-        float x = this.x;
-        float y = this.y;
-        float z = this.z;
-        float w = this.w;
+    public ModVector4d mulAffine(ModMatrix4d mat) {
+        double x = this.x;
+        double y = this.y;
+        double z = this.z;
+        double w = this.w;
         this.x = Math.fma(mat.m00(), x, Math.fma(mat.m10(), y, Math.fma(mat.m20(), z, mat.m30() * w)));
         this.y = Math.fma(mat.m01(), x, Math.fma(mat.m11(), y, Math.fma(mat.m21(), z, mat.m31() * w)));
         this.z = Math.fma(mat.m02(), x, Math.fma(mat.m12(), y, Math.fma(mat.m22(), z, mat.m32() * w)));
@@ -36,11 +36,11 @@ public class ModVector4f {
         return this;
     }
 
-    public ModVector4f mulGeneric(ModMatrix4f mat) {
-        float x = this.x;
-        float y = this.y;
-        float z = this.z;
-        float w = this.w;
+    public ModVector4d mulGeneric(ModMatrix4d mat) {
+        double x = this.x;
+        double y = this.y;
+        double z = this.z;
+        double w = this.w;
         this.x = Math.fma(mat.m00(), x, Math.fma(mat.m10(), y, Math.fma(mat.m20(), z, mat.m30() * w)));
         this.y = Math.fma(mat.m01(), x, Math.fma(mat.m11(), y, Math.fma(mat.m21(), z, mat.m31() * w)));
         this.z = Math.fma(mat.m02(), x, Math.fma(mat.m12(), y, Math.fma(mat.m22(), z, mat.m32() * w)));
@@ -48,7 +48,7 @@ public class ModVector4f {
         return this;
     }
 
-    public ModVector4f mulTranslation(ModMatrix4f mat) {
+    public ModVector4d mulTranslation(ModMatrix4d mat) {
         this.x = Math.fma(mat.m30(), this.w, this.x);
         this.y = Math.fma(mat.m31(), this.w, this.y);
         this.z = Math.fma(mat.m32(), this.w, this.z);
