@@ -3,12 +3,15 @@ package com.zigythebird.playeranimcore.bones;
 import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
+import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
 import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.Axis;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.List;
 
 /**
  * This is the object that is directly modified by animations to handle movement
@@ -416,19 +419,17 @@ public class PlayerAnimBone {
 				BoneAnimation boneAnimation = animation.getBone(getName());
 				KeyframeStack keyframeStack = boneAnimation == null ? null : switch (type) {
 					case BEND -> {
-						easingType = boneAnimation.bendKeyFrames().getLast().easingType();
+						List<Keyframe> bendKeyFrames = boneAnimation.bendKeyFrames();
+						if (!bendKeyFrames.isEmpty()) easingType = bendKeyFrames.getLast().easingType();
 						yield null;
 					}
 					case ROTATION -> boneAnimation.rotationKeyFrames();
 					case SCALE -> boneAnimation.scaleKeyFrames();
-					default -> boneAnimation.positionKeyFrames();
+					case POSITION -> boneAnimation.positionKeyFrames();
 				};
 				if (keyframeStack != null) {
-					switch (axis) {
-						case X -> easingType = keyframeStack.xKeyframes().getLast().easingType();
-						case Y -> easingType = keyframeStack.yKeyframes().getLast().easingType();
-						default -> easingType = keyframeStack.zKeyframes().getLast().easingType();
-					}
+					List<Keyframe> keyFrames = keyframeStack.getKeyFramesForAxis(axis);
+					if (!keyFrames.isEmpty()) easingType = keyFrames.getLast().easingType();
 				}
 			}
 			if (easingType == EasingType.BEZIER || easingType == EasingType.BEZIER_AFTER || easingType == EasingType.CATMULLROM)
