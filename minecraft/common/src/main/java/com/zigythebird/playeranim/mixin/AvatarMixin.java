@@ -24,10 +24,12 @@
 
 package com.zigythebird.playeranim.mixin;
 
+import com.zigythebird.playeranim.PlayerAnimLibPlatform;
 import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
+import com.zigythebird.playeranim.util.ClientUtil;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
@@ -83,6 +85,7 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
     @Inject(method = {"tick", "method_5773"}, at = @At("TAIL"), remap = false)
     private void tick(CallbackInfo ci) {
-        this.playerAnimLib$animationManager.handleAnimations(0, true);
+        if (this.level().isClientSide())
+            this.playerAnimLib$animationManager.handleAnimations(0, true, ClientUtil.shouldBeRenderPass());
     }
 }

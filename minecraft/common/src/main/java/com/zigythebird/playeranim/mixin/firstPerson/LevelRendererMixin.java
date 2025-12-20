@@ -30,6 +30,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
+import com.zigythebird.playeranim.util.ClientUtil;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -48,9 +49,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LevelRendererMixin {
     @ModifyExpressionValue(method = "extractVisibleEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z"))
     private boolean fakeThirdPersonMode(boolean original, @Local(argsOnly = true) Camera camera, @Share("firstPerson") LocalBooleanRef isFirstPerson) {
-        if (!original && camera.entity() instanceof IAnimatedAvatar player && player.playerAnimLib$getAnimManager().isActive()
-                && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL
-                && (!(camera.entity() instanceof LivingEntity) || !((LivingEntity)camera.entity()).isSleeping())) {
+        if (ClientUtil.shouldBeRenderPass()) {
             isFirstPerson.set(true);
             return true;
         }

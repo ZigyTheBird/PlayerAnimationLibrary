@@ -27,10 +27,12 @@ package com.zigythebird.playeranimcore.animation;
 public class AnimationData {
 	private float velocity;
 	private float partialTick;
+	private final boolean isFirstPersonPass;
 
-	public AnimationData(float velocity, float partialTick) {
+	public AnimationData(float velocity, float partialTick, boolean isFirstPersonPass) {
 		this.velocity = velocity;
 		this.partialTick = partialTick;
+		this.isFirstPersonPass = isFirstPersonPass;
 	}
 
 	/**
@@ -40,11 +42,12 @@ public class AnimationData {
 		return this.partialTick;
 	}
 
-	/**
-	 * The player's velocity.
-	 */
 	public float getVelocity() {
 		return this.velocity;
+	}
+
+	public boolean isFirstPersonPass() {
+		return this.isFirstPersonPass;
 	}
 
 	/**
@@ -70,6 +73,6 @@ public class AnimationData {
 	}
 
 	public AnimationData copy() {
-		return new AnimationData(velocity, partialTick);
+		return new AnimationData(velocity, partialTick, isFirstPersonPass);
 	}
 }
