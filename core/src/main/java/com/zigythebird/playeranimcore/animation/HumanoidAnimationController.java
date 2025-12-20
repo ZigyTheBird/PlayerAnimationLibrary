@@ -110,9 +110,9 @@ public class HumanoidAnimationController extends AnimationController {
         this.torsoBend = bones.get("torso").getBend();
         float absBend = Math.abs(this.torsoBend);
         if (absBend > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY) == Boolean.TRUE)) {
-            this.torsoBendSign = (int) MochaMath.sign(this.torsoBend);
-            this.torsoBendYPosMultiplier = -(1 - MochaMath.cos(absBend));
-            this.torsoBendZPosMultiplier = 1 - MochaMath.sin(absBend);
+            this.torsoBendSign = (int) Math.signum(this.torsoBend);
+            this.torsoBendYPosMultiplier = (float) -(1 - Math.cos(absBend));
+            this.torsoBendZPosMultiplier = (float) (1 - Math.sin(absBend));
         } else this.torsoBendSign = 0;
     }
 
