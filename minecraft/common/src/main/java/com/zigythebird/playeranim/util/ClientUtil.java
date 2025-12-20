@@ -5,6 +5,7 @@ import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
@@ -19,7 +20,7 @@ public final class ClientUtil {
 	public static LocalPlayer getClientPlayer() {
 		return Minecraft.getInstance().player;
 	}
-	
+
 	/**
 	 * Gets the current level on the client
 	 */
@@ -29,8 +30,12 @@ public final class ClientUtil {
 
 	@ApiStatus.Internal
 	public static boolean shouldBeRenderPass() {
-		Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        return !camera.isDetached() && camera.entity() instanceof IAnimatedAvatar player && player.playerAnimLib$getAnimManager().isActive()
+		return shouldBeRenderPass(Minecraft.getInstance().gameRenderer.getMainCamera());
+	}
+
+	@ApiStatus.Internal
+	public static boolean shouldBeRenderPass(Camera camera) {
+		return !camera.isDetached() && camera.entity() instanceof IAnimatedAvatar player && player.playerAnimLib$getAnimManager().isActive()
 				&& player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL
 				&& (!(camera.entity() instanceof LivingEntity) || !((LivingEntity)camera.entity()).isSleeping());
 	}

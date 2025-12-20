@@ -141,7 +141,7 @@ public class AdjustmentModifier extends AbstractModifier {
     protected BiFunction<String, AnimationData, Optional<PartModifier>> source;
 
     public AdjustmentModifier(Function<String, Optional<PartModifier>> source) {
-        this.source = (name, data) -> source.apply(name);
+        this((name, data) -> source.apply(name));
     }
 
     public AdjustmentModifier(BiFunction<String, AnimationData, Optional<PartModifier>> source) {

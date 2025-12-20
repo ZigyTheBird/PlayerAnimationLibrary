@@ -24,7 +24,6 @@
 
 package com.zigythebird.playeranim.mixin;
 
-import com.zigythebird.playeranim.PlayerAnimLibPlatform;
 import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
@@ -85,7 +84,7 @@ public abstract class AvatarMixin extends LivingEntity implements IAnimatedAvata
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
     @Inject(method = {"tick", "method_5773"}, at = @At("TAIL"), remap = false)
     private void tick(CallbackInfo ci) {
-        if (this.level().isClientSide())
-            this.playerAnimLib$animationManager.handleAnimations(0, true, ClientUtil.shouldBeRenderPass());
+        if (!this.level().isClientSide()) return;
+        this.playerAnimLib$animationManager.handleAnimations(0, true, ClientUtil.shouldBeRenderPass());
     }
 }
