@@ -100,6 +100,7 @@ jobs:
 
       - name: Run Publish Fabric
         if: ${{ steps.fabric_release.outputs.result != 'false' }}
+        id: publish_fabric
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: ha1mEyJS
@@ -131,6 +132,7 @@ jobs:
 
       - name: Run Publish Forge
         if: ${{ steps.forge_release.outputs.result != 'false' }}
+        id: publish_forge
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: ha1mEyJS
@@ -159,3 +161,35 @@ jobs:
           retry-attempts: 5
           retry-delay: 60000
           fail-mode: skip
+
+      - name: Build P2D_LINKS
+        shell: bash
+        run: |
+          {
+            echo 'P2D_LINKS<<EOF'
+
+            # --- Fabric ---
+            if [ -n "${{ steps.publish_fabric.outputs.modrinth-url }}" ]; then
+              echo "Modrinth (Fabric)|${{ steps.publish_fabric.outputs.modrinth-url }}|MODRINTH"
+            fi
+            if [ -n "${{ steps.publish_fabric.outputs.curseforge-url }}" ]; then
+              echo "CurseForge (Fabric)|${{ steps.publish_fabric.outputs.curseforge-url }}|CURSEFORGE"
+            fi
+
+            echo ""
+
+            # --- NeoForge ---
+            if [ -n "${{ steps.publish_forge.outputs.modrinth-url }}" ]; then
+              echo "Modrinth (NeoForge)|${{ steps.publish_forge.outputs.modrinth-url }}|MODRINTH"
+            fi
+            if [ -n "${{ steps.publish_forge.outputs.curseforge-url }}" ]; then
+              echo "CurseForge (NeoForge)|${{ steps.publish_forge.outputs.curseforge-url }}|CURSEFORGE"
+            fi
+
+            echo 'EOF'
+          } >> "$GITHUB_ENV"
+
+      - name: Discord notify
+        run: ./gradlew publishToDiscord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
