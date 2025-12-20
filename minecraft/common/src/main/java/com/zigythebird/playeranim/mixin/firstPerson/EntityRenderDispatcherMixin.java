@@ -26,10 +26,7 @@ public class EntityRenderDispatcherMixin {
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         if (entityRenderState instanceof IPlayerAnimationState playerAnimationState) {
             playerAnimationState.playerAnimLib$setFirstPersonPass(
-                    entity == camera.getEntity() && camera.getEntity() instanceof IAnimatedPlayer player &&
-                    player.playerAnimLib$getAnimManager().isActive()
-                    && player.playerAnimLib$getAnimManager().getFirstPersonMode() == FirstPersonMode.THIRD_PERSON_MODEL
-                    && !camera.isDetached()
+                    entity == camera.getEntity() && !camera.isDetached()
                     && (!(camera.getEntity() instanceof LivingEntity) || !((LivingEntity) camera.getEntity()).isSleeping()));
         }
     }
