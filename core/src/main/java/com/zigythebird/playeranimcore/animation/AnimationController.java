@@ -903,7 +903,10 @@ public abstract class AnimationController implements IAnimation {
 		}
 		if (!modifiers.isEmpty())
 			modifiers.getFirst().tick(state);
-		else if (this.animationState == State.RUNNING) tick += 1;
+		else {
+			this.handleAnimation(state);
+			if (this.animationState == State.RUNNING) tick += 1;
+		}
 	}
 
 	@Override
@@ -1051,6 +1054,7 @@ public abstract class AnimationController implements IAnimation {
 
 		@Override
 		public void tick(AnimationData state) {
+			this.anim.handleAnimation(state);
 			if (this.anim.animationState == State.RUNNING) this.anim.tick += 1;
 		}
 
