@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 public interface PlayerAnimLibPlatform {
     PlayerAnimLibPlatform INSTANCE = loadServices(PlayerAnimLibPlatform.class).findAny().orElseThrow();
 
-    boolean isModLoaded(String id);
+    boolean isModPresent(String id);
 
     static <T> Stream<T> loadServices(Class<T> serviceClass) {
         ModuleLayer layer = serviceClass.getModule().getLayer(); // NeoForge compat?
@@ -15,5 +15,10 @@ public interface PlayerAnimLibPlatform {
                 serviceClass.getClassLoader()
         ) : ServiceLoader.load(layer, serviceClass);
         return loader.stream().map(ServiceLoader.Provider::get);
+    }
+
+    @Deprecated(forRemoval = true)
+    static boolean isModLoaded(String id) {
+        return PlayerAnimLibPlatform.INSTANCE.isModPresent(id);
     }
 }

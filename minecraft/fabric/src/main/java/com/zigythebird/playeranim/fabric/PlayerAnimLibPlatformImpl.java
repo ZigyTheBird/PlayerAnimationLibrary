@@ -5,7 +5,7 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public final class PlayerAnimLibPlatformImpl implements PlayerAnimLibPlatform {
     @Override
-    public boolean isModLoaded(String id) {
+    public boolean isModPresent(String id) {
         return FabricLoader.getInstance().isModLoaded(id);
     }
 }
