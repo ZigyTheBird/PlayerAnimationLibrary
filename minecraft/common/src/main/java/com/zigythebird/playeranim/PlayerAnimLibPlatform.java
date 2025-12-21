@@ -4,6 +4,6 @@ package com.zigythebird.playeranim;
 public class PlayerAnimLibPlatform {
     @Deprecated(forRemoval = true)
     public static boolean isModLoaded(String id) {
-        return PlayerAnimLibService.INSTANCE.isModPresent(id);
+        return PlayerAnimLibService.INSTANCE.isModLoaded(id);
     }
 }

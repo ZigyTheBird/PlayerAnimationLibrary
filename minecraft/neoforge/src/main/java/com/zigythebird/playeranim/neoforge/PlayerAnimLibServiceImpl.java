@@ -5,7 +5,7 @@ import net.neoforged.fml.loading.FMLLoader;
 
 public final class PlayerAnimLibServiceImpl implements PlayerAnimLibService {
     @Override
-    public boolean isModPresent(String id) {
+    public boolean isModLoaded(String id) {
         return FMLLoader.getCurrent().getLoadingModList().getModFileById(id) != null;
     }
 }

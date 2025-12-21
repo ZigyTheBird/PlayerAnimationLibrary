@@ -1,7 +1,1 @@
-- Fixed the item Y pos axis being negated for Blockbench animations.
-- Fixed torso bends not applying to other limbs correctly.  
-- Fixed animations not starting properly on players that are not being rendered.  
-- Fixed an NPE.  
-- Added a way to see if it's a first-person render pass from `AnimationData`.  
-- Added a way to get `AnimationData` in the adjustment modifier.  
-- Controller first-person methods now return the controller.  
+- Removed `architectury-plugin`
