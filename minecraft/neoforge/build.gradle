@@ -6,17 +6,10 @@ loom {
     accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
 }
 
-architectury {
-    platformSetupLoomIde()
-    neoForge()
-}
-
 configurations {
-    common
     shadowCommon
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentNeoForge.extendsFrom common
+    compileClasspath.extendsFrom shadowCommon
+    runtimeClasspath.extendsFrom shadowCommon
 }
 
 dependencies {
@@ -27,9 +20,8 @@ dependencies {
     }
     modRuntimeOnly forgeRuntimeLibrary(include("org.javassist:javassist:$rootProject.javassist_version"))
 
-    common(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
-    shadowCommon(project(path: ":minecraft:common", configuration: "transformProductionNeoForge")) { transitive = false }
-    common shadowCommon(project(path: ":core")) { transitive = false }
+    shadowCommon(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":core")) { transitive = false }
 }
 
 shadowJar {
