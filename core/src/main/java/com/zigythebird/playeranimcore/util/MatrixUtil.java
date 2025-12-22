@@ -17,6 +17,11 @@ public class MatrixUtil {
             matrix.rotateZ(bone.getRotZ()).rotateY(bone.getRotY()).rotateX(bone.getRotX());
     }
 
+    public static void rotateMatrixAroundBoneXYZ(ModMatrix4f matrix, PlayerAnimBone bone) {
+        if (bone.getRotZ() != 0 || bone.getRotY() != 0 || bone.getRotX() != 0)
+            matrix.rotateX(bone.getRotX()).rotateY(bone.getRotY()).rotateZ(bone.getRotZ());
+    }
+
     public static void scaleMatrixForBone(ModMatrix4f matrix, PlayerAnimBone bone) {
         matrix.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
     }
@@ -36,23 +41,35 @@ public class MatrixUtil {
         translateAwayFromPivotPoint(matrix, pivot);
     }
 
-    public static void applyParentsToChild(PlayerAnimBone child, Iterable<? extends PlayerAnimBone> parents, Function<String, Vec3f> positions) {
+    public static void prepMatrixForBoneXYZ(ModMatrix4f matrix, PlayerAnimBone bone, Vec3f pivot) {
+        translateToPivotPoint(matrix, pivot);
+        rotateMatrixAroundBoneXYZ(matrix, bone);
+        scaleMatrixForBone(matrix, bone);
+        translateAwayFromPivotPoint(matrix, pivot);
+    }
+
+    public static void applyParentsToChild(PlayerAnimBone child, Iterable<? extends PlayerAnimBone> parents, Function<String, Vec3f> positions, boolean isXYZ) {
         ModMatrix4f matrix = new ModMatrix4f();
 
         for (PlayerAnimBone parent : parents) {
             Vec3f pivot = parent instanceof PivotBone pivotBone ? pivotBone.getPivot() : positions.apply(parent.getName());
-            MatrixUtil.prepMatrixForBone(matrix, parent, pivot);
+            if (isXYZ)
+                prepMatrixForBoneXYZ(matrix, parent, pivot);
+            else MatrixUtil.prepMatrixForBone(matrix, parent, pivot);
             child.addPos(parent.getPosX(), parent.getPosY(), parent.getPosZ());
         }
 
         Vec3f defaultPos = positions.apply(child.getName());
         matrix.translate(defaultPos.x(), defaultPos.y(), defaultPos.z());
-        MatrixUtil.rotateMatrixAroundBone(matrix, child);
+        if (isXYZ) {
+            MatrixUtil.rotateMatrixAroundBoneXYZ(matrix, child);
+        }
+        else MatrixUtil.rotateMatrixAroundBone(matrix, child);
         child.setPosX(-matrix.m30() + defaultPos.x() + child.getPosX());
         child.setPosY(matrix.m31() - defaultPos.y() + child.getPosY());
         child.setPosZ(-matrix.m32() - defaultPos.z() + child.getPosZ());
 
-        Vec3f rotation = matrix.getEulerRotation();
+        Vec3f rotation = isXYZ ? matrix.getEulerRotationXYZ() : matrix.getEulerRotationZYX();
         child.updateRotation(rotation.x(), rotation.y(), rotation.z());
 
         child.mulScale(matrix.getColumnScale(0), matrix.getColumnScale(1), matrix.getColumnScale(2));

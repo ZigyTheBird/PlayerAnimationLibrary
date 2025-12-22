@@ -651,7 +651,7 @@ public abstract class AnimationController implements IAnimation {
 					parents.addFirst(currentParent);
 				}
 
-				MatrixUtil.applyParentsToChild(bone, parents, this::getBonePosition);
+				MatrixUtil.applyParentsToChild(bone, parents, this::getBonePosition, false);
 			}
 		}
 	}

@@ -176,20 +176,20 @@ public class ModMatrix4f {
         return this;
     }
 
-    public void rotateX(float ang, ModMatrix4f dest) {
+    public ModMatrix4f rotateX(float ang, ModMatrix4f dest) {
         if ((this.properties & 4) != 0) {
-            dest.rotationX(ang);
+            return dest.rotationX(ang);
         } else if ((this.properties & 8) != 0) {
             float x = this.m30();
             float y = this.m31();
             float z = this.m32();
-            dest.rotationX(ang).setTranslation(x, y, z);
+            return dest.rotationX(ang).setTranslation(x, y, z);
         } else {
-            this.rotateXInternal(ang, dest);
+            return this.rotateXInternal(ang, dest);
         }
     }
 
-    private void rotateXInternal(float ang, ModMatrix4f dest) {
+    private ModMatrix4f rotateXInternal(float ang, ModMatrix4f dest) {
         float sin = (float) Math.sin(ang);
         float cos = MathHelper.cosFromSin(sin, ang);
         float lm10 = this.m10();
@@ -200,11 +200,11 @@ public class ModMatrix4f {
         float lm21 = this.m21();
         float lm22 = this.m22();
         float lm23 = this.m23();
-        dest._m20(Math.fma(lm10, -sin, lm20 * cos))._m21(Math.fma(lm11, -sin, lm21 * cos))._m22(Math.fma(lm12, -sin, lm22 * cos))._m23(Math.fma(lm13, -sin, lm23 * cos))._m10(Math.fma(lm10, cos, lm20 * sin))._m11(Math.fma(lm11, cos, lm21 * sin))._m12(Math.fma(lm12, cos, lm22 * sin))._m13(Math.fma(lm13, cos, lm23 * sin))._m00(this.m00())._m01(this.m01())._m02(this.m02())._m03(this.m03())._m30(this.m30())._m31(this.m31())._m32(this.m32())._m33(this.m33())._properties(this.properties & -14);
+        return dest._m20(Math.fma(lm10, -sin, lm20 * cos))._m21(Math.fma(lm11, -sin, lm21 * cos))._m22(Math.fma(lm12, -sin, lm22 * cos))._m23(Math.fma(lm13, -sin, lm23 * cos))._m10(Math.fma(lm10, cos, lm20 * sin))._m11(Math.fma(lm11, cos, lm21 * sin))._m12(Math.fma(lm12, cos, lm22 * sin))._m13(Math.fma(lm13, cos, lm23 * sin))._m00(this.m00())._m01(this.m01())._m02(this.m02())._m03(this.m03())._m30(this.m30())._m31(this.m31())._m32(this.m32())._m33(this.m33())._properties(this.properties & -14);
     }
 
-    public void rotateX(float ang) {
-        this.rotateX(ang, this);
+    public ModMatrix4f rotateX(float ang) {
+        return this.rotateX(ang, this);
     }
 
     public ModMatrix4f rotateY(float ang, ModMatrix4f dest) {
@@ -355,45 +355,56 @@ public class ModMatrix4f {
         return this._m00(x)._m11(y)._m22(z)._properties(2 | (one ? 16 : 0));
     }
 
-    public Vec3f getEulerRotation() {
-        float tr = m00 + m11 + m22;
+    public Vec3f getEulerRotationZYX() {
         float x;
         float y;
         float z;
-        float w;
-        if (tr >= 0.0F) {
-            float t = (float) Math.sqrt(tr + 1.0F);
-            w = t * 0.5F;
-            t = 0.5F / t;
-            x = (m12 - m21) * t;
-            y = (m20 - m02) * t;
-            z = (m01 - m10) * t;
-        } else if (m00 >= m11 && m00 >= m22) {
-            float t = (float) Math.sqrt(m00 - (m11 + m22) + 1.0F);
-            x = t * 0.5F;
-            t = 0.5F / t;
-            y = (m10 + m01) * t;
-            z = (m02 + m20) * t;
-            w = (m12 - m21) * t;
-        } else if (m11 > m22) {
-            float t = (float) Math.sqrt(m11 - (m22 + m00) + 1.0F);
-            y = t * 0.5F;
-            t = 0.5F / t;
-            z = (m21 + m12) * t;
-            x = (m10 + m01) * t;
-            w = (m20 - m02) * t;
-        } else {
-            float t = (float) Math.sqrt(m22 - (m00 + m11) + 1.0F);
-            z = t * 0.5F;
-            t = 0.5F / t;
-            x = (m02 + m20) * t;
-            y = (m21 + m12) * t;
-            w = (m01 - m10) * t;
+
+        if (m02 < 1) {
+            if (m02 > -1) {
+                y = (float) Math.asin(-m02);
+                z = (float) Math.atan2(m01, m00);
+                x = (float) Math.atan2(m12, m22);
+            }
+            else {
+                y = (float) (Math.PI/2);
+                z = (float) -Math.atan2(-m21, m11);
+                x = 0;
+            }
+        }
+        else {
+            y = (float) -(Math.PI/2);
+            z = (float) Math.atan2(-m21, m11);
+            x = 0;
         }
 
-        return new Vec3f((float) Math.atan2(y * z + w * x, 0.5F - x * x - y * y),
-                MathHelper.safeAsin(-2.0F * (x * z - w * y)),
-                (float) Math.atan2(x * y + w * z, 0.5F - y * y - z * z));
+        return new Vec3f(x, y, z);
+    }
+
+    public Vec3f getEulerRotationXYZ() {
+        float x;
+        float y;
+        float z;
+
+        if (m20 < 1) {
+            if (m20 > -1) {
+                y = (float) Math.asin(m20);
+                x = (float) Math.atan2(-m21, m22);
+                z = (float) Math.atan2(-m10, m00);
+            }
+            else {
+                y = (float) -(Math.PI/2);
+                x = (float) -Math.atan2(m01, m11);
+                z = 0;
+            }
+        }
+        else {
+            y = (float) (Math.PI/2);
+            x = (float) Math.atan2(m01, m11);
+            z = 0;
+        }
+
+        return new Vec3f(x, y, z);
     }
 
     public float getColumnScale(int i) {
