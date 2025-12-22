@@ -4,6 +4,14 @@ plugins {
 
 loom {
     accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
+
+    runs {
+        client {
+            client()
+            setConfigName('Neoforge Client')
+            ideConfigGenerated(true)
+        }
+    }
 }
 
 configurations {
@@ -44,6 +52,10 @@ remapJar {
 
 jar {
     archiveClassifier.set "dev"
+}
+
+tasks.named("processResources") {
+    from project(":minecraft:common").sourceSets.main.resources
 }
 
 sourcesJar {
