@@ -2,6 +2,11 @@ plugins {
     id "com.gradleup.shadow"
 }
 
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+
 loom {
     accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
 }
@@ -10,6 +15,7 @@ configurations {
     shadowCommon
     compileClasspath.extendsFrom shadowCommon
     runtimeClasspath.extendsFrom shadowCommon
+    developmentFabric.extendsFrom shadowCommon
 }
 
 dependencies {

@@ -2,22 +2,20 @@ plugins {
     id "com.gradleup.shadow"
 }
 
+architectury {
+    platformSetupLoomIde()
+    neoForge()
+}
+
 loom {
     accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
-
-    runs {
-        client {
-            client()
-            setConfigName('Neoforge Client')
-            ideConfigGenerated(true)
-        }
-    }
 }
 
 configurations {
     shadowCommon
     compileClasspath.extendsFrom shadowCommon
     runtimeClasspath.extendsFrom shadowCommon
+    developmentNeoForge.extendsFrom shadowCommon
 }
 
 dependencies {

@@ -1,4 +1,13 @@
+plugins {
+    id "architectury-plugin"
+}
+
+architectury {
+    minecraft = rootProject.minecraft_version
+}
+
 subprojects {
+    apply plugin: "architectury-plugin"
     apply plugin: "dev.architectury.loom"
 
     loom {
