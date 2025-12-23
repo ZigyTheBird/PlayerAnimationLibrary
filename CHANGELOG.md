@@ -1,1 +1,2 @@
 - Removed `architectury-plugin`
+- Updated dependencies

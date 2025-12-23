@@ -676,7 +676,7 @@ public abstract class AnimationController implements IAnimation {
 	 * Duration of the animation spent in seconds
 	 */
 	public float getAnimationTime() {
-		return getAnimationTicks() * 20;
+		return getAnimationTicks() / 20;
 	}
 
 	/**
