@@ -12,11 +12,10 @@ architectury {
 }
 
 configurations {
-    common
     shadowCommon
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentFabric.extendsFrom common
+    compileClasspath.extendsFrom shadowCommon
+    runtimeClasspath.extendsFrom shadowCommon
+    developmentFabric.extendsFrom shadowCommon
 }
 
 dependencies {
@@ -31,9 +30,8 @@ dependencies {
     }
     modRuntimeOnly include("org.javassist:javassist:$rootProject.javassist_version")
 
-    common(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
-    shadowCommon(project(path: ":minecraft:common", configuration: "transformProductionFabric")) { transitive = false }
-    common shadowCommon(project(path: ":core")) { transitive = false }
+    shadowCommon(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":core")) { transitive = false }
 }
 
 shadowJar {
