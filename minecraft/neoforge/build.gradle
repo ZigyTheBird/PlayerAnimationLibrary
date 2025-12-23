@@ -2,13 +2,13 @@ plugins {
     id "com.gradleup.shadow"
 }
 
+loom {
+    accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
+}
+
 architectury {
     platformSetupLoomIde()
     neoForge()
-}
-
-loom {
-    accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
 }
 
 configurations {
@@ -50,10 +50,6 @@ remapJar {
 
 jar {
     archiveClassifier.set "dev"
-}
-
-tasks.named("processResources") {
-    from project(":minecraft:common").sourceSets.main.resources
 }
 
 sourcesJar {

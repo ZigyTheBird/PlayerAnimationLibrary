@@ -2,13 +2,13 @@ plugins {
     id "com.gradleup.shadow"
 }
 
+loom {
+    accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
+}
+
 architectury {
     platformSetupLoomIde()
     fabric()
-}
-
-loom {
-    accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
 }
 
 configurations {
