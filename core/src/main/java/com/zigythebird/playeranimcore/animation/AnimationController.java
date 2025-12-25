@@ -45,7 +45,6 @@ import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.event.EventResult;
-import com.zigythebird.playeranimcore.math.ModMatrix4f;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.molang.MolangLoader;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
@@ -643,7 +642,7 @@ public abstract class AnimationController implements IAnimation {
 		for (PlayerAnimBone bone : bones1) {
 			if (parentsMap.containsKey(bone.getName())) {
 				this.activeBones.put(bone.getName(), bone);
-				ModMatrix4f matrix = new ModMatrix4f();
+
 				List<PivotBone> parents = new ArrayList<>();
 				PivotBone currentParent = this.pivotBones.get(parentsMap.get(bone.getName()));
 				parents.add(currentParent);
@@ -652,22 +651,7 @@ public abstract class AnimationController implements IAnimation {
 					parents.addFirst(currentParent);
 				}
 
-				for (PivotBone pivotBone : parents) {
-					MatrixUtil.prepMatrixForBone(matrix, pivotBone, pivotBone.getPivot());
-					bone.addPos(pivotBone.getPosX(), pivotBone.getPosY(), pivotBone.getPosZ());
-				}
-
-				Vec3f defaultPos = getBonePosition(bone.getName());
-				matrix.translate(defaultPos.x(), defaultPos.y(), defaultPos.z());
-				MatrixUtil.rotateMatrixAroundBone(matrix, bone);
-				bone.setPosX(-matrix.m30() + defaultPos.x() + bone.getPosX());
-				bone.setPosY(matrix.m31() - defaultPos.y() + bone.getPosY());
-				bone.setPosZ(-matrix.m32() - defaultPos.z() + bone.getPosZ());
-
-				Vec3f rotation = matrix.getEulerRotation();
-				bone.updateRotation(rotation.x(), rotation.y(), rotation.z());
-
-				bone.mulScale(matrix.getColumnScale(0), matrix.getColumnScale(1), matrix.getColumnScale(2));
+				MatrixUtil.applyParentsToChild(bone, parents, this::getBonePosition);
 			}
 		}
 	}
@@ -692,7 +676,7 @@ public abstract class AnimationController implements IAnimation {
 	 * Duration of the animation spent in seconds
 	 */
 	public float getAnimationTime() {
-		return getAnimationTicks() * 20;
+		return getAnimationTicks() / 20;
 	}
 
 	/**
@@ -1071,7 +1055,7 @@ public abstract class AnimationController implements IAnimation {
 
 		@Override
 		public void tick(AnimationData state) {
-            this.anim.handleAnimation(state);
+			this.anim.handleAnimation(state);
 			if (this.anim.animationState == State.RUNNING) this.anim.tick += 1;
 		}
 

@@ -62,6 +62,10 @@ public class AnimationData {
 		return this.getOrDefaultData(IS_FIRST_PERSON_PASS, false);
 	}
 
+	public boolean isFirstPersonPass() {
+		return this.isFirstPersonPass;
+	}
+
 	/**
 	 * Helper to determine if the entity is moving.
 	 */

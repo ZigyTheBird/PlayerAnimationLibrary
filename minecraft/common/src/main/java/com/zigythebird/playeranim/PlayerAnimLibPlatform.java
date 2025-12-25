@@ -1,10 +1,9 @@
 package com.zigythebird.playeranim;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
-
-public final class PlayerAnimLibPlatform {
-    @ExpectPlatform
+@Deprecated(forRemoval = true)
+public class PlayerAnimLibPlatform {
+    @Deprecated(forRemoval = true)
     public static boolean isModLoaded(String id) {
-        throw new AssertionError();
+        return PlayerAnimLibService.INSTANCE.isModLoaded(id);
     }
 }

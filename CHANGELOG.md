@@ -1,1 +1,2 @@
-Fixed various bugs with first person animations.
+- Removed `architectury-plugin` from the compilation process
+- Updated dependencies
