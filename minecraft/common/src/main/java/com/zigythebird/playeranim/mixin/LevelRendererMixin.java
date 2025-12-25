@@ -50,7 +50,7 @@ public abstract class LevelRendererMixin {
     private void tickAnimatedAvatars(PoseStack poseStack, LevelRenderState renderState, SubmitNodeCollector nodeCollector, CallbackInfo ci) {
         if (renderState instanceof ILevelRenderState levelRenderState) {
             for (IAvatarAnimationState state : levelRenderState.playerAnimLib$getAnimatedAvatarsToTick()) {
-                state.playerAnimLib$getAnimManager().handleAnimations(state, false);
+                state.playerAnimLib$getAnimManager().handleAnimations(state);
             }
         }
     }

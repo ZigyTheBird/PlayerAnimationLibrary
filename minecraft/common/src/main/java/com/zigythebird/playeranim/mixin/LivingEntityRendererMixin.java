@@ -44,7 +44,7 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState> {
         if (livingEntityRenderState instanceof IAvatarAnimationState animationRenderState) {
             var animationPlayer = ((IAvatarAnimationState)animationRenderState).playerAnimLib$getAnimManager();
             if (animationPlayer != null && animationPlayer.isActive()) {
-                animationPlayer.handleAnimations(animationRenderState, true);
+                animationPlayer.handleAnimations(animationRenderState);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
                 //These are additive properties

@@ -39,7 +39,7 @@ public class AvatarAnimManager extends AnimationStack {
 	}
 
 	@ApiStatus.Internal
-	public void handleAnimations(IAvatarAnimationState state, boolean setupAnim) {
+	public void handleAnimations(IAvatarAnimationState state) {
 		if (state instanceof AvatarRenderState avatarRenderState) {
 			float currentFrameTime = avatarRenderState.ageInTicks;
 
@@ -57,8 +57,7 @@ public class AvatarAnimManager extends AnimationStack {
 				this.updatedAt(currentFrameTime);
 			}
 
-			if (setupAnim)
-				this.setupAnimation(animationData);
+			this.setupAnimation(animationData);
 		}
 	}
 
