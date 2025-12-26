@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,12 +98,12 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
     }
 
     public static String getCorrectPlayerBoneName(String name) {
-        return UPPERCASE_PATTERN.matcher(name).replaceAll("_$1").toLowerCase();
+        return UPPERCASE_PATTERN.matcher(name).replaceAll("_$1").toLowerCase(Locale.ROOT);
     }
 
     public static String restorePlayerBoneName(String name) {
         StringBuilder result = new StringBuilder();
-        String lowerCase = name.toLowerCase();
+        String lowerCase = name.toLowerCase(Locale.ROOT);
 
         Matcher matcher = UNDERSCORE_PATTERN.matcher(lowerCase);
         int lastEnd = 0;
