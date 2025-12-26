@@ -54,12 +54,12 @@ public abstract class PlayerAnimationFrame implements IAnimation {
     public PlayerAnimationFrame() {
         parts.put("head", head);
         parts.put("body", body);
-        parts.put("rightArm", rightArm);
-        parts.put("leftArm", leftArm);
-        parts.put("rightLeg", rightLeg);
-        parts.put("leftLeg", leftLeg);
-        parts.put("rightItem", rightItem);
-        parts.put("leftItem", leftItem);
+        parts.put("right_arm", rightArm);
+        parts.put("left_arm", leftArm);
+        parts.put("right_leg", rightLeg);
+        parts.put("left_leg", leftLeg);
+        parts.put("right_item", rightItem);
+        parts.put("left_item", leftItem);
     }
 
     @Override
