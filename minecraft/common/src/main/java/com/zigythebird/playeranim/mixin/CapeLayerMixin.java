@@ -35,19 +35,15 @@ public abstract class CapeLayerMixin<T extends LivingEntity, M extends HumanoidM
             if (emote != null && emote.isActive()) {
                 ModelPart torso = this.getParentModel().body;
 
-                torso.translateAndRotate(poseStack);
-
-                poseStack.translate(0.0F, 0.0F, 0.125F);
                 poseStack.mulPose(Axis.YP.rotation(3.14159f));
+                poseStack.translate(0, 0, -0.125);
+                torso.translateAndRotate(poseStack);
+                poseStack.translate(0, 0, 0.125);
 
                 PlayerAnimBone bone = emote.get3DTransform(new PlayerAnimBone("cape"));
 
-                bone.positionX *= -1;
-                bone.positionZ *= -1;
-                bone.rotX *= -1;
-                bone.rotZ *= -1;
-
                 RenderUtil.translatePartToBone(part, bone, PartPose.ZERO);
+                poseStack.mulPose(Axis.YP.rotation(-3.14159f));
 
                 this.applyBend(part, torso, bone.getBend());
             }
