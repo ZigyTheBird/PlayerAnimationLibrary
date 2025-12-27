@@ -2,7 +2,7 @@ import org.redlance.dima_dencep.gradle.publish2discord.tasks.PublishDiscordTask
 import org.apache.commons.lang3.StringUtils
 
 plugins {
-    id "org.redlance.dima_dencep.gradle.PublishToDiscord" version "1.0.3"
+    id "org.redlance.dima_dencep.gradle.PublishToDiscord" version "1.0.4"
     id "dev.architectury.loom" version "1.13-SNAPSHOT" apply false
     id "architectury-plugin" version "3.4-SNAPSHOT" apply false
     id "com.gradleup.shadow" version "9.3.0" apply false
@@ -63,7 +63,7 @@ tasks.register("publishToDiscord", PublishDiscordTask) {
     avatar.set("https://raw.githubusercontent.com/ZigyTheBird/PlayerAnimationLibrary/refs/heads/main/minecraft/fabric/src/main/resources/icon.png")
 
     container {
-        it.title = "${rootProject.archives_base_name} v${version} is out!"
+        it.title = "## ✨ ${rootProject.archives_base_name}\n### v${version} is out!"
         it.description = "### Changes:\n${rootProject.file("CHANGELOG.md").getText("UTF-8")}"
 
         it.thumbnail("https://raw.githubusercontent.com/ZigyTheBird/PlayerAnimationLibrary/refs/heads/main/minecraft/fabric/src/main/resources/icon.png")
