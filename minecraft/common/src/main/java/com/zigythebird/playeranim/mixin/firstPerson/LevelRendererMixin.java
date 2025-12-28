@@ -30,6 +30,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.util.ClientUtil;
+import com.zigythebird.playeranimcore.animation.AnimationData;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -56,7 +57,7 @@ public class LevelRendererMixin {
     @Inject(method = "extractVisibleEntities", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"))
     private void setRenderStateToFirstPerson(Camera camera, Frustum frustum, DeltaTracker deltaTracker, LevelRenderState renderState, CallbackInfo ci, @Local Entity entity, @Local EntityRenderState entityRenderState, @Share("firstPerson") LocalBooleanRef isFirstPerson) {
         if (entity == camera.entity() && isFirstPerson.get()) {
-            ((IAvatarAnimationState) entityRenderState).playerAnimLib$setFirstPersonPass(true);
+            ((IAvatarAnimationState) entityRenderState).playerAnimLib$getAnimData().addData(AnimationData.IS_FIRST_PERSON_PASS, true);
             entityRenderState.shadowPieces.clear();
             entityRenderState.shadowRadius = 0;
         }
