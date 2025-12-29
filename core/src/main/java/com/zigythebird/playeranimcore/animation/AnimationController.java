@@ -24,6 +24,7 @@
 
 package com.zigythebird.playeranimcore.animation;
 
+import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.keyframe.*;
 import com.zigythebird.playeranimcore.animation.keyframe.event.CustomKeyFrameEvents;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
@@ -639,19 +640,27 @@ public abstract class AnimationController implements IAnimation {
 				bones1.add(pivotBone);
 		}
 
+		List<String> processedBones = new ArrayList<>();
+
 		for (PlayerAnimBone bone : bones1) {
 			if (parentsMap.containsKey(bone.getName())) {
 				this.activeBones.put(bone.getName(), bone);
 
-				List<PivotBone> parents = new ArrayList<>();
-				PivotBone currentParent = this.pivotBones.get(parentsMap.get(bone.getName()));
-				parents.add(currentParent);
+				List<PlayerAnimBone> parents = new ArrayList<>();
+				PlayerAnimBone currentParent = bone;
 				while (parentsMap.containsKey(currentParent.getName())) {
-					currentParent = this.pivotBones.get(parentsMap.get(currentParent.getName()));
+					String parentName = parentsMap.get(currentParent.getName());
+					currentParent = this.pivotBones.containsKey(parentName) ? this.pivotBones.get(parentName) : this.bones.getOrDefault(parentName, null);
+					if (currentParent == null) {
+						PlayerAnimLib.LOGGER.error("Failed to find parent bone called {}", parentName);
+						break;
+					}
 					parents.addFirst(currentParent);
+					if (processedBones.contains(currentParent.getName())) break;
 				}
 
 				MatrixUtil.applyParentsToChild(bone, parents, this::getBonePosition);
+				processedBones.add(bone.getName());
 			}
 		}
 	}
