@@ -21,6 +21,20 @@ public record AnimationSnapshot(Map<String, AdvancedBoneSnapshot> snapshots) imp
     }
 
     @Override
+    public boolean modifiesPart(String name) {
+        return snapshots.containsKey(name);
+    }
+
+    @Override
+    public boolean bendsPart(String name) {
+        if (modifiesPart(name)) {
+            AdvancedBoneSnapshot snapshot = snapshots.get(name);
+            return snapshot.bendEnabled && snapshot.getBend() != 0;
+        }
+        return false;
+    }
+
+    @Override
     public @NotNull String toString() {
         return "AnimationSnapshot{" +
                 "snapshots=" + snapshots +
