@@ -1,9 +1,9 @@
 package com.zigythebird.playeranimcore.easing;
 
 import com.zigythebird.playeranimcore.animation.keyframe.AnimationPoint;
-import com.zigythebird.playeranimcore.math.ModVector2d;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.runtime.standard.MochaMath;
@@ -44,25 +44,25 @@ abstract class BezierEasing implements EasingTypeTransformer {
         float time_handle_after  = Math.clamp(leftTime, -gapTime, 0);
 
         CubicBezierCurve curve = new CubicBezierCurve(
-                new ModVector2d(0, animationPoint.animationStartValue()),
-                new ModVector2d(time_handle_before, animationPoint.animationStartValue() + rightValue),
-                new ModVector2d(time_handle_after + gapTime, animationPoint.animationEndValue() + leftValue),
-                new ModVector2d(gapTime, animationPoint.animationEndValue()));
+                new Vector2f(0, animationPoint.animationStartValue()),
+                new Vector2f(time_handle_before, animationPoint.animationStartValue() + rightValue),
+                new Vector2f(time_handle_after + gapTime, animationPoint.animationEndValue() + leftValue),
+                new Vector2f(gapTime, animationPoint.animationEndValue()));
         float time = gapTime * lerpValue;
 
-        List<ModVector2d> points = curve.getPoints(200);
-        ModVector2d closest  = new ModVector2d();
+        List<Vector2f> points = curve.getPoints(200);
+        Vector2f closest  = new Vector2f();
         float closest_diff = Float.POSITIVE_INFINITY;
-        for (ModVector2d point : points) {
+        for (Vector2f point : points) {
             float diff = Math.abs(point.x - time);
             if (diff < closest_diff) {
                 closest_diff = diff;
                 closest.set(point);
             }
         }
-        ModVector2d second_closest = new ModVector2d();
+        Vector2f second_closest = new Vector2f();
         closest_diff = Float.POSITIVE_INFINITY;
-        for (ModVector2d point : points) {
+        for (Vector2f point : points) {
             if (point == closest) continue;
             float diff = Math.abs(point.x - time);
             if (diff < closest_diff) {
@@ -90,25 +90,25 @@ class BezierEasingAfter extends BezierEasing {
 }
 
 class CubicBezierCurve {
-    private ModVector2d v0;
-    private ModVector2d v1;
-    private ModVector2d v2;
-    private ModVector2d v3;
+    private Vector2f v0;
+    private Vector2f v1;
+    private Vector2f v2;
+    private Vector2f v3;
 
-    public CubicBezierCurve(ModVector2d v0, ModVector2d v1, ModVector2d v2, ModVector2d v3) {
+    public CubicBezierCurve(Vector2f v0, Vector2f v1, Vector2f v2, Vector2f v3) {
         this.v0 = v0;
         this.v1 = v1;
         this.v2 = v2;
         this.v3 = v3;
     }
 
-    public ModVector2d getPoint(float t) {
-        return getPoint(t, new ModVector2d());
+    public Vector2f getPoint(float t) {
+        return getPoint(t, new Vector2f());
     }
 
-    public ModVector2d getPoint(float t, ModVector2d target) {
+    public Vector2f getPoint(float t, Vector2f target) {
         if (target == null) {
-            target = new ModVector2d();
+            target = new Vector2f();
         }
 
         float u = 1 - t;
@@ -123,8 +123,8 @@ class CubicBezierCurve {
         return target;
     }
 
-    public List<ModVector2d> getPoints(int divisions) {
-        List<ModVector2d> points = new ArrayList<>();
+    public List<Vector2f> getPoints(int divisions) {
+        List<Vector2f> points = new ArrayList<>();
 
         for (int i = 0; i <= divisions; i++) {
             points.add(getPoint((float) i / divisions));
