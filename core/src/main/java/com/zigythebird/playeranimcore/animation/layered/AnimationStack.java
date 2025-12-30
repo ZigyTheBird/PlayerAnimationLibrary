@@ -114,6 +114,22 @@ public class AnimationStack implements IAnimation {
         return IAnimation.super.getFirstPersonConfiguration();
     }
 
+    @Override
+    public boolean modifiesPart(String name) {
+        for (int i = layers.size(); i > 0;) {
+            if (layers.get(--i).right().modifiesPart(name)) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean bendsPart(String name) {
+        for (int i = layers.size(); i > 0;) {
+            if (layers.get(--i).right().bendsPart(name)) return true;
+        }
+        return false;
+    }
+
     public int getPriority() {
         int priority = 0;
         for (int i=layers.size()-1; i>=0; i--) {

@@ -179,6 +179,16 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
+    public boolean modifiesPart(String name) {
+        return animation != null && animation.modifiesPart(name);
+    }
+
+    @Override
+    public boolean bendsPart(String name) {
+        return animation != null && animation.bendsPart(name);
+    }
+
+    @Override
     public String toString() {
         return "ModifierLayer{" +
                 "modifiers=" + modifiers +

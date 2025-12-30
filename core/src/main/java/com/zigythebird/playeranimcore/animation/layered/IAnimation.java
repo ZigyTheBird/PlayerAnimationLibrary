@@ -84,4 +84,21 @@ public interface IAnimation {
     default boolean canRemove() {
         return false;
     }
+
+    //TODO Maybe make these two methods no longer default the next breaking change
+    /**
+     * Useful for compatibility patches.
+     * You can see which parts are modified by the mod.
+     */
+    default boolean modifiesPart(String name) {
+        return false;
+    }
+
+    /**
+     * Useful for compatibility patches.
+     * You can see which parts are being bent by the mod.
+     */
+    default boolean bendsPart(String name) {
+        return false;
+    }
 }

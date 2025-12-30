@@ -992,6 +992,20 @@ public abstract class AnimationController implements IAnimation {
 		return registerPlayerAnimBone(new AdvancedPlayerAnimBone(name));
 	}
 
+	@Override
+	public boolean modifiesPart(String name) {
+		return this.activeBones.containsKey(name);
+	}
+
+	@Override
+	public boolean bendsPart(String name) {
+		if (modifiesPart(name) && this.bones.containsKey(name)) {
+			AdvancedPlayerAnimBone bone = this.bones.get(name);
+			return bone.bendEnabled && bone.bend != 0;
+		}
+		return false;
+	}
+
 	/**
 	 * Adds the given bone to the bones list for this controller
 	 * <p>
