@@ -12,6 +12,7 @@ dependencies {
     implementation api("org.slf4j:slf4j-api:2.0.17")
     implementation api("it.unimi.dsi:fastutil:8.5.18")
     implementation api("io.netty:netty-buffer:4.2.7.Final")
+    implementation api("org.joml:joml:1.10.8")
 
     // Testing
     testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.1")
