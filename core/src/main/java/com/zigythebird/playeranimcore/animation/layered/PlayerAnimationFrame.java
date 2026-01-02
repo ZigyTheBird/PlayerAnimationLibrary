@@ -92,10 +92,9 @@ public abstract class PlayerAnimationFrame implements IAnimation {
     }
     
     @Override
-    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
+    public void get3DTransform(@NotNull PlayerAnimBone bone) {
         PlayerBone part = parts.get(bone.getName());
-        if (part != null) return part.applyToBone(bone);
-        return bone;
+        if (part != null) part.applyToBone(bone);
     }
     
     public static class PlayerBone {

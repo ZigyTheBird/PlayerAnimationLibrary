@@ -14,8 +14,8 @@ public class MirrorIfLeftHandModifier extends MirrorModifier {
     }
 
     @Override
-    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
-        if (getController() instanceof PlayerAnimationController controller && controller.getAvatar() == Minecraft.getInstance().player && Minecraft.getInstance().options.mainHand().get() == HumanoidArm.LEFT) return bone;
-        return super.get3DTransform(bone);
+    public void get3DTransform(@NotNull PlayerAnimBone bone) {
+        if (getController() instanceof PlayerAnimationController controller && controller.getAvatar() == Minecraft.getInstance().player && Minecraft.getInstance().options.mainHand().get() == HumanoidArm.LEFT) return;
+        super.get3DTransform(bone);
     }
 }
