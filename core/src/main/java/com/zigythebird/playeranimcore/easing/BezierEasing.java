@@ -25,8 +25,8 @@ abstract class BezierEasing implements EasingTypeTransformer {
         if (easingArgs.isEmpty())
             return MochaMath.lerp(animationPoint.animationStartValue(), animationPoint.animationEndValue(), buildTransformer(easingValue).apply(lerpValue));
 
-        float rightValue = isEasingBefore() ? 0 : env.eval(easingArgs.getFirst());
-        float rightTime = isEasingBefore() ? 0.1f : env.eval(easingArgs.get(1));
+        float rightValue;
+        float rightTime;
         float leftValue = isEasingBefore() ? env.eval(easingArgs.getFirst()) : 0;
         float leftTime = isEasingBefore() ? env.eval(easingArgs.get(1)) : -0.1f;
 
@@ -34,9 +34,10 @@ abstract class BezierEasing implements EasingTypeTransformer {
             rightValue = env.eval(easingArgs.get(2));
             rightTime = env.eval(easingArgs.get(3));
         }
-
-        leftValue = (float) Math.toRadians(leftValue);
-        rightValue = (float) Math.toRadians(rightValue);
+        else {
+            rightValue = isEasingBefore() ? 0 : env.eval(easingArgs.getFirst());
+            rightTime = isEasingBefore() ? 0.1f : env.eval(easingArgs.get(1));
+        }
 
         float gapTime = animationPoint.transitionLength()/20;
 
