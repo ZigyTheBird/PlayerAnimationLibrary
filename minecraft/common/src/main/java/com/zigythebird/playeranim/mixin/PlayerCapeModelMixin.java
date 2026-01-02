@@ -39,7 +39,7 @@ public class PlayerCapeModelMixin implements ICapeLayer {
             bone.rotZ -= MochaMath.PI;
             bone.rotX *= -1;
             bone.rotY *= -1;
-            bone = emote.get3DTransform(bone);
+            emote.get3DTransform(bone);
             bone.rotX *= -1;
             bone.rotY *= -1;
             bone.rotX += MochaMath.PI;
