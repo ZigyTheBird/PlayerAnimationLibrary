@@ -320,14 +320,15 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 				)));
 			}
 			else if (frame.easingType() == EasingType.BEZIER) {
+				List<Expression> leftValue = frame.easingArgs().getFirst();
 				List<Expression> rightValue = frame.easingArgs().get(2);
 				List<Expression> rightTime = frame.easingArgs().get(3);
 				if (type == TransformType.ROTATION) {
 					rightValue = toRadiansForBezier(rightValue);
-					frame.easingArgs().set(0, toRadiansForBezier(frame.easingArgs().getFirst()));
+					leftValue = toRadiansForBezier(leftValue);
 				}
-				frame.easingArgs().remove(2);
-				frame.easingArgs().remove(2);
+				frames.set(i, new Keyframe(frame.length(), frame.startValue(), frame.endValue(), frame.easingType(),
+						List.of(leftValue, frame.easingArgs().get(1))));
 				if (frames.size() > i + 1) {
 					Keyframe nextKeyframe = frames.get(i + 1);
 					if (nextKeyframe.easingType() == EasingType.BEZIER) {
