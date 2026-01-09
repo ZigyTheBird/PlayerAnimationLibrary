@@ -1,2 +1,4 @@
+- Fix issues caused by language set to Turkish
+- Fix PlayerAnimationFrame using wrong names
 - Removed `architectury-plugin` from the compilation process
 - Updated dependencies
