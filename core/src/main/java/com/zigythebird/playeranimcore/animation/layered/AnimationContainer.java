@@ -90,6 +90,16 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
+    public boolean modifiesPart(String name) {
+        return anim != null && anim.modifiesPart(name);
+    }
+
+    @Override
+    public boolean bendsPart(String name) {
+        return anim != null && anim.bendsPart(name);
+    }
+
+    @Override
     public String toString() {
         return "AnimationContainer{" +
                 "anim=" + anim +
