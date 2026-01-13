@@ -533,8 +533,7 @@ public abstract class AnimationController implements IAnimation {
 					resetEventKeyFrames();
 					this.isLoopStarted = true;
 				}
-			}
-			else {
+			} else {
 				QueuedAnimation nextAnimation = this.animationQueue.peek();
 
 				resetEventKeyFrames();
@@ -547,8 +546,7 @@ public abstract class AnimationController implements IAnimation {
 					}
 
 					return;
-				}
-				else {
+				} else {
 					this.animationState = State.RUNNING;
 					this.tick = 0;
 					this.startAnimFrom = -animationData.getPartialTick();
@@ -559,6 +557,7 @@ public abstract class AnimationController implements IAnimation {
 			}
 		}
 
+		if (this.currentAnimation == null) return;
 		for (PlayerAnimBone bone : this.bones.values()) {
 			bone.setToInitialPose();
 		}
