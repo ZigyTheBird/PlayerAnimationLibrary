@@ -2,7 +2,7 @@ package com.zigythebird.playeranim.accessors;
 
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 
-@SuppressWarnings("unused")
+@Deprecated(forRemoval = true)
 public interface ICapeLayer {
     default void applyBend(AvatarAnimManager manager, float bend) {}
     default void resetBend() {}
