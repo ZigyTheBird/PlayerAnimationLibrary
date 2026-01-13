@@ -26,33 +26,26 @@ package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IAnimatedAvatar;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
-import com.zigythebird.playeranim.animation.AvatarAnimManager;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import com.zigythebird.playeranimcore.animation.AnimationData;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = AvatarRenderer.class, priority = 2000)
-public abstract class AvatarRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, AvatarRenderState, PlayerModel> {
-    public AvatarRendererMixin(EntityRendererProvider.Context context, PlayerModel model, float shadowRadius) {
-        super(context, model, shadowRadius);
-    }
-
+public abstract class AvatarRendererMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("HEAD"))
     private void modifyRenderState(Avatar avatar, AvatarRenderState avatarRenderState, float f, CallbackInfo ci) {
-        if (avatar instanceof IAnimatedAvatar abstractClientPlayer) {
-            AvatarAnimManager animation = abstractClientPlayer.playerAnimLib$getAnimManager();
-            animation.setTickDelta(f);
-
-            ((IAvatarAnimationState)avatarRenderState).playerAnimLib$setAnimManager(animation);
+        if (avatar instanceof IAnimatedAvatar animatedAvatar && avatarRenderState instanceof IAvatarAnimationState avatarAnimationState) {
+            avatarAnimationState.playerAnimLib$setAnimManager(animatedAvatar.playerAnimLib$getAnimManager());
+            Vec3 velocity = avatar.getDeltaMovement();
+            AnimationData data = animatedAvatar.playerAnimlib$getAnimData().copy();
+            data.setVelocity((float) ((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f));
+            avatarAnimationState.playerAnimLib$setAnimData(data);
         }
     }
 }

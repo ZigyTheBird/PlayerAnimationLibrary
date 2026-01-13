@@ -41,10 +41,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LivingEntityRendererMixin<S extends LivingEntityRenderState> {
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;scale(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
     private void doTranslations(S livingEntityRenderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState cameraRenderState, CallbackInfo ci) {
-        if (livingEntityRenderState instanceof IAvatarAnimationState avatarRenderState) {
-            var animationPlayer = avatarRenderState.playerAnimLib$getAnimManager();
+        if (livingEntityRenderState instanceof IAvatarAnimationState animationRenderState) {
+            var animationPlayer = ((IAvatarAnimationState)animationRenderState).playerAnimLib$getAnimManager();
             if (animationPlayer != null && animationPlayer.isActive()) {
-                avatarRenderState.playerAnimLib$getAnimManager().handleAnimations(animationPlayer.getTickDelta(), false, avatarRenderState.playerAnimLib$isFirstPersonPass());
+                animationPlayer.handleAnimations(animationRenderState);
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
                 //These are additive properties
