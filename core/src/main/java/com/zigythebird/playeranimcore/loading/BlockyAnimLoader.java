@@ -30,32 +30,35 @@ public class BlockyAnimLoader implements JsonDeserializer<Animation> {
     private static final Map<String, String> RENAMES = Map.of(
             "head", "headhy"
     );
+
+    private static final float SCALE = 24.0f / 87.0f;
+
     private static final Map<String, Vec3f> PIVOTS = Map.ofEntries(
             // Body
             entry("origin", new Vec3f(0, 0, 0)),
-            entry("pelvis", new Vec3f(0, 51, 0)),
-            entry("belly", new Vec3f(0, 55, 0)),
-            entry("chest", new Vec3f(0, 68, -3)),
+            entry("pelvis", new Vec3f(0, 51 * SCALE, 0)),
+            entry("belly", new Vec3f(0, 55 * SCALE, 0)),
+            entry("chest", new Vec3f(0, 68 * SCALE, -3 * SCALE)),
 
             // Head
-            entry("headhy", new Vec3f(0, 87, -1)),
+            entry("headhy", new Vec3f(0, 87 * SCALE, -1 * SCALE)),
 
             // Right Arm
-            entry("r-shoulder", new Vec3f(-14.5017F, 86.594F, -0.9388F)),
-            entry("r-arm", new Vec3f(-14.5017F, 86.594F, -0.9388F)),
+            entry("r-shoulder", new Vec3f(14.5f * SCALE, 86.6f * SCALE, -0.94f * SCALE)),
+            entry("r-arm", new Vec3f(14.5f * SCALE, 86.6f * SCALE, -0.94f * SCALE)),
 
             // Left Arm
-            entry("l-shoulder", new Vec3f(14.5017F, 86.594F, -0.9388F)),
-            entry("l-arm", new Vec3f(14.5017F, 86.594F, -0.9388F)),
+            entry("l-shoulder", new Vec3f(-14.5f * SCALE, 86.6f * SCALE, -0.94f * SCALE)),
+            entry("l-arm", new Vec3f(-14.5f * SCALE, 86.6f * SCALE, -0.94f * SCALE)),
 
             // Right Leg
-            entry("r-thigh", new Vec3f(-7.5F, 50, 1)),
+            entry("r-thigh", new Vec3f(7.5f * SCALE, 50 * SCALE, 1 * SCALE)),
 
             // Left Leg
-            entry("l-thigh", new Vec3f(7.5F, 50, 1)),
+            entry("l-thigh", new Vec3f(-7.5f * SCALE, 50 * SCALE, 1 * SCALE)),
 
             // Cape
-            entry("back-attachment", new Vec3f(0, 79, -18))
+            entry("back-attachment", new Vec3f(0, 79 * SCALE, -18 * SCALE))
     );
     private static final Map<String, String> PARENTS = Map.ofEntries(
             // Body
@@ -83,11 +86,11 @@ public class BlockyAnimLoader implements JsonDeserializer<Animation> {
 
             // Right Leg
             entry("r-thigh", "pelvis"),
-            entry("right_leg", "r-thigh"),
+            entry("right_leg", "r-thigh"), // Minecraft
 
             // Left Leg
             entry("l-thigh", "pelvis"),
-            entry("left_leg", "l-thigh"),
+            entry("left_leg", "l-thigh"), // Minecraft
 
             // Cape
             entry("back-attachment", "chest"),
@@ -148,11 +151,11 @@ public class BlockyAnimLoader implements JsonDeserializer<Animation> {
             if (type == TransformType.ROTATION) {
                 Vector3f vector3f = new Quaternionf(
                         delta.get("x").getAsFloat(), delta.get("y").getAsFloat(), delta.get("z").getAsFloat(), delta.get("w").getAsFloat()
-                ).getEulerAnglesXYZ(new Vector3f());
+                ).normalize().getEulerAnglesZYX(new Vector3f());
 
                 xValue = Collections.singletonList(FloatExpression.of(vector3f.x()));
-                yValue = Collections.singletonList(FloatExpression.of(vector3f.y()));
-                zValue = Collections.singletonList(FloatExpression.of(vector3f.z()));
+                yValue = Collections.singletonList(FloatExpression.of(-vector3f.y()));
+                zValue = Collections.singletonList(FloatExpression.of(-vector3f.z()));
             } else {
                 xValue = MolangLoader.parseJson(false, delta.get("x"), defaultValue);
                 yValue = MolangLoader.parseJson(false, delta.get("y"), defaultValue);
@@ -164,9 +167,7 @@ public class BlockyAnimLoader implements JsonDeserializer<Animation> {
             yFrames.add(new Keyframe(timeDelta, yPrev == null ? yValue : yPrev, yValue, easingType, Collections.emptyList()));
             zFrames.add(new Keyframe(timeDelta, zPrev == null ? zValue : zPrev, zValue, easingType, Collections.emptyList()));
 
-            xPrev = xValue;
-            yPrev = yValue;
-            zPrev = zValue;
+            xPrev = xValue; yPrev = yValue; zPrev = zValue;
             prevTime = curTime;
         }
 
