@@ -1,6 +1,1 @@
-- Minor improvements
-- Try to fix [#93](https://github.com/ZigyTheBird/PlayerAnimationLibrary/issues/93)
-- Fix issues caused by language set to Turkish
-- Fix PlayerAnimationFrame using wrong names
-- Removed `architectury-plugin` from the compilation process
-- Updated dependencies
+- Fix head in first-person
