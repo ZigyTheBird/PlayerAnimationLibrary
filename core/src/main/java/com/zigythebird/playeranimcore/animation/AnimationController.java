@@ -40,7 +40,6 @@ import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.*;
 import com.zigythebird.playeranimcore.easing.EasingType;
-import com.zigythebird.playeranimcore.enums.AnimationStage;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import com.zigythebird.playeranimcore.enums.State;
 import com.zigythebird.playeranimcore.enums.TransformType;
@@ -363,13 +362,7 @@ public abstract class AnimationController implements IAnimation {
 	protected Queue<QueuedAnimation> getQueuedAnimations(RawAnimation rawAnimation) {
 		LinkedList<QueuedAnimation> animations = new LinkedList<>();
 		for (RawAnimation.Stage stage : rawAnimation.getAnimationStages()) {
-			Animation animation;
-			if (stage.stage() == AnimationStage.WAIT) { // This is intentional. Do not change this or T̶s̶l̶a̶t̶ I will be unhappy!!!
-				animation = Animation.generateWaitAnimation(stage.additionalTicks());
-			} else {
-				animation = stage.animation();
-			}
-
+			Animation animation = stage.animation();
 			if (animation != null) animations.add(new QueuedAnimation(animation, stage.loopType()));
 		}
 		return animations;
