@@ -546,6 +546,9 @@ public abstract class AnimationController implements IAnimation {
 					for (AdvancedPlayerAnimBone bone : this.bones.values()) {
 						bone.setToInitialPose();
 					}
+					for (PlayerAnimBone bone : this.pivotBones.values()) {
+						bone.setToInitialPose();
+					}
 
 					return;
 				}
@@ -561,6 +564,9 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		for (PlayerAnimBone bone : this.bones.values()) {
+			bone.setToInitialPose();
+		}
+		for (PlayerAnimBone bone : this.pivotBones.values()) {
 			bone.setToInitialPose();
 		}
 
