@@ -634,33 +634,43 @@ public abstract class AnimationController implements IAnimation {
 		Map<String, String> parentsMap = this.currentAnimation.animation().parents();
 		if (parentsMap.isEmpty()) return;
 
-		List<PlayerAnimBone> bones1 = new ArrayList<>(this.bones.values());
-		for (PlayerAnimBone pivotBone : this.pivotBones.values()) {
-			if (!parentsMap.containsValue(pivotBone.getName()))
-				bones1.add(pivotBone);
-		}
+		Set<PlayerAnimBone> bones1 = new LinkedHashSet<>(this.bones.values());
+		bones1.addAll(this.pivotBones.values());
 
-		List<String> processedBones = new ArrayList<>();
+		Set<String> processedBones = new HashSet<>();
 
 		for (PlayerAnimBone bone : bones1) {
-			if (parentsMap.containsKey(bone.getName())) {
-				this.activeBones.put(bone.getName(), bone);
+			String boneName = bone.getName();
+
+			if (parentsMap.containsKey(boneName)) {
+				this.activeBones.put(boneName, bone);
 
 				List<PlayerAnimBone> parents = new ArrayList<>();
-				PlayerAnimBone currentParent = bone;
-				while (parentsMap.containsKey(currentParent.getName())) {
-					String parentName = parentsMap.get(currentParent.getName());
-					currentParent = this.pivotBones.containsKey(parentName) ? this.pivotBones.get(parentName) : this.bones.getOrDefault(parentName, null);
-					if (currentParent == null) {
-						PlayerAnimLib.LOGGER.error("Failed to find parent bone called {}", parentName);
+
+				String currentParentName = parentsMap.get(boneName);
+				while (currentParentName != null) {
+					if (processedBones.contains(currentParentName)) {
+						PlayerAnimBone parent = this.pivotBones.get(currentParentName);
+						if (parent == null) parent = this.bones.get(currentParentName);
+
+						if (parent != null) parents.addFirst(parent);
 						break;
 					}
-					parents.addFirst(currentParent);
-					if (processedBones.contains(currentParent.getName())) break;
+
+					PlayerAnimBone parent = this.pivotBones.get(currentParentName);
+					if (parent == null) parent = this.bones.get(currentParentName);
+
+					if (parent == null) {
+						PlayerAnimLib.LOGGER.error("Failed to find parent bone called {}", currentParentName);
+						break;
+					}
+
+					parents.addFirst(parent);
+					currentParentName = parentsMap.get(currentParentName);
 				}
 
 				MatrixUtil.applyParentsToChild(bone, parents, this::getBonePosition);
-				processedBones.add(bone.getName());
+				processedBones.add(boneName);
 			}
 		}
 	}
