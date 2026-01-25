@@ -649,19 +649,16 @@ public abstract class AnimationController implements IAnimation {
 
 				String currentParentName = parentsMap.get(boneName);
 				while (currentParentName != null) {
-					if (processedBones.contains(currentParentName)) {
-						PlayerAnimBone parent = this.pivotBones.get(currentParentName);
-						if (parent == null) parent = this.bones.get(currentParentName);
-
-						if (parent != null) parents.addFirst(parent);
-						break;
-					}
-
 					PlayerAnimBone parent = this.pivotBones.get(currentParentName);
 					if (parent == null) parent = this.bones.get(currentParentName);
 
 					if (parent == null) {
 						PlayerAnimLib.LOGGER.error("Failed to find parent bone called {}", currentParentName);
+						break;
+					}
+
+					if (processedBones.contains(currentParentName)) {
+						parents.addFirst(parent);
 						break;
 					}
 
