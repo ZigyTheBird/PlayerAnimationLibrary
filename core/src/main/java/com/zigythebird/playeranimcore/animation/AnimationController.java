@@ -640,42 +640,38 @@ public abstract class AnimationController implements IAnimation {
 		Map<String, String> parentsMap = this.currentAnimation.animation().parents();
 		if (parentsMap.isEmpty()) return;
 
-		Set<PlayerAnimBone> bones1 = new LinkedHashSet<>(this.bones.values());
-		bones1.addAll(this.pivotBones.values());
-
 		Set<String> processedBones = new HashSet<>();
-
-		for (PlayerAnimBone bone : bones1) {
-			String boneName = bone.getName();
-
-			if (parentsMap.containsKey(boneName)) {
-				this.activeBones.put(boneName, bone);
-
-				List<PlayerAnimBone> parents = new ArrayList<>();
-
-				String currentParentName = parentsMap.get(boneName);
-				while (currentParentName != null) {
-					PlayerAnimBone parent = this.pivotBones.get(currentParentName);
-					if (parent == null) parent = this.bones.get(currentParentName);
-
-					if (parent == null) {
-						PlayerAnimLib.LOGGER.error("Failed to find parent bone called {}", currentParentName);
-						break;
-					}
-
-					if (processedBones.contains(currentParentName)) {
-						parents.addFirst(parent);
-						break;
-					}
-
-					parents.addFirst(parent);
-					currentParentName = parentsMap.get(currentParentName);
-				}
-
-				MatrixUtil.applyParentsToChild(bone, parents, this::getBonePosition);
-				processedBones.add(boneName);
-			}
+		for (PlayerAnimBone bone : this.bones.values()) {
+			processBoneHierarchy(bone, parentsMap, processedBones);
 		}
+		for (PlayerAnimBone bone : this.pivotBones.values()) {
+			processBoneHierarchy(bone, parentsMap, processedBones);
+		}
+	}
+
+	private void processBoneHierarchy(PlayerAnimBone bone, Map<String, String> parentsMap, Set<String> processedBones) {
+		String boneName = bone.getName();
+		if (processedBones.contains(boneName)) return;
+
+		String parentName = parentsMap.get(boneName);
+		if (parentName == null) {
+			processedBones.add(boneName);
+			return;
+		}
+
+		PlayerAnimBone parent = this.pivotBones.get(parentName);
+		if (parent == null) parent = this.bones.get(parentName);
+		if (parent == null) {
+			PlayerAnimLib.LOGGER.error("Parent {} not found for {}", parentName, boneName);
+			return;
+		}
+
+		processBoneHierarchy(parent, parentsMap, processedBones);
+
+		this.activeBones.put(boneName, bone);
+		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(parent), this::getBonePosition);
+
+		processedBones.add(boneName);
 	}
 
 	protected  <T extends KeyFrameData> void handleCustomKeyframe(T[] keyframes, @Nullable CustomKeyFrameEvents.CustomKeyFrameHandler<T> main, CustomKeyFrameEvents.CustomKeyFrameHandler<T> event, float animationTick, AnimationData animationData) {
