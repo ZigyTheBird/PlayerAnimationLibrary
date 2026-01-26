@@ -845,11 +845,12 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	@Override
-	public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
+	public void get3DTransform(@NotNull PlayerAnimBone bone) {
 		if (!modifiers.isEmpty()) {
-			return modifiers.getFirst().get3DTransform(bone);
+			modifiers.getFirst().get3DTransform(bone);
+			return;
 		}
-		return get3DTransformRaw(bone);
+		get3DTransformRaw(bone);
 	}
 
 	@Override
@@ -1064,8 +1065,8 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		@Override
-		public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
-			return this.anim.get3DTransformRaw(bone);
+		public void get3DTransform(@NotNull PlayerAnimBone bone) {
+			this.anim.get3DTransformRaw(bone);
 		}
 	}
 

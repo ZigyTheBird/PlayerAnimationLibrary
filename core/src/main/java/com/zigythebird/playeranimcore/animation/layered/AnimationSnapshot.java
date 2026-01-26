@@ -13,11 +13,10 @@ public record AnimationSnapshot(Map<String, AdvancedBoneSnapshot> snapshots) imp
     }
 
     @Override
-    public PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
+    public void get3DTransform(@NotNull PlayerAnimBone bone) {
         if (snapshots.containsKey(bone.getName())) {
-            return bone.copySnapshotSafe(snapshots.get(bone.getName()));
+            bone.copySnapshotSafe(snapshots.get(bone.getName()));
         }
-        return bone;
     }
 
     @Override

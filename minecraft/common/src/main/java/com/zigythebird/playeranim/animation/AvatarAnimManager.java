@@ -77,7 +77,7 @@ public class AvatarAnimManager extends AnimationStack {
 
 	public void updatePart(ModelPart part, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
-		bone = this.get3DTransform(bone);
+		this.get3DTransform(bone);
 		RenderUtil.translatePartToBone(part, bone, initialPose);
 	}
 
