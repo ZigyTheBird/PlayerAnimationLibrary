@@ -28,8 +28,10 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
+import com.zigythebird.playeranim.accessors.IBoneUpdater;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
+import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -37,6 +39,7 @@ import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -46,7 +49,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Function;
 
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
-public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
+public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> implements IBoneUpdater {
     @Unique
     private final PlayerAnimBone pal$head = new PlayerAnimBone("head");
     @Unique
@@ -64,54 +67,47 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
         super(root, renderType);
     }
 
-    @Unique
-    private void playerAnimLib$setToInitialPose() {
-        this.head.resetPose();
-        this.body.resetPose();
-        this.rightArm.resetPose();
-        this.leftArm.resetPose();
-        this.rightLeg.resetPose();
-        this.leftLeg.resetPose();
-    }
-
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "HEAD"))
     private void setDefaultBeforeRender(AvatarRenderState avatarRenderState, CallbackInfo ci){
-        playerAnimLib$setToInitialPose(); //To not make everything wrong
-        this.head.visible = true; //For some reason only the head doesn't get reset
+        this.head.visible = true; // For some reason only the head doesn't get reset
     }
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "RETURN"))
     private void setupPlayerAnimation(AvatarRenderState avatarRenderState, CallbackInfo ci) {
         if (avatarRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null) {
-            if (state.playerAnimLib$getAnimManager().isActive()) {
-                RenderUtil.copyVanillaPart(this.head, pal$head);
-                RenderUtil.copyVanillaPart(this.body, pal$torso);
-                RenderUtil.copyVanillaPart(this.rightArm, pal$rightArm);
-                RenderUtil.copyVanillaPart(this.leftArm, pal$leftArm);
-                RenderUtil.copyVanillaPart(this.rightLeg, pal$rightLeg);
-                RenderUtil.copyVanillaPart(this.leftLeg, pal$leftLeg);
+            AvatarAnimManager emote = state.playerAnimLib$getAnimManager();
 
-                AvatarAnimManager emote = state.playerAnimLib$getAnimManager();
-                emote.updatePart(this.head, pal$head);
-                emote.updatePart(this.rightArm, pal$rightArm);
-                emote.updatePart(this.leftArm, pal$leftArm);
-                emote.updatePart(this.rightLeg, pal$rightLeg);
-                emote.updatePart(this.leftLeg, pal$leftLeg);
-                emote.updatePart(this.body, pal$torso);
+            if (emote.isActive()) {
+                pal$updatePart(emote, this.head, pal$head);
+                pal$updatePart(emote, this.rightArm, pal$rightArm);
+                pal$updatePart(emote, this.leftArm, pal$leftArm);
+                pal$updatePart(emote, this.rightLeg, pal$rightLeg);
+                pal$updatePart(emote, this.leftLeg, pal$leftLeg);
+                pal$updatePart(emote, this.body, pal$torso);
+            } else {
+                pal$resetAll(emote);
             }
 
             if (state.playerAnimLib$isFirstPersonPass()) {
-                var config = state.playerAnimLib$getAnimManager().getFirstPersonConfiguration();
                 // Hiding all parts, because they should not be visible in first person
                 this.head.visible = false;
                 this.body.visible = false;
                 this.leftLeg.visible = false;
                 this.rightLeg.visible = false;
                 // Showing arms based on configuration
+                FirstPersonConfiguration config = emote.getFirstPersonConfiguration();
                 this.rightArm.visible = config.isShowRightArm();
                 this.leftArm.visible = config.isShowLeftArm();
             }
+        } else {
+            pal$resetAll(null);
         }
+    }
+
+    @Override
+    public void pal$updatePart(AvatarAnimManager emote, ModelPart part, PlayerAnimBone bone) {
+        RenderUtil.copyVanillaPart(part, bone);
+        emote.updatePart(part, bone);
     }
 
     @WrapWithCondition(method = "translateToHand(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
@@ -126,5 +122,10 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void pal$resetAll(@Nullable AvatarAnimManager emote) {
+        // no-op
     }
 }
