@@ -134,9 +134,9 @@ public class PlayerModelMixin<T extends LivingEntity> extends HumanoidModel<T> {
             playerAnimLib$setAllPartsVisible(false);
             // Showing arms based on configuration
             this.rightArm.visible = config.isShowRightArm();
-            this.leftArm.visible = !config.isShowLeftArm();
+            this.leftArm.visible = config.isShowLeftArm();
             this.rightSleeve.visible = config.isShowRightArm();
-            this.leftSleeve.visible = !config.isShowLeftArm();
+            this.leftSleeve.visible = config.isShowLeftArm();
         }
     }
 
