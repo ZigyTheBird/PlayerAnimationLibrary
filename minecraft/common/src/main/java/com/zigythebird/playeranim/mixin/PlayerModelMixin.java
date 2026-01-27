@@ -67,6 +67,11 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> implement
         super(root, renderType);
     }
 
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "HEAD"))
+    private void setDefaultBeforeRender(AvatarRenderState avatarRenderState, CallbackInfo ci){
+        this.head.visible = true; // For some reason only the head doesn't get reset
+    }
+
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At(value = "RETURN"))
     private void setupPlayerAnimation(AvatarRenderState avatarRenderState, CallbackInfo ci) {
         if (avatarRenderState instanceof IAvatarAnimationState state && state.playerAnimLib$getAnimManager() != null) {
