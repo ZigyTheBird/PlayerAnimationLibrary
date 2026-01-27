@@ -12,6 +12,10 @@ import java.util.function.Function;
  * Used for applying custom pivot bones to player bones
  */
 public class MatrixUtil {
+    public static void translateMatrixForBone(ModMatrix4f matrix, PlayerAnimBone bone) {
+        matrix.translate(-bone.getPosX(), bone.getPosY(), -bone.getPosZ());
+    }
+
     public static void rotateMatrixAroundBone(ModMatrix4f matrix, PlayerAnimBone bone) {
         if (bone.getRotZ() != 0 || bone.getRotY() != 0 || bone.getRotX() != 0)
             matrix.rotateZ(bone.getRotZ()).rotateY(bone.getRotY()).rotateX(bone.getRotX());
@@ -31,6 +35,7 @@ public class MatrixUtil {
 
     public static void prepMatrixForBone(ModMatrix4f matrix, PlayerAnimBone bone, Vec3f pivot) {
         translateToPivotPoint(matrix, pivot);
+        translateMatrixForBone(matrix, bone);
         rotateMatrixAroundBone(matrix, bone);
         scaleMatrixForBone(matrix, bone);
         translateAwayFromPivotPoint(matrix, pivot);
@@ -42,7 +47,6 @@ public class MatrixUtil {
         for (PlayerAnimBone parent : parents) {
             Vec3f pivot = parent instanceof PivotBone pivotBone ? pivotBone.getPivot() : positions.apply(parent.getName());
             MatrixUtil.prepMatrixForBone(matrix, parent, pivot);
-            child.addPos(parent.getPosX(), parent.getPosY(), parent.getPosZ());
         }
 
         Vec3f defaultPos = positions.apply(child.getName());
