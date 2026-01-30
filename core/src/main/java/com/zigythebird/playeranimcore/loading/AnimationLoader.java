@@ -341,7 +341,8 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 
 	private static boolean isEnabled(List<Expression> expressions) {
 		return expressions.size() != 1 || !(expressions.getFirst() instanceof AccessExpression accessExpression)
-				|| !"disabled".equals(accessExpression.property()) || !(accessExpression.object() instanceof IdentifierExpression identifierExpression)
+				|| (!"disabled".equals(accessExpression.property()) && !"skip".equals(accessExpression.property()))
+				|| !(accessExpression.object() instanceof IdentifierExpression identifierExpression)
 				|| !"pal".equals(identifierExpression.name());
 	}
 
