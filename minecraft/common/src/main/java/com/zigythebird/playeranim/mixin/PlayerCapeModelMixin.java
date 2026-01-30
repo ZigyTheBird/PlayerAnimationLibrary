@@ -1,6 +1,7 @@
 package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
+import com.zigythebird.playeranim.accessors.IBoneUpdater;
 import com.zigythebird.playeranim.accessors.ICapeLayer;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
@@ -8,6 +9,7 @@ import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerCapeModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,16 +20,10 @@ import team.unnamed.mocha.runtime.standard.MochaMath;
 
 //Set the priority high cause why not!
 @Mixin(value = PlayerCapeModel.class, priority = 2001)
-public class PlayerCapeModelMixin implements ICapeLayer {
+public class PlayerCapeModelMixin implements IBoneUpdater, ICapeLayer {
     @Shadow
     @Final
     private ModelPart cape;
-
-    //Make sure nothing from the previous frame remains.
-    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("HEAD"))
-    private void resetPose(AvatarRenderState renderState, CallbackInfo ci) {
-        this.cape.resetPose();
-    }
 
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
     private void setupAnim(AvatarRenderState avatarRenderState, CallbackInfo ci) {
@@ -45,10 +41,20 @@ public class PlayerCapeModelMixin implements ICapeLayer {
             bone.rotX += MochaMath.PI;
             bone.rotZ += MochaMath.PI;
 
-            RenderUtil.translatePartToCape(this.cape, bone, this.cape.getInitialPose());
-
-            this.applyBend(emote, bone.getBend());
+            this.pal$updatePart(emote, this.cape, bone);
+        } else {
+            this.pal$resetAll(emote);
         }
-        else this.resetBend();
+    }
+
+    @Override
+    public void pal$updatePart(AvatarAnimManager emote, ModelPart part, PlayerAnimBone bone) {
+        RenderUtil.translatePartToCape(part, bone, part.getInitialPose());
+        this.applyBend(emote, bone.getBend());
+    }
+
+    @Override
+    public void pal$resetAll(@Nullable AvatarAnimManager emote) {
+        this.resetBend();
     }
 }

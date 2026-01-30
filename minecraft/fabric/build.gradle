@@ -38,6 +38,8 @@ shadowJar {
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = 'dev-shadow'
     mergeServiceFiles()
+
+    exclude "architectury.common.marker"
 }
 
 remapJar {

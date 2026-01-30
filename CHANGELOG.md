@@ -1,2 +1,1 @@
-- Removed `architectury-plugin` from the compilation process
-- Updated dependencies
+- Fix head in first-person
