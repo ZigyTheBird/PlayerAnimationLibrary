@@ -340,10 +340,15 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 
 
 	private static boolean isEnabled(List<Expression> expressions) {
-		return expressions.size() != 1 || !(expressions.getFirst() instanceof AccessExpression accessExpression)
-				|| (!"disabled".equals(accessExpression.property()) && !"skip".equals(accessExpression.property()))
-				|| !(accessExpression.object() instanceof IdentifierExpression identifierExpression)
-				|| !"pal".equals(identifierExpression.name());
+		if (expressions.size() == 1
+				&& expressions.getFirst() instanceof AccessExpression access
+				&& access.object() instanceof IdentifierExpression id
+				&& "pal".equals(id.name())) {
+
+			return !"disabled".equals(access.property()) && !"skip".equals(access.property());
+		}
+
+		return true;
 	}
 
 	public static float calculateAnimationLength(Map<String, BoneAnimation> boneAnimations) {
