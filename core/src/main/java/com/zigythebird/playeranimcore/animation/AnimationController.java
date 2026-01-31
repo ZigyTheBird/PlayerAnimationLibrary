@@ -545,6 +545,9 @@ public abstract class AnimationController implements IAnimation {
 					for (AdvancedPlayerAnimBone bone : this.bones.values()) {
 						bone.setToInitialPose();
 					}
+					for (PlayerAnimBone bone : this.pivotBones.values()) {
+						bone.setToInitialPose();
+					}
 
 					return;
 				} else {
@@ -560,6 +563,9 @@ public abstract class AnimationController implements IAnimation {
 
 		if (this.currentAnimation == null) return;
 		for (PlayerAnimBone bone : this.bones.values()) {
+			bone.setToInitialPose();
+		}
+		for (PlayerAnimBone bone : this.pivotBones.values()) {
 			bone.setToInitialPose();
 		}
 
@@ -633,35 +639,38 @@ public abstract class AnimationController implements IAnimation {
 		Map<String, String> parentsMap = this.currentAnimation.animation().parents();
 		if (parentsMap.isEmpty()) return;
 
-		List<PlayerAnimBone> bones1 = new ArrayList<>(this.bones.values());
-		for (PlayerAnimBone pivotBone : this.pivotBones.values()) {
-			if (!parentsMap.containsValue(pivotBone.getName()))
-				bones1.add(pivotBone);
+		Set<String> processedBones = new HashSet<>();
+		for (PlayerAnimBone bone : this.bones.values()) {
+			processBoneHierarchy(bone, parentsMap, processedBones);
+		}
+		for (PlayerAnimBone bone : this.pivotBones.values()) {
+			processBoneHierarchy(bone, parentsMap, processedBones);
+		}
+	}
+
+	private void processBoneHierarchy(PlayerAnimBone bone, Map<String, String> parentsMap, Set<String> processedBones) {
+		String boneName = bone.getName();
+		if (processedBones.contains(boneName)) return;
+
+		String parentName = parentsMap.get(boneName);
+		if (parentName == null) {
+			processedBones.add(boneName);
+			return;
 		}
 
-		List<String> processedBones = new ArrayList<>();
-
-		for (PlayerAnimBone bone : bones1) {
-			if (parentsMap.containsKey(bone.getName())) {
-				this.activeBones.put(bone.getName(), bone);
-
-				List<PlayerAnimBone> parents = new ArrayList<>();
-				PlayerAnimBone currentParent = bone;
-				while (parentsMap.containsKey(currentParent.getName())) {
-					String parentName = parentsMap.get(currentParent.getName());
-					currentParent = this.pivotBones.containsKey(parentName) ? this.pivotBones.get(parentName) : this.bones.getOrDefault(parentName, null);
-					if (currentParent == null) {
-						PlayerAnimLib.LOGGER.error("Failed to find parent bone called {}", parentName);
-						break;
-					}
-					parents.addFirst(currentParent);
-					if (processedBones.contains(currentParent.getName())) break;
-				}
-
-				MatrixUtil.applyParentsToChild(bone, parents, this::getBonePosition);
-				processedBones.add(bone.getName());
-			}
+		PlayerAnimBone parent = this.pivotBones.get(parentName);
+		if (parent == null) parent = this.bones.get(parentName);
+		if (parent == null) {
+			PlayerAnimLib.LOGGER.error("Parent {} not found for {}", parentName, boneName);
+			return;
 		}
+
+		processBoneHierarchy(parent, parentsMap, processedBones);
+
+		this.activeBones.put(boneName, bone);
+		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(parent), this::getBonePosition);
+
+		processedBones.add(boneName);
 	}
 
 	protected  <T extends KeyFrameData> void handleCustomKeyframe(T[] keyframes, @Nullable CustomKeyFrameEvents.CustomKeyFrameHandler<T> main, CustomKeyFrameEvents.CustomKeyFrameHandler<T> event, float animationTick, AnimationData animationData) {
