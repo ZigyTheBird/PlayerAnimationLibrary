@@ -2,7 +2,6 @@ package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.accessors.IBoneUpdater;
-import com.zigythebird.playeranim.accessors.ICapeLayer;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
@@ -20,7 +19,7 @@ import team.unnamed.mocha.runtime.standard.MochaMath;
 
 //Set the priority high cause why not!
 @Mixin(value = PlayerCapeModel.class, priority = 2001)
-public class PlayerCapeModelMixin implements IBoneUpdater, ICapeLayer {
+public class PlayerCapeModelMixin implements IBoneUpdater {
     @Shadow
     @Final
     private ModelPart cape;
@@ -50,11 +49,10 @@ public class PlayerCapeModelMixin implements IBoneUpdater, ICapeLayer {
     @Override
     public void pal$updatePart(AvatarAnimManager emote, ModelPart part, PlayerAnimBone bone) {
         RenderUtil.translatePartToCape(part, bone, part.getInitialPose());
-        this.applyBend(emote, bone.getBend());
     }
 
     @Override
     public void pal$resetAll(@Nullable AvatarAnimManager emote) {
-        this.resetBend();
+        // no-op
     }
 }
