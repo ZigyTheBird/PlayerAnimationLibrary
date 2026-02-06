@@ -12,7 +12,7 @@ import net.minecraft.server.packs.PackType;
 public final class PlayerAnimLibModFabric extends PlayerAnimLibMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(PlayerAnimResources.KEY, new PlayerAnimResources());
+        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(PlayerAnimResources.KEY, new PlayerAnimResources());
         if (FabricLoader.getInstance().isDevelopmentEnvironment() || FabricLoader.getInstance().getModContainer(PlayerAnimLibMod.MOD_ID).get().getMetadata().getVersion().getFriendlyString().contains("dev"))
             ClientCommandRegistrationCallback.EVENT.register(PlayerAnimCommands::register);
 

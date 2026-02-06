@@ -1,9 +1,13 @@
-loom {
-    accessWidenerPath = file("src/main/resources/player_animation_library.accesswidener")
+unimined.minecraft {
+    fabric {
+        loader rootProject.fabric_loader_version
+        accessWidener file("src/main/resources/player_animation_library.accesswidener")
+    }
+
+    defaultRemapJar = false
 }
 
 dependencies {
-    modCompileOnly "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     implementation project(path: ":core")
 }
 

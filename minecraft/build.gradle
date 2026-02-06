@@ -1,17 +1,8 @@
-plugins {
-    id "architectury-plugin"
-}
-
-architectury {
-    minecraft = rootProject.minecraft_version
-}
-
 subprojects {
-    apply plugin: "architectury-plugin"
-    apply plugin: "dev.architectury.loom"
+    apply plugin: "xyz.wagyourtail.unimined"
 
-    loom {
-        silentMojangMappingsLicense()
+    unimined.minecraft(sourceSets.main, true) {
+        version rootProject.minecraft_version
     }
 
     jar {
@@ -20,11 +11,6 @@ subprojects {
     }
 
     dependencies {
-        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        mappings loom.layered() {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-${rootProject.minecraft_version}:${rootProject.parchment_version}@zip")
-        }
         implementation project(":core")
     }
 

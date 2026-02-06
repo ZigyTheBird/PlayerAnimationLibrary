@@ -2,63 +2,54 @@ plugins {
     id "com.gradleup.shadow"
 }
 
-loom {
-    accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
-}
+unimined.minecraft {
+    // Combine with common, for identifying both together as one mod for dev runs
+    combineWith(project(":minecraft:common").sourceSets.main)
 
-architectury {
-    platformSetupLoomIde()
-    fabric()
+    fabric {
+        loader project.fabric_loader_version
+        accessWidener project(":minecraft:common").file("src/main/resources/player_animation_library.accesswidener")
+    }
 }
 
 configurations {
-    shadowCommon
-    compileClasspath.extendsFrom shadowCommon
-    runtimeClasspath.extendsFrom shadowCommon
-    developmentFabric.extendsFrom shadowCommon
+    shadow
+    compileClasspath.extendsFrom shadow
+    runtimeClasspath.extendsFrom shadow
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    implementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
     // Fabric API
-    modApi fabricApi.module("fabric-command-api-v2", rootProject.fabric_api_version)
-    modApi fabricApi.module("fabric-resource-loader-v1", rootProject.fabric_api_version)
+    api fabricApi.fabricModule("fabric-command-api-v2", rootProject.fabric_api_version)
+    api fabricApi.fabricModule("fabric-resource-loader-v1", rootProject.fabric_api_version)
 
-    implementation api(include("com.zigythebird:mochafloats:$rootProject.molang_version")) {
+    api(include("com.zigythebird:mochafloats:$rootProject.molang_version") {
         transitive = false
-    }
-    modRuntimeOnly include("org.javassist:javassist:$rootProject.javassist_version")
+    })
+    runtimeOnly include("org.javassist:javassist:$rootProject.javassist_version")
 
-    shadowCommon(project(path: ":minecraft:common", configuration: "namedElements")) { transitive = false }
-    shadowCommon(project(path: ":core")) { transitive = false }
+    shadow(project(path: ":core")) { transitive = false }
 }
 
 shadowJar {
-    configurations = [project.configurations.shadowCommon]
+    configurations = [project.configurations.shadow]
     archiveClassifier = 'dev-shadow'
     mergeServiceFiles()
 
     exclude "architectury.common.marker"
 }
 
-remapJar {
-    injectAccessWidener = true
-
-    inputFile.set shadowJar.archiveFile
-    dependsOn shadowJar
-    archiveClassifier.set null
-}
-
 jar {
     archiveClassifier.set "dev"
 }
 
-sourcesJar {
+/*sourcesJar {
     def commonSources = project(":minecraft:common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
-}
+}*/
 
 shadow {
     addShadowVariantIntoJavaComponent = false

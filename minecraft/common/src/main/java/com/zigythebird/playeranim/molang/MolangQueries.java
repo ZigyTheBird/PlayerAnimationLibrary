@@ -154,7 +154,7 @@ public final class MolangQueries {
                 return 0.0D;
             }
         });
-        MolangLoader.setDoubleQuery(binding, TIME_OF_DAY, actor -> ((PlayerAnimationController) actor).getAvatar().level().getDayTime() / 24000d);
+        MolangLoader.setDoubleQuery(binding, TIME_OF_DAY, actor -> ((PlayerAnimationController) actor).getAvatar().level().getDefaultClockTime() / 24000d);
         MolangLoader.setDoubleQuery(binding, TIME_STAMP, actor -> ((PlayerAnimationController) actor).getAvatar().level().getGameTime());
 
         setDefaultEntityQueryValues(binding);

@@ -3,13 +3,13 @@ import org.apache.commons.lang3.StringUtils
 
 plugins {
     id "org.redlance.dima_dencep.gradle.PublishToDiscord" version "1.0.6"
-    id "dev.architectury.loom" version "1.13-SNAPSHOT" apply false
-    id "architectury-plugin" version "3.4-SNAPSHOT" apply false
+    id "xyz.wagyourtail.unimined" version "1.4.2" apply false
     id "com.gradleup.shadow" version "9.3.0" apply false
 }
 
 allprojects {
     apply plugin: "java"
+    apply plugin: "java-library"
     apply plugin: "maven-publish"
 
     base.archivesName = "${rootProject.archives_base_name}${StringUtils.capitalize(project.name)}"
@@ -32,11 +32,19 @@ allprojects {
             name = "RedlanceMinecraft"
             url = "https://repo.redlance.org/public"
         }
+        maven {
+            name = "Maven for PR #2879" // https://github.com/neoforged/NeoForge/pull/2879
+            url = uri("https://prmaven.neoforged.net/NeoForge/pr2879")
+            content {
+                includeModule("net.neoforged", "neoforge")
+                includeModule("net.neoforged", "testframework")
+            }
+        }
     }
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = "UTF-8"
-        options.release.set 21
+        options.release.set 25
     }
 
     java {

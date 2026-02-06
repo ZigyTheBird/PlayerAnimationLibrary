@@ -30,7 +30,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'adopt'
-          java-version: 21
+          java-version: 25
 
       - name: Grant Execute Permission
         run: chmod +x gradlew
@@ -61,7 +61,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'adopt'
-          java-version: 21
+          java-version: 25
 
       - name: Get Artifact Id
         uses: actions/github-script@v5
