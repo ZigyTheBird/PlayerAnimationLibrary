@@ -1,4 +1,4 @@
-classTweaker v1 official
+classTweaker v1 named
 extendable class net/minecraft/client/model/geom/ModelPart
 accessible field net/minecraft/client/renderer/LevelRenderer levelRenderState Lnet/minecraft/client/renderer/state/LevelRenderState;
 accessible field net/minecraft/client/renderer/entity/layers/RenderLayer renderer Lnet/minecraft/client/renderer/entity/RenderLayerParent;
