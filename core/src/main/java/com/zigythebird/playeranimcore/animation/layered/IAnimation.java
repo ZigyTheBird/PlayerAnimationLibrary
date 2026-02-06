@@ -58,7 +58,11 @@ public interface IAnimation {
      * @param bone the bone being currently animated.
      * KEEP IN MIND THAT THE BONE RETURNED ISN'T ALWAYS THE SAME AS THE INPUT BONE!
      */
-    default PlayerAnimBone get3DTransform(@NotNull PlayerAnimBone bone) {
+    void get3DTransform(@NotNull PlayerAnimBone bone);
+
+    default PlayerAnimBone get3DTransform(@NotNull String name) {
+        PlayerAnimBone bone = new PlayerAnimBone(name);
+        get3DTransform(bone);
         return bone;
     }
 

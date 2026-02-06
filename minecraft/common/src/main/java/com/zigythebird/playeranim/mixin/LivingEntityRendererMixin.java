@@ -48,7 +48,7 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState> {
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
                 //These are additive properties
-                PlayerAnimBone body = animationPlayer.get3DTransform(new PlayerAnimBone("body"));
+                PlayerAnimBone body = animationPlayer.get3DTransform("body");
 
                 poseStack.translate(-body.getPosX()/16, body.getPosY()/16 + 0.75, body.getPosZ()/16);
                 body.rotX *= -1;
