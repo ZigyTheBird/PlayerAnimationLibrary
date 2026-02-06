@@ -82,10 +82,10 @@ jar {
     archiveClassifier.set "dev"
 }
 
-processResources {
-    inputs.property "version", project.version
+[tasks.processResources, tasks.processFabricResources, tasks.processNeoforgeResources].each {
+    it.inputs.property "version", project.version
 
-    filesMatching(["META-INF/neoforge.mods.toml", "fabric.mod.json"]) {
+    it.filesMatching(["META-INF/neoforge.mods.toml", "fabric.mod.json"]) {
         expand version: project.version
     }
 }
