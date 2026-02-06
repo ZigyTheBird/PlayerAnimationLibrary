@@ -12,12 +12,6 @@ unimined.minecraft {
     }
 }
 
-configurations {
-    shadow
-    compileClasspath.extendsFrom shadow
-    runtimeClasspath.extendsFrom shadow
-}
-
 dependencies {
     implementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
@@ -34,11 +28,16 @@ dependencies {
 }
 
 shadowJar {
+    duplicatesStrategy = DuplicatesStrategy.WARN
     configurations = [project.configurations.shadow]
-    archiveClassifier = 'dev-shadow'
+    archiveClassifier = "dev-shadow"
     mergeServiceFiles()
+}
 
-    exclude "architectury.common.marker"
+remapJar {
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set null
 }
 
 jar {

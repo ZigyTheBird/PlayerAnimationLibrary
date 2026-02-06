@@ -6,11 +6,11 @@ unimined.minecraft {
     // Combine with common, for identifying both together as one mod for dev runs
     combineWith(project(":minecraft::common").sourceSets.main)
 
-    neoForged {
-        loader rootProject.neoforge_version
+    neoForge {
+        loader("net.neoforged:neoforge:$rootProject.neoforge_version:universal")
         mixinConfig("player_animation_library.mixins.json")
 
-        //accessTransformer aw2at(project(":minecraft:common").unimined.minecraft.fabric.accessWidener)
+        // accessTransformer aw2at(project(":minecraft:common").file("src/main/resources/player_animation_library.classtweaker"))
     }
 }
 
@@ -21,25 +21,25 @@ configurations {
 }
 
 dependencies {
-    neoForge "net.neoforged:neoforge:$rootProject.neoforge_version"
-
-   /* api(include("com.zigythebird:mochafloats:$rootProject.molang_version") {
+    api(include("com.zigythebird:mochafloats:$rootProject.molang_version") {
         transitive = false
     })
-    modRuntimeOnly include("org.javassist:javassist:$rootProject.javassist_version"))*/
+    runtimeOnly include("org.javassist:javassist:$rootProject.javassist_version")
 
     shadow(project(path: ":core")) { transitive = false }
 }
 
 shadowJar {
-    exclude "fabric.mod.json"
-    exclude "architectury.common.json"
-    exclude "architectury.common.marker"
-
+    duplicatesStrategy = DuplicatesStrategy.WARN
     configurations = [project.configurations.shadow]
-    archiveClassifier.set "dev-shadow"
-
+    archiveClassifier = "dev-shadow"
     mergeServiceFiles()
+}
+
+remapJar {
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set null
 }
 
 jar {

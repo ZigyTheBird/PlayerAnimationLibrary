@@ -1,18 +1,9 @@
 package com.zigythebird.playeranim;
 
-import java.util.ServiceLoader;
-import java.util.stream.Stream;
+import com.zigythebird.playeranimcore.util.ServiceUtil;
 
-public interface PlayerAnimLibService  {
-    PlayerAnimLibService INSTANCE = loadServices(PlayerAnimLibService.class).findAny().orElseThrow();
+public interface PlayerAnimLibService extends ServiceUtil.ActiveService {
+    PlayerAnimLibService INSTANCE = ServiceUtil.loadService(PlayerAnimLibService.class);
 
     boolean isModLoaded(String id);
-
-    static <T> Stream<T> loadServices(Class<T> serviceClass) {
-        ModuleLayer layer = serviceClass.getModule().getLayer(); // NeoForge compat?
-        ServiceLoader<T> loader = layer == null ? ServiceLoader.load(serviceClass,
-                serviceClass.getClassLoader()
-        ) : ServiceLoader.load(layer, serviceClass);
-        return loader.stream().map(ServiceLoader.Provider::get);
-    }
 }
