@@ -106,9 +106,14 @@ shadowJar {
     mergeServiceFiles()
 
     // Fix fabric jij
-    exclude 'META-INF/jars/**'
-    filesMatching('fabric.mod.json') {
-        filter { it.replace('META-INF/jars/', 'META-INF/jarjar/') }
+    exclude 'META-INF/jarjar/*.jar'
+    filesMatching('META-INF/jarjar/metadata.json') {
+        filter { it.replace('META-INF/jarjar/', 'META-INF/jars/') }
+    }
+
+    // Workaround
+    filesMatching('player_animation_library.classtweaker') {
+        filter { it.replace('named', 'official') }
     }
 }
 
