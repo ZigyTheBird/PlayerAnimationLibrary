@@ -19,3 +19,4 @@ classes/
 *.launch
 *.log
 .DS_Store
+/minecraft/src/neoforge/resources/META-INF/accesstransformer.cfg
