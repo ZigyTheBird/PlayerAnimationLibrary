@@ -11,7 +11,3 @@ rootProject.name = "player_animation_library"
 
 include("core")
 include("minecraft")
-
-include("minecraft:common")
-include("minecraft:fabric")
-include("minecraft:neoforge")
