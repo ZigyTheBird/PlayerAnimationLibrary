@@ -8,7 +8,7 @@ unimined.minecraft {
 
     fabric {
         loader project.fabric_loader_version
-        accessWidener project(":minecraft:common").file("src/main/resources/player_animation_library.accesswidener")
+        accessWidener project(":minecraft:common").file("src/main/resources/player_animation_library.classtweaker")
     }
 }
 
