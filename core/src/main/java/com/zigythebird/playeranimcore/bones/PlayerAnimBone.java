@@ -37,6 +37,24 @@ public class PlayerAnimBone {
 		this.name = name;
 	}
 
+	public PlayerAnimBone(PlayerAnimBone bone) {
+		this.name = bone.getName();
+
+		this.rotX = bone.getRotX();
+		this.rotY = bone.getRotY();
+		this.rotZ = bone.getRotZ();
+
+		this.positionX = bone.getPosX();
+		this.positionY = bone.getPosY();
+		this.positionZ = bone.getPosZ();
+
+		this.scaleX = bone.getScaleX();
+		this.scaleY = bone.getScaleY();
+		this.scaleZ = bone.getScaleZ();
+
+		this.bend = bone.getBend();
+	}
+
 	public String getName() {
 		return this.name;
 	}
@@ -329,7 +347,7 @@ public class PlayerAnimBone {
 		return this;
 	}
 
-	public PlayerAnimBone copyOtherBone(PlayerAnimBone bone) {
+	public void copyOtherBone(PlayerAnimBone bone) {
 		this.positionX = bone.positionX;
 		this.positionY = bone.positionY;
 		this.positionZ = bone.positionZ;
@@ -343,42 +361,41 @@ public class PlayerAnimBone {
 		this.scaleZ = bone.scaleZ;
 
 		this.bend = bone.bend;
-		return this;
 	}
 
-	public PlayerAnimBone copyOtherBoneIfNotDisabled(PlayerAnimBone bone) {
-		if (bone instanceof IBoneEnabled advancedBone) {
-			if (advancedBone.isPositionXEnabled())
+	public void copyOtherBoneIfNotDisabled(PlayerAnimBone bone) {
+		if (bone instanceof ToggleablePlayerAnimBone toggleableBone) {
+			if (toggleableBone.isPositionXEnabled())
 				this.positionX = bone.positionX;
-			if (advancedBone.isPositionYEnabled())
+			if (toggleableBone.isPositionYEnabled())
 				this.positionY = bone.positionY;
-			if (advancedBone.isPositionZEnabled())
+			if (toggleableBone.isPositionZEnabled())
 				this.positionZ = bone.positionZ;
 
-			if (advancedBone.isRotXEnabled())
+			if (toggleableBone.isRotXEnabled())
 				this.rotX = bone.rotX;
-			if (advancedBone.isRotYEnabled())
+			if (toggleableBone.isRotYEnabled())
 				this.rotY = bone.rotY;
-			if (advancedBone.isRotZEnabled())
+			if (toggleableBone.isRotZEnabled())
 				this.rotZ = bone.rotZ;
 
-			if (advancedBone.isScaleXEnabled())
+			if (toggleableBone.isScaleXEnabled())
 				this.scaleX = bone.scaleX;
-			if (advancedBone.isScaleYEnabled())
+			if (toggleableBone.isScaleYEnabled())
 				this.scaleY = bone.scaleY;
-			if (advancedBone.isScaleZEnabled())
+			if (toggleableBone.isScaleZEnabled())
 				this.scaleZ = bone.scaleZ;
 
-			if (advancedBone.isBendEnabled())
+			if (toggleableBone.isBendEnabled())
 				this.bend = bone.bend;
 
-			return this;
+			return;
 		}
-		return copyOtherBone(bone);
+		copyOtherBone(bone);
 	}
 
 	@ApiStatus.Internal
-	public PlayerAnimBone beginOrEndTickLerp(AdvancedPlayerAnimBone bone, float animTime, Animation animation) {
+	public void beginOrEndTickLerp(AdvancedPlayerAnimBone bone, float animTime, Animation animation) {
 		if (bone.positionXEnabled)
 			this.positionX = beginOrEndTickLerp(positionX, bone.positionX, bone.positionXTransitionLength, animTime, animation, TransformType.POSITION, Axis.X);
 		if (bone.positionYEnabled)
@@ -403,7 +420,6 @@ public class PlayerAnimBone {
 		if (bone.bendEnabled)
 			this.bend = beginOrEndTickLerp(bend, bone.bend, bone.bendTransitionLength, animTime, animation, TransformType.BEND, Axis.Y);
 
-		return this;
 	}
 	
 	private float beginOrEndTickLerp(float startValue, float endValue, Float transitionLength, float animTime, Animation animation, TransformType type, Axis axis) {
@@ -437,54 +453,6 @@ public class PlayerAnimBone {
 		}
 		if (transitionLength == null) return endValue;
 		return easingType.apply(startValue, endValue, animTime / transitionLength);
-	}
-
-	public void copySnapshot(BoneSnapshot snapshot) {
-		this.positionX = snapshot.getOffsetX();
-		this.positionY = snapshot.getOffsetY();
-		this.positionZ = snapshot.getOffsetZ();
-
-		this.rotX = snapshot.getRotX();
-		this.rotY = snapshot.getRotY();
-		this.rotZ = snapshot.getRotZ();
-
-		this.scaleX = snapshot.getScaleX();
-		this.scaleY = snapshot.getScaleY();
-		this.scaleZ = snapshot.getScaleZ();
-
-		this.bend = snapshot.getBend();
-	}
-	
-	public PlayerAnimBone copySnapshotSafe(AdvancedBoneSnapshot snapshot) {
-		if (snapshot.positionXEnabled)
-			this.positionX = snapshot.getOffsetX();
-		if (snapshot.positionYEnabled)
-			this.positionY = snapshot.getOffsetY();
-		if (snapshot.positionZEnabled)
-			this.positionZ = snapshot.getOffsetZ();
-
-		if (snapshot.rotXEnabled)
-			this.rotX = snapshot.getRotX();
-		if (snapshot.rotYEnabled)
-			this.rotY = snapshot.getRotY();
-		if (snapshot.rotZEnabled)
-			this.rotZ = snapshot.getRotZ();
-
-		if (snapshot.scaleXEnabled)
-			this.scaleX = snapshot.getScaleX();
-		if (snapshot.scaleYEnabled)
-			this.scaleY = snapshot.getScaleY();
-		if (snapshot.scaleZEnabled)
-			this.scaleZ = snapshot.getScaleZ();
-
-		if (snapshot.bendEnabled)
-			this.bend = snapshot.getBend();
-
-		return this;
-	}
-
-	public BoneSnapshot saveSnapshot() {
-		return new BoneSnapshot(this);
 	}
 
 	public boolean equals(Object obj) {

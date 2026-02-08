@@ -408,9 +408,9 @@ public abstract class AnimationController implements IAnimation {
 	public void replaceAnimationWithFade(@NotNull AbstractFadeModifier fadeModifier, @Nullable RawAnimation newAnimation, boolean fadeFromNothing) {
 		if (fadeFromNothing || this.isActive()) {
 			if (this.isActive()) {
-				Map<String, AdvancedBoneSnapshot> snapshots = new HashMap<>();
+				Map<String, ToggleablePlayerAnimBone> snapshots = new HashMap<>();
 				for (PlayerAnimBone bone : activeBones.values()) {
-					snapshots.put(bone.getName(), new AdvancedBoneSnapshot(bone));
+					snapshots.put(bone.getName(), new ToggleablePlayerAnimBone(bone));
 				}
 				fadeModifier.setTransitionAnimation(new AnimationSnapshot(snapshots));
 			}
