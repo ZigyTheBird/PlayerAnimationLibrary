@@ -20,3 +20,4 @@ classes/
 *.log
 .DS_Store
 /minecraft/src/neoforge/resources/META-INF/accesstransformer.cfg
+/minecraft/src/main/resources/assets/player_animation_library/player_animations/dont_include
