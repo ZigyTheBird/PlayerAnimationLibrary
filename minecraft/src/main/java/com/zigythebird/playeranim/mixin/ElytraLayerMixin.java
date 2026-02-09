@@ -32,7 +32,7 @@ public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends 
                 poseStack.translate(0, 0, 0.125);
                 PlayerAnimBone bone = emote.get3DTransform("elytra");
                 bone.applyOtherBone(emote.get3DTransform("cape"));
-                bone.positionY *= -1;
+                bone.position.y *= -1;
                 RenderUtil.translateMatrixToBone(poseStack, bone);
                 poseStack.translate(0, 0, -0.125);
             }

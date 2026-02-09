@@ -28,7 +28,6 @@ import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
 import team.unnamed.mocha.MochaEngine;
-import team.unnamed.mocha.runtime.standard.MochaMath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +106,7 @@ public class HumanoidAnimationController extends AnimationController {
     @Override
     public void process(AnimationData state) {
         super.process(state);
+        /* TODO Commented out until we decide what we want to do with bends
         this.torsoBend = bones.get("torso").getBend();
         float absBend = Math.abs(this.torsoBend);
         if (absBend > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY) == Boolean.TRUE)) {
@@ -114,6 +114,7 @@ public class HumanoidAnimationController extends AnimationController {
             this.torsoBendYPosMultiplier = (float) -(1 - Math.cos(absBend));
             this.torsoBendZPosMultiplier = (float) (1 - Math.sin(absBend));
         } else this.torsoBendSign = 0;
+         */
     }
 
     @Override
@@ -122,9 +123,9 @@ public class HumanoidAnimationController extends AnimationController {
         String name = bone.getName();
         if (this.torsoBendSign != 0 && this.top_bones.contains(name)) {
             float offset = getBonePosition(name).y() - 18;
-            bone.rotX += this.torsoBend;
-            bone.positionZ += (offset * this.torsoBendZPosMultiplier - offset) * this.torsoBendSign;
-            bone.positionY += offset * this.torsoBendYPosMultiplier;
+            bone.rotation.x += this.torsoBend;
+            bone.position.x += (offset * this.torsoBendZPosMultiplier - offset) * this.torsoBendSign;
+            bone.position.y += offset * this.torsoBendYPosMultiplier;
         }
         return bone;
     }
