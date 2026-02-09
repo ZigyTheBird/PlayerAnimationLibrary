@@ -591,19 +591,17 @@ public abstract class AnimationController implements IAnimation {
 			AnimationPoint bendPoint = getAnimationPointAtTick(bendKeyFrames, adjustedTick, TransformType.BEND, isAdvancedBone ? advancedBone::setBendTransitionLength : null);
 			EasingType easingType = this.overrideEasingTypeFunction.apply(this);
 
-            bone.setRotX(EasingType.lerpWithOverride(this.molangRuntime, rotXPoint, easingType));
-            bone.setRotY(EasingType.lerpWithOverride(this.molangRuntime, rotYPoint, easingType));
-            bone.setRotZ(EasingType.lerpWithOverride(this.molangRuntime, rotZPoint, easingType));
+			bone.rotation.x = EasingType.lerpWithOverride(this.molangRuntime, rotXPoint, easingType);
+			bone.rotation.y = EasingType.lerpWithOverride(this.molangRuntime, rotYPoint, easingType);
+			bone.rotation.z = EasingType.lerpWithOverride(this.molangRuntime, rotZPoint, easingType);
 
-            bone.setPosX(EasingType.lerpWithOverride(this.molangRuntime, posXPoint, easingType));
-            bone.setPosY(EasingType.lerpWithOverride(this.molangRuntime, posYPoint, easingType));
-            bone.setPosZ(EasingType.lerpWithOverride(this.molangRuntime, posZPoint, easingType));
+			bone.position.x = EasingType.lerpWithOverride(this.molangRuntime, posXPoint, easingType);
+			bone.position.y = EasingType.lerpWithOverride(this.molangRuntime, posYPoint, easingType);
+			bone.position.z = EasingType.lerpWithOverride(this.molangRuntime, posZPoint, easingType);
 
-            bone.setScaleX(EasingType.lerpWithOverride(this.molangRuntime, scaleXPoint, easingType));
-            bone.setScaleY(EasingType.lerpWithOverride(this.molangRuntime, scaleYPoint, easingType));
-            bone.setScaleZ(EasingType.lerpWithOverride(this.molangRuntime, scaleZPoint, easingType));
-
-            bone.setBend(EasingType.lerpWithOverride(this.molangRuntime, bendPoint, easingType));
+			bone.scale.x = EasingType.lerpWithOverride(this.molangRuntime, scaleXPoint, easingType);
+			bone.scale.y = EasingType.lerpWithOverride(this.molangRuntime, scaleYPoint, easingType);
+			bone.scale.z = EasingType.lerpWithOverride(this.molangRuntime, scaleZPoint, easingType);
         }
 
 		applyCustomPivotPoints();

@@ -30,15 +30,15 @@ public class PlayerCapeModelMixin implements IBoneUpdater {
         if (emote != null && emote.isActive()) {
             PlayerAnimBone bone = RenderUtil.copyVanillaPart(this.cape, new PlayerAnimBone("cape"));
 
-            bone.rotX -= MochaMath.PI;
-            bone.rotZ -= MochaMath.PI;
-            bone.rotX *= -1;
-            bone.rotY *= -1;
+            bone.rotation.x -= MochaMath.PI;
+            bone.rotation.z -= MochaMath.PI;
+            bone.rotation.x *= -1;
+            bone.rotation.y *= -1;
             emote.get3DTransform(bone);
-            bone.rotX *= -1;
-            bone.rotY *= -1;
-            bone.rotX += MochaMath.PI;
-            bone.rotZ += MochaMath.PI;
+            bone.rotation.x *= -1;
+            bone.rotation.y *= -1;
+            bone.rotation.x += MochaMath.PI;
+            bone.rotation.y += MochaMath.PI;
 
             this.pal$updatePart(emote, this.cape, bone);
         } else {

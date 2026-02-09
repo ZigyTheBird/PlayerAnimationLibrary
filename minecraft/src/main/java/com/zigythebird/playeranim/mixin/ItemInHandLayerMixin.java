@@ -64,7 +64,7 @@ public class ItemInHandLayerMixin {
             bone.setToInitialPose();
             anim.get3DTransform(bone);
 
-            matrices.translate(bone.getPosX()/16, -bone.getPosY()/16, bone.getPosZ()/16);
+            matrices.translate(bone.position.x/16, -bone.position.y/16, bone.position.z/16);
         }
         else active.set(false);
     }
@@ -77,16 +77,16 @@ public class ItemInHandLayerMixin {
             if (arm == HumanoidArm.LEFT) bone = playerAnimLib$leftItem;
             else bone = playerAnimLib$rightItem;
 
-            if (bone.getRotY() != 0)
-                poseStack.mulPose(Axis.ZP.rotation(-bone.getRotY()));
+            if (bone.rotation.z != 0)
+                poseStack.mulPose(Axis.ZP.rotation(-bone.rotation.y));
 
-            if (bone.getRotZ() != 0)
-                poseStack.mulPose(Axis.YP.rotation(-bone.getRotZ()));
+            if (bone.rotation.y != 0)
+                poseStack.mulPose(Axis.YP.rotation(-bone.rotation.z));
 
-            if (bone.getRotX() != 0)
-                poseStack.mulPose(Axis.XP.rotation(-bone.getRotX()));
+            if (bone.rotation.x != 0)
+                poseStack.mulPose(Axis.XP.rotation(-bone.rotation.x));
 
-            poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
+            poseStack.scale(bone.scale.x, bone.scale.y, bone.scale.z);
         }
     }
 }

@@ -10,65 +10,55 @@ import net.minecraft.client.model.geom.PartPose;
  */
 public final class RenderUtil {
 	public static void rotateMatrixAroundBone(PoseStack poseStack, PlayerAnimBone bone) {
-		rotateZYX(poseStack.last(), bone.getRotZ(), bone.getRotY(), bone.getRotX());
+		rotateZYX(poseStack.last(), bone.rotation.z, bone.rotation.y, bone.rotation.x);
 	}
 
 	/**
 	 * Here we do nothing with rotation because it is unnecessary.
 	 */
 	public static void translatePartToCape(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
-		part.x = bone.getPosX() + initialPose.x();
-		part.y = -(bone.getPosY() + initialPose.y());
-		part.z = bone.getPosZ() + initialPose.z();
+		part.x = bone.position.x + initialPose.x();
+		part.y = -(bone.position.y + initialPose.y());
+		part.z = bone.position.z + initialPose.z();
 
-		part.xRot = bone.getRotX();
-		part.yRot = bone.getRotY();
-		part.zRot = bone.getRotZ();
+		part.xRot = bone.rotation.x;
+		part.yRot = bone.rotation.y;
+		part.zRot = bone.rotation.z;
 
-		part.xScale = bone.getScaleX();
-		part.yScale = bone.getScaleY();
-		part.zScale = bone.getScaleZ();
+		part.xScale = bone.scale.x;
+		part.yScale = bone.scale.y;
+		part.zScale = bone.scale.z;
 	}
 
     /**
      * Initial pose only applied to yRot and position because that's all that's needed for vanilla parts.
      */
     public static void translatePartToBone(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
-        part.x = bone.getPosX() + initialPose.x();
-        part.y = -bone.getPosY() + initialPose.y();
-        part.z = bone.getPosZ() + initialPose.z();
+		part.x = bone.position.x + initialPose.x();
+		part.y = -(bone.position.y + initialPose.y());
+		part.z = bone.position.z + initialPose.z();
 
-        part.xRot = bone.getRotX();
-        part.yRot = bone.getRotY() + initialPose.yRot();
-        part.zRot = bone.getRotZ();
+		part.xRot = bone.rotation.x;
+		part.yRot = bone.rotation.y + initialPose.yRot();
+		part.zRot = bone.rotation.z;
 
-        part.xScale = bone.getScaleX();
-        part.yScale = bone.getScaleY();
-        part.zScale = bone.getScaleZ();
+		part.xScale = bone.scale.x;
+		part.yScale = bone.scale.y;
+		part.zScale = bone.scale.z;
     }
 
 	public static void translateMatrixToBone(PoseStack poseStack, PlayerAnimBone bone) {
-		poseStack.translate(bone.getPosX() / 16, bone.getPosY() / 16, bone.getPosZ() / 16);
+		poseStack.translate(bone.position.x / 16, bone.position.y / 16, bone.position.z / 16);
 		RenderUtil.rotateMatrixAroundBone(poseStack, bone);
-		poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
+		poseStack.scale(bone.scale.x, bone.scale.y, bone.scale.z);
 	}
 
 	public static PlayerAnimBone copyVanillaPart(ModelPart part, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 
-		bone.setPosX(part.x - initialPose.x());
-		bone.setPosY(-(part.y - initialPose.y()));
-		bone.setPosZ(part.z - initialPose.z());
-
-		bone.setRotX(part.xRot);
-		bone.setRotY(part.yRot);
-		bone.setRotZ(part.zRot);
-
-		bone.setScaleX(part.xScale);
-		bone.setScaleY(part.yScale);
-		bone.setScaleZ(part.zScale);
-
-		bone.setBend(0);
+		bone.position.set(part.x - initialPose.x(), -(part.y - initialPose.y()), part.z - initialPose.z());
+		bone.rotation.set(part.xRot, part.yRot, part.zRot);
+		bone.scale.set(part.xScale, part.yScale, part.zScale);
 
         return bone;
     }
