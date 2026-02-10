@@ -10,10 +10,10 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyf
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
-import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.util.ParticleEffectUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 import team.unnamed.mocha.runtime.standard.MochaMath;
@@ -194,12 +194,12 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         boolean isCape = boneName.equals("cape");
         boolean isBody = boneName.equals("body");
         fillKeyframeStack(bone.positionKeyFrames(), getDefaultValues(boneName), isBody ? TransformType.POSITION : null, "x", "y", "z", partNode, degrees, tick, easing, turn, isItem, isCape, isBody);
-        fillKeyframeStack(bone.rotationKeyFrames(), Vec3f.ZERO, TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, isItem, isCape, isBody);
-        fillKeyframeStack(bone.scaleKeyFrames(), Vec3f.ZERO, TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false, false, false);
+        fillKeyframeStack(bone.rotationKeyFrames(), new Vector3f(), TransformType.ROTATION, "pitch", "yaw", "roll", partNode, degrees, tick, easing, turn, isItem, isCape, isBody);
+        fillKeyframeStack(bone.scaleKeyFrames(), new Vector3f(), TransformType.SCALE, "scaleX", "scaleY", "scaleZ", partNode, degrees, tick, easing, turn, false, false, false);
         addPartIfExists(Keyframe.getLastKeyframeTime(bone.bendKeyFrames()), bone.bendKeyFrames(), 0, TransformType.BEND, "bend", partNode, degrees, tick, easing, turn, false);
     }
 
-    private void fillKeyframeStack(KeyframeStack stack, Vec3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn, boolean isItem, boolean isCape, boolean isBody) {
+    private void fillKeyframeStack(KeyframeStack stack, Vector3f def, TransformType transformType, String x, String y, @Nullable String z, JsonObject node, boolean degrees, float tick, EasingType easing, int turn, boolean isItem, boolean isCape, boolean isBody) {
         addPartIfExists(stack.getLastXAxisKeyframeTime(), stack.xKeyframes(), def.x(), transformType, x, node, degrees, tick, easing, turn, isItem || isCape || isBody);
         addPartIfExists(stack.getLastYAxisKeyframeTime(), stack.yKeyframes(), def.y(), transformType, y, node, degrees, tick, easing, turn, isItem || transformType == null || (isBody && transformType == TransformType.ROTATION));
         addPartIfExists(stack.getLastZAxisKeyframeTime(), stack.zKeyframes(), def.z(), transformType, z, node, degrees, tick, easing, turn, (isItem && transformType == TransformType.ROTATION) || isCape);
@@ -239,14 +239,14 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return easingType;
     }
 
-    private static final Map<String, Vec3f> DEFAULT_VALUES = Map.of(
-            "right_arm", new Vec3f(-5, 2, 0),
-            "left_arm", new Vec3f(5, 2, 0),
-            "left_leg", new Vec3f(1.9f, 12, 0.1f),
-            "right_leg", new Vec3f(-1.9f, 12, 0.1f)
+    private static final Map<String, Vector3f> DEFAULT_VALUES = Map.of(
+            "right_arm", new Vector3f(-5, 2, 0),
+            "left_arm", new Vector3f(5, 2, 0),
+            "left_leg", new Vector3f(1.9f, 12, 0.1f),
+            "right_leg", new Vector3f(-1.9f, 12, 0.1f)
     );
 
-    public static Vec3f getDefaultValues(String bone) {
-        return DEFAULT_VALUES.getOrDefault(bone, Vec3f.ZERO);
+    public static Vector3f getDefaultValues(String bone) {
+        return new Vector3f(DEFAULT_VALUES.getOrDefault(bone, new Vector3f()));
     }
 }

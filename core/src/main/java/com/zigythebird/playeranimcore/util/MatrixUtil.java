@@ -1,8 +1,6 @@
 package com.zigythebird.playeranimcore.util;
 
-import com.zigythebird.playeranimcore.bones.PivotBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
-import com.zigythebird.playeranimcore.math.Vec3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -26,15 +24,15 @@ public class MatrixUtil {
         matrix.scale(bone.scale.x, bone.scale.y, bone.scale.z);
     }
 
-    public static void translateToPivotPoint(Matrix4f matrix, Vec3f pivot) {
+    public static void translateToPivotPoint(Matrix4f matrix, Vector3f pivot) {
         matrix.translate(pivot.x(), pivot.y(), pivot.z());
     }
 
-    public static void translateAwayFromPivotPoint(Matrix4f matrix, Vec3f pivot) {
+    public static void translateAwayFromPivotPoint(Matrix4f matrix, Vector3f pivot) {
         matrix.translate(-pivot.x(), -pivot.y(), -pivot.z());
     }
 
-    public static void prepMatrixForBone(Matrix4f matrix, PlayerAnimBone bone, Vec3f pivot) {
+    public static void prepMatrixForBone(Matrix4f matrix, PlayerAnimBone bone, Vector3f pivot) {
         translateToPivotPoint(matrix, pivot);
         translateMatrixForBone(matrix, bone);
         rotateMatrixAroundBone(matrix, bone);
@@ -42,15 +40,14 @@ public class MatrixUtil {
         translateAwayFromPivotPoint(matrix, pivot);
     }
 
-    public static void applyParentsToChild(PlayerAnimBone child, Iterable<? extends PlayerAnimBone> parents, Function<String, Vec3f> positions) {
+    public static void applyParentsToChild(PlayerAnimBone child, Iterable<? extends PlayerAnimBone> parents) {
         Matrix4f matrix = new Matrix4f();
 
         for (PlayerAnimBone parent : parents) {
-            Vec3f pivot = parent instanceof PivotBone pivotBone ? pivotBone.getPivot() : positions.apply(parent.getName());
-            MatrixUtil.prepMatrixForBone(matrix, parent, pivot);
+            MatrixUtil.prepMatrixForBone(matrix, parent, parent.getPivot());
         }
 
-        Vec3f defaultPos = positions.apply(child.getName());
+        Vector3f defaultPos = child.getPivot();
         matrix.translate(defaultPos.x(), defaultPos.y(), defaultPos.z());
         MatrixUtil.rotateMatrixAroundBone(matrix, child);
 

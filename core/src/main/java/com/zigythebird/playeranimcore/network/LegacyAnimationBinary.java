@@ -32,8 +32,8 @@ import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
-import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
+import org.joml.Vector3f;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -120,7 +120,7 @@ public final class LegacyAnimationBinary {
             }
             return;
         }
-        Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
+        Vector3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isItem = ITEM_BONE.test(name);
         boolean isBody = name.equals("body");
         boolean isCape = name.equals("cape");
@@ -270,7 +270,7 @@ public final class LegacyAnimationBinary {
     }
 
     private static BoneAnimation readPart(ByteBuf buf, String name, BoneAnimation part, int version, int keyframeSize, boolean easeBefore) {
-        Vec3f def = PlayerAnimatorLoader.getDefaultValues(name);
+        Vector3f def = PlayerAnimatorLoader.getDefaultValues(name);
         boolean isBody = name.equals("body");
         boolean isItem = ITEM_BONE.test(name);
         boolean isCape = name.equals("cape");

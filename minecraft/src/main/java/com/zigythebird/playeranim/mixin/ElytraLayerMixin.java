@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,8 +31,8 @@ public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends 
             if (emote != null && emote.isActive() && this.renderer instanceof AvatarRenderer<?> playerRenderer) {
                 playerRenderer.getModel().body.translateAndRotate(poseStack);
                 poseStack.translate(0, 0, 0.125);
-                PlayerAnimBone bone = emote.get3DTransform("elytra");
-                bone.applyOtherBone(emote.get3DTransform("cape"));
+                PlayerAnimBone bone = emote.get3DTransform("elytra", new Vector3f(0, 24, 2)); // TODO
+                bone.applyOtherBone(emote.get3DTransform("cape", new Vector3f(0, 24, 2)));
                 bone.position.y *= -1;
                 RenderUtil.translateMatrixToBone(poseStack, bone);
                 poseStack.translate(0, 0, -0.125);

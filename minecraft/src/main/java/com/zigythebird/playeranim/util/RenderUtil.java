@@ -56,6 +56,7 @@ public final class RenderUtil {
 	public static PlayerAnimBone copyVanillaPart(ModelPart part, PlayerAnimBone bone) {
 		PartPose initialPose = part.getInitialPose();
 
+		bone.pivot.set(initialPose.x(), initialPose.y(), initialPose.z());
 		bone.position.set(part.x - initialPose.x(), -(part.y - initialPose.y()), part.z - initialPose.z());
 		bone.rotation.set(part.xRot, part.yRot, part.zRot);
 		bone.scale.set(part.xScale, part.yScale, part.zScale);

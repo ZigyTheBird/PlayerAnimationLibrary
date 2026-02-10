@@ -1,6 +1,5 @@
 package com.zigythebird.playeranimcore.math;
 
-import org.joml.Vector3f;
 import team.unnamed.mocha.runtime.standard.MochaMath;
 
 /**
@@ -32,9 +31,5 @@ public class MathHelper {
     
     public static float length(float x, float y, float z, float w) {
         return MochaMath.sqrt(Math.fma(x, x, Math.fma(y, y, Math.fma(z, z, w * w))));
-    }
-
-    public static Vec3f vector3fToVec3f(Vector3f vector3f) {
-        return new Vec3f(vector3f.x, vector3f.y, vector3f.z);
     }
 }

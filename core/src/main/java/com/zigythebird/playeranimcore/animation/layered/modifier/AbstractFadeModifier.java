@@ -89,7 +89,7 @@ public abstract class AbstractFadeModifier extends AbstractModifier {
             super.get3DTransform(bone);
             return;
         }
-        PlayerAnimBone copy2 = new PlayerAnimBone(bone.getName());
+        PlayerAnimBone copy2 = new PlayerAnimBone(bone.getName(), bone.getPivot());
         copy2.copyOtherBone(bone);
         super.get3DTransform(copy2);
         float a = getAlpha(copy2.getName(), calculateProgress(tickDelta, bone.getName()));

@@ -27,10 +27,9 @@ package com.zigythebird.playeranimcore.animation.layered.modifier;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.animation.AnimationData;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
-import com.zigythebird.playeranimcore.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -77,21 +76,6 @@ import java.util.function.Function;
  * </pre>
  */
 public class AdjustmentModifier extends AbstractModifier {
-    //TODO Maybe we can replace this with something that uses Vector3f
-    public record PartModifier(Vec3f rotation, Vec3f scale, Vec3f offset) {
-        public PartModifier(Vec3f rotation, Vec3f offset) {
-            this(rotation, Vec3f.ZERO, offset);
-        }
-
-        @Override
-            public String toString() {
-                return "PartModifier[" +
-                        "rotation=" + rotation + ", " +
-                        "scale=" + scale + ", " +
-                        "offset=" + offset + ']';
-        }
-    }
-
     /// Whether the adjustment should be increasingly applied
     /// between animation start and animation beginTick
     public boolean fadeIn = true;
@@ -102,13 +86,13 @@ public class AdjustmentModifier extends AbstractModifier {
     public boolean enabled = true;
     private AnimationData data;
 
-    protected BiFunction<String, AnimationData, Optional<PartModifier>> source;
+    protected BiFunction<String, AnimationData, Optional<PlayerAnimBone>> source;
 
-    public AdjustmentModifier(Function<String, Optional<PartModifier>> source) {
+    public AdjustmentModifier(Function<String, Optional<PlayerAnimBone>> source) {
         this((name, data) -> source.apply(name));
     }
 
-    public AdjustmentModifier(BiFunction<String, AnimationData, Optional<PartModifier>> source) {
+    public AdjustmentModifier(BiFunction<String, AnimationData, Optional<PlayerAnimBone>> source) {
         this.source = source;
     }
 
@@ -177,7 +161,7 @@ public class AdjustmentModifier extends AbstractModifier {
             return;
         }
 
-        Optional<PartModifier> partModifier = source.apply(bone.getName(), data);
+        Optional<PlayerAnimBone> partModifier = source.apply(bone.getName(), data);
 
         float fade = getFadeIn() * getFadeOut(data.getPartialTick());
         if (partModifier.isPresent()) {
@@ -188,10 +172,10 @@ public class AdjustmentModifier extends AbstractModifier {
         super.get3DTransform(bone);
     }
 
-    protected void transformBone(PlayerAnimBone bone, PartModifier partModifier, float fade) {
-        Vec3f pos = partModifier.offset().mul(fade);
-        Vec3f rot = partModifier.rotation().mul(fade);
-        Vec3f scale = partModifier.scale().mul(fade);
+    protected void transformBone(PlayerAnimBone bone, PlayerAnimBone partModifier, float fade) {
+        Vector3f pos = partModifier.position.mul(fade, new Vector3f());
+        Vector3f rot = partModifier.rotation.mul(fade, new Vector3f());
+        Vector3f scale = partModifier.scale.mul(fade, new Vector3f());
         bone.position.add(pos.x(), pos.y(), pos.z());
         bone.rotation.add(rot.x(), rot.y(), rot.z());
         bone.scale.add(scale.x(), scale.y(), scale.z());

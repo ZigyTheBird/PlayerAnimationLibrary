@@ -40,6 +40,7 @@ import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -51,17 +52,17 @@ import java.util.function.Function;
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
 public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> implements IBoneUpdater {
     @Unique
-    private final PlayerAnimBone pal$head = new PlayerAnimBone("head");
+    private final PlayerAnimBone pal$head = new PlayerAnimBone("head", new Vector3f());
     @Unique
-    private final PlayerAnimBone pal$torso = new PlayerAnimBone("torso");
+    private final PlayerAnimBone pal$torso = new PlayerAnimBone("torso", new Vector3f());
     @Unique
-    private final PlayerAnimBone pal$rightArm = new PlayerAnimBone("right_arm");
+    private final PlayerAnimBone pal$rightArm = new PlayerAnimBone("right_arm", new Vector3f());
     @Unique
-    private final PlayerAnimBone pal$leftArm = new PlayerAnimBone("left_arm");
+    private final PlayerAnimBone pal$leftArm = new PlayerAnimBone("left_arm", new Vector3f());
     @Unique
-    private final PlayerAnimBone pal$rightLeg = new PlayerAnimBone("right_leg");
+    private final PlayerAnimBone pal$rightLeg = new PlayerAnimBone("right_leg", new Vector3f());
     @Unique
-    private final PlayerAnimBone pal$leftLeg = new PlayerAnimBone("left_leg");
+    private final PlayerAnimBone pal$leftLeg = new PlayerAnimBone("left_leg", new Vector3f());
 
     public PlayerModelMixin(ModelPart root, Function<Identifier, RenderType> renderType) {
         super(root, renderType);

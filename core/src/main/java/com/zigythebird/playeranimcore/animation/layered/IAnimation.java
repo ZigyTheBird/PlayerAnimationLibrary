@@ -29,6 +29,7 @@ import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 public interface IAnimation {
     FirstPersonConfiguration DEFAULT_FIRST_PERSON_CONFIG = new FirstPersonConfiguration();
@@ -60,8 +61,8 @@ public interface IAnimation {
      */
     void get3DTransform(@NotNull PlayerAnimBone bone);
 
-    default PlayerAnimBone get3DTransform(@NotNull String name) {
-        PlayerAnimBone bone = new PlayerAnimBone(name);
+    default PlayerAnimBone get3DTransform(@NotNull String name, @NotNull Vector3f pivot) {
+        PlayerAnimBone bone = new PlayerAnimBone(name, pivot);
         get3DTransform(bone);
         return bone;
     }

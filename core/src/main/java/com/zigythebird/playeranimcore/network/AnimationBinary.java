@@ -11,10 +11,9 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
-import com.zigythebird.playeranimcore.loading.AnimationLoader;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
-import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
+import org.joml.Vector3f;
 import team.unnamed.mocha.parser.ast.Expression;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 import team.unnamed.mocha.runtime.IsConstantExpression;
@@ -198,7 +197,7 @@ public final class AnimationBinary {
         }
         Animation.Keyframes keyFrames = new Animation.Keyframes(sounds, particles, customInstructions);
 
-        Map<String, Vec3f> pivotBones = NetworkUtils.readMap(buf, ProtocolUtils::readString, NetworkUtils::readVec3f);
+        Map<String, Vector3f> pivotBones = NetworkUtils.readMap(buf, ProtocolUtils::readString, NetworkUtils::readVec3f);
         Map<String, String> parents = NetworkUtils.readMap(buf, ProtocolUtils::readString, ProtocolUtils::readString);
 
         return new Animation(data, length, loopType, boneAnimations, keyFrames, pivotBones, parents);

@@ -1,12 +1,11 @@
 package com.zigythebird.playeranimcore.animation.layered;
 
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
-import com.zigythebird.playeranimcore.bones.ToggleablePlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public record AnimationSnapshot(Map<String, ToggleablePlayerAnimBone> snapshots) implements IAnimation {
+public record AnimationSnapshot(Map<String, PlayerAnimBone> snapshots) implements IAnimation {
     @Override
     public boolean isActive() {
         return true;

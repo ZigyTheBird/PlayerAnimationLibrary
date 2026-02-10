@@ -32,6 +32,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -48,7 +49,7 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState> {
                 poseStack.scale(-1.0F, -1.0F, 1.0F);
 
                 //These are additive properties
-                PlayerAnimBone body = animationPlayer.get3DTransform("body");
+                PlayerAnimBone body = animationPlayer.get3DTransform("body", new Vector3f(0, 12, 0)); // TODO where
 
                 poseStack.translate(-body.position.x/16, body.position.y/16 + 0.75, body.position.z/16);
                 body.rotation.x *= -1;
