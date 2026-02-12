@@ -1,9 +1,6 @@
 package com.zigythebird.playeranimcore.bones;
 
-import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.enums.TransformType;
 import com.zigythebird.playeranimcore.math.ExtendedVector3f;
-import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3f;
 
 /**
@@ -75,13 +72,6 @@ public class PlayerAnimBone {
 		this.rotation.copyOtherIfNotDisabled(bone.rotation);
 		this.scale.copyOtherIfNotDisabled(bone.scale);
 		return this;
-	}
-
-	@ApiStatus.Internal
-	public void beginOrEndTickLerp(PlayerAnimBone bone, float animTime, Animation animation) {
-		this.position.beginOrEndTickLerp(getName(), bone.position, animTime, animation, TransformType.POSITION);
-		this.rotation.beginOrEndTickLerp(getName(), bone.rotation, animTime, animation, TransformType.ROTATION);
-		this.scale.beginOrEndTickLerp(getName(), bone.scale, animTime, animation, TransformType.SCALE);
 	}
 
 	public void setEnabled(boolean enabled) {
