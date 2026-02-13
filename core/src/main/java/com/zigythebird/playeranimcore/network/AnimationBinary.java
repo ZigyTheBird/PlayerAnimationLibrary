@@ -11,7 +11,6 @@ import com.zigythebird.playeranimcore.animation.keyframe.event.data.SoundKeyfram
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.AnimationFormat;
 import com.zigythebird.playeranimcore.enums.TransformType;
-import com.zigythebird.playeranimcore.loading.AnimationLoader;
 import com.zigythebird.playeranimcore.loading.PlayerAnimatorLoader;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
@@ -28,7 +27,6 @@ import java.util.Map;
 
 import static com.zigythebird.playeranimcore.molang.MolangLoader.MOCHA_ENGINE;
 
-@SuppressWarnings("unused")
 public final class AnimationBinary {
     /**
      * Version 1: Initial Release
@@ -36,8 +34,9 @@ public final class AnimationBinary {
      * Version 3: No change client side, but the server won't send some animations to versions lower than 3 due to the possibility of a crash.
      * Version 4: Fixed some issues with the body bone.
      * Version 5: Fixed the Y position axis on items being negated.
+     * Version 6: Compact binary format - bit-packed header, presence flags for bone axes, compact keyframe encoding.
      */
-    public static final int CURRENT_VERSION = 5;
+    public static final int CURRENT_VERSION = 6;
 
     public static void write(ByteBuf buf, Animation animation) {
         AnimationBinary.write(buf, CURRENT_VERSION, animation);
@@ -45,34 +44,44 @@ public final class AnimationBinary {
 
     public static void write(ByteBuf buf, int version, Animation animation) {
         Map<String, Object> data = animation.data().data();
-        boolean applyBendToOtherBones = (boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, false);
-        if (version < 3 && applyBendToOtherBones && animation.boneAnimations().containsKey("torso")
-                && !animation.boneAnimations().get("torso").bendKeyFrames().isEmpty()) {
-            applyBendToOtherBones = false;
-        }
-        buf.writeFloat(animation.length());
-        boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(null, animation);
-        buf.writeBoolean(shouldPlayAgain);
-        if (shouldPlayAgain) {
-            if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
-                buf.writeBoolean(true);
-            } else {
-                buf.writeBoolean(false);
-                buf.writeFloat(animation.loopType().restartFromTick(null, animation));
+
+        if (version >= 6) {
+            AnimationBinaryV6.writeHeader(buf, animation, data);
+        } else {
+            boolean applyBendToOtherBones = (boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, false);
+            if (version < 3 && applyBendToOtherBones && animation.boneAnimations().containsKey("torso")
+                    && !animation.boneAnimations().get("torso").bendKeyFrames().isEmpty()) {
+                applyBendToOtherBones = false;
             }
+            buf.writeFloat(animation.length());
+            boolean shouldPlayAgain = animation.loopType().shouldPlayAgain(null, animation);
+            buf.writeBoolean(shouldPlayAgain);
+            if (shouldPlayAgain) {
+                if (animation.loopType() == Animation.LoopType.HOLD_ON_LAST_FRAME) {
+                    buf.writeBoolean(true);
+                } else {
+                    buf.writeBoolean(false);
+                    buf.writeFloat(animation.loopType().restartFromTick(null, animation));
+                }
+            }
+            buf.writeByte(((AnimationFormat) data.getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB)).id);
+            buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.BEGIN_TICK_KEY, Float.NaN));
+            buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.END_TICK_KEY, Float.NaN));
+            if (version > 1) {
+                buf.writeBoolean(applyBendToOtherBones);
+                buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.EASING_BEFORE_KEY, true));
+            }
+            NetworkUtils.writeUuid(buf, animation.uuid());
         }
-        buf.writeByte(((AnimationFormat)data.getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB)).id);
-        buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.BEGIN_TICK_KEY, Float.NaN));
-        buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.END_TICK_KEY, Float.NaN));
-        if (version > 1) {
-            buf.writeBoolean(applyBendToOtherBones);
-            buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.EASING_BEFORE_KEY, true));
-        }
-        NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
+
         VarIntUtils.writeVarInt(buf, animation.boneAnimations().size());
         for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
             ProtocolUtils.writeString(buf, entry.getKey());
-            writeBoneAnimation(buf, entry.getValue(), version < 4 && entry.getKey().equals("body"), version < 5 && LegacyAnimationBinary.ITEM_BONE.test(entry.getKey()));
+            if (version >= 6) {
+                AnimationBinaryV6.writeBoneAnimation(buf, entry.getValue());
+            } else {
+                writeBoneAnimation(buf, entry.getValue(), version < 4 && entry.getKey().equals("body"), version < 5 && LegacyAnimationBinary.ITEM_BONE.test(entry.getKey()));
+            }
         }
 
         // Sounds
@@ -127,45 +136,63 @@ public final class AnimationBinary {
     }
 
     public static Animation read(ByteBuf buf, int version) {
-        float length = buf.readFloat();
-        Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
-        if (buf.readBoolean()) {
-            if (buf.readBoolean()) loopType = Animation.LoopType.HOLD_ON_LAST_FRAME;
-            else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
-        }
         ExtraAnimationData data = new ExtraAnimationData();
-        AnimationFormat format = AnimationFormat.fromId(buf.readByte());
-        data.put(ExtraAnimationData.FORMAT_KEY, format);
-        float beginTick = buf.readFloat();
-        float endTick = buf.readFloat();
-        if (!Float.isNaN(beginTick))
-            data.put(ExtraAnimationData.BEGIN_TICK_KEY, beginTick);
-        if (!Float.isNaN(endTick))
-            data.put(ExtraAnimationData.END_TICK_KEY, endTick);
-        if (version > 1) {
-            boolean applyBendToOtherBones = buf.readBoolean();
-            boolean easeBefore = buf.readBoolean();
-            if (applyBendToOtherBones)
-                data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
-            if (!easeBefore)
-                data.put(ExtraAnimationData.EASING_BEFORE_KEY, false);
-        } else data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
+        float length;
+        Animation.LoopType loopType;
+        AnimationFormat format;
 
-        data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
-        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, format == AnimationFormat.PLAYER_ANIMATOR));
+        if (version >= 6) {
+            AnimationBinaryV6.HeaderResult header = AnimationBinaryV6.readHeader(buf, data);
+            length = header.length();
+            loopType = header.loopType();
+            format = header.format();
+        } else {
+            length = buf.readFloat();
+            loopType = Animation.LoopType.PLAY_ONCE;
+            if (buf.readBoolean()) {
+                if (buf.readBoolean()) loopType = Animation.LoopType.HOLD_ON_LAST_FRAME;
+                else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
+            }
+            format = AnimationFormat.fromId(buf.readByte());
+            data.put(ExtraAnimationData.FORMAT_KEY, format);
+            float beginTick = buf.readFloat();
+            float endTick = buf.readFloat();
+            if (!Float.isNaN(beginTick))
+                data.put(ExtraAnimationData.BEGIN_TICK_KEY, beginTick);
+            if (!Float.isNaN(endTick))
+                data.put(ExtraAnimationData.END_TICK_KEY, endTick);
+            if (version > 1) {
+                boolean applyBendToOtherBones = buf.readBoolean();
+                boolean easeBefore = buf.readBoolean();
+                if (applyBendToOtherBones)
+                    data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
+                if (!easeBefore)
+                    data.put(ExtraAnimationData.EASING_BEFORE_KEY, false);
+            } else data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
 
-        if (version < 4 && boneAnimations.containsKey("body")) {
-            BoneAnimation body = boneAnimations.get("body");
-            body.positionKeyFrames().xKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
-            body.rotationKeyFrames().xKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
-            body.rotationKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf));
         }
 
-        if (version < 5) {
-            if (boneAnimations.containsKey("right_item"))
-                boneAnimations.get("right_item").positionKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
-            if (boneAnimations.containsKey("left_item"))
-                boneAnimations.get("left_item").positionKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+        boolean isPlayerAnimator = format == AnimationFormat.PLAYER_ANIMATOR;
+        Map<String, BoneAnimation> boneAnimations;
+        if (version >= 6) {
+            boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> AnimationBinaryV6.readBoneAnimation(buf1, isPlayerAnimator));
+        } else {
+            boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, isPlayerAnimator));
+
+            if (version < 4 && boneAnimations.containsKey("body")) {
+                BoneAnimation body = boneAnimations.get("body");
+                body.positionKeyFrames().xKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+                body.rotationKeyFrames().xKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+                body.rotationKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            }
+
+            if (version < 5) {
+                if (boneAnimations.containsKey("right_item"))
+                    boneAnimations.get("right_item").positionKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+                if (boneAnimations.containsKey("left_item"))
+                    boneAnimations.get("left_item").positionKeyFrames().yKeyframes().replaceAll(AnimationBinary::negateKeyframeExpressions);
+            }
         }
 
         // Sounds
