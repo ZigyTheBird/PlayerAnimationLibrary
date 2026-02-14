@@ -1,38 +1,44 @@
 package com.zigythebird.playeranimcore.network;
 
-import com.zigythebird.playeranimcore.easing.EasingType;
-
 enum KeyframeFlag {
-    IS_CONSTANT,
-    HAS_EASING_ARGS,
-    LENGTH_ZERO,
-    LENGTH_ONE;
+    IS_CONSTANT(6),
+    HAS_EASING_ARGS(6),
+    LENGTH_ZERO(6),
+    LENGTH_ONE(6);
 
-    static final int EASING_BITS = 6;
-    static final int EASING_MASK = (1 << EASING_BITS) - 1;
-
+    final int sinceVersion;
     final int mask = 1 << ordinal();
 
-    static int pack(int easingId, int flags) {
-        return (flags << EASING_BITS) | easingId;
+    KeyframeFlag(int sinceVersion) {
+        this.sinceVersion = sinceVersion;
     }
 
-    static int unpackEasing(int combined) {
-        return combined & EASING_MASK;
+    static int flagBitsForVersion(int version) {
+        int bits = 0;
+        for (KeyframeFlag flag : values()) {
+            if (flag.sinceVersion <= version) bits = flag.ordinal() + 1;
+        }
+        return bits;
     }
 
-    static int unpackFlags(int combined) {
-        return combined >>> EASING_BITS;
+    static int pack(int easingId, int flags, int version) {
+        return (easingId << flagBitsForVersion(version)) | flags;
+    }
+
+    static int unpackEasing(int combined, int version) {
+        return combined >>> flagBitsForVersion(version);
+    }
+
+    static int unpackFlags(int combined, int version) {
+        return combined & ((1 << flagBitsForVersion(version)) - 1);
     }
 
     static {
-        for (EasingType type : EasingType.values()) {
-            if (type.id < 0 || type.id > EASING_MASK)
-                throw new AssertionError("EasingType." + type.name() + " id " + type.id + " exceeds " + EASING_BITS + "-bit limit (" + EASING_MASK + ")");
-        }
+        int lastVersion = 0;
         for (KeyframeFlag flag : values()) {
-            if (flag.ordinal() + EASING_BITS >= Integer.SIZE)
-                throw new AssertionError("KeyframeFlag." + flag.name() + " ordinal " + flag.ordinal() + " would overflow int with EASING_BITS=" + EASING_BITS);
+            if (flag.sinceVersion < lastVersion)
+                throw new AssertionError("KeyframeFlag." + flag.name() + " sinceVersion " + flag.sinceVersion + " is less than previous " + lastVersion + ". Flags must be ordered by version.");
+            lastVersion = flag.sinceVersion;
         }
     }
 }

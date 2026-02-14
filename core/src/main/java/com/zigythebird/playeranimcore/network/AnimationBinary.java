@@ -80,7 +80,7 @@ public final class AnimationBinary {
         for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
             ProtocolUtils.writeString(buf, entry.getKey());
             if (version >= 6) {
-                writeBoneAnimationV6(buf, entry.getValue());
+                writeBoneAnimationV6(buf, entry.getValue(), version);
             } else {
                 writeBoneAnimation(buf, entry.getValue(), version < 4 && entry.getKey().equals("body"), version < 5 && LegacyAnimationBinary.ITEM_BONE.test(entry.getKey()));
             }
@@ -199,7 +199,7 @@ public final class AnimationBinary {
         boolean isPlayerAnimator = format == AnimationFormat.PLAYER_ANIMATOR;
         Map<String, BoneAnimation> boneAnimations;
         if (version >= 6) {
-            boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimationV6(buf1, isPlayerAnimator));
+            boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimationV6(buf1, isPlayerAnimator, version));
         } else {
             boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, isPlayerAnimator));
 
@@ -317,7 +317,7 @@ public final class AnimationBinary {
         NetworkUtils.writeUuid(buf, animation.uuid());
     }
 
-    private static void writeBoneAnimationV6(ByteBuf buf, BoneAnimation bone) {
+    private static void writeBoneAnimationV6(ByteBuf buf, BoneAnimation bone, int version) {
         int presenceFlags = 0;
         for (BoneChannel ch : BoneChannel.VALUES) {
             if (!ch.getKeyframes(bone).isEmpty()) {
@@ -327,18 +327,18 @@ public final class AnimationBinary {
         VarIntUtils.writeVarInt(buf, presenceFlags);
         for (BoneChannel ch : BoneChannel.VALUES) {
             if ((presenceFlags & ch.mask) != 0) {
-                writeKeyframeListV6(buf, ch.getKeyframes(bone));
+                writeKeyframeListV6(buf, ch.getKeyframes(bone), version);
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static BoneAnimation readBoneAnimationV6(ByteBuf buf, boolean shouldStartFromDefault) {
+    private static BoneAnimation readBoneAnimationV6(ByteBuf buf, boolean shouldStartFromDefault, int version) {
         int presenceFlags = VarIntUtils.readVarInt(buf);
         List<Keyframe>[] lists = new List[BoneChannel.VALUES.length];
         for (BoneChannel ch : BoneChannel.VALUES) {
             lists[ch.ordinal()] = (presenceFlags & ch.mask) != 0
-                    ? readKeyframeListV6(buf, shouldStartFromDefault, ch.isScale)
+                    ? readKeyframeListV6(buf, shouldStartFromDefault, ch.isScale, version)
                     : new ArrayList<>(0);
         }
         return new BoneAnimation(
@@ -349,14 +349,14 @@ public final class AnimationBinary {
         );
     }
 
-    private static void writeKeyframeListV6(ByteBuf buf, List<Keyframe> keyframes) {
+    private static void writeKeyframeListV6(ByteBuf buf, List<Keyframe> keyframes, int version) {
         VarIntUtils.writeVarInt(buf, keyframes.size());
         for (Keyframe keyframe : keyframes) {
-            writeKeyframeV6(keyframe, buf);
+            writeKeyframeV6(keyframe, buf, version);
         }
     }
 
-    private static void writeKeyframeV6(Keyframe keyframe, ByteBuf buf) {
+    private static void writeKeyframeV6(Keyframe keyframe, ByteBuf buf, int version) {
         List<Expression> endValue = keyframe.endValue();
         boolean isConstant = endValue.size() == 1 && IsConstantExpression.test(endValue.getFirst());
         boolean hasEasingArgs = false;
@@ -372,7 +372,7 @@ public final class AnimationBinary {
         if (hasEasingArgs) flags |= KeyframeFlag.HAS_EASING_ARGS.mask;
         if (keyframe.length() == 0.0f) flags |= KeyframeFlag.LENGTH_ZERO.mask;
         else if (keyframe.length() == 1.0f) flags |= KeyframeFlag.LENGTH_ONE.mask;
-        VarIntUtils.writeVarInt(buf, KeyframeFlag.pack(keyframe.easingType().id, flags));
+        VarIntUtils.writeVarInt(buf, KeyframeFlag.pack(keyframe.easingType().id, flags, version));
 
         if (isConstant) {
             buf.writeFloat(MOCHA_ENGINE.eval(endValue));
@@ -389,14 +389,14 @@ public final class AnimationBinary {
         }
     }
 
-    private static List<Keyframe> readKeyframeListV6(ByteBuf buf, boolean shouldStartFromDefault, boolean isScale) {
+    private static List<Keyframe> readKeyframeListV6(ByteBuf buf, boolean shouldStartFromDefault, boolean isScale, int version) {
         int count = VarIntUtils.readVarInt(buf);
         List<Keyframe> list = new ArrayList<>(count);
 
         for (int i = 0; i < count; i++) {
             int combined = VarIntUtils.readVarInt(buf);
-            int easingId = KeyframeFlag.unpackEasing(combined);
-            int flags = KeyframeFlag.unpackFlags(combined);
+            int easingId = KeyframeFlag.unpackEasing(combined, version);
+            int flags = KeyframeFlag.unpackFlags(combined, version);
             boolean isConstant = (flags & KeyframeFlag.IS_CONSTANT.mask) != 0;
             boolean hasEasingArgs = (flags & KeyframeFlag.HAS_EASING_ARGS.mask) != 0;
 
