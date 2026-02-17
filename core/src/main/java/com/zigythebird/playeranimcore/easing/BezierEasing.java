@@ -1,6 +1,5 @@
 package com.zigythebird.playeranimcore.easing;
 
-import com.zigythebird.playeranimcore.animation.keyframe.AnimationPoint;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -20,10 +19,12 @@ abstract class BezierEasing implements EasingTypeTransformer {
     abstract boolean isEasingBefore();
 
     @Override
-    public float apply(MochaEngine<?> env, AnimationPoint animationPoint, @Nullable Float easingValue, float lerpValue) {
-        List<List<Expression>> easingArgs = animationPoint.easingArgs();
-        if (easingArgs.isEmpty())
-            return MochaMath.lerp(animationPoint.animationStartValue(), animationPoint.animationEndValue(), buildTransformer(easingValue).apply(lerpValue));
+    public float apply(MochaEngine<?> env, float startValue, float endValue, float transitionLength, float lerpValue, @Nullable List<List<Expression>> easingArgs) {
+        if (lerpValue >= 1) return endValue;
+        if (Float.isNaN(lerpValue)) return startValue;
+
+        if (easingArgs == null || easingArgs.isEmpty())
+            return MochaMath.lerp(startValue, endValue, buildTransformer(null).apply(lerpValue));
 
         float rightValue = isEasingBefore() ? 0 : env.eval(easingArgs.getFirst());
         float rightTime = isEasingBefore() ? 0.1f : env.eval(easingArgs.get(1));
@@ -38,16 +39,16 @@ abstract class BezierEasing implements EasingTypeTransformer {
         leftValue = (float) Math.toRadians(leftValue);
         rightValue = (float) Math.toRadians(rightValue);
 
-        float gapTime = animationPoint.transitionLength()/20;
+        float gapTime = transitionLength / 20;
 
         float time_handle_before = Math.clamp(rightTime, 0, gapTime);
         float time_handle_after  = Math.clamp(leftTime, -gapTime, 0);
 
         CubicBezierCurve curve = new CubicBezierCurve(
-                new Vector2f(0, animationPoint.animationStartValue()),
-                new Vector2f(time_handle_before, animationPoint.animationStartValue() + rightValue),
-                new Vector2f(time_handle_after + gapTime, animationPoint.animationEndValue() + leftValue),
-                new Vector2f(gapTime, animationPoint.animationEndValue()));
+                new Vector2f(0, startValue),
+                new Vector2f(time_handle_before, startValue + rightValue),
+                new Vector2f(time_handle_after + gapTime, endValue + leftValue),
+                new Vector2f(gapTime, endValue));
         float time = gapTime * lerpValue;
 
         List<Vector2f> points = curve.getPoints(200);

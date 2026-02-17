@@ -30,7 +30,6 @@ import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -81,14 +80,6 @@ public class AdjustmentModifier extends AbstractModifier {
     public record PartModifier(Vec3f rotation, Vec3f scale, Vec3f offset) {
         public PartModifier(Vec3f rotation, Vec3f offset) {
             this(rotation, Vec3f.ZERO, offset);
-        }
-
-        @Override
-            public String toString() {
-                return "PartModifier[" +
-                        "rotation=" + rotation + ", " +
-                        "scale=" + scale + ", " +
-                        "offset=" + offset + ']';
         }
     }
 

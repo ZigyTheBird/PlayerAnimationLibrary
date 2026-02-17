@@ -42,18 +42,6 @@ public class PlayerAnimBone {
 		return this.name;
 	}
 
-	public Vec3f getPositionVector() {
-		return MathHelper.vector3fToVec3f(position);
-	}
-
-	public Vec3f getRotationVector() {
-		return MathHelper.vector3fToVec3f(rotation);
-	}
-
-	public Vec3f getScaleVector() {
-		return MathHelper.vector3fToVec3f(scale);
-	}
-
 	public void setToInitialPose() {
 		this.position.set(0, 0, 0);
 		this.rotation.set(0, 0, 0);
