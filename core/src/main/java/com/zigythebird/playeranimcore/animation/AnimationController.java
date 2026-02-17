@@ -759,6 +759,7 @@ public abstract class AnimationController implements IAnimation {
 		float endValue = this.molangRuntime.eval(currentFrame.endValue());
 
 		if (type == TransformType.ROTATION || type == TransformType.BEND) {
+			if (!MolangLoader.isConstant(currentFrame.startValue())) {
 				startValue = (float) Math.toRadians(startValue);
 			}
 			if (!MolangLoader.isConstant(currentFrame.endValue())) {
