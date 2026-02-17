@@ -328,14 +328,21 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 					leftValue = toRadiansForBezier(leftValue);
 				}
 				frames.set(i, new Keyframe(frame.length(), frame.startValue(), frame.endValue(), frame.easingType(),
-						List.of(leftValue, frame.easingArgs().get(1))));
+						ObjectArrayList.of(leftValue, frame.easingArgs().get(1))));
+				if (frame.easingArgs().size() > 4) {
+					frames.get(i).easingArgs().add(frame.easingArgs().get(4));
+					frames.get(i).easingArgs().add(frame.easingArgs().get(5));
+				}
 				if (frames.size() > i + 1) {
 					Keyframe nextKeyframe = frames.get(i + 1);
-					if (nextKeyframe.easingType() == EasingType.BEZIER) {
+					if (nextKeyframe.easingType() != EasingType.BEZIER) {
+						frames.set(i + 1, new Keyframe(nextKeyframe.length(), nextKeyframe.startValue(), nextKeyframe.endValue(),
+								EasingType.BEZIER, ObjectArrayList.of(PlayerAnimatorLoader.ZERO, PlayerAnimatorLoader.ZERO, rightValue, rightTime))); //TODO Maybe move the ZERO field to UniversalAnimLoader
+					}
+					else {
 						nextKeyframe.easingArgs().add(rightValue);
 						nextKeyframe.easingArgs().add(rightTime);
 					}
-					else frames.set(i + 1, new Keyframe(nextKeyframe.length(), nextKeyframe.startValue(), nextKeyframe.endValue(), EasingType.BEZIER_AFTER, ObjectArrayList.of(rightValue, rightTime)));
 				}
 			}
 		}
