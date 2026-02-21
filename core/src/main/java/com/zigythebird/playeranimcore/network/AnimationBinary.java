@@ -67,15 +67,14 @@ public final class AnimationBinary {
                 buf.writeFloat(animation.loopType().restartFromTick(null, animation));
             }
         }
-        buf.writeByte(((AnimationFormat) data.getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB)).id);
+        buf.writeByte(((AnimationFormat)data.getOrDefault(ExtraAnimationData.FORMAT_KEY, AnimationFormat.GECKOLIB)).id);
         buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.BEGIN_TICK_KEY, Float.NaN));
         buf.writeFloat((float) data.getOrDefault(ExtraAnimationData.END_TICK_KEY, Float.NaN));
         if (version > 1) {
             buf.writeBoolean(applyBendToOtherBones);
             buf.writeBoolean((boolean) data.getOrDefault(ExtraAnimationData.EASING_BEFORE_KEY, true));
         }
-        NetworkUtils.writeUuid(buf, animation.uuid());
-
+        NetworkUtils.writeUuid(buf, animation.uuid()); // required by emotecraft to stop animations
         VarIntUtils.writeVarInt(buf, animation.boneAnimations().size());
         for (Map.Entry<String, BoneAnimation> entry : animation.boneAnimations().entrySet()) {
             ProtocolUtils.writeString(buf, entry.getKey());
@@ -141,14 +140,13 @@ public final class AnimationBinary {
             return AnimationBinaryV6.read(buf, version);
         }
 
-        ExtraAnimationData data = new ExtraAnimationData();
-
         float length = buf.readFloat();
         Animation.LoopType loopType = Animation.LoopType.PLAY_ONCE;
         if (buf.readBoolean()) {
             if (buf.readBoolean()) loopType = Animation.LoopType.HOLD_ON_LAST_FRAME;
             else loopType = Animation.LoopType.returnToTickLoop(buf.readFloat());
         }
+        ExtraAnimationData data = new ExtraAnimationData();
         AnimationFormat format = AnimationFormat.fromId(buf.readByte());
         data.put(ExtraAnimationData.FORMAT_KEY, format);
         float beginTick = buf.readFloat();
@@ -166,10 +164,9 @@ public final class AnimationBinary {
                 data.put(ExtraAnimationData.EASING_BEFORE_KEY, false);
         } else data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
 
-        data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf));
+        data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
 
-        boolean isPlayerAnimator = format == AnimationFormat.PLAYER_ANIMATOR;
-        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, isPlayerAnimator));
+        Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, format == AnimationFormat.PLAYER_ANIMATOR));
 
         if (version < 4 && boneAnimations.containsKey("body")) {
             BoneAnimation body = boneAnimations.get("body");
