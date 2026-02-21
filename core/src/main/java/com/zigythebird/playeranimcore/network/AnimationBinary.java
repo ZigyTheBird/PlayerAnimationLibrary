@@ -50,7 +50,6 @@ public final class AnimationBinary {
         }
 
         Map<String, Object> data = animation.data().data();
-
         boolean applyBendToOtherBones = (boolean) data.getOrDefault(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, false);
         if (version < 3 && applyBendToOtherBones && animation.boneAnimations().containsKey("torso")
                 && !animation.boneAnimations().get("torso").bendKeyFrames().isEmpty()) {
@@ -165,7 +164,6 @@ public final class AnimationBinary {
         } else data.put(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY, true);
 
         data.put(ExtraAnimationData.UUID_KEY, NetworkUtils.readUuid(buf)); // required by emotecraft to stop animations
-
         Map<String, BoneAnimation> boneAnimations = NetworkUtils.readMap(buf, ProtocolUtils::readString, buf1 -> readBoneAnimation(buf1, format == AnimationFormat.PLAYER_ANIMATOR));
 
         if (version < 4 && boneAnimations.containsKey("body")) {
