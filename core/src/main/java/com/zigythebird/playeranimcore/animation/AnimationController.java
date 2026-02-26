@@ -742,7 +742,7 @@ public abstract class AnimationController implements IAnimation {
 
 		this.pivotBones.clear();
 		for (Map.Entry<String, CustomAnimationBone> entry : currentAnimation.animation().bones().entrySet()) {
-			this.pivotBones.put(entry.getKey(), new CustomBone(entry.getKey(), entry.getValue().pivot(), loadCustomModel(entry.getValue().model())));
+			this.pivotBones.put(entry.getKey(), new CustomBone(entry.getKey(), entry.getValue().pivot(), loadCustomModel(entry.getValue().geometry())));
 		}
 
 		this.postAnimationSetupConsumer.accept((name) -> bones.getOrDefault(name, null));

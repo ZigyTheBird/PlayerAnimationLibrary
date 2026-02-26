@@ -4,7 +4,7 @@
     "cmm": {
       "pivot": [ 0, 12, 0 ],
 
-      "model": {
+      "geometry": {
         "ambientocclusion": false,
         "textures": {
           "texture": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAfUlEQVR4Xo1QiRHAIAhzUAZgC7foAg5KjSkq1OsVr1qS8Jby18TE1PivBi/R1a4JwmtRIp1uHUYOHeIlnxEOQoyz5ZBB40MOxNNPAsL6vKEIBIxBHx5/ECzqIHBwFQg9+BT7XeOguUTYw56DL5p9LZvrxpggE00DzJOZD7sBRaHjpRD91mQAAAAASUVORK5CYII="
