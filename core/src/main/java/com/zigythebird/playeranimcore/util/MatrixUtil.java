@@ -14,16 +14,16 @@ import java.util.function.Function;
  */
 public class MatrixUtil {
     public static void translateMatrixForBone(Matrix4f matrix, PlayerAnimBone bone) {
-        matrix.translate(-bone.getPosX(), bone.getPosY(), -bone.getPosZ());
+        matrix.translate(-bone.position.x, bone.position.y, -bone.position.z);
     }
 
     public static void rotateMatrixAroundBone(Matrix4f matrix, PlayerAnimBone bone) {
-        if (bone.getRotZ() != 0 || bone.getRotY() != 0 || bone.getRotX() != 0)
-            matrix.rotateZ(bone.getRotZ()).rotateY(bone.getRotY()).rotateX(bone.getRotX());
+        if (bone.rotation.z != 0 || bone.rotation.y != 0 || bone.rotation.x != 0)
+            matrix.rotateZYX(bone.rotation);
     }
 
     public static void scaleMatrixForBone(Matrix4f matrix, PlayerAnimBone bone) {
-        matrix.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
+        matrix.scale(bone.scale.x, bone.scale.y, bone.scale.z);
     }
 
     public static void translateToPivotPoint(Matrix4f matrix, Vec3f pivot) {
@@ -53,14 +53,9 @@ public class MatrixUtil {
         Vec3f defaultPos = positions.apply(child.getName());
         matrix.translate(defaultPos.x(), defaultPos.y(), defaultPos.z());
         MatrixUtil.rotateMatrixAroundBone(matrix, child);
-        child.setPosX(-matrix.m30() + defaultPos.x() + child.getPosX());
-        child.setPosY(matrix.m31() - defaultPos.y() + child.getPosY());
-        child.setPosZ(-matrix.m32() - defaultPos.z() + child.getPosZ());
 
-        Vector3f rotation = matrix.getEulerAnglesZYX(new Vector3f());
-        child.updateRotation(rotation.x(), rotation.y(), rotation.z());
-
-        Vector3f scale = matrix.getScale(new Vector3f());
-        child.mulScale(scale.x(), scale.y(), scale.z());
+        child.position.add(-matrix.m30() + defaultPos.x(), matrix.m31() - defaultPos.y(), -matrix.m32() - defaultPos.z());
+        child.rotation.set(matrix.getEulerAnglesZYX(new Vector3f()));
+        child.scale.mul(matrix.getScale(new Vector3f()));
     }
 }

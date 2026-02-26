@@ -67,10 +67,10 @@ public class MirrorModifier extends AbstractModifier {
     }
 
     protected void transformBone(PlayerAnimBone bone) {
-        bone.positionX *= -1;
-        bone.rotY *= -1;
-        bone.rotZ *= -1;
-        bone.bend *= -1;
+        bone.position.x *= -1;
+        bone.rotation.y *= -1;
+        bone.rotation.z *= -1;
+        //bone.bend *= -1; Why was this a thing in the first place?
     }
 
     static {
