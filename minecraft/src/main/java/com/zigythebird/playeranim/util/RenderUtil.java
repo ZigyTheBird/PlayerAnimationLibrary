@@ -35,7 +35,7 @@ public final class RenderUtil {
      */
     public static void translatePartToBone(ModelPart part, PlayerAnimBone bone, PartPose initialPose) {
 		part.x = bone.position.x + initialPose.x();
-		part.y = -(bone.position.y + initialPose.y());
+		part.y = -bone.position.y + initialPose.y();
 		part.z = bone.position.z + initialPose.z();
 
 		part.xRot = bone.rotation.x;
