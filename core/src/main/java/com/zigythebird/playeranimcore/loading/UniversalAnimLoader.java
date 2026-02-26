@@ -39,13 +39,17 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
     public static Map<@NotNull String, Animation> loadAnimations(JsonObject json) {
         if (json.has("animations")) {
             Map<String, Animation> animationMap = PlayerAnimLib.GSON.fromJson(json.get("animations"), PlayerAnimLib.ANIMATIONS_MAP_TYPE);
-            if (json.has("parents") && json.has("model")) {
-                Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(json, "parents", new JsonObject()));
+            if (json.has("model")) {
                 Map<String, CustomAnimationBone> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(json, "model", new JsonObject()), PlayerAnimLib.GSON::fromJson);
                 for (Animation animation : animationMap.values()) {
                     if (animation.bones().isEmpty()) {
                         animation.bones().putAll(bones);
                     }
+                }
+            }
+            if (json.has("parents")) {
+                Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(json, "parents", new JsonObject()));
+                for (Animation animation : animationMap.values()) {
                     if (animation.parents().isEmpty()) {
                         animation.parents().putAll(parents);
                     }

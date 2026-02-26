@@ -22,9 +22,6 @@
       }
     }
   },
-  "parents": {
-    "head": "cmm"
-  },
   "animations": {
     "cmm_test1": {
       "loop": true,
