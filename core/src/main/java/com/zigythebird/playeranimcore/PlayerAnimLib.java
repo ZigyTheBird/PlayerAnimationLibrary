@@ -7,6 +7,7 @@ import com.zigythebird.playeranimcore.animation.Animation;
 import com.zigythebird.playeranimcore.loading.AnimationLoader;
 import com.zigythebird.playeranimcore.loading.KeyFrameLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ public class PlayerAnimLib {
 
     public static final Type ANIMATIONS_MAP_TYPE = new TypeToken<Map<String, Animation>>() {}.getType();
     public static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(Vec3f.class, new Vec3f.Deserializer())
             .registerTypeAdapter(Animation.Keyframes.class, new KeyFrameLoader())
             .registerTypeAdapter(Animation.class, new AnimationLoader())
             .registerTypeAdapter(ANIMATIONS_MAP_TYPE, new UniversalAnimLoader())
