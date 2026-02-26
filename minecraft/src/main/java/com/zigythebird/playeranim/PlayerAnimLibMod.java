@@ -19,11 +19,9 @@ public abstract class PlayerAnimLibMod extends PlayerAnimLib {
 
     protected void init() {
         PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(ANIMATION_LAYER_ID, 1000,
-                player -> new PlayerAnimationController(player,
-                        (controller, state, animSetter) -> PlayState.STOP
-                )
+                player -> new PlayerAnimationController(player, (_, _, _) -> PlayState.STOP)
         );
-        MolangEvent.MOLANG_EVENT.register((controller, engine, queryBinding) ->
+        MolangEvent.MOLANG_EVENT.register((_, _, queryBinding) ->
                 MolangQueries.setDefaultQueryValues(queryBinding)
         );
         CustomKeyFrameEvents.SOUND_KEYFRAME_EVENT.register(new AutoPlayingSoundKeyframeHandler());
