@@ -34,12 +34,11 @@ import com.zigythebird.playeranimcore.bindings.PlatformModel;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -91,16 +90,14 @@ public class LivingEntityRendererMixin<S extends LivingEntityRenderState> {
             PlatformModel platformModel = bone.getModel();
             if (!(platformModel instanceof MinecraftModel mcModel)) return;
 
-            BlockModelPart bakedPart = mcModel.getBakedModel();
-            RenderType modelRenderType = mcModel.getRenderType();
-            if (bakedPart == null || modelRenderType == null) return;
+            QuadCollection bakedPart = mcModel.getGeometry();
 
             poseStack.pushPose();
             animationPlayer.get3DTransform(bone);
             RenderUtil.translateMatrixToBone(poseStack, bone);
 
             submitNodeCollector.submitCustomGeometry(
-                    poseStack, modelRenderType,
+                    poseStack, mcModel.getRenderType(),
 
                     (pose, buffer) -> {
                         QuadInstance instance = new QuadInstance();

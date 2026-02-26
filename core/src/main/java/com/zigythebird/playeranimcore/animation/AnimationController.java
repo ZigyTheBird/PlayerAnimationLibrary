@@ -24,7 +24,7 @@
 
 package com.zigythebird.playeranimcore.animation;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.keyframe.*;
 import com.zigythebird.playeranimcore.animation.keyframe.event.CustomKeyFrameEvents;
@@ -742,13 +742,16 @@ public abstract class AnimationController implements IAnimation {
 
 		this.pivotBones.clear();
 		for (Map.Entry<String, CustomAnimationBone> entry : currentAnimation.animation().bones().entrySet()) {
-			this.pivotBones.put(entry.getKey(), new CustomBone(entry.getKey(), entry.getValue().pivot(), loadCustomModel(entry.getValue().geometry())));
+			this.pivotBones.put(entry.getKey(), new CustomBone(entry.getKey(), entry.getValue().pivot(), loadCustomModel(
+					entry.getValue().texture(),
+					entry.getValue().elements()
+			)));
 		}
 
 		this.postAnimationSetupConsumer.accept((name) -> bones.getOrDefault(name, null));
 	}
 
-	protected abstract @Nullable PlatformModel loadCustomModel(JsonObject model);
+	protected abstract @Nullable PlatformModel loadCustomModel(@Nullable String texture, @Nullable JsonArray elements);
 
 	@Override
 	public void collectModels(Consumer<CustomBone> consumer) {

@@ -33,7 +33,7 @@ public class NetworkUtils {
 
     public static CustomAnimationBone readCustomBone(ByteBuf buf, int version) {
         Vec3f pivot = readVec3f(buf);
-        return new CustomAnimationBone(pivot, null); // TODO
+        return new CustomAnimationBone(pivot, null, null); // TODO
     }
 
     public static void writeCustomBone(ByteBuf buf, CustomAnimationBone bone, int version) {
