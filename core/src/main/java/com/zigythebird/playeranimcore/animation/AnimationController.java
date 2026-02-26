@@ -24,6 +24,7 @@
 
 package com.zigythebird.playeranimcore.animation;
 
+import com.google.gson.JsonObject;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.keyframe.*;
 import com.zigythebird.playeranimcore.animation.keyframe.event.CustomKeyFrameEvents;
@@ -39,6 +40,7 @@ import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractModifie
 import com.zigythebird.playeranimcore.animation.layered.modifier.SpeedModifier;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranimcore.bindings.PlatformModel;
 import com.zigythebird.playeranimcore.bones.*;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.PlayState;
@@ -75,7 +77,7 @@ public abstract class AnimationController implements IAnimation {
 	protected final Map<String, Vec3f> bonePositions;
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PlayerAnimBone> activeBones = new Object2ObjectOpenHashMap<>();
-	protected final Map<String, PivotBone> pivotBones = new Object2ObjectOpenHashMap<>();
+	protected final Map<String, CustomBone> pivotBones = new Object2ObjectOpenHashMap<>();
 	protected Queue<QueuedAnimation> animationQueue = new LinkedList<>();
 	protected final MochaEngine<AnimationController> molangRuntime;
 
@@ -739,12 +741,14 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		this.pivotBones.clear();
-		for (Map.Entry<String, Vec3f> entry : currentAnimation.animation().bones().entrySet()) {
-			this.pivotBones.put(entry.getKey(), new PivotBone(entry.getKey(), entry.getValue()));
+		for (Map.Entry<String, CustomAnimationBone> entry : currentAnimation.animation().bones().entrySet()) {
+			this.pivotBones.put(entry.getKey(), new CustomBone(entry.getKey(), entry.getValue().pivot(), loadCustomModel(entry.getValue().model())));
 		}
 
 		this.postAnimationSetupConsumer.accept((name) -> bones.getOrDefault(name, null));
 	}
+
+	protected abstract @Nullable PlatformModel loadCustomModel(JsonObject model);
 
 	/**
 	 * Compute animation value for the given keyframes at the specified tick
@@ -910,6 +914,10 @@ public abstract class AnimationController implements IAnimation {
 		if (!modifiers.isEmpty())
 			modifiers.getFirst().setupAnim(state);
 		else process(state);
+	}
+
+	public Map<String, CustomBone> getPivotBones() {
+		return pivotBones;
 	}
 
 	public Vec3f getBonePosition(String name) {

@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class HumanoidAnimationController extends AnimationController {
+public abstract class HumanoidAnimationController extends AnimationController {
     /**
      * Bone pivot point positions used to apply custom pivot point translations.
      */
