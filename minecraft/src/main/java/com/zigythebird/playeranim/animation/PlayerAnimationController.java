@@ -97,6 +97,6 @@ public class PlayerAnimationController extends HumanoidAnimationController {
     @Override
     protected PlatformModel loadCustomModel(JsonObject model) {
         if (model == null || model.isEmpty()) return null;
-        return new MinecraftModel(model);
+        return new MinecraftModel(model.deepCopy());
     }
 }

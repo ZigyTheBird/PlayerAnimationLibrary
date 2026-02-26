@@ -750,6 +750,14 @@ public abstract class AnimationController implements IAnimation {
 
 	protected abstract @Nullable PlatformModel loadCustomModel(JsonObject model);
 
+	@Override
+	public void collectModels(Consumer<CustomBone> consumer) {
+		for (CustomBone customBone : this.pivotBones.values()) {
+			if (customBone.getModel() == null) continue;
+			consumer.accept(customBone);
+		}
+	}
+
 	/**
 	 * Compute animation value for the given keyframes at the specified tick
 	 */
@@ -914,10 +922,6 @@ public abstract class AnimationController implements IAnimation {
 		if (!modifiers.isEmpty())
 			modifiers.getFirst().setupAnim(state);
 		else process(state);
-	}
-
-	public Map<String, CustomBone> getPivotBones() {
-		return pivotBones;
 	}
 
 	public Vec3f getBonePosition(String name) {
