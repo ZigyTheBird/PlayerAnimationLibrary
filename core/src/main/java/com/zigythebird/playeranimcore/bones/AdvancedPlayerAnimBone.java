@@ -1,6 +1,10 @@
 package com.zigythebird.playeranimcore.bones;
 
-public class AdvancedPlayerAnimBone extends ToggleablePlayerAnimBone {
+import com.zigythebird.playeranimcore.math.Vec3f;
+
+public class AdvancedPlayerAnimBone extends ToggleablePlayerAnimBone implements IPivotBone {
+    public Vec3f pivot = null;
+
     public Float scaleXTransitionLength = null;
     public Float scaleYTransitionLength = null;
     public Float scaleZTransitionLength = null;
@@ -15,12 +19,15 @@ public class AdvancedPlayerAnimBone extends ToggleablePlayerAnimBone {
 
     public Float bendTransitionLength = null;
 
-    public AdvancedPlayerAnimBone(String name) {
+    public AdvancedPlayerAnimBone(String name, Vec3f pivot) {
         super(name);
+        this.pivot = pivot;
     }
 
     public AdvancedPlayerAnimBone(PlayerAnimBone bone) {
         super(bone);
+        if (bone instanceof IPivotBone pivotBone)
+            this.pivot = pivotBone.getPivot();
     }
 
     public void setEnabled(boolean enabled) {
@@ -77,5 +84,10 @@ public class AdvancedPlayerAnimBone extends ToggleablePlayerAnimBone {
 
     public void setScaleXTransitionLength(Float scaleXTransitionLength) {
         this.scaleXTransitionLength = scaleXTransitionLength;
+    }
+
+    @Override
+    public Vec3f getPivot() {
+        return this.pivot;
     }
 }

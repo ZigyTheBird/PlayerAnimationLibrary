@@ -1,6 +1,7 @@
 package com.zigythebird.playeranimcore.util;
 
 import com.zigythebird.playeranimcore.bones.CustomBone;
+import com.zigythebird.playeranimcore.bones.IPivotBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import org.joml.Matrix4f;
@@ -46,7 +47,7 @@ public class MatrixUtil {
         Matrix4f matrix = new Matrix4f();
 
         for (PlayerAnimBone parent : parents) {
-            Vec3f pivot = parent instanceof CustomBone pivotBone ? pivotBone.getPivot() : positions.apply(parent.getName());
+            Vec3f pivot = parent instanceof IPivotBone pivotBone ? pivotBone.getPivot() : positions.apply(parent.getName());
             MatrixUtil.prepMatrixForBone(matrix, parent, pivot);
         }
 

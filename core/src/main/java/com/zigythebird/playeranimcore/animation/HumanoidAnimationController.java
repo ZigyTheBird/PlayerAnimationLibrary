@@ -67,18 +67,7 @@ public abstract class HumanoidAnimationController extends AnimationController {
      * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
      */
     public HumanoidAnimationController(AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
-        this(animationHandler, BONE_POSITIONS, molangRuntime);
-    }
-
-    /**
-     * Instantiates a new {@code AnimationController}
-     *
-     * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
-     * @param bonePositions    Map of bones and their pivots
-     * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
-     */
-    public HumanoidAnimationController(AnimationStateHandler animationHandler, Map<String, Vec3f> bonePositions, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
-        super(animationHandler, bonePositions, molangRuntime);
+        super(animationHandler, molangRuntime);
     }
 
     @Override
@@ -103,6 +92,10 @@ public abstract class HumanoidAnimationController extends AnimationController {
         this.registerPlayerAnimBone(name);
     }
 
+    public void registerPlayerAnimBone(String name) {
+        this.registerPlayerAnimBone(name, BONE_POSITIONS.getOrDefault(name, Vec3f.ZERO));
+    }
+
     @Override
     public void process(AnimationData state) {
         super.process(state);
@@ -122,7 +115,7 @@ public abstract class HumanoidAnimationController extends AnimationController {
         bone = super.get3DTransformRaw(bone);
         String name = bone.getName();
         if (this.torsoBendSign != 0 && this.top_bones.contains(name)) {
-            float offset = getBonePosition(name).y() - 18;
+            float offset = BONE_POSITIONS.get(name).y() - 18;
             bone.rotation.x += this.torsoBend;
             bone.position.x += (offset * this.torsoBendZPosMultiplier - offset) * this.torsoBendSign;
             bone.position.y += offset * this.torsoBendYPosMultiplier;

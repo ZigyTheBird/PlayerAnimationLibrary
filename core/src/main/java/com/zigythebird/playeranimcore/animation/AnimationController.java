@@ -74,7 +74,6 @@ public abstract class AnimationController implements IAnimation {
 	public static KeyframeLocation EMPTY_SCALE_KEYFRAME_LOCATION = new KeyframeLocation(new Keyframe(0, Collections.singletonList(FloatExpression.ONE), Collections.singletonList(FloatExpression.ONE)), 0);
 
 	protected final AnimationStateHandler stateHandler;
-	protected final Map<String, Vec3f> bonePositions;
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PlayerAnimBone> activeBones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, CustomBone> pivotBones = new Object2ObjectOpenHashMap<>();
@@ -111,12 +110,10 @@ public abstract class AnimationController implements IAnimation {
 	 * Instantiates a new {@code AnimationController}
 	 *
 	 * @param animationHandler The {@link AnimationStateHandler} animation state handler responsible for deciding which animations to play
-	 * @param bonePositions    Map of bones and their pivots
 	 * @param molangRuntime    A function that provides the MoLang runtime engine for this animation controller when applied
 	 */
-	public AnimationController(AnimationStateHandler animationHandler, Map<String, Vec3f> bonePositions, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
+	public AnimationController(AnimationStateHandler animationHandler, Function<AnimationController, MochaEngine<AnimationController>> molangRuntime) {
 		this.stateHandler = animationHandler;
-		this.bonePositions = bonePositions;
 		this.molangRuntime = molangRuntime.apply(this);
 
 		registerBones();
@@ -540,9 +537,6 @@ public abstract class AnimationController implements IAnimation {
 					for (AdvancedPlayerAnimBone bone : this.bones.values()) {
 						bone.setToInitialPose();
 					}
-					for (PlayerAnimBone bone : this.pivotBones.values()) {
-						bone.setToInitialPose();
-					}
 
 					return;
 				} else {
@@ -558,9 +552,6 @@ public abstract class AnimationController implements IAnimation {
 
 		if (this.currentAnimation == null) return;
 		for (PlayerAnimBone bone : this.bones.values()) {
-			bone.setToInitialPose();
-		}
-		for (PlayerAnimBone bone : this.pivotBones.values()) {
 			bone.setToInitialPose();
 		}
 
@@ -649,7 +640,7 @@ public abstract class AnimationController implements IAnimation {
 		processBoneHierarchy(parent, parentsMap, processedBones);
 
 		this.activeBones.put(boneName, bone);
-		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(parent), this::getBonePosition);
+		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(parent), _ -> null);
 
 		processedBones.add(boneName);
 	}
@@ -927,12 +918,6 @@ public abstract class AnimationController implements IAnimation {
 		else process(state);
 	}
 
-	public Vec3f getBonePosition(String name) {
-		if (bonePositions.containsKey(name)) return bonePositions.get(name);
-		if (pivotBones.containsKey(name)) return pivotBones.get(name).getPivot();
-		return Vec3f.ZERO;
-	}
-
 	/**
 	 * PLEASE DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING.
 	 * THE {@link AnimationController#linkModifiers()} METHOD MUST BE CALLED EVERYTIME ANYTHING IN THE MODIFIER LIST IS CHANGED.
@@ -1001,8 +986,8 @@ public abstract class AnimationController implements IAnimation {
 		}
 	}
 
-	public AdvancedPlayerAnimBone registerPlayerAnimBone(String name) {
-		return registerPlayerAnimBone(new AdvancedPlayerAnimBone(name));
+	public AdvancedPlayerAnimBone registerPlayerAnimBone(String name, Vec3f pivot) {
+		return registerPlayerAnimBone(new AdvancedPlayerAnimBone(name, pivot));
 	}
 
 	/**

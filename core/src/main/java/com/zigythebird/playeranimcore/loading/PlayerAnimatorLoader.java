@@ -239,7 +239,7 @@ public class PlayerAnimatorLoader implements JsonDeserializer<Animation> {
         return easingType;
     }
 
-    private static final Map<String, Vec3f> DEFAULT_VALUES = Map.of(
+    public static final Map<String, Vec3f> DEFAULT_VALUES = Map.of(
             "right_arm", new Vec3f(-5, 2, 0),
             "left_arm", new Vec3f(5, 2, 0),
             "left_leg", new Vec3f(1.9f, 12, 0.1f),
