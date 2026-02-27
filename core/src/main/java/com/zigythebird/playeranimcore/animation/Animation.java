@@ -43,7 +43,7 @@ import java.util.function.Supplier;
  * <p>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable
  */
-public record Animation(ExtraAnimationData data, float length, LoopType loopType, Map<String, BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, CustomAnimationBone> bones, Map<String, String> parents) implements Supplier<UUID> {
+public record Animation(ExtraAnimationData data, float length, LoopType loopType, Map<String, BoneAnimation> boneAnimations, Keyframes keyFrames, Map<String, CustomModelBone> bones, Map<String, String> parents) implements Supplier<UUID> {
     public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {
         @Override
         public int hashCode() {

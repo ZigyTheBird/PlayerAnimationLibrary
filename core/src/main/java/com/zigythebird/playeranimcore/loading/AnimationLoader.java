@@ -27,7 +27,7 @@ package com.zigythebird.playeranimcore.loading;
 import com.google.gson.*;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.animation.CustomAnimationBone;
+import com.zigythebird.playeranimcore.animation.CustomModelBone;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.BoneAnimation;
 import com.zigythebird.playeranimcore.animation.keyframe.Keyframe;
@@ -63,7 +63,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 		Animation.Keyframes keyframes = context.deserialize(animationObj, Animation.Keyframes.class);
 
 		Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(animationObj, "parents", new JsonObject()));
-		Map<String, CustomAnimationBone> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(animationObj, "model", new JsonObject()), context);
+		Map<String, CustomModelBone> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(animationObj, "model", new JsonObject()), context);
 
 		// Extra data
 		ExtraAnimationData extraData = new ExtraAnimationData();

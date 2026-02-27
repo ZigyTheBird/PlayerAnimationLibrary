@@ -3,7 +3,7 @@ package com.zigythebird.playeranimcore.loading;
 import com.google.gson.*;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.animation.CustomAnimationBone;
+import com.zigythebird.playeranimcore.animation.CustomModelBone;
 import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.CustomInstructionKeyframeData;
 import com.zigythebird.playeranimcore.animation.keyframe.event.data.ParticleKeyframeData;
@@ -40,7 +40,7 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
         if (json.has("animations")) {
             Map<String, Animation> animationMap = PlayerAnimLib.GSON.fromJson(json.get("animations"), PlayerAnimLib.ANIMATIONS_MAP_TYPE);
             if (json.has("model")) {
-                Map<String, CustomAnimationBone> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(json, "model", new JsonObject()), PlayerAnimLib.GSON::fromJson);
+                Map<String, CustomModelBone> bones = UniversalAnimLoader.getModel(JsonUtil.getAsJsonObject(json, "model", new JsonObject()), PlayerAnimLib.GSON::fromJson);
                 for (Animation animation : animationMap.values()) {
                     if (animation.bones().isEmpty()) {
                         animation.bones().putAll(bones);
@@ -90,10 +90,10 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
         return parents;
     }
 
-    public static Map<String, CustomAnimationBone> getModel(JsonObject modelObj, JsonDeserializationContext ctx) {
-        Map<String, CustomAnimationBone> bones = new HashMap<>(modelObj.size());
+    public static Map<String, CustomModelBone> getModel(JsonObject modelObj, JsonDeserializationContext ctx) {
+        Map<String, CustomModelBone> bones = new HashMap<>(modelObj.size());
         for (Map.Entry<String, JsonElement> entry : modelObj.entrySet()) {
-            bones.put(entry.getKey(), ctx.deserialize(entry.getValue(), CustomAnimationBone.class));
+            bones.put(entry.getKey(), ctx.deserialize(entry.getValue(), CustomModelBone.class));
         }
         return bones;
     }

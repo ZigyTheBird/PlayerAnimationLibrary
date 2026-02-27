@@ -1,6 +1,6 @@
 package com.zigythebird.playeranimcore.network;
 
-import com.zigythebird.playeranimcore.animation.CustomAnimationBone;
+import com.zigythebird.playeranimcore.animation.CustomModelBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 import team.unnamed.mocha.util.network.VarIntUtils;
@@ -31,12 +31,12 @@ public class NetworkUtils {
         }
     }
 
-    public static CustomAnimationBone readCustomBone(ByteBuf buf, int version) {
+    public static CustomModelBone readCustomBone(ByteBuf buf, int version) {
         Vec3f pivot = readVec3f(buf);
-        return new CustomAnimationBone(pivot, null, null); // TODO
+        return new CustomModelBone(pivot, null, null); // TODO
     }
 
-    public static void writeCustomBone(ByteBuf buf, CustomAnimationBone bone, int version) {
+    public static void writeCustomBone(ByteBuf buf, CustomModelBone bone, int version) {
         writeVec3f(buf, bone.pivot());
     }
 

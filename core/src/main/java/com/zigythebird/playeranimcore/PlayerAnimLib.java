@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.zigythebird.playeranimcore.animation.Animation;
-import com.zigythebird.playeranimcore.animation.CustomAnimationBone;
+import com.zigythebird.playeranimcore.animation.CustomModelBone;
 import com.zigythebird.playeranimcore.loading.AnimationLoader;
 import com.zigythebird.playeranimcore.loading.KeyFrameLoader;
 import com.zigythebird.playeranimcore.loading.UniversalAnimLoader;
@@ -21,7 +21,7 @@ public class PlayerAnimLib {
 
     public static final Type ANIMATIONS_MAP_TYPE = new TypeToken<Map<String, Animation>>() {}.getType();
     public static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(CustomAnimationBone.class, new CustomAnimationBone.Deserializer())
+            .registerTypeAdapter(CustomModelBone.class, new CustomModelBone.Deserializer())
             .registerTypeAdapter(Vec3f.class, new Vec3f.Deserializer())
             .registerTypeAdapter(Animation.Keyframes.class, new KeyFrameLoader())
             .registerTypeAdapter(Animation.class, new AnimationLoader())
