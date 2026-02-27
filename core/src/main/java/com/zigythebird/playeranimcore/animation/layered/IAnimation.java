@@ -92,5 +92,5 @@ public interface IAnimation {
         return false;
     }
 
-    void collectModels(Consumer<CustomBone> consumer);
+    default void collectModels(Consumer<CustomBone> consumer) {}
 }

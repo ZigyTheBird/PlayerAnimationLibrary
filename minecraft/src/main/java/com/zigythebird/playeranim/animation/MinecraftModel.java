@@ -111,11 +111,10 @@ public class MinecraftModel implements PlatformModel, MaterialBaker, ModelBaker,
     }
 
     private static TextureAtlasSprite loadAtlasSprite(String texture) throws IOException {
-        Identifier texId = PlayerAnimLibMod.id("dynamic/texture_" + TEXTURE_COUNTER.getAndIncrement());
-
         RenderSystem.assertOnRenderThread();
         NativeImage image = NativeImage.read(Base64.getDecoder().decode(texture));
 
+        Identifier texId = PlayerAnimLibMod.id("dynamic/texture_" + TEXTURE_COUNTER.getAndIncrement());
         DynamicTexture dynTex = new DynamicTexture(texId::toString, image);
         Minecraft.getInstance().getTextureManager().register(texId, dynTex);
 

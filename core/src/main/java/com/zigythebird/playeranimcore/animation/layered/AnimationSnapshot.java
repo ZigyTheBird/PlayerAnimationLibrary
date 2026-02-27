@@ -1,12 +1,10 @@
 package com.zigythebird.playeranimcore.animation.layered;
 
-import com.zigythebird.playeranimcore.bones.CustomBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.bones.ToggleablePlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 public record AnimationSnapshot(Map<String, ToggleablePlayerAnimBone> snapshots) implements IAnimation {
     @Override
@@ -26,9 +24,5 @@ public record AnimationSnapshot(Map<String, ToggleablePlayerAnimBone> snapshots)
         return "AnimationSnapshot{" +
                 "snapshots=" + snapshots +
                 '}';
-    }
-
-    @Override
-    public void collectModels(Consumer<CustomBone> consumer) {
     }
 }
