@@ -38,7 +38,7 @@ unimined.minecraft(sourceSets.neoforge) {
         loader("net.neoforged:neoforge:$rootProject.neoforge_version:universal")
         mixinConfig("player_animation_library.mixins.json")
 
-        accessTransformer aw2at(file("src/main/resources/player_animation_library.classtweaker"))
+        // accessTransformer aw2at(file("src/main/resources/player_animation_library.classtweaker"))
     }
     defaultRemapJar = true
 }
