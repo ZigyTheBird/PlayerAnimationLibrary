@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(value = LivingEntityRenderer.class, priority = 2000)
 public class LivingEntityRendererMixin {
     @WrapWithCondition(
-            method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/RenderLayer;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/EntityRenderState;FF)V"))
     private boolean filterLayers(RenderLayer layer, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, EntityRenderState renderState, float v, float vq) {
         if (renderState instanceof IAvatarAnimationState state && state.playerAnimLib$isFirstPersonPass()) {
