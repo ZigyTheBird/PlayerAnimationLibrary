@@ -743,7 +743,7 @@ public abstract class AnimationController implements IAnimation {
 			this.pivotBones.put(entry.getKey(), new PivotBone(entry.getKey(), entry.getValue()));
 		}
 
-		this.postAnimationSetupConsumer.accept((name) -> bones.getOrDefault(name, null));
+		this.postAnimationSetupConsumer.accept(this.bones::get);
 	}
 
 	/**
