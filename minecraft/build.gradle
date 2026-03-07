@@ -62,12 +62,11 @@ dependencies {
     shadow(project(path: ":core")) { transitive = false }
 
     // Common
-    api(platformInclude("com.zigythebird:mochafloats:$rootProject.molang_version") {
+    platformInclude("com.zigythebird:mochafloats:$rootProject.molang_version") {
         transitive = false
-    })
+    }
 
     // Fabric
-    fabricImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     fabricImplementation fabricApi.fabricModule("fabric-command-api-v2", rootProject.fabric_api_version)
     fabricImplementation fabricApi.fabricModule("fabric-resource-loader-v1", rootProject.fabric_api_version)
 
@@ -158,6 +157,17 @@ publishing {
 
             pom.withXml {
                 def deps = asNode().appendNode("dependencies")
+
+                // Adds fabric api to deps
+                configurations.fabricImplementation.dependencies.each {
+                    def d = deps.appendNode("dependency")
+
+                    d.appendNode("groupId", it.group)
+                    d.appendNode('artifactId', it instanceof ProjectDependency ? project(it.path).base.archivesName.get() : it.name)
+                    d.appendNode("version", it.version)
+                    d.appendNode("scope", "compile")
+                }
+
                 def d = deps.appendNode("dependency")
                 d.appendNode("groupId", project.group)
                 d.appendNode("artifactId", "PlayerAnimationLibCommon")
