@@ -11,6 +11,7 @@ import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.util.JsonUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,13 +32,21 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
     private static final Pattern UNDERSCORE_PATTERN = Pattern.compile("_(.)");
 
     public static Map<String, Animation> loadAnimations(InputStream resource) throws IOException {
+        return loadAnimations(resource, null);
+    }
+
+    public static Map<String, Animation> loadAnimations(InputStream resource, @Nullable String name) throws IOException {
         try (Reader reader = new InputStreamReader(resource)) {
-            return loadAnimations(PlayerAnimLib.GSON.fromJson(reader, JsonObject.class));
+            return loadAnimations(PlayerAnimLib.GSON.fromJson(reader, JsonObject.class), name);
         }
     }
 
     public static Map<@NotNull String, Animation> loadAnimations(JsonObject json) {
-        if (json.has("animations")) {
+        return loadAnimations(json, null);
+    }
+
+    public static Map<@NotNull String, Animation> loadAnimations(JsonObject json, @Nullable String name) {
+        if (json.has("animations")) { // Bedrock
             Map<String, Animation> animationMap = PlayerAnimLib.GSON.fromJson(json.get("animations"), PlayerAnimLib.ANIMATIONS_MAP_TYPE);
             if (json.has("parents") && json.has("model")) {
                 Map<String, String> parents = UniversalAnimLoader.getParents(JsonUtil.getAsJsonObject(json, "parents", new JsonObject()));
@@ -52,9 +61,15 @@ public class UniversalAnimLoader implements JsonDeserializer<Map<String, Animati
                 }
             }
             return animationMap;
-        } else {
+        } else if (json.has("nodeAnimations")) { // Hytale
+            Animation animation = BlockyAnimLoader.GSON.fromJson(json, Animation.class);
+            if (name != null && !animation.data().has(ExtraAnimationData.NAME_KEY)) animation.data().put(ExtraAnimationData.NAME_KEY, name);
+            return Collections.singletonMap(animation.getNameOrId(), animation);
+        } else  if (json.has("emote")) { // PlayerAnimator
             Animation animation = PlayerAnimatorLoader.GSON.fromJson(json, Animation.class);
             return Collections.singletonMap(animation.getNameOrId(), animation);
+        } else {
+            throw new JsonParseException("Unsupported format!");
         }
     }
 

@@ -299,7 +299,7 @@ public class AnimationLoader implements JsonDeserializer<Animation> {
 				easingArg;
 	}
 
-	private static List<Keyframe> addArgsForKeyframes(List<Keyframe> frames) {
+	public static List<Keyframe> addArgsForKeyframes(List<Keyframe> frames) {
 		if (frames.size() == 1) {
 			Keyframe frame = frames.getFirst();
 

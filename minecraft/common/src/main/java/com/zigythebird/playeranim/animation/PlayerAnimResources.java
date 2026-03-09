@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -83,10 +84,13 @@ public class PlayerAnimResources implements ResourceManagerReloadListener {
 	public void onResourceManagerReload(ResourceManager manager) {
 		ANIMATIONS.clear();
 
-		for (var resource : manager.listResources("player_animations", resourceLocation -> resourceLocation.getPath().endsWith(".json")).entrySet()) {
+		for (var resource : manager.listResources("player_animations", identifier -> {
+			String path = identifier.getPath();
+			return path.endsWith(".json") || path.endsWith(".blockyanim");
+		}).entrySet()) {
 			String namespace = resource.getKey().getNamespace();
 			try (InputStream is = resource.getValue().open()) {
-				for (var entry : UniversalAnimLoader.loadAnimations(is).entrySet()) {
+				for (var entry : UniversalAnimLoader.loadAnimations(is, FilenameUtils.getBaseName(resource.getKey().getPath())).entrySet()) {
 					ANIMATIONS.put(Identifier.fromNamespaceAndPath(namespace, entry.getKey()), entry.getValue());
 				}
 			} catch (Exception e) {
