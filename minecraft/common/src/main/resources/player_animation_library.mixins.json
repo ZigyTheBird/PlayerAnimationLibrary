@@ -10,6 +10,8 @@
     "CapeModelAccessor",
     "ElytraLayerMixin",
     "ItemInHandLayerMixin",
+    "LevelRendererMixin",
+    "LevelRenderStateMixin",
     "LivingEntityRendererMixin",
     "PlayerCapeModelMixin",
     "PlayerModelMixin",

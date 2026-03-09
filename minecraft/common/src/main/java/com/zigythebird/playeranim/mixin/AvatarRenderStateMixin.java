@@ -2,6 +2,7 @@ package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
+import com.zigythebird.playeranimcore.animation.AnimationData;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,19 +11,14 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(AvatarRenderState.class)
 public class AvatarRenderStateMixin implements IAvatarAnimationState {
     @Unique
-    boolean playerAnimLib$isFirstPersonPass = false;
+    AvatarAnimManager playerAnimLib$avatarAnimManager = null;
 
     @Unique
-    AvatarAnimManager playerAnimLib$avatarAnimManager = null;
+    AnimationData playerAnimLib$data = null;
 
     @Override
     public boolean playerAnimLib$isFirstPersonPass() {
-        return playerAnimLib$isFirstPersonPass;
-    }
-
-    @Override
-    public void playerAnimLib$setFirstPersonPass(boolean value) {
-        playerAnimLib$isFirstPersonPass = value;
+        return this.playerAnimLib$data.isFirstPersonPass();
     }
 
     @Override
@@ -33,6 +29,16 @@ public class AvatarRenderStateMixin implements IAvatarAnimationState {
     @Override
     public @NotNull AvatarAnimManager playerAnimLib$getAnimManager() {
         return this.playerAnimLib$avatarAnimManager;
+    }
+
+    @Override
+    public void playerAnimLib$setAnimData(AnimationData data) {
+        this.playerAnimLib$data = data;
+    }
+
+    @Override
+    public AnimationData playerAnimLib$getAnimData() {
+        return this.playerAnimLib$data;
     }
 }
 
