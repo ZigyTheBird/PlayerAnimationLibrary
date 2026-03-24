@@ -2,14 +2,14 @@ import org.redlance.dima_dencep.gradle.publish2discord.tasks.PublishDiscordTask
 import org.apache.commons.lang3.StringUtils
 
 plugins {
-    id "org.redlance.dima_dencep.gradle.PublishToDiscord" version "1.0.6"
-    id "dev.architectury.loom" version "1.13-SNAPSHOT" apply false
-    id "architectury-plugin" version "3.4-SNAPSHOT" apply false
-    id "com.gradleup.shadow" version "9.3.0" apply false
+    id "org.redlance.dima_dencep.gradle.PublishToDiscord" version "1.0.8"
+    id "xyz.wagyourtail.unimined" version "1.4.2+redlance.2" apply false
+    id "com.gradleup.shadow" version "9.4.0" apply false
 }
 
 allprojects {
     apply plugin: "java"
+    apply plugin: "java-library"
     apply plugin: "maven-publish"
 
     base.archivesName = "${rootProject.archives_base_name}${StringUtils.capitalize(project.name)}"
@@ -36,7 +36,7 @@ allprojects {
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = "UTF-8"
-        options.release.set 21
+        options.release.set 25
     }
 
     java {
