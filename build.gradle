@@ -2,9 +2,9 @@ import org.redlance.dima_dencep.gradle.publish2discord.tasks.PublishDiscordTask
 import org.apache.commons.lang3.StringUtils
 
 plugins {
-    id "org.redlance.dima_dencep.gradle.PublishToDiscord" version "1.0.6"
+    id "org.redlance.dima_dencep.gradle.PublishToDiscord" version "1.0.8"
     id "xyz.wagyourtail.unimined" version "1.4.2+redlance.2" apply false
-    id "com.gradleup.shadow" version "9.3.1" apply false
+    id "com.gradleup.shadow" version "9.4.0" apply false
 }
 
 allprojects {
@@ -22,14 +22,6 @@ allprojects {
             url = "https://libraries.minecraft.net"
             content {
                 includeModule("org.lwjgl", "lwjgl-freetype")
-            }
-        }
-        maven {
-            name = "Maven for PR #2988" // https://github.com/neoforged/NeoForge/pull/2988
-            url = uri("https://prmaven.neoforged.net/NeoForge/pr2988")
-            content {
-                includeModule("net.neoforged", "neoforge")
-                includeModule("net.neoforged", "testframework")
             }
         }
         maven {

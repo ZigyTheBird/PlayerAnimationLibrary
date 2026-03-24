@@ -1,9 +1,10 @@
 package com.zigythebird.playeranim;
 
-import com.zigythebird.playeranimcore.util.ServiceUtil;
+import org.redlance.common.services.AdvancedService;
+import org.redlance.common.services.ServiceUtils;
 
-public interface PlayerAnimLibService extends ServiceUtil.ActiveService {
-    PlayerAnimLibService INSTANCE = ServiceUtil.loadService(PlayerAnimLibService.class);
+public interface PlayerAnimLibService extends AdvancedService {
+    PlayerAnimLibService INSTANCE = ServiceUtils.loadService(PlayerAnimLibService.class);
 
     boolean isModLoaded(String id);
 }
