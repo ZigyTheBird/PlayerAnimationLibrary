@@ -5,7 +5,7 @@ import net.neoforged.fml.loading.FMLLoader;
 
 public final class PlayerAnimLibServiceImpl implements PlayerAnimLibService {
     @Override
-    public boolean isActive() {
+    public boolean isServiceActive() {
         try {
             Class.forName("net.neoforged.fml.loading.FMLLoader");
             return true;

@@ -5,7 +5,7 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public final class PlayerAnimLibServiceImpl implements PlayerAnimLibService {
     @Override
-    public boolean isActive() {
+    public boolean isServiceActive() {
         try {
             Class.forName("net.fabricmc.loader.api.FabricLoader");
             return true;
