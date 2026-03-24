@@ -54,7 +54,7 @@ jobs:
 
           files: |
             ./minecraft/build/libs/PlayerAnimationLibMerged-*.jar
-          version-type: release
+          version-type: alpha
 
           loaders: |
             fabric
