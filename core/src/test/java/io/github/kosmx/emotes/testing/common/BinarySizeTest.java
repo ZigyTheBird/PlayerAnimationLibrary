@@ -23,7 +23,7 @@ public class BinarySizeTest {
     public void newBinarySizeTest() throws IOException {
         Animation animation = EmoteDataHashingTest.loadAnimation();
 
-        for (int version = 1; version <= AnimationBinary.CURRENT_VERSION; version++) {
+        for (int version = 1; version <= AnimationBinary.getCurrentVersion(); version++) {
             ByteBuf byteBuf = Unpooled.buffer();
             long start = System.nanoTime();
             AnimationBinary.write(byteBuf, version, animation);

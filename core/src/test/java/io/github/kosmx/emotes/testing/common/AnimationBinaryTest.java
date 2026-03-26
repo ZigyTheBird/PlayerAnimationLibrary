@@ -24,7 +24,7 @@ public class AnimationBinaryTest {
     public void newBinaryTest() throws IOException {
         Animation animation = EmoteDataHashingTest.loadAnimation();
 
-        for (int version = 1; version <= AnimationBinary.CURRENT_VERSION; version++) {
+        for (int version = 1; version <= AnimationBinary.getCurrentVersion(); version++) {
             ByteBuf byteBuf = Unpooled.buffer();
             AnimationBinary.write(byteBuf, version, animation);
 

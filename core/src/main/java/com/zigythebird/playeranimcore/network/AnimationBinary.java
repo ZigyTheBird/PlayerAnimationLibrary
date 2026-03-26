@@ -37,10 +37,12 @@ public final class AnimationBinary {
      * Version 5: Fixed the Y position axis on items being negated.
      * Version 6: Compact binary format - bit-packed header, presence flags for bone axes, compact keyframe encoding.
      */
-    public static final int CURRENT_VERSION = 6;
+    public static int getCurrentVersion() {
+        return 6;
+    }
 
     public static void write(ByteBuf buf, Animation animation) {
-        AnimationBinary.write(buf, CURRENT_VERSION, animation);
+        AnimationBinary.write(buf, getCurrentVersion(), animation);
     }
 
     public static void write(ByteBuf buf, int version, Animation animation) {
@@ -131,7 +133,7 @@ public final class AnimationBinary {
     }
 
     public static Animation read(ByteBuf buf) {
-        return AnimationBinary.read(buf, CURRENT_VERSION);
+        return AnimationBinary.read(buf, getCurrentVersion());
     }
 
     public static Animation read(ByteBuf buf, int version) {

@@ -46,7 +46,7 @@ public class PlayerAnimCommands {
         dispatcher.register((LiteralArgumentBuilder<T>) Commands.literal("testAnimationBinary")
                 .then(Commands.argument("animationID", IdentifierArgument.id())
                         .suggests(new AnimationArgumentProvider<>())
-                        .then(Commands.argument("version", IntegerArgumentType.integer(1, AnimationBinary.CURRENT_VERSION))
+                        .then(Commands.argument("version", IntegerArgumentType.integer(1, AnimationBinary.getCurrentVersion()))
                                 .executes(PlayerAnimCommands::executeBinary)
                         )
                 )
