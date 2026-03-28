@@ -36,9 +36,10 @@ public final class AnimationBinary {
      * Version 4: Fixed some issues with the body bone.
      * Version 5: Fixed the Y position axis on items being negated.
      * Version 6: Compact binary format - bit-packed header, presence flags for bone axes, compact keyframe encoding.
+     * Version 7: Custom bone models
      */
     public static int getCurrentVersion() {
-        return 6;
+        return 7;
     }
 
     public static void write(ByteBuf buf, Animation animation) {

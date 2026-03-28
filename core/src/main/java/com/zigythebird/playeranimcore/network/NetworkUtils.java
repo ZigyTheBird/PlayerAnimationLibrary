@@ -47,7 +47,7 @@ public class NetworkUtils {
         DecodedImage texture = null;
         JsonArray elements = null;
 
-        if (version >= 6) {
+        if (version >= 7) {
             int boneFlags = VarIntUtils.readVarInt(buf);
 
             if ((boneFlags & 1) != 0) {
@@ -83,7 +83,7 @@ public class NetworkUtils {
     public static void writeCustomBone(ByteBuf buf, CustomModelBone bone, int version) {
         writeVec3f(buf, bone.pivot());
 
-        if (version >= 6) {
+        if (version >= 7) {
             boolean isWebPEncoderAvailable = PlatformWebPEncoder.INSTANCE.isAvailable();
 
             int boneFlags = 0;

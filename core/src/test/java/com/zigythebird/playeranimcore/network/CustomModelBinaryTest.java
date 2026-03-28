@@ -77,17 +77,17 @@ public class CustomModelBinaryTest {
     // ── Tests ──
 
     @Test
-    @DisplayName("Bone with only pivot (version < 6)")
+    @DisplayName("Bone with only pivot (version < 7)")
     void pivotOnlyOldVersion() {
         CustomModelBone bone = new CustomModelBone(new Vec3f(1, 2, 3), null, null);
-        assertRoundTrip(bone, 5);
+        assertRoundTrip(bone, 6);
     }
 
     @Test
-    @DisplayName("Bone with only pivot (version 6)")
+    @DisplayName("Bone with only pivot (version 7)")
     void pivotOnly() {
         CustomModelBone bone = new CustomModelBone(new Vec3f(1, 2, 3), null, null);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class CustomModelBinaryTest {
     void boneWithTexture() {
         DecodedImage tex = DecodedImage.ofArgb(new int[] {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF}, 2, 2);
         CustomModelBone bone = new CustomModelBone(new Vec3f(0, 0, 0), tex, null);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class CustomModelBinaryTest {
         elements.add(element);
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(8, 8, 8), null, elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class CustomModelBinaryTest {
         elements.add(element);
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(0, 0, 0), null, elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -154,7 +154,7 @@ public class CustomModelBinaryTest {
         elements.add(element);
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(8, 8, 8), null, elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class CustomModelBinaryTest {
         elements.add(element);
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(0, 0, 0), null, elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -199,7 +199,7 @@ public class CustomModelBinaryTest {
         elements.add(element);
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(8, 8, 8), null, elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class CustomModelBinaryTest {
         elements.add(element);
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(0, 0, 0), null, elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -237,7 +237,7 @@ public class CustomModelBinaryTest {
         elements.add(element);
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(0, 0, 0), null, elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -258,7 +258,7 @@ public class CustomModelBinaryTest {
         }
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(8, 8, 8), DecodedImage.ofArgb(new int[]{0xFFAA0000, 0xFF00BB00, 0xFF0000CC, 0xFFDDDDDD}, 2, 2), elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 
     @Test
@@ -279,7 +279,7 @@ public class CustomModelBinaryTest {
             elements.add(element);
 
             CustomModelBone bone = new CustomModelBone(new Vec3f(0, 0, 0), null, elements);
-            assertRoundTrip(bone, 6);
+            assertRoundTrip(bone, 7);
         }
     }
 
@@ -307,7 +307,7 @@ public class CustomModelBinaryTest {
             elements.add(element);
 
             CustomModelBone bone = new CustomModelBone(new Vec3f(0, 0, 0), null, elements);
-            assertRoundTrip(bone, 6);
+            assertRoundTrip(bone, 7);
         }
     }
 
@@ -331,7 +331,7 @@ public class CustomModelBinaryTest {
                 Assertions.assertNotNull(bone.elements(), "elements is null for bone " + entry.getKey());
                 Assertions.assertFalse(bone.elements().isEmpty(), "elements empty for bone " + entry.getKey());
 
-                assertRoundTrip(bone, 6);
+                assertRoundTrip(bone, 7);
             }
         }
     }
@@ -363,6 +363,6 @@ public class CustomModelBinaryTest {
         elements.add(element);
 
         CustomModelBone bone = new CustomModelBone(new Vec3f(4, 5, 6), DecodedImage.ofArgb(new int[]{0xFF112233, 0xFF445566, 0xFF778899, 0xFFAABBCC}, 2, 2), elements);
-        assertRoundTrip(bone, 6);
+        assertRoundTrip(bone, 7);
     }
 }
