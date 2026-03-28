@@ -28,9 +28,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
-import com.zigythebird.playeranim.animation.MinecraftModel;
+import com.zigythebird.playeranim.animation.MinecraftCustomBone;
 import com.zigythebird.playeranim.util.RenderUtil;
-import com.zigythebird.playeranimcore.bindings.PlatformModel;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
 import net.minecraft.client.model.EntityModel;
@@ -102,10 +101,9 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
         poseStack.translate(-0.53F, -1.501F, -0.53F);
 
         animationPlayer.collectModels(bone -> {
-            PlatformModel platformModel = bone.getModel();
-            if (!(platformModel instanceof MinecraftModel mcModel)) return;
+            if (!(bone instanceof MinecraftCustomBone mcBone) || !mcBone.hasModel()) return;
 
-            QuadCollection bakedPart = mcModel.getGeometry();
+            QuadCollection bakedPart = mcBone.getGeometry();
 
             poseStack.pushPose();
             MatrixUtil.translateToPivotPoint(poseStack.last().pose(), bone.getPivot().div(16)); // idk
@@ -113,7 +111,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
             RenderUtil.translateMatrixToBone(poseStack, bone);
 
             submitNodeCollector.submitCustomGeometry(
-                    poseStack, mcModel.getRenderType(),
+                    poseStack, mcBone.getRenderType(),
 
                     (pose, buffer) -> {
                         QuadInstance instance = new QuadInstance();

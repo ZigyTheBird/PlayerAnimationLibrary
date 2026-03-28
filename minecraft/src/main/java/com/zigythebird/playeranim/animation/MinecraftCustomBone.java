@@ -1,11 +1,12 @@
 package com.zigythebird.playeranim.animation;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.zigythebird.playeranim.PlayerAnimLibMod;
-import com.zigythebird.playeranimcore.bindings.PlatformModel;
+import com.zigythebird.playeranimcore.PlayerAnimLib;
+import com.zigythebird.playeranimcore.animation.CustomModelBone;
+import com.zigythebird.playeranimcore.bones.CustomBone;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -27,49 +28,67 @@ import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.NonNull;
-import org.redlance.platformtools.webp.decoder.DecodedImage;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MinecraftModel implements PlatformModel, MaterialBaker, ModelBaker, ModelBaker.Interner, ModelDebugName {
+public class MinecraftCustomBone extends CustomBone implements MaterialBaker, ModelBaker, ModelBaker.Interner, ModelDebugName {
     private static final AtomicInteger TEXTURE_COUNTER = new AtomicInteger(0);
 
-    private final TextureAtlasSprite sprite;
-    private final RenderType renderType;
-    private final QuadCollection geometry;
+    @Nullable
+    private TextureAtlasSprite sprite;
+    @Nullable
+    private RenderType renderType;
+    @Nullable
+    private QuadCollection geometry;
 
-    public MinecraftModel(@NonNull DecodedImage texture, @NonNull JsonArray elements) throws IOException {
-        this.sprite = loadAtlasSprite(texture.toPng());
-        this.renderType = RenderTypes.entityTranslucent(this.sprite.atlasLocation());
+    public MinecraftCustomBone(String name, CustomModelBone data) {
+        super(name, data);
+        if (hasModelData()) {
+            try {
+                this.sprite = loadAtlasSprite(data.texture().toPng());
+                this.renderType = RenderTypes.entityTranslucent(this.sprite.atlasLocation());
 
-        List<CuboidModelElement> blockElements = new ArrayList<>();
-        for (JsonElement element : elements) {
-            blockElements.add(CuboidModel.GSON.fromJson(element, CuboidModelElement.class));
+                List<CuboidModelElement> blockElements = new ArrayList<>();
+                for (JsonElement element : data.elements()) {
+                    blockElements.add(CuboidModel.GSON.fromJson(element, CuboidModelElement.class));
+                }
+                this.geometry = UnbakedCuboidGeometry.bake(blockElements, TextureSlots.EMPTY, this, BlockModelRotation.IDENTITY, this);
+            } catch (Exception e) {
+                PlayerAnimLib.LOGGER.error("Failed to load custom model for bone: {}", name, e);
+            }
         }
-        this.geometry = UnbakedCuboidGeometry.bake(blockElements, TextureSlots.EMPTY, this, BlockModelRotation.IDENTITY, this);
     }
 
-    @NonNull
-    public QuadCollection getGeometry() {
+    public boolean hasModel() {
+        return this.geometry != null;
+    }
+
+    public @Nullable QuadCollection getGeometry() {
         return this.geometry;
     }
 
-    @NonNull
-    public RenderType getRenderType() {
+    public @Nullable RenderType getRenderType() {
         return this.renderType;
     }
 
     @Override
-    public void invalidate() {
-        if (this.sprite != null) this.sprite.close();
+    public void close() {
+        if (this.sprite != null) {
+            this.sprite.close();
+            this.sprite = null;
+        }
+        this.renderType = null;
+        this.geometry = null;
     }
 
     @Override
     public @NonNull String debugName() {
-        return "playeranim:custom_bone";
+        if (this.sprite == null) return PlayerAnimLibMod.MOD_ID + ":custom_bone";
+        return this.sprite.atlasLocation().toString();
     }
 
     @Override

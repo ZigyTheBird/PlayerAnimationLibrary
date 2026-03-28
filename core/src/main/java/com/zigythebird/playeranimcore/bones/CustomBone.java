@@ -1,26 +1,28 @@
 package com.zigythebird.playeranimcore.bones;
 
-import com.zigythebird.playeranimcore.bindings.PlatformModel;
+import com.zigythebird.playeranimcore.animation.CustomModelBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import org.jetbrains.annotations.Nullable;
 
-public class CustomBone extends PlayerAnimBone {
-    private final Vec3f pivot;
+public abstract class CustomBone extends PlayerAnimBone implements AutoCloseable {
+    private final CustomModelBone data;
 
-    @Nullable
-    private final PlatformModel model;
-
-    public CustomBone(String name, Vec3f pivot, @Nullable PlatformModel model) {
+    protected CustomBone(String name, CustomModelBone data) {
         super(name);
-        this.pivot = pivot;
-        this.model = model;
+        this.data = data;
     }
 
     public Vec3f getPivot() {
-        return this.pivot;
+        return this.data.pivot();
     }
 
-    public @Nullable PlatformModel getModel() {
-        return this.model;
+    public CustomModelBone getData() {
+        return this.data;
     }
+
+    public boolean hasModelData() {
+        return this.data.texture() != null && this.data.elements() != null && !this.data.elements().isEmpty();
+    }
+
+    @Override
+    public abstract void close();
 }

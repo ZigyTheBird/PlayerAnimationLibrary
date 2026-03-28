@@ -24,7 +24,6 @@
 
 package com.zigythebird.playeranimcore.animation;
 
-import com.google.gson.JsonArray;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.keyframe.*;
 import com.zigythebird.playeranimcore.animation.keyframe.event.CustomKeyFrameEvents;
@@ -40,7 +39,6 @@ import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractModifie
 import com.zigythebird.playeranimcore.animation.layered.modifier.SpeedModifier;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
-import com.zigythebird.playeranimcore.bindings.PlatformModel;
 import com.zigythebird.playeranimcore.bones.*;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.PlayState;
@@ -55,7 +53,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.redlance.platformtools.webp.decoder.DecodedImage;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -741,23 +738,28 @@ public abstract class AnimationController implements IAnimation {
 			if (this.bones.containsKey(entry)) this.bones.get(entry).setEnabled(true);
 		}
 
+		for (CustomBone bone : this.pivotBones.values()) {
+			bone.close();
+		}
 		this.pivotBones.clear();
 		for (Map.Entry<String, CustomModelBone> entry : currentAnimation.animation().bones().entrySet()) {
-			this.pivotBones.put(entry.getKey(), new CustomBone(entry.getKey(), entry.getValue().pivot(), loadCustomModel(
-					entry.getValue().texture(),
-					entry.getValue().elements()
-			)));
+			this.pivotBones.put(entry.getKey(), createCustomBone(entry.getKey(), entry.getValue()));
 		}
 
 		this.postAnimationSetupConsumer.accept(this.bones::get);
 	}
 
-	protected abstract @Nullable PlatformModel loadCustomModel(@Nullable DecodedImage texture, @Nullable JsonArray elements);
+	protected CustomBone createCustomBone(String name, CustomModelBone data) {
+		return new CustomBone(name, data) {
+			@Override
+			public void close() {}
+		};
+	}
 
 	@Override
 	public void collectModels(Consumer<CustomBone> consumer) {
 		for (CustomBone customBone : this.pivotBones.values()) {
-			if (customBone.getModel() == null) continue;
+			if (!customBone.hasModelData()) continue;
 			consumer.accept(customBone);
 		}
 	}
