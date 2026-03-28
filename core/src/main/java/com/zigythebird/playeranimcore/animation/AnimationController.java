@@ -706,6 +706,15 @@ public abstract class AnimationController implements IAnimation {
 		if (currentAnimation == null) return;
 		this.activeBones.clear();
 		resetEventKeyFrames();
+
+		for (CustomBone bone : this.pivotBones.values()) {
+			bone.close();
+		}
+		this.pivotBones.clear();
+		for (Map.Entry<String, CustomModelBone> entry : currentAnimation.animation().bones().entrySet()) {
+			this.pivotBones.put(entry.getKey(), createCustomBone(entry.getKey(), entry.getValue()));
+		}
+
 		for (AdvancedPlayerAnimBone bone : bones.values()) {
 			bone.setEnabled(currentAnimation.animation().getBone(bone.getName()) != null);
 		}
@@ -736,14 +745,6 @@ public abstract class AnimationController implements IAnimation {
 
 		for (String entry : currentAnimation.animation().parents().keySet()) {
 			if (this.bones.containsKey(entry)) this.bones.get(entry).setEnabled(true);
-		}
-
-		for (CustomBone bone : this.pivotBones.values()) {
-			bone.close();
-		}
-		this.pivotBones.clear();
-		for (Map.Entry<String, CustomModelBone> entry : currentAnimation.animation().bones().entrySet()) {
-			this.pivotBones.put(entry.getKey(), createCustomBone(entry.getKey(), entry.getValue()));
 		}
 
 		this.postAnimationSetupConsumer.accept(this.bones::get);
