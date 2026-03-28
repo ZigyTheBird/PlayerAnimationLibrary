@@ -24,6 +24,7 @@
 
 package com.zigythebird.playeranimcore.animation;
 
+import com.google.gson.JsonArray;
 import com.zigythebird.playeranimcore.PlayerAnimLib;
 import com.zigythebird.playeranimcore.animation.keyframe.*;
 import com.zigythebird.playeranimcore.animation.keyframe.event.CustomKeyFrameEvents;
@@ -39,6 +40,7 @@ import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractModifie
 import com.zigythebird.playeranimcore.animation.layered.modifier.SpeedModifier;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranimcore.bindings.PlatformModel;
 import com.zigythebird.playeranimcore.bones.*;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.PlayState;
@@ -53,6 +55,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.redlance.platformtools.webp.decoder.DecodedImage;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.parser.ast.FloatExpression;
 
@@ -75,7 +78,7 @@ public abstract class AnimationController implements IAnimation {
 	protected final Map<String, Vec3f> bonePositions;
 	protected final Map<String, AdvancedPlayerAnimBone> bones = new Object2ObjectOpenHashMap<>();
 	protected final Map<String, PlayerAnimBone> activeBones = new Object2ObjectOpenHashMap<>();
-	protected final Map<String, PivotBone> pivotBones = new Object2ObjectOpenHashMap<>();
+	protected final Map<String, CustomBone> pivotBones = new Object2ObjectOpenHashMap<>();
 	protected Queue<QueuedAnimation> animationQueue = new LinkedList<>();
 	protected final MochaEngine<AnimationController> molangRuntime;
 
@@ -739,11 +742,24 @@ public abstract class AnimationController implements IAnimation {
 		}
 
 		this.pivotBones.clear();
-		for (Map.Entry<String, Vec3f> entry : currentAnimation.animation().bones().entrySet()) {
-			this.pivotBones.put(entry.getKey(), new PivotBone(entry.getKey(), entry.getValue()));
+		for (Map.Entry<String, CustomModelBone> entry : currentAnimation.animation().bones().entrySet()) {
+			this.pivotBones.put(entry.getKey(), new CustomBone(entry.getKey(), entry.getValue().pivot(), loadCustomModel(
+					entry.getValue().texture(),
+					entry.getValue().elements()
+			)));
 		}
 
 		this.postAnimationSetupConsumer.accept(this.bones::get);
+	}
+
+	protected abstract @Nullable PlatformModel loadCustomModel(@Nullable DecodedImage texture, @Nullable JsonArray elements);
+
+	@Override
+	public void collectModels(Consumer<CustomBone> consumer) {
+		for (CustomBone customBone : this.pivotBones.values()) {
+			if (customBone.getModel() == null) continue;
+			consumer.accept(customBone);
+		}
 	}
 
 	/**

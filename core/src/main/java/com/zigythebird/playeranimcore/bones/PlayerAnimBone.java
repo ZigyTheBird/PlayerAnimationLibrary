@@ -8,8 +8,6 @@ import com.zigythebird.playeranimcore.animation.keyframe.KeyframeStack;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.Axis;
 import com.zigythebird.playeranimcore.enums.TransformType;
-import com.zigythebird.playeranimcore.math.MathHelper;
-import com.zigythebird.playeranimcore.math.Vec3f;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3f;
 

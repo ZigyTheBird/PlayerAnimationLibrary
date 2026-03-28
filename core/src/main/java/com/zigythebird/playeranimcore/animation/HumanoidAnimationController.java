@@ -24,9 +24,13 @@
 
 package com.zigythebird.playeranimcore.animation;
 
+import com.google.gson.JsonArray;
+import com.zigythebird.playeranimcore.bindings.PlatformModel;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.redlance.platformtools.webp.decoder.DecodedImage;
 import team.unnamed.mocha.MochaEngine;
 
 import java.util.ArrayList;
@@ -128,5 +132,10 @@ public class HumanoidAnimationController extends AnimationController {
             bone.position.y += offset * this.torsoBendYPosMultiplier;
         }
         return bone;
+    }
+
+    @Override
+    protected @Nullable PlatformModel loadCustomModel(@Nullable DecodedImage texture, @Nullable JsonArray elements) {
+        return null;
     }
 }
