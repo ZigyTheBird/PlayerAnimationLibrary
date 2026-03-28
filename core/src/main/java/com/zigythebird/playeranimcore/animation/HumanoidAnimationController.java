@@ -129,5 +129,4 @@ public class HumanoidAnimationController extends AnimationController {
         }
         return bone;
     }
-
 }

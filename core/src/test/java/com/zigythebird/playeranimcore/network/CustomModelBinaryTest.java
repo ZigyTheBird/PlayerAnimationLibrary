@@ -11,6 +11,7 @@ import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.redlance.platformtools.webp.decoder.DecodedImage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +52,9 @@ public class CustomModelBinaryTest {
         CustomModelBone read = NetworkUtils.readCustomBone(buf, version);
 
         Assertions.assertEquals(bone.pivot(), read.pivot(), "pivot mismatch");
-        Assertions.assertArrayEquals(bone.texture(), read.texture(), "texture mismatch");
+        if (bone.texture() != null && read.texture() != null) {
+            Assertions.assertArrayEquals(bone.texture().argb(), read.texture().argb(), "texture mismatch");
+        }
 
         if (bone.elements() == null) {
             Assertions.assertNull(read.elements(), "expected null elements");
@@ -90,7 +93,7 @@ public class CustomModelBinaryTest {
     @Test
     @DisplayName("Bone with texture bytes")
     void boneWithTexture() {
-        byte[] tex = {0x00, 0x01, 0x02, (byte) 0xFF};
+        DecodedImage tex = DecodedImage.ofArgb(new int[] {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF}, 2, 2);
         CustomModelBone bone = new CustomModelBone(new Vec3f(0, 0, 0), tex, null);
         assertRoundTrip(bone, 6);
     }
@@ -254,7 +257,7 @@ public class CustomModelBinaryTest {
             elements.add(element);
         }
 
-        CustomModelBone bone = new CustomModelBone(new Vec3f(8, 8, 8), new byte[]{1, 2, 3}, elements);
+        CustomModelBone bone = new CustomModelBone(new Vec3f(8, 8, 8), DecodedImage.ofArgb(new int[]{0xFFAA0000, 0xFF00BB00, 0xFF0000CC, 0xFFDDDDDD}, 2, 2), elements);
         assertRoundTrip(bone, 6);
     }
 
@@ -359,7 +362,7 @@ public class CustomModelBinaryTest {
         JsonArray elements = new JsonArray();
         elements.add(element);
 
-        CustomModelBone bone = new CustomModelBone(new Vec3f(4, 5, 6), new byte[]{10, 20, 30}, elements);
+        CustomModelBone bone = new CustomModelBone(new Vec3f(4, 5, 6), DecodedImage.ofArgb(new int[]{0xFF112233, 0xFF445566, 0xFF778899, 0xFFAABBCC}, 2, 2), elements);
         assertRoundTrip(bone, 6);
     }
 }

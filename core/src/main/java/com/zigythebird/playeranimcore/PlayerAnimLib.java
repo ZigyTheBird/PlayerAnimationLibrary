@@ -33,6 +33,6 @@ public class PlayerAnimLib {
             .create();
 
     static {
-        PlayerAnimLib.LOGGER.info(WebPDiagnostics.summary());
+        WebPDiagnostics.summary(PlayerAnimLib.LOGGER::info);
     }
 }
