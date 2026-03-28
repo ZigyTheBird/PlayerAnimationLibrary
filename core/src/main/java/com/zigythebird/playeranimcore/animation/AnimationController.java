@@ -491,6 +491,10 @@ public abstract class AnimationController implements IAnimation {
 		if (getAnimationState() == State.RUNNING) {
 			processCurrentAnimation(adjustedTick, state);
 		}
+
+		if (this.animationState == State.STOPPED && !this.pivotBones.isEmpty()) {
+			for (CustomBone bone : this.pivotBones.values()) bone.close();
+		}
 	}
 
 	/**
