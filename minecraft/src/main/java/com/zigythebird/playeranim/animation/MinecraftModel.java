@@ -9,7 +9,6 @@ import com.zigythebird.playeranimcore.bindings.PlatformModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -109,8 +108,8 @@ public class MinecraftModel implements PlatformModel, MaterialBaker, ModelBaker,
     }
 
     @Override
-    public BakedQuad.@NonNull SpriteInfo spriteInfo(BakedQuad.@NonNull SpriteInfo sprite) {
-        return sprite;
+    public BakedQuad.@NonNull MaterialInfo materialInfo(BakedQuad.@NonNull MaterialInfo material) {
+        return material;
     }
 
     @Override
