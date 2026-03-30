@@ -31,6 +31,7 @@ import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.animation.MinecraftCustomBone;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
+import com.zigythebird.playeranimcore.math.Vec3f;
 import com.zigythebird.playeranimcore.util.MatrixUtil;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -97,18 +98,24 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
         int lightCoords = state.lightCoords;
 
         poseStack.pushPose();
-        poseStack.scale(-1.0F, -1.0F, 1.0F);
-        poseStack.translate(-0.53F, -1.501F, -0.53F);
 
-        animationPlayer.collectModels(bone -> {
-            if (!(bone instanceof MinecraftCustomBone mcBone) || !mcBone.hasModel()) return;
+        poseStack.translate(0, 1.501F, 0);
+        poseStack.scale(1, -1, 1);
+
+        animationPlayer.collectModels(customBone -> {
+            if (!(customBone instanceof MinecraftCustomBone mcBone) || !mcBone.hasModel()) return;
 
             QuadCollection bakedPart = mcBone.getGeometry();
 
             poseStack.pushPose();
-            MatrixUtil.translateToPivotPoint(poseStack.last().pose(), bone.getPivot().div(16)); // idk
+            Vec3f pivot = customBone.getPivot().div(16);
+            MatrixUtil.translateToPivotPoint(poseStack.last().pose(), pivot);
+            //Creating a new bone instance here since it's probably best if we don't make controller bones dirty
+            PlayerAnimBone bone = new PlayerAnimBone(customBone.getName());
             animationPlayer.get3DTransform(bone);
-            RenderUtil.translateMatrixToBone(poseStack, bone);
+            RenderUtil.translateMatrixToBone(poseStack, customBone);
+            MatrixUtil.translateAwayFromPivotPoint(poseStack.last().pose(), pivot);
+            poseStack.translate(-0.5, 0, -0.5);
 
             submitNodeCollector.submitCustomGeometry(
                     poseStack, mcBone.getRenderType(),
