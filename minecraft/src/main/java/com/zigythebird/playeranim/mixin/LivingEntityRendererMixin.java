@@ -113,7 +113,11 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
             // Creating a new bone instance here since it's probably best if we don't make controller bones dirty
             // PlayerAnimBone bone = new PlayerAnimBone(customBone.getName());
             // animationPlayer.get3DTransform(bone);
+            bone.rotation.x *= -1;
+            bone.rotation.z *= -1;
             RenderUtil.translateMatrixToBone(poseStack, bone);
+            bone.rotation.x *= -1;
+            bone.rotation.z *= -1;
             MatrixUtil.translateAwayFromPivotPoint(poseStack.last().pose(), pivot);
             poseStack.translate(-0.5, 0, -0.5);
 
