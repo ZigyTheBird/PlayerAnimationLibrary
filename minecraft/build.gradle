@@ -38,7 +38,24 @@ unimined.minecraft(sourceSets.neoforge) {
         loader("net.neoforged:neoforge:$rootProject.neoforge_version:universal")
         mixinConfig("player_animation_library.mixins.json")
 
-        // accessTransformer aw2at(file("src/main/resources/player_animation_library.classtweaker"))
+        accessTransformer(provider {
+            def transformed = file("src/main/resources/player_animation_library.classtweaker").text
+                    .replaceFirst(/classTweaker\s+v\d+\s+(\S+)/, 'accessWidener v2 $1')
+                    .readLines()
+                    .findAll { line ->
+                        !line.trim().startsWith("transitive-inject-interface") && !line.trim().startsWith("inject-interface")
+                    }
+                    .join("\n")
+
+            def out = layout.buildDirectory.file("generated/player_animation_library.classtweaker").get().asFile
+            try {
+                out.parentFile.mkdirs()
+                out.write(transformed)
+                return aw2at(out)
+            } finally {
+                out.delete()
+            }
+        }.get())
     }
     defaultRemapJar = true
 }
