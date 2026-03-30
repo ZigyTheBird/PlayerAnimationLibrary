@@ -26,7 +26,9 @@ package com.zigythebird.playeranimcore.animation;
 
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
+import com.zigythebird.playeranimcore.util.MatrixUtil;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import team.unnamed.mocha.MochaEngine;
 
 import java.util.ArrayList;
@@ -122,10 +124,11 @@ public class HumanoidAnimationController extends AnimationController {
         bone = super.get3DTransformRaw(bone);
         String name = bone.getName();
         if (this.torsoBendSign != 0 && this.top_bones.contains(name)) {
-            float offset = getBonePosition(name).y() - 18;
-            bone.rotation.x += this.torsoBend;
-            bone.position.x += (offset * this.torsoBendZPosMultiplier - offset) * this.torsoBendSign;
-            bone.position.y += offset * this.torsoBendYPosMultiplier;
+            Matrix4f matrix4f = new Matrix4f();
+            matrix4f.translate(0, 16, 0);
+            matrix4f.rotateX(this.torsoBend);
+            matrix4f.translate(0, -16, 0);
+            MatrixUtil.applyMatrixToBone(bone, matrix4f, getBonePosition(name));
         }
         return bone;
     }
