@@ -38,7 +38,7 @@ public class PlayerCapeModelMixin implements IBoneUpdater {
             bone.rotation.x *= -1;
             bone.rotation.y *= -1;
             bone.rotation.x += MochaMath.PI;
-            bone.rotation.y += MochaMath.PI;
+            bone.rotation.z += MochaMath.PI;
 
             this.pal$updatePart(emote, this.cape, bone);
         } else {

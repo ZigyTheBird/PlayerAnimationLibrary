@@ -1,1 +1,1 @@
-- Fix constant inlining
+- Fix cape
