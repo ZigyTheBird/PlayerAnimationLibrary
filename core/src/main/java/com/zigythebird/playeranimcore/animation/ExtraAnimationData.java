@@ -48,7 +48,17 @@ public record ExtraAnimationData(Map<String, Object> data) {
     public byte @Nullable [] getBinary(String name) {
         Object obj = getRaw(name);
         if (obj == null) return null;
+        return convertToBytes(name, obj);
+    }
 
+    private byte @Nullable [] convertToBytes(String name, Object obj) {
+        if (obj instanceof DecodedImage image) {
+            try {
+                return image.toPng();
+            } catch (IOException e) {
+                return null;
+            }
+        }
         if (obj instanceof String str) {
             try {
                 put(name, obj = Base64.getDecoder().decode(str));
@@ -63,9 +73,18 @@ public record ExtraAnimationData(Map<String, Object> data) {
     }
 
     public @Nullable DecodedImage getImage(String name) throws IOException {
-        byte[] obj = getBinary(name);
+        Object obj = getRaw(name);
         if (obj == null) return null;
-        return DecodedImage.fromPng(obj);
+
+        if (obj instanceof DecodedImage image) {
+            return image;
+        } else {
+            byte[] data = convertToBytes(name, obj);
+            if (data == null) return null;
+            DecodedImage image = DecodedImage.fromPng(data);
+            put(name, image);
+            return image;
+        }
     }
 
     public Object getRaw(String name) {
