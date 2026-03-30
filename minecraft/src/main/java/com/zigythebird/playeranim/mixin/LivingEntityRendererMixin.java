@@ -102,18 +102,18 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
         poseStack.translate(0, 1.501F, 0);
         poseStack.scale(1, -1, 1);
 
-        animationPlayer.collectModels(customBone -> {
-            if (!(customBone instanceof MinecraftCustomBone mcBone) || !mcBone.hasModel()) return;
+        animationPlayer.collectModels(bone -> {
+            if (!(bone instanceof MinecraftCustomBone mcBone) || !mcBone.hasModel()) return;
 
             QuadCollection bakedPart = mcBone.getGeometry();
 
             poseStack.pushPose();
-            Vec3f pivot = customBone.getPivot().div(16);
+            Vec3f pivot = bone.getPivot().div(16);
             MatrixUtil.translateToPivotPoint(poseStack.last().pose(), pivot);
-            //Creating a new bone instance here since it's probably best if we don't make controller bones dirty
-            PlayerAnimBone bone = new PlayerAnimBone(customBone.getName());
-            animationPlayer.get3DTransform(bone);
-            RenderUtil.translateMatrixToBone(poseStack, customBone);
+            // Creating a new bone instance here since it's probably best if we don't make controller bones dirty
+            // PlayerAnimBone bone = new PlayerAnimBone(customBone.getName());
+            // animationPlayer.get3DTransform(bone);
+            RenderUtil.translateMatrixToBone(poseStack, bone);
             MatrixUtil.translateAwayFromPivotPoint(poseStack.last().pose(), pivot);
             poseStack.translate(-0.5, 0, -0.5);
 
