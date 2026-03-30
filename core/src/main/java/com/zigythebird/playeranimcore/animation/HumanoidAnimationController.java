@@ -36,20 +36,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static java.util.Map.entry;
+
 public class HumanoidAnimationController extends AnimationController {
     /**
      * Bone pivot point positions used to apply custom pivot point translations.
      */
-    public static final Map<String, Vec3f> BONE_POSITIONS = Map.of(
-            "right_arm", new Vec3f(5, 22, 0),
-            "left_arm", new Vec3f(-5, 22, 0),
-            "left_leg", new Vec3f(-2f, 12, 0f),
-            "right_leg", new Vec3f(2f, 12, 0f),
-            "torso", new Vec3f(0, 24, 0),
-            "head", new Vec3f(0, 24, 0),
-            "body", new Vec3f(0, 12, 0),
-            "cape", new Vec3f(0, 24, 2),
-            "elytra", new Vec3f(0, 24, 2)
+    public static final Map<String, Vec3f> BONE_POSITIONS = Map.ofEntries(
+            entry("right_item", new Vec3f(6, 12, -2)),
+            entry("left_item", new Vec3f(-6, 12, -2)),
+            entry("right_arm", new Vec3f(5, 22, 0)),
+            entry("left_arm", new Vec3f(-5, 22, 0)),
+            entry("left_leg", new Vec3f(-2f, 12, 0f)),
+            entry("right_leg", new Vec3f(2f, 12, 0f)),
+            entry("torso", new Vec3f(0, 24, 0)),
+            entry("head", new Vec3f(0, 24, 0)),
+            entry("body", new Vec3f(0, 12, 0)),
+            entry("cape", new Vec3f(0, 24, 2)),
+            entry("elytra", new Vec3f(0, 24, 2))
     );
 
     /**
