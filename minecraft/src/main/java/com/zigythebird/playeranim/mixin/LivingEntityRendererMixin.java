@@ -109,12 +109,9 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
 
             poseStack.pushPose();
             Vec3f pivot = bone.getPivot().div(16);
-            MatrixUtil.translateToPivotPoint(poseStack.last().pose(), pivot);
-            bone.position.mul(-1, 1, -1);
-            RenderUtil.translateMatrixToBone(poseStack, bone);
-            bone.position.mul(-1, 1, -1);
-            MatrixUtil.translateAwayFromPivotPoint(poseStack.last().pose(), pivot);
-            poseStack.translate(-0.5, 0, -0.5);
+            poseStack.translate(pivot.x() - bone.position.x() / 16f, pivot.y() + bone.position.y() / 16f, pivot.z() - bone.position.z() / 16f);
+            RenderUtil.applyBoneRotationScale(poseStack, bone);
+            poseStack.translate(-pivot.x() - 0.5f, -pivot.y(), -pivot.z() - 0.5f);
 
             submitNodeCollector.submitCustomGeometry(
                     poseStack, mcBone.getRenderType(),
