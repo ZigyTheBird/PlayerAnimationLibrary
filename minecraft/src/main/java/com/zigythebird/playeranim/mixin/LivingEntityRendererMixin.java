@@ -32,7 +32,6 @@ import com.zigythebird.playeranim.animation.MinecraftCustomBone;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.math.Vec3f;
-import com.zigythebird.playeranimcore.util.MatrixUtil;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
