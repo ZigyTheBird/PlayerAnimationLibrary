@@ -8,7 +8,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Branch
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: Restore gradle.properties
               shell: bash
