@@ -46,10 +46,8 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
     protected @Nullable IAnimation getTopAnimation() {
         if (!this.modifiers.isEmpty()) {
             return this.modifiers.getFirst();
-        } else if (this.animation != null) {
-            return this.animation;
         } else {
-            return null;
+            return this.animation;
         }
     }
 
