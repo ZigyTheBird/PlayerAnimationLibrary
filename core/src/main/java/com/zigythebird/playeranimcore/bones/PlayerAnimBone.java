@@ -11,7 +11,9 @@ import com.zigythebird.playeranimcore.enums.TransformType;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3f;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is the object that is directly modified by animations to handle movement
@@ -161,6 +163,14 @@ public class PlayerAnimBone {
 		}
 		if (transitionLength == null) return endValue;
 		return easingType.apply(startValue, endValue, animTime / transitionLength);
+	}
+
+	public static Map<String, PlayerAnimBone> bonesToMap(PlayerAnimBone... bones) {
+		Map<String, PlayerAnimBone> map = new HashMap<>();
+		for (PlayerAnimBone bone : bones) {
+			map.put(bone.getName(), bone);
+		}
+		return map;
 	}
 
 	@Override

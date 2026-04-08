@@ -626,8 +626,9 @@ public abstract class AnimationController implements IAnimation {
 		for (PlayerAnimBone bone : this.bones.values()) {
 			processBoneHierarchy(bone, parentsMap, processedBones);
 		}
-		for (PlayerAnimBone bone : this.pivotBones.values()) {
-			processBoneHierarchy(bone, parentsMap, processedBones);
+		for (CustomBone bone : this.pivotBones.values()) {
+			if (!bone.hasModelData())
+				processBoneHierarchy(bone, parentsMap, processedBones);
 		}
 	}
 
@@ -643,6 +644,38 @@ public abstract class AnimationController implements IAnimation {
 
 		PlayerAnimBone parent = this.pivotBones.get(parentName);
 		if (parent == null) parent = this.bones.get(parentName);
+		if (parent == null) {
+			PlayerAnimLib.LOGGER.error("Parent {} not found for {}", parentName, boneName);
+			return;
+		}
+
+		processBoneHierarchy(parent, parentsMap, processedBones);
+
+		if (bone instanceof CustomBone customBone && customBone.hasModelData()) return;
+
+		this.activeBones.put(boneName, bone);
+		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(parent), this::getBonePosition);
+
+		processedBones.add(boneName);
+	}
+
+	private void processModelBoneHierarchy(PlayerAnimBone bone, Map<String, PlayerAnimBone> currentBoneStates, Map<String, String> parentsMap, Set<String> processedBones) {
+		String boneName = bone.getName();
+		if (processedBones.contains(boneName)) return;
+
+		String parentName = parentsMap.get(boneName);
+		if (parentName == null) {
+			processedBones.add(boneName);
+			return;
+		}
+
+		PlayerAnimBone parent = this.pivotBones.get(parentName);
+		if (parent == null) {
+			parent = currentBoneStates.get(parentName);
+		}
+		if (parent == null) {
+			parent = this.bones.get(parentName);
+		}
 		if (parent == null) {
 			PlayerAnimLib.LOGGER.error("Parent {} not found for {}", parentName, boneName);
 			return;
@@ -762,7 +795,14 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	@Override
-	public void collectModels(Consumer<CustomBone> consumer) {
+	public void collectModels(Map<String, PlayerAnimBone> currentBoneStates, Consumer<CustomBone> consumer) {
+		if (this.currentAnimation != null) {
+			Set<String> processedBones = new HashSet<>();
+			Map<String, String> parents = this.currentAnimation.animation().parents();
+			for (CustomBone customBone : this.pivotBones.values()) {
+				processModelBoneHierarchy(customBone, currentBoneStates, parents, processedBones);
+			}
+		}
 		for (CustomBone customBone : this.pivotBones.values()) {
 			if (!customBone.hasModelData()) continue;
 			consumer.accept(customBone);

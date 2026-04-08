@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -135,10 +136,10 @@ public class AnimationStack implements IAnimation {
     }
 
     @Override
-    public void collectModels(Consumer<CustomBone> consumer) {
+    public void collectModels(Map<String, PlayerAnimBone> currentBoneStates, Consumer<CustomBone> consumer) {
         for (Pair<Integer, IAnimation> layer : this.layers) {
             if (layer.right().isActive()) {
-                layer.right().collectModels(consumer);
+                layer.right().collectModels(currentBoneStates, consumer);
             }
         }
     }

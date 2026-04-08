@@ -32,6 +32,7 @@ import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -99,7 +100,7 @@ public class AnimationContainer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void collectModels(Consumer<CustomBone> consumer) {
-        if (this.anim != null) this.anim.collectModels(consumer);
+    public void collectModels(Map<String, PlayerAnimBone> currentBoneStates, Consumer<CustomBone> consumer) {
+        if (this.anim != null) this.anim.collectModels(currentBoneStates, consumer);
     }
 }

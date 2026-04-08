@@ -11,10 +11,7 @@ import com.zigythebird.playeranimcore.easing.EasingType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -192,8 +189,8 @@ public class ModifierLayer<T extends IAnimation> implements IAnimation {
     }
 
     @Override
-    public void collectModels(Consumer<CustomBone> consumer) {
+    public void collectModels(Map<String, PlayerAnimBone> currentBoneStates, Consumer<CustomBone> consumer) {
         IAnimation top = getTopAnimation();
-        if (top != null) top.collectModels(consumer);
+        if (top != null) top.collectModels(currentBoneStates, consumer);
     }
 }

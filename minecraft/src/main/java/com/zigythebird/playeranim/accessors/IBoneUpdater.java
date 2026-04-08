@@ -5,6 +5,8 @@ import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 /**
  * Use to implement custom transformations using mixins, for example BC applies bends here
  */

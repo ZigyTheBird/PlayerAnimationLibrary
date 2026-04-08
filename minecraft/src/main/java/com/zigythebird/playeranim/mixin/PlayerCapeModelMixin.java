@@ -2,6 +2,7 @@ package com.zigythebird.playeranim.mixin;
 
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.accessors.IBoneUpdater;
+import com.zigythebird.playeranim.accessors.IAnimatedByPAL;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
@@ -12,14 +13,20 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import team.unnamed.mocha.runtime.standard.MochaMath;
 
+import java.util.Map;
+
 //Set the priority high cause why not!
 @Mixin(value = PlayerCapeModel.class, priority = 2001)
-public class PlayerCapeModelMixin implements IBoneUpdater {
+public class PlayerCapeModelMixin implements IBoneUpdater, IAnimatedByPAL {
+    @Unique
+    private final PlayerAnimBone pal$bone = new PlayerAnimBone("cape");
+
     @Shadow
     @Final
     private ModelPart cape;
@@ -28,7 +35,7 @@ public class PlayerCapeModelMixin implements IBoneUpdater {
     private void setupAnim(AvatarRenderState avatarRenderState, CallbackInfo ci) {
         AvatarAnimManager emote = ((IAvatarAnimationState)avatarRenderState).playerAnimLib$getAnimManager();
         if (emote != null && emote.isActive()) {
-            PlayerAnimBone bone = RenderUtil.copyVanillaPart(this.cape, new PlayerAnimBone("cape"));
+            PlayerAnimBone bone = RenderUtil.copyVanillaPart(this.cape, this.pal$bone);
 
             bone.rotation.x -= MochaMath.PI;
             bone.rotation.z -= MochaMath.PI;
@@ -54,5 +61,10 @@ public class PlayerCapeModelMixin implements IBoneUpdater {
     @Override
     public void pal$resetAll(@Nullable AvatarAnimManager emote) {
         // no-op
+    }
+
+    @Override
+    public Map<String, PlayerAnimBone> pal$getCurrentBoneStates() {
+        return PlayerAnimBone.bonesToMap(this.pal$bone);
     }
 }

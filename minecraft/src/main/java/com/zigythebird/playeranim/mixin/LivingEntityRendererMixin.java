@@ -26,6 +26,7 @@ package com.zigythebird.playeranim.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
+import com.zigythebird.playeranim.accessors.IAnimatedByPAL;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.animation.MinecraftCustomBone;
@@ -38,6 +39,7 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -45,13 +47,25 @@ import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+import java.util.Map;
+
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>> extends EntityRenderer<T, S> {
+    @Shadow
+    @Final
+    public List<RenderLayer<S, M>> layers;
+
+    @Shadow
+    protected M model;
+
     protected LivingEntityRendererMixin(EntityRendererProvider.Context context) {
         super(context);
     }
@@ -101,7 +115,13 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
         poseStack.translate(0, 1.501F, 0);
         poseStack.scale(-1, -1, -1);
 
-        animationPlayer.collectModels(bone -> {
+        Map<String, PlayerAnimBone> currentBoneStates = ((IAnimatedByPAL)this.model).pal$getCurrentBoneStates();
+        for (RenderLayer layer : this.layers) {
+            if (layer instanceof IAnimatedByPAL animatedByPAL)
+                currentBoneStates.putAll(animatedByPAL.pal$getCurrentBoneStates());
+        }
+
+        animationPlayer.collectModels(currentBoneStates, bone -> {
             if (!(bone instanceof MinecraftCustomBone mcBone) || !mcBone.hasModel()) return;
 
             QuadCollection bakedPart = mcBone.getGeometry();
