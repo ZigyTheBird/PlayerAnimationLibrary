@@ -29,7 +29,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zigythebird.playeranim.accessors.IAvatarAnimationState;
 import com.zigythebird.playeranim.accessors.IBoneUpdater;
-import com.zigythebird.playeranim.accessors.IAnimatedByPAL;
 import com.zigythebird.playeranim.animation.AvatarAnimManager;
 import com.zigythebird.playeranim.util.RenderUtil;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
@@ -47,11 +46,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Map;
 import java.util.function.Function;
 
 @Mixin(value = PlayerModel.class, priority = 2001)//Apply after NotEnoughAnimation's inject
-public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> implements IBoneUpdater, IAnimatedByPAL {
+public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> implements IBoneUpdater {
     @Unique
     private final PlayerAnimBone pal$head = new PlayerAnimBone("head");
     @Unique
@@ -129,10 +127,5 @@ public class PlayerModelMixin extends HumanoidModel<AvatarRenderState> implement
     @Override
     public void pal$resetAll(@Nullable AvatarAnimManager emote) {
         // no-op
-    }
-
-    @Override
-    public Map<String, PlayerAnimBone> pal$getCurrentBoneStates() {
-        return PlayerAnimBone.bonesToMap(pal$head, pal$torso, pal$rightArm, pal$leftArm, pal$rightLeg, pal$leftLeg);
     }
 }

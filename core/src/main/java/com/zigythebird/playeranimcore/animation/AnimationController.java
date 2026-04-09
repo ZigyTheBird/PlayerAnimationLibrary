@@ -626,9 +626,8 @@ public abstract class AnimationController implements IAnimation {
 		for (PlayerAnimBone bone : this.bones.values()) {
 			processBoneHierarchy(bone, parentsMap, processedBones);
 		}
-		for (CustomBone bone : this.pivotBones.values()) {
-			if (!bone.hasModelData())
-				processBoneHierarchy(bone, parentsMap, processedBones);
+		for (PlayerAnimBone bone : this.pivotBones.values()) {
+			processBoneHierarchy(bone, parentsMap, processedBones);
 		}
 	}
 
@@ -651,42 +650,39 @@ public abstract class AnimationController implements IAnimation {
 
 		processBoneHierarchy(parent, parentsMap, processedBones);
 
-		if (bone instanceof CustomBone customBone && customBone.hasModelData()) return;
+		// Model bones whose parent is a controller bone need careful handling so they look right
+		// in two distinct cases:
+		//   1. The parent is NOT touched by the current animation -> the model bone should follow
+		//      the host's vanilla animation (e.g. arm swing while walking). Use the host's bone state.
+		//   2. The parent IS animated by the current animation -> the model bone should follow our
+		//      override cleanly, without leaking vanilla state from the host. Use the controller's
+		//      own bone state (lerped through get3DTransformRaw to keep begin/end tick transitions).
+		PlayerAnimBone effectiveParent = parent;
+		if (bone instanceof CustomBone customBone && customBone.hasModelData()
+				&& this.bones.containsKey(parentName)) {
+			if (this.activeBones.containsKey(parentName)) {
+				effectiveParent = new PlayerAnimBone(parentName);
+				get3DTransformRaw(effectiveParent);
+			} else {
+				PlayerAnimBone hostParent = getHostBoneStates().get(parentName);
+				if (hostParent != null) effectiveParent = hostParent;
+			}
+		}
 
 		this.activeBones.put(boneName, bone);
-		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(parent), this::getBonePosition);
+		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(effectiveParent), this::getBonePosition);
 
 		processedBones.add(boneName);
 	}
 
-	private void processModelBoneHierarchy(PlayerAnimBone bone, Map<String, PlayerAnimBone> currentBoneStates, Map<String, String> parentsMap, Set<String> processedBones) {
-		String boneName = bone.getName();
-		if (processedBones.contains(boneName)) return;
-
-		String parentName = parentsMap.get(boneName);
-		if (parentName == null) {
-			processedBones.add(boneName);
-			return;
-		}
-
-		PlayerAnimBone parent = this.pivotBones.get(parentName);
-		if (parent == null) {
-			parent = currentBoneStates.get(parentName);
-		}
-		if (parent == null) {
-			parent = this.bones.get(parentName);
-		}
-		if (parent == null) {
-			PlayerAnimLib.LOGGER.error("Parent {} not found for {}", parentName, boneName);
-			return;
-		}
-
-		processBoneHierarchy(parent, parentsMap, processedBones);
-
-		this.activeBones.put(boneName, bone);
-		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(parent), this::getBonePosition);
-
-		processedBones.add(boneName);
+	/**
+	 * Provides post-host (e.g. post-vanilla MC + animation + lerp) bone states keyed by name.
+	 * Used to correctly compute parent matrices for model bones that should inherit the host's
+	 * own bone transforms. The default implementation returns an empty map; subclasses tied to
+	 * a host model (e.g. the player) should override this to expose those states.
+	 */
+	protected Map<String, PlayerAnimBone> getHostBoneStates() {
+		return Collections.emptyMap();
 	}
 
 	protected  <T extends KeyFrameData> void handleCustomKeyframe(T[] keyframes, @Nullable CustomKeyFrameEvents.CustomKeyFrameHandler<T> main, CustomKeyFrameEvents.CustomKeyFrameHandler<T> event, float animationTick, AnimationData animationData) {
@@ -795,14 +791,7 @@ public abstract class AnimationController implements IAnimation {
 	}
 
 	@Override
-	public void collectModels(Map<String, PlayerAnimBone> currentBoneStates, Consumer<CustomBone> consumer) {
-		if (this.currentAnimation != null) {
-			Set<String> processedBones = new HashSet<>();
-			Map<String, String> parents = this.currentAnimation.animation().parents();
-			for (CustomBone customBone : this.pivotBones.values()) {
-				processModelBoneHierarchy(customBone, currentBoneStates, parents, processedBones);
-			}
-		}
+	public void collectModels(Consumer<CustomBone> consumer) {
 		for (CustomBone customBone : this.pivotBones.values()) {
 			if (!customBone.hasModelData()) continue;
 			consumer.accept(customBone);

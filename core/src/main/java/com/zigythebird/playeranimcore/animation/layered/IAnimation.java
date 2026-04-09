@@ -31,7 +31,6 @@ import com.zigythebird.playeranimcore.bones.CustomBone;
 import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 public interface IAnimation {
@@ -93,5 +92,5 @@ public interface IAnimation {
         return false;
     }
 
-    default void collectModels(Map<String, PlayerAnimBone> currentBoneStates, Consumer<CustomBone> consumer) {}
+    default void collectModels(Consumer<CustomBone> consumer) {}
 }
