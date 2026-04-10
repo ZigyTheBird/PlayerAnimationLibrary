@@ -650,10 +650,26 @@ public abstract class AnimationController implements IAnimation {
 
 		processBoneHierarchy(parent, parentsMap, processedBones);
 
+		PlayerAnimBone effectiveParent = parent;
+		if (bone instanceof CustomBone) {
+			PlayerAnimBone hostParent = getHostBoneStates().get(parentName);
+			if (hostParent != null) effectiveParent = hostParent;
+		}
+
 		this.activeBones.put(boneName, bone);
-		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(parent), this::getBonePosition);
+		MatrixUtil.applyParentsToChild(bone, Collections.singletonList(effectiveParent), this::getBonePosition);
 
 		processedBones.add(boneName);
+	}
+
+	/**
+	 * Provides post-host (e.g. post-vanilla MC + animation + lerp) bone states keyed by name.
+	 * Used to correctly compute parent matrices for model bones that should inherit the host's
+	 * own bone transforms. The default implementation returns an empty map; subclasses tied to
+	 * a host model (e.g. the player) should override this to expose those states.
+	 */
+	protected Map<String, PlayerAnimBone> getHostBoneStates() {
+		return Collections.emptyMap();
 	}
 
 	protected  <T extends KeyFrameData> void handleCustomKeyframe(T[] keyframes, @Nullable CustomKeyFrameEvents.CustomKeyFrameHandler<T> main, CustomKeyFrameEvents.CustomKeyFrameHandler<T> event, float animationTick, AnimationData animationData) {
