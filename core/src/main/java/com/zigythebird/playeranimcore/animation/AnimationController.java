@@ -650,23 +650,10 @@ public abstract class AnimationController implements IAnimation {
 
 		processBoneHierarchy(parent, parentsMap, processedBones);
 
-		// Model bones whose parent is a controller bone need careful handling so they look right
-		// in two distinct cases:
-		//   1. The parent is NOT touched by the current animation -> the model bone should follow
-		//      the host's vanilla animation (e.g. arm swing while walking). Use the host's bone state.
-		//   2. The parent IS animated by the current animation -> the model bone should follow our
-		//      override cleanly, without leaking vanilla state from the host. Use the controller's
-		//      own bone state (lerped through get3DTransformRaw to keep begin/end tick transitions).
 		PlayerAnimBone effectiveParent = parent;
-		if (bone instanceof CustomBone customBone && customBone.hasModelData()
-				&& this.bones.containsKey(parentName)) {
-			if (this.activeBones.containsKey(parentName)) {
-				effectiveParent = new PlayerAnimBone(parentName);
-				get3DTransformRaw(effectiveParent);
-			} else {
-				PlayerAnimBone hostParent = getHostBoneStates().get(parentName);
-				if (hostParent != null) effectiveParent = hostParent;
-			}
+		if (bone instanceof CustomBone) {
+			PlayerAnimBone hostParent = getHostBoneStates().get(parentName);
+			if (hostParent != null) effectiveParent = hostParent;
 		}
 
 		this.activeBones.put(boneName, bone);
