@@ -30,7 +30,6 @@ import com.zigythebird.playeranimcore.util.MatrixUtil;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import team.unnamed.mocha.MochaEngine;
-import team.unnamed.mocha.runtime.standard.MochaMath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +62,6 @@ public class HumanoidAnimationController extends AnimationController {
     protected List<String> top_bones;
 
     private float torsoBend;
-    private float torsoBendYPosMultiplier;
-    private float torsoBendZPosMultiplier;
     private int torsoBendSign;
 
     /**
@@ -117,8 +114,6 @@ public class HumanoidAnimationController extends AnimationController {
         float absBend = Math.abs(this.torsoBend);
         if (absBend > 0.001 && (this.currentAnimation != null && this.currentAnimation.animation().data().getNullable(ExtraAnimationData.APPLY_BEND_TO_OTHER_BONES_KEY) == Boolean.TRUE)) {
             this.torsoBendSign = (int) Math.signum(this.torsoBend);
-            this.torsoBendYPosMultiplier = (float) -(1 - Math.cos(absBend));
-            this.torsoBendZPosMultiplier = (float) (1 - Math.sin(absBend));
         } else this.torsoBendSign = 0;
     }
 
@@ -128,9 +123,9 @@ public class HumanoidAnimationController extends AnimationController {
         String name = bone.getName();
         if (this.torsoBendSign != 0 && this.top_bones.contains(name)) {
             Matrix4f matrix4f = new Matrix4f();
-            matrix4f.translate(0, 16, 0);
+            matrix4f.translate(0, 18, 0);
             matrix4f.rotateX(this.torsoBend);
-            matrix4f.translate(0, -16, 0);
+            matrix4f.translate(0, -18, 0);
             MatrixUtil.applyMatrixToBone(bone, matrix4f, getBonePosition(name));
         }
         return bone;
